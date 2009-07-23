@@ -96,6 +96,22 @@ var Crypto = {
 			for (var b = 0; b < words.length * 32; b += 8)
 				str.push(String.fromCharCode((words[b >>> 5] >>> (24 - b % 32)) & 0xFF));
 			return str.join("");
+		},
+
+		// Convert a byte array to big-endian 32-bits words
+		bytes_words: function (bytes) {
+			var words = [];
+			for (var i = 0, b = 0; i < bytes.length; i++, b += 8)
+				words[b >>> 5] |= bytes[i] << (24 - b % 32);
+			return words;
+		},
+
+		// Convert big-endian 32-bit words to a byte array
+		words_bytes: function (words) {
+			var bytes = [];
+			for (var b = 0; b < words.length * 32; b += 8)
+				bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+			return bytes;
 		}
 
 	}
