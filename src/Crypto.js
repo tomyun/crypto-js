@@ -27,7 +27,7 @@ util: {
 	// Unsigned 32-bit multiplication
 	mult: function (m, n) {
 		return this.add((n & 0xFFFF0000) * m,
-				(n & 0x0000FFFF) * m);
+		                (n & 0x0000FFFF) * m);
 	},
 
 	// Unsigned 32-bit greater than (>) comparison
