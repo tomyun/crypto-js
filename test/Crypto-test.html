@@ -51,6 +51,14 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual(Crypto.util.Mult(4294967295, 4294967295), 1);
 		Assert.areEqual(Crypto.util.Mult(2147483648, 2147483648), 0);
 		Assert.areEqual(Crypto.util.Mult(2863311530, 2863311530), 3817748708);
+	},
+
+	test_gt: function(){
+		Assert.isTrue(Crypto.util.gt(-1, 1));
+	},
+
+	test_lt: function(){
+		Assert.isTrue(Crypto.util.lt(1, -1));
 	}
 
 })

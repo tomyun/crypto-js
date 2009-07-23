@@ -28,6 +28,15 @@ var Crypto = {
 		Mult: function (m, n) {
 			return this.Add((n & 0xFFFF0000) * m,
 			                (n & 0x0000FFFF) * m);
+		},
+
+		// Unsigned 32-bit greater than (>) comparison.
+		gt: function (m, n) {
+			return this.u32(m) > this.u32(n);
+		},
+
+		lt: function (m, n) {
+			return this.u32(m) < this.u32(n);
 		}
 
 	}
