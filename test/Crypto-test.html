@@ -29,7 +29,7 @@ var Assert = YAHOO.util.Assert;
 YAHOO.tool.TestRunner.add(
 new YAHOO.tool.TestCase({
 
-	testU32: function(){
+	test_u32: function(){
 		Assert.areEqual(Crypto.util.u32(2147483647), 2147483647);
 		Assert.areEqual(Crypto.util.u32(2147483646), 2147483646);
 		Assert.areEqual(Crypto.util.u32(2), 2);
@@ -41,16 +41,16 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual(Crypto.util.u32(-2147483648), 2147483648);
 	},
 
-	testAdd: function(){
-		Assert.areEqual(Crypto.util.Add(4294967295, 1), 0);
-		Assert.areEqual(Crypto.util.Add(2147483647, 1), 2147483648);
-		Assert.areEqual(Crypto.util.Add(4294967295, 2147483647, 1), 2147483647);
+	test_add: function(){
+		Assert.areEqual(Crypto.util.add(4294967295, 1), 0);
+		Assert.areEqual(Crypto.util.add(2147483647, 1), 2147483648);
+		Assert.areEqual(Crypto.util.add(4294967295, 2147483647, 1), 2147483647);
 	},
 
-	testMult: function(){
-		Assert.areEqual(Crypto.util.Mult(4294967295, 4294967295), 1);
-		Assert.areEqual(Crypto.util.Mult(2147483648, 2147483648), 0);
-		Assert.areEqual(Crypto.util.Mult(2863311530, 2863311530), 3817748708);
+	test_mult: function(){
+		Assert.areEqual(Crypto.util.mult(4294967295, 4294967295), 1);
+		Assert.areEqual(Crypto.util.mult(2147483648, 2147483648), 0);
+		Assert.areEqual(Crypto.util.mult(2863311530, 2863311530), 3817748708);
 	},
 
 	test_gt: function(){

@@ -7,7 +7,7 @@ var Crypto = {
 		},
 
 		// Unsigned 32-bit addition
-		Add: function (m, n) {
+		add: function (m, n) {
 
 			// Shortcut
 			var u32 = this.u32;
@@ -19,14 +19,14 @@ var Crypto = {
 			// Else, add any number of arguments
 			var result = arguments[0];
 			for (var i = 1; i < arguments.length; i++)
-				result = this.Add(result, arguments[i]);
+				result = this.add(result, arguments[i]);
 			return result;
 
 		},
 
 		// Unsigned 32-bit multiplication
-		Mult: function (m, n) {
-			return this.Add((n & 0xFFFF0000) * m,
+		mult: function (m, n) {
+			return this.add((n & 0xFFFF0000) * m,
 			                (n & 0x0000FFFF) * m);
 		},
 
