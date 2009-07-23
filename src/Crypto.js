@@ -64,6 +64,22 @@ var Crypto = {
 				n[i] = this.endian(n[i]);
 			return n;
 
+		},
+
+		// Convert a string to a byte array
+		string_bytes: function (str) {
+			var bytes = [];
+			for (var i = 0; i < str.length; i++)
+				bytes.push(str.charCodeAt(i));
+			return bytes;
+		},
+
+		// Convert a byte array to a string
+		bytes_string: function (bytes) {
+			var str = [];
+			for (var i = 0; i < bytes.length; i++)
+				str.push(String.fromCharCode(bytes[i]));
+			return str.join("");
 		}
 
 	}
