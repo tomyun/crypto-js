@@ -30,13 +30,24 @@ var Crypto = {
 			                (n & 0x0000FFFF) * m);
 		},
 
-		// Unsigned 32-bit greater than (>) comparison.
+		// Unsigned 32-bit greater than (>) comparison
 		gt: function (m, n) {
 			return this.u32(m) > this.u32(n);
 		},
 
+		// Unsigned 32-bit less than (<) comparison
 		lt: function (m, n) {
 			return this.u32(m) < this.u32(n);
+		},
+
+		// Bit-wise rotate left
+		rotl: function (n, b) {
+			return (n << b) | (n >>> (32 - b));
+		},
+
+		// Bit-wise rotate right
+		rotr: function (n, b) {
+			return (n << (32 - b)) | (n >>> b);
 		}
 
 	}

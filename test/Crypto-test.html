@@ -59,6 +59,14 @@ new YAHOO.tool.TestCase({
 
 	test_lt: function(){
 		Assert.isTrue(Crypto.util.lt(1, -1));
+	},
+
+	test_rotl: function(){
+		Assert.areEqual(Crypto.util.rotl(2852192000, 8), 16711850);
+	},
+
+	test_rotr: function(){
+		Assert.areEqual(Crypto.util.rotr(2852192000, 8), 11141375);
 	}
 
 })
