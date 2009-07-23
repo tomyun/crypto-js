@@ -70,7 +70,8 @@ new YAHOO.tool.TestCase({
 	},
 
 	test_endian: function(){
-		Assert.areEqual(Crypto.util.endian(2160124144), 4041261184|0)
+		Assert.areEqual(Crypto.util.endian(2160124144), 4041261184|0);
+		Assert.areEqual(Crypto.util.endian(Crypto.util.endian(2160124144)), 2160124144|0);
 	}
 
 })
