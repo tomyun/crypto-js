@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+
+<!-- Customizations -->
+<style type="text/css">
+	.yui-log { font-size: 13px }
+	.yui-log-container { right: auto; left: 1em }
+	.yui-log .yui-log-bd { height: 40em }
+</style>
+
+<!-- YUI JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+
+<!-- Test cases -->
+<script type="text/javascript">
+
+// Shortcut
+var Assert = YAHOO.util.Assert;
+
+YAHOO.tool.TestRunner.add(new YAHOO.tool.TestCase({
+
+	testU32: function () {
+		Assert.areEqual(Crypto.util.u32(2147483647), 2147483647);
+		Assert.areEqual(Crypto.util.u32(2147483646), 2147483646);
+		Assert.areEqual(Crypto.util.u32(2), 2);
+		Assert.areEqual(Crypto.util.u32(1), 1);
+		Assert.areEqual(Crypto.util.u32(0), 0);
+		Assert.areEqual(Crypto.util.u32(-1), 4294967295);
+		Assert.areEqual(Crypto.util.u32(-2), 4294967294);
+		Assert.areEqual(Crypto.util.u32(-2147483647), 2147483649);
+		Assert.areEqual(Crypto.util.u32(-2147483648), 2147483648);
+	},
+
+	testAdd: function () {
+		Assert.areEqual(Crypto.util.Add(4294967295, 1), 0);
+		Assert.areEqual(Crypto.util.Add(2147483647, 1), 2147483648);
+		Assert.areEqual(Crypto.util.Add(4294967295, 2147483647, 1), 2147483647);
+	},
+
+	testMult: function () {
+		Assert.areEqual(Crypto.util.Mult(4294967295, 4294967295), 1);
+		Assert.areEqual(Crypto.util.Mult(2147483648, 2147483648), 0);
+		Assert.areEqual(Crypto.util.Mult(2863311530, 2863311530), 3817748708);
+	}
+
+}));
+
+YAHOO.util.Event.onDOMReady(function(){
+
+	// Display results from the TestRunner
+	var logger = new YAHOO.tool.TestLogger();
+
+	// Hide info category
+	logger.hideCategory("info");
+
+	// Run all tests
+	YAHOO.tool.TestRunner.run();
+
+});
+
+</script>
+
+</head>
+<body>
+</body>
