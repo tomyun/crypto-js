@@ -82,6 +82,16 @@ new YAHOO.tool.TestCase({
 	test_bytes_string: function(){
 		Assert.areEqual(Crypto.util.bytes_string([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]),
 		                "Hello, World!");
+	},
+
+	test_string_words: function(){
+		Assert.areEqual(Crypto.util.string_words("Hello, World!").toString(),
+		                [0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString());
+	},
+
+	test_words_string: function(){
+		Assert.areEqual(Crypto.util.words_string([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]),
+		                "Hello, World!\0\0\0");
 	}
 
 })

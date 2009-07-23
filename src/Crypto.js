@@ -80,6 +80,22 @@ var Crypto = {
 			for (var i = 0; i < bytes.length; i++)
 				str.push(String.fromCharCode(bytes[i]));
 			return str.join("");
+		},
+
+		// Convert a string to big-endian 32-bit words
+		string_words: function (str) {
+			var words = [];
+			for (var c = 0, b = 0; c < str.length; c++, b += 8)
+				words[b >>> 5] |= str.charCodeAt(c) << (24 - b % 32);
+			return words;
+		},
+
+		// Convert big-endian 32-bit words to a string
+		words_string: function (words) {
+			var str = [];
+			for (var b = 0; b < words.length * 32; b += 8)
+				str.push(String.fromCharCode((words[b >>> 5] >>> (24 - b % 32)) & 0xFF));
+			return str.join("");
 		}
 
 	}
