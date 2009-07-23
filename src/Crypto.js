@@ -48,6 +48,22 @@ var Crypto = {
 		// Bit-wise rotate right
 		rotr: function (n, b) {
 			return (n << (32 - b)) | (n >>> b);
+		},
+
+		// Swap big-endian to little-endian and vice versa
+		endian: function (n) {
+
+			// If number given, swap endian
+			if (n.constructor == Number) {
+				return this.rotl(n,  8) & 0x00FF00FF |
+				       this.rotl(n, 24) & 0xFF00FF00;
+			}
+
+			// Else, assume array and swap all items
+			for (var i = 0; i < n.length; i++)
+				n[i] = this.endian(n[i]);
+			return n;
+
 		}
 
 	}
