@@ -58,6 +58,9 @@ YAHOO.util.Event.onDOMReady(function(){
 	Crypto.util.bytes_words(bytes);
 	Crypto.util.words_bytes(words);
 
+	var hex = Crypto.util.bytes_hex(bytes);
+	Crypto.util.hex_bytes(hex);
+
 	// Get report
 	var report = YAHOO.tool.Profiler.getFullReport(function(report){
 		return report.calls > 0;

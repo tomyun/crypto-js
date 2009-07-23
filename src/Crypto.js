@@ -112,6 +112,24 @@ util: {
 		for (var b = 0; b < words.length * 32; b += 8)
 			bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
 		return bytes;
+	},
+
+	// Convert a byte array to a hex string
+	bytes_hex: function (bytes) {
+		var hex = [];
+		for (var i = 0; i < bytes.length; i++) {
+			hex.push((bytes[i] >>> 4).toString(16));
+			hex.push((bytes[i] & 0xF).toString(16));
+		}
+		return hex.join("");
+	},
+
+	// Convert a hex string to a byte array
+	hex_bytes: function (hex) {
+		var bytes = [];
+		for (var c = 0; c < hex.length; c += 2)
+			bytes.push(parseInt(hex.substr(c, 2), 16));
+		return bytes;
 	}
 
 }
