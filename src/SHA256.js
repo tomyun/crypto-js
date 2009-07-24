@@ -16,21 +16,37 @@ Crypto.SHA256 = function () {
 		return util.bytes_base64(util.words_bytes(self._SHA256(message)));
 	};
 
-	// Logical functions
-	self._Ch     = function (x, y, z) { return x & y ^ ~x & z; };
-	self._Maj    = function (x, y, z) { return x & y ^ x & z ^ y & z; };
-	self._Sigma0 = function (x) { return ((x << 30) | (x >>>  2)) ^
-	                                     ((x << 19) | (x >>> 13)) ^
-	                                     ((x << 10) | (x >>> 22)); };
-	self._Sigma1 = function (x) { return ((x << 26) | (x >>>  6)) ^
-	                                     ((x << 21) | (x >>> 11)) ^
-	                                     ((x <<  7) | (x >>> 25)); };
-	self._Gamma0 = function (x) { return ((x << 25) | (x >>>  7)) ^
-	                                     ((x << 14) | (x >>> 18)) ^
-	                                     (x >>>  3); };
-	self._Gamma1 = function (x) { return ((x << 15) | (x >>> 17)) ^
-	                                     ((x << 13) | (x >>> 19)) ^
-	                                     (x >>> 10); };
+
+	/**
+	 * Logical functions
+	 */
+
+	self._Ch  = function (x, y, z) { return x & y ^ ~x & z; };
+	self._Maj = function (x, y, z) { return x & y ^ x & z ^ y & z; };
+
+	self._Sigma0 = function (x) {
+		return ((x << 30) | (x >>>  2)) ^
+		       ((x << 19) | (x >>> 13)) ^
+		       ((x << 10) | (x >>> 22));
+	};
+
+	self._Sigma1 = function (x) {
+		return ((x << 26) | (x >>>  6)) ^
+		       ((x << 21) | (x >>> 11)) ^
+		       ((x <<  7) | (x >>> 25));
+	};
+
+	self._Gamma0 = function (x) {
+		return ((x << 25) | (x >>>  7)) ^
+		       ((x << 14) | (x >>> 18)) ^
+		       (x >>>  3);
+	};
+
+	self._Gamma1 = function (x) {
+		return ((x << 15) | (x >>> 17)) ^
+		       ((x << 13) | (x >>> 19)) ^
+		       (x >>> 10);
+	};
 
 
 	/**
