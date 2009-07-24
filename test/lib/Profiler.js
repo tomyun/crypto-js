@@ -15,9 +15,7 @@ function profile(objectNames, run) {
 				reader.verboseOutput = false;
 				reader.newestOnTop = false;
 				reader.formatMsg = function (oLogMsg) {
-					var category = oLogMsg.category;
-					return '<pre class="yui-log-entry"><p><span class="' + category + '">' +
-					       category.toUpperCase() + '</span> ' + oLogMsg.msg + '</p></pre>';
+					return '<pre class="yui-log-entry"><p>' + oLogMsg.msg + '</p></pre>';
 				};
 				reader.hideSource("global");
 				reader.hideSource("LogReader");
@@ -34,14 +32,40 @@ function profile(objectNames, run) {
 					return report.calls > 0;
 				});
 
-				// Display profiler results
+				// Create total time spent property
 				for (var func in report) {
-					logger.log(func + "(): " +
-					           "Called " + report[func].calls + " times. " +
-					           "Avg: "   + report[func].avg   + "ms, " +
-					           "Min: "   + report[func].min   + "ms, " +
-					           "Max: "   + report[func].max   + "ms");
+					report[func].total = report[func].points[0];
+					for (var i = 1; i < report[func].points.length; i++)
+						report[func].total += report[func].points[i]
 				}
+
+				// Change report to an array of reports
+				var reports = [];
+				for (var func in report) {
+					report[func].name = func;
+					reports.push(report[func]);
+				}
+
+				// Sort by total time
+				reports.sort(function(a, b){ return b.total - a.total; });
+
+				// Display profiler results
+				for (var i = 0; i < reports.length; i++) {
+					logger.log(
+						"<span class='info'>" + reports[i].total + "ms</span> " +
+						reports[i].name + "(): " +
+						"Called " + reports[i].calls + " times. " +
+						"Avg: "   + reports[i].avg   + "ms, " +
+						"Min: "   + reports[i].min   + "ms, " +
+						"Max: "   + reports[i].max   + "ms"
+					);
+				}
+
+				// Display total execution time
+				var total = reports[0].total;
+				for (var i = 1; i < reports.length; i++)
+					total += reports[i].total;
+				logger.log("<span class='time'>" + total + "ms</span> Total");
 
 			});
 		}
