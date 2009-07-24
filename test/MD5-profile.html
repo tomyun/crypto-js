@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- YUI CSS -->
+<link type="text/css" rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/skins/sam/logger.css">
+
+<!-- Customizations -->
+<style type="text/css">
+	.yui-skin-sam .yui-log { font-size: 13px }
+	.yui-skin-sam .yui-log-container { right: auto; left: 1em; width: 50em }
+	.yui-skin-sam .yui-log .yui-log-bd { height: 40em }
+	.yui-skin-sam .yui-log pre:hover { background-color: rgb(235,245,255); cursor: default }
+</style>
+
+<!-- YUI JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/profiler/profiler-min.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/MD5.js"></script>
+
+<!-- Profiling -->
+<script type="text/javascript">
+
+YAHOO.util.Event.onDOMReady(function(){
+
+	// Define logger source
+	var logger = new YAHOO.widget.LogWriter("MD5");
+
+	// Create log console
+	var reader = new YAHOO.widget.LogReader();
+
+	// Customize console
+	reader.verboseOutput = false;
+	reader.newestOnTop = false;
+	reader.formatMsg = function (oLogMsg) {
+		var category = oLogMsg.category;
+		return '<pre class="yui-log-entry"><p><span class="' + category + '">' +
+		       category.toUpperCase() + '</span> ' + oLogMsg.msg + '</p></pre>';
+	};
+	reader.hideSource("global");
+	reader.hideSource("LogReader");
+
+	// Register object to profile
+	YAHOO.tool.Profiler.registerObject("Crypto.MD5");
+	YAHOO.tool.Profiler.registerObject("Crypto.util");
+
+	// Run methods
+	Crypto.MD5("Lorem ipsum dolor sit amet.");
+
+	// Get report
+	var report = YAHOO.tool.Profiler.getFullReport(function(report){
+		return report.calls > 0;
+	});
+
+	// Display profiler results
+	for (var func in report) {
+		logger.log(func + "(): " +
+		           "Called " + report[func].calls + " times. " +
+		           "Avg: "   + report[func].avg   + "ms, " +
+		           "Min: "   + report[func].min   + "ms, " +
+		           "Max: "   + report[func].max)  + "ms";
+	}
+
+});
+
+</script>
+
+</head>
+<body class="yui-skin-sam">
+</body>

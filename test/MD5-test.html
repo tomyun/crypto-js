@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+
+<!-- Customizations -->
+<style type="text/css">
+	.yui-log { font-size: 13px }
+	.yui-log-container { right: auto; left: 1em }
+	.yui-log .yui-log-bd { height: 40em }
+</style>
+
+<!-- YUI JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/MD5.js"></script>
+
+<!-- Test cases -->
+<script type="text/javascript">
+
+// Shortcut
+var Assert = YAHOO.util.Assert;
+
+YAHOO.tool.TestRunner.add(
+new YAHOO.tool.TestCase({
+
+	test_MD5: function () {
+		Assert.areEqual("d41d8cd98f00b204e9800998ecf8427e", Crypto.MD5(""));
+		Assert.areEqual("0cc175b9c0f1b6a831c399e269772661", Crypto.MD5("a"));
+		Assert.areEqual("900150983cd24fb0d6963f7d28e17f72", Crypto.MD5("abc"));
+		Assert.areEqual("f96b697d7cb7938d525a2f31aaf161d0", Crypto.MD5("message digest"));
+		Assert.areEqual("c3fcd3d76192e4007dfb496cca67e13b", Crypto.MD5("abcdefghijklmnopqrstuvwxyz"));
+		Assert.areEqual("d174ab98d277d9f5a5611c2c9f419d9f", Crypto.MD5("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"));
+		Assert.areEqual("57edf4a22be3c955ac49da2e2107b67a", Crypto.MD5("12345678901234567890123456789012345678901234567890123456789012345678901234567890"));
+	}
+
+})
+);
+
+YAHOO.util.Event.onDOMReady(function(){
+
+	// Display results from the TestRunner
+	var logger = new YAHOO.tool.TestLogger();
+
+	// Hide info category
+	logger.hideCategory("info");
+
+	// Run all tests
+	YAHOO.tool.TestRunner.run();
+
+});
+
+</script>
+
+</head>
+<body>
+</body>
