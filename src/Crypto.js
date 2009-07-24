@@ -16,14 +16,10 @@ var Crypto = function () {
 				// Shortcut
 				var u32 = this.u32;
 
-				// If only two numbers given, add them
-				if (arguments.length == 2)
-					return u32(u32(m) + u32(n));
-
-				// Else, add any number of arguments
-				var result = arguments[0];
+				// Add any number of arguments
+				var result = u32(arguments[0]);
 				for (var i = 1; i < arguments.length; i++)
-					result = this.add(result, arguments[i]);
+					result = u32(result + u32(arguments[i]));
 				return result;
 
 			},
