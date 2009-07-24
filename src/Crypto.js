@@ -13,13 +13,10 @@ var Crypto = function () {
 			// Unsigned 32-bit addition
 			add: function (m, n) {
 
-				// Shortcut
-				var u32 = this.u32;
-
 				// Add any number of arguments
-				var result = u32(arguments[0]);
+				var result = this.u32(arguments[0]);
 				for (var i = 1; i < arguments.length; i++)
-					result = u32(result + u32(arguments[i]));
+					result = this.u32(result + this.u32(arguments[i]));
 				return result;
 
 			},
