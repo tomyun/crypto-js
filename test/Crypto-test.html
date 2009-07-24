@@ -30,27 +30,27 @@ YAHOO.tool.TestRunner.add(
 new YAHOO.tool.TestCase({
 
 	test_u32: function(){
-		Assert.areEqual(Crypto.util.u32(2147483647), 2147483647);
-		Assert.areEqual(Crypto.util.u32(2147483646), 2147483646);
-		Assert.areEqual(Crypto.util.u32(2), 2);
-		Assert.areEqual(Crypto.util.u32(1), 1);
-		Assert.areEqual(Crypto.util.u32(0), 0);
-		Assert.areEqual(Crypto.util.u32(-1), 4294967295);
-		Assert.areEqual(Crypto.util.u32(-2), 4294967294);
-		Assert.areEqual(Crypto.util.u32(-2147483647), 2147483649);
-		Assert.areEqual(Crypto.util.u32(-2147483648), 2147483648);
+		Assert.areEqual(2147483647, Crypto.util.u32(2147483647));
+		Assert.areEqual(2147483646, Crypto.util.u32(2147483646));
+		Assert.areEqual(2, Crypto.util.u32(2));
+		Assert.areEqual(1, Crypto.util.u32(1));
+		Assert.areEqual(0, Crypto.util.u32(0));
+		Assert.areEqual(4294967295, Crypto.util.u32(-1));
+		Assert.areEqual(4294967294, Crypto.util.u32(-2));
+		Assert.areEqual(2147483649, Crypto.util.u32(-2147483647));
+		Assert.areEqual(2147483648, Crypto.util.u32(-2147483648));
 	},
 
 	test_add: function(){
-		Assert.areEqual(Crypto.util.add(4294967295, 1), 0);
-		Assert.areEqual(Crypto.util.add(2147483647, 1), 2147483648);
-		Assert.areEqual(Crypto.util.add(4294967295, 2147483647, 1), 2147483647);
+		Assert.areEqual(0, Crypto.util.add(4294967295, 1));
+		Assert.areEqual(2147483648, Crypto.util.add(2147483647, 1));
+		Assert.areEqual(2147483647, Crypto.util.add(4294967295, 2147483647, 1));
 	},
 
 	test_mult: function(){
-		Assert.areEqual(Crypto.util.mult(4294967295, 4294967295), 1);
-		Assert.areEqual(Crypto.util.mult(2147483648, 2147483648), 0);
-		Assert.areEqual(Crypto.util.mult(2863311530, 2863311530), 3817748708);
+		Assert.areEqual(1, Crypto.util.mult(4294967295, 4294967295));
+		Assert.areEqual(0, Crypto.util.mult(2147483648, 2147483648));
+		Assert.areEqual(3817748708, Crypto.util.mult(2863311530, 2863311530));
 	},
 
 	test_gt: function(){
@@ -62,56 +62,48 @@ new YAHOO.tool.TestCase({
 	},
 
 	test_rotl: function(){
-		Assert.areEqual(Crypto.util.rotl(2852192000, 8), 16711850);
+		Assert.areEqual(16711850, Crypto.util.rotl(2852192000, 8));
 	},
 
 	test_rotr: function(){
-		Assert.areEqual(Crypto.util.rotr(2852192000, 8), 11141375);
+		Assert.areEqual(11141375, Crypto.util.rotr(2852192000, 8));
 	},
 
 	test_endian: function(){
-		Assert.areEqual(Crypto.util.endian(2160124144), 4041261184|0);
-		Assert.areEqual(Crypto.util.endian(Crypto.util.endian(2160124144)), 2160124144|0);
+		Assert.areEqual(4041261184|0, Crypto.util.endian(2160124144));
+		Assert.areEqual(2160124144|0, Crypto.util.endian(Crypto.util.endian(2160124144)));
 	},
 
 	test_string_bytes: function(){
-		Assert.areEqual(Crypto.util.string_bytes("Hello, World!").toString(),
-		                [0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString());
+		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString(), Crypto.util.string_bytes("Hello, World!").toString());
 	},
 
 	test_bytes_string: function(){
-		Assert.areEqual(Crypto.util.bytes_string([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]),
-		                "Hello, World!");
+		Assert.areEqual("Hello, World!", Crypto.util.bytes_string([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]));
 	},
 
 	test_string_words: function(){
-		Assert.areEqual(Crypto.util.string_words("Hello, World!").toString(),
-		                [0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString());
+		Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.string_words("Hello, World!").toString());
 	},
 
 	test_words_string: function(){
-		Assert.areEqual(Crypto.util.words_string([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]),
-		                "Hello, World!\0\0\0");
+		Assert.areEqual("Hello, World!\0\0\0", Crypto.util.words_string([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]));
 	},
 
 	test_bytes_words: function(){
-		Assert.areEqual(Crypto.util.bytes_words([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]).toString(),
-		                [0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString());
+		Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.bytes_words([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]).toString());
 	},
 
 	test_words_bytes: function(){
-		Assert.areEqual(Crypto.util.words_bytes([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]).toString(),
-		                [0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x00, 0x00, 0x00].toString());
+		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x00, 0x00, 0x00].toString(), Crypto.util.words_bytes([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]).toString());
 	},
 
 	test_bytes_hex: function(){
-		Assert.areEqual(Crypto.util.bytes_hex([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]),
-		                "48656c6c6f2c20576f726c6421")
+		Assert.areEqual("48656c6c6f2c20576f726c6421", Crypto.util.bytes_hex([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]))
 	},
 
 	test_hex_bytes: function(){
-		Assert.areEqual(Crypto.util.hex_bytes("48656c6c6f2c20576f726c6421"),
-		                [0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString());
+		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString(), Crypto.util.hex_bytes("48656c6c6f2c20576f726c6421"));
 	},
 
 	test_bytes_base64: function(){
