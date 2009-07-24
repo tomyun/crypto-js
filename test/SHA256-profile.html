@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- Profiler -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuiloader-dom-event/yuiloader-dom-event.js"></script>
+<script type="text/javascript" src="lib/Profiler.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/SHA256.js"></script>
+
+<!-- Profiling -->
+<script type="text/javascript">
+
+profile(["Crypto.SHA256", "Crypto.util"], function(){
+	Crypto.SHA256("Lorem ipsum dolor sit amet.");
+});
+
+</script>
+
+</head>
+<body class="yui-skin-sam">
+</body>
