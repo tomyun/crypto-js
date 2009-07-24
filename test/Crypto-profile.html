@@ -61,6 +61,9 @@ YAHOO.util.Event.onDOMReady(function(){
 	var hex = Crypto.util.bytes_hex(bytes);
 	Crypto.util.hex_bytes(hex);
 
+	var base64 = Crypto.util.bytes_base64(bytes);
+	Crypto.util.base64_bytes(base64);
+
 	// Get report
 	var report = YAHOO.tool.Profiler.getFullReport(function(report){
 		return report.calls > 0;
@@ -69,10 +72,10 @@ YAHOO.util.Event.onDOMReady(function(){
 	// Display profiler results
 	for (var func in report) {
 		logger.log(func + "(): " +
-			   "Called " + report[func].calls + " times. " +
-			   "Avg: "   + report[func].avg   + "ms, " +
-			   "Min: "   + report[func].min   + "ms, " +
-			   "Max: "   + report[func].max)  + "ms";
+		           "Called " + report[func].calls + " times. " +
+		           "Avg: "   + report[func].avg   + "ms, " +
+		           "Min: "   + report[func].min   + "ms, " +
+		           "Max: "   + report[func].max)  + "ms";
 	}
 
 });
