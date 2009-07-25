@@ -21,7 +21,10 @@ Crypto.MD5 = function () {
 	self._GG  = function (a, b, c, d, x, s, t) { return this._cmn(b & d | c & ~d, a, b, x, s, t); };
 	self._HH  = function (a, b, c, d, x, s, t) { return this._cmn(b ^ c ^ d, a, b, x, s, t); };
 	self._II  = function (a, b, c, d, x, s, t) { return this._cmn(c ^ (b | ~d), a, b, x, s, t); };
-	self._cmn = function (q, a, b, x, s, t)    { return util.rotl((a >>> 0) + (q >>> 0) + (x >>> 0) + (t >>> 0), s) + (b >>> 0); };
+	self._cmn = function (q, a, b, x, s, t) {
+		var n = (a >>> 0) + (q >>> 0) + (x >>> 0) + (t >>> 0);
+		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+	};
 
 	// The core
 	self._MD5 = function (message) {
