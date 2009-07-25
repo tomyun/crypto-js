@@ -61,12 +61,6 @@ function profile(objectNames, run) {
 					);
 				}
 
-				// Display total execution time
-				var total = reports[0].total;
-				for (var i = 1; i < reports.length; i++)
-					total += reports[i].total;
-				logger.log("<span class='time'>" + total + "ms</span> Total");
-
 			});
 		}
 	});
