@@ -114,10 +114,10 @@ Crypto.MD5 = function () {
 			c = this._II(c, d, a, b, m[i+ 2], 15,  718787259);
 			b = this._II(b, c, d, a, m[i+ 9], 21, -343485551);
 
-			a = util.add(a, aa);
-			b = util.add(b, bb);
-			c = util.add(c, cc);
-			d = util.add(d, dd);
+			a += aa;
+			b += bb;
+			c += cc;
+			d += dd;
 
 		}
 
