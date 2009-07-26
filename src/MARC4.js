@@ -38,14 +38,11 @@ Crypto.MARC4 = function () {
 				S[j] ^= S[i];
 				S[i] ^= S[j];
 
-				// Pseudo-random byte
-				var b = S[(S[i] + S[j]) % 256];
-
 				// Stop here if we're still dropping keystream
 				if (k < 0) continue;
 
 				// Encrypt
-				M[k] ^= b;
+				M[k] ^= S[(S[i] + S[j]) % 256];
 
 			}
 
