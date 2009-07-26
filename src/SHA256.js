@@ -121,14 +121,14 @@ Crypto.SHA256 = function () {
 
 			}
 
-			HASH[0] = a + HASH[0];
-			HASH[1] = b + HASH[1];
-			HASH[2] = c + HASH[2];
-			HASH[3] = d + HASH[3];
-			HASH[4] = e + HASH[4];
-			HASH[5] = f + HASH[5];
-			HASH[6] = g + HASH[6];
-			HASH[7] = h + HASH[7];
+			HASH[0] += a;
+			HASH[1] += b;
+			HASH[2] += c;
+			HASH[3] += d;
+			HASH[4] += e;
+			HASH[5] += f;
+			HASH[6] += g;
+			HASH[7] += h;
 
 		}
 
