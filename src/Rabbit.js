@@ -169,10 +169,8 @@ Crypto.Rabbit = function () {
 
 			// Generate random IV, or use given IV if testing
 			if (!this.testMode) {
-				IV = [
-					Math.floor(Math.random() * 0x100000000),
-					Math.floor(Math.random() * 0x100000000)
-				];
+				IV = [ Math.floor(Math.random() * 0x100000000),
+				       Math.floor(Math.random() * 0x100000000) ];
 			}
 
 			// Encrypt
