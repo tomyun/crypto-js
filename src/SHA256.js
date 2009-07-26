@@ -18,38 +18,6 @@ Crypto.SHA256 = function () {
 
 
 	/**
-	 * Logical functions
-	 */
-
-	self._Ch  = function (x, y, z) { return x & y ^ ~x & z; };
-	self._Maj = function (x, y, z) { return x & y ^ x & z ^ y & z; };
-
-	self._Sigma0 = function (x) {
-		return ((x << 30) | (x >>>  2)) ^
-		       ((x << 19) | (x >>> 13)) ^
-		       ((x << 10) | (x >>> 22));
-	};
-
-	self._Sigma1 = function (x) {
-		return ((x << 26) | (x >>>  6)) ^
-		       ((x << 21) | (x >>> 11)) ^
-		       ((x <<  7) | (x >>> 25));
-	};
-
-	self._Gamma0 = function (x) {
-		return ((x << 25) | (x >>>  7)) ^
-		       ((x << 14) | (x >>> 18)) ^
-		       (x >>>  3);
-	};
-
-	self._Gamma1 = function (x) {
-		return ((x << 15) | (x >>> 17)) ^
-		       ((x << 13) | (x >>> 19)) ^
-		       (x >>> 10);
-	};
-
-
-	/**
 	 * The core
 	 */
 
@@ -100,15 +68,36 @@ Crypto.SHA256 = function () {
 			for (var j = 0; j < 64; j++) {
 
 				if (j < 16) W[j] = m[j + i];
-				else W[j] = (this._Gamma1(W[j - 2]) >>> 0) +
-				            (W[j - 7] >>> 0) +
-				            (this._Gamma0(W[j - 15]) >>> 0) +
-				            (W[j - 16] >>> 0);
+				else {
 
-				T1 = (h >>> 0) + (this._Sigma1(e) >>> 0) +
-				     (this._Ch(e, f, g) >>> 0) + (K[j] >>> 0) +
-				     (W[j] >>> 0);
-				T2 = (this._Sigma0(a) >>> 0) + (this._Maj(a, b, c) >>> 0);
+					var gamma0x = W[j - 15],
+					    gamma1x = W[j - 2];
+
+					var gamma0 = ((gamma0x << 25) | (gamma0x >>>  7)) ^
+					             ((gamma0x << 14) | (gamma0x >>> 18)) ^
+					              (gamma0x >>> 3),
+					    gamma1 = ((gamma1x <<  15) | (gamma1x >>> 17)) ^
+					             ((gamma1x <<  13) | (gamma1x >>> 19)) ^
+					              (gamma1x >>> 10);
+
+					W[j] = (gamma0 >>> 0) + (W[j - 7] >>> 0) +
+					       (gamma1 >>> 0) + (W[j - 16] >>> 0);
+
+				}
+
+				var ch  = e & f ^ ~e & g,
+				    maj = a & b ^ a & c ^ b & c,
+				    sigma0 = ((a << 30) | (a >>>  2)) ^
+				             ((a << 19) | (a >>> 13)) ^
+				             ((a << 10) | (a >>> 22)),
+				    sigma1 = ((e << 26) | (e >>>  6)) ^
+				             ((e << 21) | (e >>> 11)) ^
+				             ((e <<  7) | (e >>> 25));
+
+
+				T1 = (h >>> 0) + (sigma1 >>> 0) + (ch >>> 0) +
+				     (K[j] >>> 0) + (W[j] >>> 0);
+				T2 = (sigma0 >>> 0) + (maj >>> 0);
 
 				h = g;
 				g = f;
