@@ -181,22 +181,22 @@ Crypto.Rabbit = function () {
 
 		},
 
-		decrypt: function (M, key, IV) {
+		decrypt: function (C, key, IV) {
 
 			// Convert to words
 			var K = util.endian(util.string_words(key));
 
 			// Separate IV and message, or use given IV if testing
 			if (!this.testMode) {
-				IV = util.bytes_words(M.slice(0,8));
-				M = M.slice(8);
+				IV = util.bytes_words(C.slice(0,8));
+				C = C.slice(8);
 			}
 
 			// Decrypt
-			this._Rabbit(M, K, IV);
+			this._Rabbit(C, K, IV);
 
 			// Return plaintext
-			return util.bytes_string(M);
+			return util.bytes_string(C);
 
 		},
 
