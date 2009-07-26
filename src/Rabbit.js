@@ -76,62 +76,43 @@ Crypto.Rabbit = function () {
 			for (var i = 0; i < 8; i++) C_old[i] = C[i];
 
 			// Calculate new counter values
-			C[0] = util.add(C[0], 0x4D34D34D, b);
-			C[1] = util.add(C[1], 0xD34D34D3, util.lt(C[0], C_old[0]) ? 1 : 0);
-			C[2] = util.add(C[2], 0x34D34D34, util.lt(C[1], C_old[1]) ? 1 : 0);
-			C[3] = util.add(C[3], 0x4D34D34D, util.lt(C[2], C_old[2]) ? 1 : 0);
-			C[4] = util.add(C[4], 0xD34D34D3, util.lt(C[3], C_old[3]) ? 1 : 0);
-			C[5] = util.add(C[5], 0x34D34D34, util.lt(C[4], C_old[4]) ? 1 : 0);
-			C[6] = util.add(C[6], 0x4D34D34D, util.lt(C[5], C_old[5]) ? 1 : 0);
-			C[7] = util.add(C[7], 0xD34D34D3, util.lt(C[6], C_old[6]) ? 1 : 0);
-			b = util.lt(C[7], C_old[7]) ? 1 : 0;
+			C[0] = (C[0] + 0x4D34D34D + b) >>> 0;
+			C[1] = (C[1] + 0xD34D34D3 + ((C[0] >>> 0) < (C_old[0] >>> 0) ? 1 : 0)) >>> 0;
+			C[2] = (C[2] + 0x34D34D34 + ((C[1] >>> 0) < (C_old[1] >>> 0) ? 1 : 0)) >>> 0;
+			C[3] = (C[3] + 0x4D34D34D + ((C[2] >>> 0) < (C_old[2] >>> 0) ? 1 : 0)) >>> 0;
+			C[4] = (C[4] + 0xD34D34D3 + ((C[3] >>> 0) < (C_old[3] >>> 0) ? 1 : 0)) >>> 0;
+			C[5] = (C[5] + 0x34D34D34 + ((C[4] >>> 0) < (C_old[4] >>> 0) ? 1 : 0)) >>> 0;
+			C[6] = (C[6] + 0x4D34D34D + ((C[5] >>> 0) < (C_old[5] >>> 0) ? 1 : 0)) >>> 0;
+			C[7] = (C[7] + 0xD34D34D3 + ((C[6] >>> 0) < (C_old[6] >>> 0) ? 1 : 0)) >>> 0;
+			b = (C[7] >>> 0) < (C_old[7] >>> 0) ? 1 : 0;
 
 			// Calculate the g-values
-			var g = [];
-			for (var i = 0; i < 8; i++)
-				g[i] = this._g(util.add(X[i], C[i]));
+			for (var i = 0, g = []; i < 8; i++) {
+
+				var gx = (X[i] + C[i]) >>> 0;
+
+				// Construct high and low argument for squaring
+				var ga = gx & 0xFFFF,
+				    gb = gx >>> 16;
+
+				// Calculate high and low result of squaring
+				var gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb,
+				    gl = (((gx & 0xFFFF0000) * gx) >>> 0) + (((gx & 0x0000FFFF) * gx) >>> 0) >>> 0;
+
+				// High XOR low
+				g[i] = gh ^ gl;
+
+			}
 
 			// Calculate new state values
-			X[0] = util.add(g[0] + util.rotl(g[7], 16) + util.rotl(g[6], 16));
-			X[1] = util.add(g[1] + util.rotl(g[0],  8) + g[7]);
-			X[2] = util.add(g[2] + util.rotl(g[1], 16) + util.rotl(g[0], 16));
-			X[3] = util.add(g[3] + util.rotl(g[2],  8) + g[1]);
-			X[4] = util.add(g[4] + util.rotl(g[3], 16) + util.rotl(g[2], 16));
-			X[5] = util.add(g[5] + util.rotl(g[4],  8) + g[3]);
-			X[6] = util.add(g[6] + util.rotl(g[5], 16) + util.rotl(g[4], 16));
-			X[7] = util.add(g[7] + util.rotl(g[6],  8) + g[5]);
-
-		},
-
-		// Function g: Transform two 32-bit inputs into one 32-bit output
-		_g: function (x) {
-
-			// Construct high and low argument for squaring
-			var a = x & 0xFFFF,
-			    b = x >>> 16;
-
-			// Calculate high and low result of squaring
-			var h = ((((a * a) >>> 17) + a * b) >>> 15) + b * b,
-			    l = util.mult(x, x);
-
-			// Return high XOR low
-			return h ^ l;
-
-		},
-
-		// Extraction scheme
-		_GetOutputBlock: function () {
-
-			// Iterate the system
-			this._NextState();
-
-			// Generate 16 bytes of pseudo-random data
-			return util.words_bytes([
-				util.endian(X[0] ^ (X[5] >>> 16) ^ (X[3] << 16)),
-				util.endian(X[2] ^ (X[7] >>> 16) ^ (X[5] << 16)),
-				util.endian(X[4] ^ (X[1] >>> 16) ^ (X[7] << 16)),
-				util.endian(X[6] ^ (X[3] >>> 16) ^ (X[1] << 16))
-			]);
+			X[0] = g[0] + ((g[7] << 16) | (g[7] >>> 16)) + ((g[6] << 16) | (g[6] >>> 16));
+			X[1] = g[1] + ((g[0] <<  8) | (g[0] >>> 24)) + g[7];
+			X[2] = g[2] + ((g[1] << 16) | (g[1] >>> 16)) + ((g[0] << 16) | (g[0] >>> 16));
+			X[3] = g[3] + ((g[2] <<  8) | (g[2] >>> 24)) + g[1];
+			X[4] = g[4] + ((g[3] << 16) | (g[3] >>> 16)) + ((g[2] << 16) | (g[2] >>> 16));
+			X[5] = g[5] + ((g[4] <<  8) | (g[4] >>> 24)) + g[3];
+			X[6] = g[6] + ((g[5] << 16) | (g[5] >>> 16)) + ((g[4] << 16) | (g[4] >>> 16));
+			X[7] = g[7] + ((g[6] <<  8) | (g[6] >>> 24)) + g[5];
 
 		},
 
@@ -141,9 +122,35 @@ Crypto.Rabbit = function () {
 			this._KeySetup(K);
 			if (IV) this._IVSetup(IV);
 
-			var S = this._GetOutputBlock();
-			for (var i = 0; i < M.length; i++) {
-				if (S.length == 0) S = this._GetOutputBlock();
+			for (var i = 0, S = []; i < M.length; i++) {
+
+				if (S.length == 0) {
+
+					// Iterate the system
+					this._NextState();
+
+					// Generate 16 bytes of pseudo-random data
+					S = [
+						X[0] ^ (X[5] >>> 16) ^ (X[3] << 16),
+						X[2] ^ (X[7] >>> 16) ^ (X[5] << 16),
+						X[4] ^ (X[1] >>> 16) ^ (X[7] << 16),
+						X[6] ^ (X[3] >>> 16) ^ (X[1] << 16)
+					];
+
+					// Swap endian
+					for (var j = 0; j < 4; j++) {
+						S[j] = ((S[j] <<  8) | (S[j] >>> 24)) & 0x00FF00FF |
+						       ((S[j] << 24) | (S[j] >>>  8)) & 0xFF00FF00;
+					}
+
+					// Convert words to bytes
+					var bytes = [];
+					for (var b = 0; b < 128; b += 8)
+						bytes.push((S[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+					S = bytes;
+
+				}
+
 				M[i] ^= S.shift();
 			}
 
