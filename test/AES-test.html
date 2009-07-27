@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+
+<!-- Customizations -->
+<link rel="stylesheet" type="text/css" href="lib/tester.css">
+
+<!-- YUI JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/AES.js"></script>
+
+<!-- Test cases -->
+<script type="text/javascript">
+
+// Shortcut
+var Assert = YAHOO.util.Assert;
+
+YAHOO.tool.TestRunner.add(
+new YAHOO.tool.TestCase({
+
+	test_AES128: function () {
+
+		// Test vectors
+		Assert.areEqual("69c4e0d86a7b0430d8cdb78070b4c55a", Crypto.util.bytes_hex(Crypto.AES.encrypt("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f")));
+
+		// Test D(E(m)) == m
+		var k = Crypto.util.words_string([Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000)]);
+		Assert.areEqual("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", Crypto.AES.decrypt(Crypto.AES.encrypt("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", k), k));
+
+	},
+
+	test_AES192: function () {
+
+		// Test vectors
+		Assert.areEqual("dda97ca4864cdfe06eaf70a0ec0d7191", Crypto.util.bytes_hex(Crypto.AES.encrypt("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17")));
+
+		// Test D(E(m)) == m
+		var k = Crypto.util.words_string([Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000)]);
+		Assert.areEqual("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", Crypto.AES.decrypt(Crypto.AES.encrypt("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", k), k));
+
+	},
+
+	test_AES256: function () {
+
+		// Test vectors
+		Assert.areEqual("8ea2b7ca516745bfeafc49904b496089", Crypto.util.bytes_hex(Crypto.AES.encrypt("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f")));
+
+		// Test D(E(m)) == m
+		var k = Crypto.util.words_string([Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000),
+		                                  Math.floor(Math.random() * 0x100000000)]);
+		Assert.areEqual("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", Crypto.AES.decrypt(Crypto.AES.encrypt("\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xaa\xbb\xcc\xdd\xee\xff", k), k));
+
+	}
+
+})
+);
+
+YAHOO.util.Event.onDOMReady(function(){
+
+	// Display results from the TestRunner
+	var logger = new YAHOO.tool.TestLogger();
+
+	// Hide info category
+	logger.hideCategory("info");
+
+	// Run all tests
+	YAHOO.tool.TestRunner.run();
+
+});
+
+</script>
+
+</head>
+<body>
+</body>
