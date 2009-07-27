@@ -13,7 +13,7 @@ Crypto.MARC4 = function () {
 
 			// Key setup
 			for (i = 0, S = []; i < 256; i++) S[i] = i;
-			for (i = 0, j = 0; i < 256; i++) {
+			for (i = 0, j = 0;  i < 256; i++) {
 
 				j = (j + S[i] + K[i % K.length]) % 256;
 
