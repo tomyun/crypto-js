@@ -59,18 +59,17 @@ Crypto.MARC4 = function () {
 			var M = util.string_bytes(message),
 			    K = util.string_bytes(key);
 
-			// Generate random IV
-			var IV = util.words_bytes([ Math.floor(Math.random() * 0x100000000),
-				                    Math.floor(Math.random() * 0x100000000) ]);
-
-			// Attach IV
-			if (!this.testMode) K = IV.concat(K);
+			// Attach random IV
+			if (!this.testMode) {
+				for (var i = 0; i < 8; i++)
+					K.unshift(Math.floor(Math.random() * 256));
+			}
 
 			// Encrypt
 			this._MARC4(M, K);
 
 			// Return ciphertext
-			return !this.testMode ? IV.concat(M) : M;
+			return !this.testMode ? K.slice(0,8).concat(M) : M;
 
 		},
 
