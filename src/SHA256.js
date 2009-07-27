@@ -8,12 +8,8 @@ Crypto.SHA256 = function () {
 		return util.bytes_hex(util.words_bytes(self._SHA256(message)));
 	};
 
-	self.string = function (message) {
-		return util.words_string(self._SHA256(message));
-	};
-
-	self.base64 = function (message) {
-		return util.bytes_base64(util.words_bytes(self._SHA256(message)));
+	self.words = function (message) {
+		return self._SHA256(message);
 	};
 
 	// Constants
