@@ -181,7 +181,6 @@ Crypto.AES = function () {
 	// Inner state
 	var State = [[], [], [], []],
 	    KeyLength,
-	    BlockSize = 4,
 	    NRounds,
 	    KeySchedule;
 
@@ -203,8 +202,10 @@ Crypto.AES = function () {
 
 
 		/**
-		 * Internal methods
+		 * Internal methods and properties
 		 */
+
+		_BlockSize: 4,
 
 		_Init: function (key) {
 			KeyLength = key.length / 4;
@@ -217,7 +218,7 @@ Crypto.AES = function () {
 		 */
 		_KeyExpansion: function (K) {
 
-			KeySchedule = new Array(BlockSize * (NRounds + 1));
+			KeySchedule = new Array(this._BlockSize * (NRounds + 1));
 
 			for (var rowNum = 0; rowNum < KeyLength; rowNum++) {
 				KeySchedule[rowNum] = [
@@ -230,7 +231,7 @@ Crypto.AES = function () {
 
 			var temp = new Array(4);
 
-			for (var rowNum = KeyLength; rowNum < (BlockSize * (NRounds + 1)); rowNum++) {
+			for (var rowNum = KeyLength; rowNum < (this._BlockSize * (NRounds + 1)); rowNum++) {
 
 				temp[0] = KeySchedule[rowNum - 1][0];
 				temp[1] = KeySchedule[rowNum - 1][1];
@@ -345,7 +346,7 @@ Crypto.AES = function () {
 
 			var v, p;
 
-			for (var r = 0; r < BlockSize; r++) {
+			for (var r = 0; r < this._BlockSize; r++) {
 				for (var c = 0; c < 4; c++) {
 					p = c * 4 + r;
 					v = input[p];
@@ -360,7 +361,7 @@ Crypto.AES = function () {
 		 */
 		_GetOutput: function () {
 			var output = [];
-			for (var r = 0; r < BlockSize; r++) {
+			for (var r = 0; r < this._BlockSize; r++) {
 				for (var c = 0; c < 4; c++) {
 					output[c * 4 + r] = State[r][c];
 				}
@@ -397,7 +398,7 @@ Crypto.AES = function () {
 
 			for (var r = 1; r < 4; r++) {
 				for (var c = 0; c < 4; c++) {
-					State[r][c] = temp[r][(c + r) % BlockSize];
+					State[r][c] = temp[r][(c + r) % this._BlockSize];
 				}
 			}
 
@@ -413,7 +414,7 @@ Crypto.AES = function () {
 
 			for (var r = 1; r < 4; r++) {
 				for (var c = 0; c < 4; c++) {
-					temp[r][(c + r) % BlockSize] = State[r][c];
+					temp[r][(c + r) % this._BlockSize] = State[r][c];
 				}
 			}
 
