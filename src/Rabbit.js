@@ -40,10 +40,7 @@ Crypto.Rabbit = function () {
 			var K = util.endian(util.string_words(key));
 
 			// Separate IV and message, or use given IV if testing
-			if (!this.testMode) {
-				IV = util.bytes_words(C.slice(0,8));
-				C = C.slice(8);
-			}
+			if (!this.testMode) IV = util.bytes_words(C.splice(0,8));
 
 			// Decrypt
 			this._Rabbit(C, K, IV);

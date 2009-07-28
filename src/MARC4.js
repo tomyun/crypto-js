@@ -38,8 +38,7 @@ Crypto.MARC4 = function () {
 			if (!this.testMode) {
 
 				// Separate IV and message
-				var IV = C.slice(0,8);
-				C = C.slice(8);
+				var IV = C.splice(0,8);
 
 				// Attach IV
 				K = IV.concat(K);
