@@ -188,140 +188,28 @@ Crypto.AES = function () {
 	return {
 
 		/**
-		 * Transformation in the Cipher that processes the State
-		 * using a non-linear byte substitution table (S-box) that operates
-		 * on each of the State bytes independently.
+		 * Public API
 		 */
-		_SubBytes: function (box) {
-			box = box || Sbox;
-			for (var r = 0; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] = box[State[r][c]];
-				}
-			}
+
+		encrypt: function (message, key) {
+			this._Init(key);
+			return this._Cipher(util.string_bytes(message));
 		},
 
-		/**
-		 * Transformation in the Inverse Cipher
-		 * that is the inverse of SubBytes().
-		 */
-		_InvSubBytes: function () {
-			this._SubBytes(InvSbox);
+		decrypt: function (C, key) {
+			this._Init(key);
+			return util.bytes_string(this._InvCipher(C));
 		},
 
-		/**
-		 * Transformation in the Cipher that processes the State
-		 * by cyclically shifting the last three rows of the State
-		 * by different offsets.
-		 */
-		_ShiftRows: function () {
-
-			var temp = [[], [], [], []];
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					temp[r][c] = State[r][c];
-				}
-			}
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] = temp[r][(c + r) % BlockSize];
-				}
-			}
-
-		},
 
 		/**
-		 * Transformation in the Inverse Cipher
-		 * that is the inverse of ShiftRows().
+		 * Internal methods
 		 */
-		_InvShiftRows: function () {
 
-			var temp = [[], [], [], []];
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					temp[r][(c + r) % BlockSize] = State[r][c];
-				}
-			}
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] = temp[r][c];
-				}
-			}
-
-		},
-
-		/**
-		 * Transformation in the Cipher that takes all of the columns
-		 * of the State and mixes their data (independently of one another)
-		 * to produce new columns.
-		 */
-		_MixColumns: function () {
-
-			var s = State;
-			var t = [];
-
-			for (var c = 0; c < 4; c++) {
-
-				t[0] = s[0][c];
-				t[1] = s[1][c];
-				t[2] = s[2][c];
-				t[3] = s[3][c];
-
-				s[0][c] = Mult2[t[0]] ^ Mult3[t[1]] ^ t[2] ^ t[3];
-				s[1][c] = t[0] ^ Mult2[t[1]] ^ Mult3[t[2]] ^ t[3];
-				s[2][c] = t[0] ^ t[1] ^ Mult2[t[2]] ^ Mult3[t[3]];
-				s[3][c] = Mult3[t[0]] ^ t[1] ^ t[2] ^ Mult2[t[3]];
-
-			}
-
-		},
-
-		/**
-		 * Transformation in the Inverse Cipher
-		 * that is the inverse of MixColumns().
-		 */
-		_InvMixColumns: function () {
-
-			var s = State;
-			var t = [];
-
-			for (var c = 0; c < 4; c++) {
-
-				t[0] = s[0][c];
-				t[1] = s[1][c];
-				t[2] = s[2][c];
-				t[3] = s[3][c];
-
-				s[0][c] = MultE[t[0]] ^ MultB[t[1]] ^
-				          MultD[t[2]] ^ Mult9[t[3]];
-
-				s[1][c] = Mult9[t[0]] ^ MultE[t[1]] ^
-				          MultB[t[2]] ^ MultD[t[3]];
-
-				s[2][c] = MultD[t[0]] ^ Mult9[t[1]] ^
-				          MultE[t[2]] ^ MultB[t[3]];
-
-				s[3][c] = MultB[t[0]] ^ MultD[t[1]] ^
-				          Mult9[t[2]] ^ MultE[t[3]];
-
-			}
-
-		},
-
-		/**
-		 * Transformation in the Cipher and Inverse Cipher in which a Round Key
-		 * is added to the State using an XOR operation.
-		 */
-		_AddRoundKey: function (round) {
-			for (var r = 0; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] ^= KeySchedule[round * 4 + c][r];
-				}
-			}
+		_Init: function (key) {
+			KeyLength = key.length / 4;
+			NRounds = KeyLength + 6;
+			this._KeyExpansion(util.string_bytes(key));
 		},
 
 		/**
@@ -407,36 +295,6 @@ Crypto.AES = function () {
 		},
 
 		/**
-		 * Copies the input into the State array.
-		 */
-		_SetInput: function (input) {
-
-			var v, p;
-
-			for (var r = 0; r < BlockSize; r++) {
-				for (var c = 0; c < 4; c++) {
-					p = c * 4 + r;
-					v = input[p];
-					State[r][c] = v;
-				}
-			}
-
-		},
-
-		/**
-		 * Copies the final value into a byte array.
-		 */
-		_GetOutput: function () {
-			var output = [];
-			for (var r = 0; r < BlockSize; r++) {
-				for (var c = 0; c < 4; c++) {
-					output[c * 4 + r] = State[r][c];
-				}
-			}
-			return output;
-		},
-
-		/**
 		 * The cipher
 		 */
 		_Cipher: function (M) {
@@ -480,25 +338,171 @@ Crypto.AES = function () {
 
 		},
 
-		_Init: function (key) {
-			KeyLength = key.length / 4;
-			NRounds = KeyLength + 6;
-			this._KeyExpansion(util.string_bytes(key));
-		},
+		/**
+		 * Copies the input into the State array.
+		 */
+		_SetInput: function (input) {
 
+			var v, p;
+
+			for (var r = 0; r < BlockSize; r++) {
+				for (var c = 0; c < 4; c++) {
+					p = c * 4 + r;
+					v = input[p];
+					State[r][c] = v;
+				}
+			}
+
+		},
 
 		/**
-		 * Public API
+		 * Copies the final value into a byte array.
 		 */
-
-		encrypt: function (message, key) {
-			this._Init(key);
-			return this._Cipher(util.string_bytes(message));
+		_GetOutput: function () {
+			var output = [];
+			for (var r = 0; r < BlockSize; r++) {
+				for (var c = 0; c < 4; c++) {
+					output[c * 4 + r] = State[r][c];
+				}
+			}
+			return output;
 		},
 
-		decrypt: function (C, key) {
-			this._Init(key);
-			return util.bytes_string(this._InvCipher(C));
+		/**
+		 * Transformation in the Cipher and Inverse Cipher in which a Round Key
+		 * is added to the State using an XOR operation.
+		 */
+		_AddRoundKey: function (round) {
+			for (var r = 0; r < 4; r++) {
+				for (var c = 0; c < 4; c++) {
+					State[r][c] ^= KeySchedule[round * 4 + c][r];
+				}
+			}
+		},
+
+		/**
+		 * Transformation in the Cipher that processes the State
+		 * by cyclically shifting the last three rows of the State
+		 * by different offsets.
+		 */
+		_ShiftRows: function () {
+
+			var temp = [[], [], [], []];
+
+			for (var r = 1; r < 4; r++) {
+				for (var c = 0; c < 4; c++) {
+					temp[r][c] = State[r][c];
+				}
+			}
+
+			for (var r = 1; r < 4; r++) {
+				for (var c = 0; c < 4; c++) {
+					State[r][c] = temp[r][(c + r) % BlockSize];
+				}
+			}
+
+		},
+
+		/**
+		 * Transformation in the Inverse Cipher
+		 * that is the inverse of ShiftRows().
+		 */
+		_InvShiftRows: function () {
+
+			var temp = [[], [], [], []];
+
+			for (var r = 1; r < 4; r++) {
+				for (var c = 0; c < 4; c++) {
+					temp[r][(c + r) % BlockSize] = State[r][c];
+				}
+			}
+
+			for (var r = 1; r < 4; r++) {
+				for (var c = 0; c < 4; c++) {
+					State[r][c] = temp[r][c];
+				}
+			}
+
+		},
+
+		/**
+		 * Transformation in the Cipher that processes the State
+		 * using a non-linear byte substitution table (S-box) that operates
+		 * on each of the State bytes independently.
+		 */
+		_SubBytes: function (box) {
+			box = box || Sbox;
+			for (var r = 0; r < 4; r++) {
+				for (var c = 0; c < 4; c++) {
+					State[r][c] = box[State[r][c]];
+				}
+			}
+		},
+
+		/**
+		 * Transformation in the Inverse Cipher
+		 * that is the inverse of SubBytes().
+		 */
+		_InvSubBytes: function () {
+			this._SubBytes(InvSbox);
+		},
+
+		/**
+		 * Transformation in the Cipher that takes all of the columns
+		 * of the State and mixes their data (independently of one another)
+		 * to produce new columns.
+		 */
+		_MixColumns: function () {
+
+			var s = State;
+			var t = [];
+
+			for (var c = 0; c < 4; c++) {
+
+				t[0] = s[0][c];
+				t[1] = s[1][c];
+				t[2] = s[2][c];
+				t[3] = s[3][c];
+
+				s[0][c] = Mult2[t[0]] ^ Mult3[t[1]] ^ t[2] ^ t[3];
+				s[1][c] = t[0] ^ Mult2[t[1]] ^ Mult3[t[2]] ^ t[3];
+				s[2][c] = t[0] ^ t[1] ^ Mult2[t[2]] ^ Mult3[t[3]];
+				s[3][c] = Mult3[t[0]] ^ t[1] ^ t[2] ^ Mult2[t[3]];
+
+			}
+
+		},
+
+		/**
+		 * Transformation in the Inverse Cipher
+		 * that is the inverse of MixColumns().
+		 */
+		_InvMixColumns: function () {
+
+			var s = State;
+			var t = [];
+
+			for (var c = 0; c < 4; c++) {
+
+				t[0] = s[0][c];
+				t[1] = s[1][c];
+				t[2] = s[2][c];
+				t[3] = s[3][c];
+
+				s[0][c] = MultE[t[0]] ^ MultB[t[1]] ^
+				          MultD[t[2]] ^ Mult9[t[3]];
+
+				s[1][c] = Mult9[t[0]] ^ MultE[t[1]] ^
+				          MultB[t[2]] ^ MultD[t[3]];
+
+				s[2][c] = MultD[t[0]] ^ Mult9[t[1]] ^
+				          MultE[t[2]] ^ MultB[t[3]];
+
+				s[3][c] = MultB[t[0]] ^ MultD[t[1]] ^
+				          Mult9[t[2]] ^ MultE[t[3]];
+
+			}
+
 		}
 
 	};

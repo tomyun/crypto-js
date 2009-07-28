@@ -5,50 +5,6 @@ Crypto.MARC4 = function () {
 
 	return {
 
-		// The core
-		_MARC4: function (M, K) {
-
-			// State variables
-			var i, j, S;
-
-			// Key setup
-			for (i = 0, S = []; i < 256; i++) S[i] = i;
-			for (i = 0, j = 0;  i < 256; i++) {
-
-				j = (j + S[i] + K[i % K.length]) % 256;
-
-				// Swap
-				S[i] ^= S[j];
-				S[j] ^= S[i];
-				S[i] ^= S[j];
-
-			}
-
-			// Clear counters
-			i = j = 0;
-
-			// Encryption
-			for (var k = !this.testMode ? -1536 : 0; k < M.length; k++) {
-
-				i = (i + 1) % 256;
-				j = (j + S[i]) % 256;
-
-				// Swap
-				S[i] ^= S[j];
-				S[j] ^= S[i];
-				S[i] ^= S[j];
-
-				// Stop here if we're still dropping keystream
-				if (k < 0) continue;
-
-				// Encrypt
-				M[k] ^= S[(S[i] + S[j]) % 256];
-
-			}
-
-		},
-
-
 		/**
 		 * Public API
 		 */
@@ -98,7 +54,55 @@ Crypto.MARC4 = function () {
 
 		},
 
-		testMode: false
+		testMode: false,
+
+
+		/**
+		 * Internal methods
+		 */
+
+		// The core
+		_MARC4: function (M, K) {
+
+			// State variables
+			var i, j, S;
+
+			// Key setup
+			for (i = 0, S = []; i < 256; i++) S[i] = i;
+			for (i = 0, j = 0;  i < 256; i++) {
+
+				j = (j + S[i] + K[i % K.length]) % 256;
+
+				// Swap
+				S[i] ^= S[j];
+				S[j] ^= S[i];
+				S[i] ^= S[j];
+
+			}
+
+			// Clear counters
+			i = j = 0;
+
+			// Encryption
+			for (var k = !this.testMode ? -1536 : 0; k < M.length; k++) {
+
+				i = (i + 1) % 256;
+				j = (j + S[i]) % 256;
+
+				// Swap
+				S[i] ^= S[j];
+				S[j] ^= S[i];
+				S[i] ^= S[j];
+
+				// Stop here if we're still dropping keystream
+				if (k < 0) continue;
+
+				// Encrypt
+				M[k] ^= S[(S[i] + S[j]) % 256];
+
+			}
+
+		}
 
 	};
 

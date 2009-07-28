@@ -10,6 +10,96 @@ Crypto.Rabbit = function () {
 
 	return {
 
+		/**
+		 * Public API
+		 */
+
+		encrypt: function (message, key, IV) {
+
+			// Convert to bytes and words
+			var M = util.string_bytes(message),
+			    K = util.endian(util.string_words(key));
+
+			// Generate random IV, or use given IV if testing
+			if (!this.testMode) {
+				IV = [ Math.floor(Math.random() * 0x100000000),
+				       Math.floor(Math.random() * 0x100000000) ];
+			}
+
+			// Encrypt
+			this._Rabbit(M, K, IV);
+
+			// Return ciphertext
+			return !this.testMode ? util.words_bytes(IV).concat(M) : M;
+
+		},
+
+		decrypt: function (C, key, IV) {
+
+			// Convert to words
+			var K = util.endian(util.string_words(key));
+
+			// Separate IV and message, or use given IV if testing
+			if (!this.testMode) {
+				IV = util.bytes_words(C.slice(0,8));
+				C = C.slice(8);
+			}
+
+			// Decrypt
+			this._Rabbit(C, K, IV);
+
+			// Return plaintext
+			return util.bytes_string(C);
+
+		},
+
+		testMode: false,
+
+
+		/**
+		 * Internal methods
+		 */
+
+		// Encryption/decryption scheme
+		_Rabbit: function (M, K, IV) {
+
+			this._KeySetup(K);
+			if (IV) this._IVSetup(IV);
+
+			for (var i = 0, S = []; i < M.length; i++) {
+
+				if (S.length == 0) {
+
+					// Iterate the system
+					this._NextState();
+
+					// Generate 16 bytes of pseudo-random data
+					S = [
+						X[0] ^ (X[5] >>> 16) ^ (X[3] << 16),
+						X[2] ^ (X[7] >>> 16) ^ (X[5] << 16),
+						X[4] ^ (X[1] >>> 16) ^ (X[7] << 16),
+						X[6] ^ (X[3] >>> 16) ^ (X[1] << 16)
+					];
+
+					// Swap endian
+					for (var j = 0; j < 4; j++) {
+						S[j] = ((S[j] <<  8) | (S[j] >>> 24)) & 0x00FF00FF |
+						       ((S[j] << 24) | (S[j] >>>  8)) & 0xFF00FF00;
+					}
+
+					// Convert words to bytes
+					var bytes = [];
+					for (var b = 0; b < 128; b += 8)
+						bytes.push((S[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+					S = bytes;
+
+				}
+
+				M[i] ^= S.shift();
+			}
+
+		},
+
 		// Key setup scheme
 		_KeySetup: function (K) {
 
@@ -114,93 +204,7 @@ Crypto.Rabbit = function () {
 			X[6] = g[6] + ((g[5] << 16) | (g[5] >>> 16)) + ((g[4] << 16) | (g[4] >>> 16));
 			X[7] = g[7] + ((g[6] <<  8) | (g[6] >>> 24)) + g[5];
 
-		},
-
-		// Encryption/decryption scheme
-		_Rabbit: function (M, K, IV) {
-
-			this._KeySetup(K);
-			if (IV) this._IVSetup(IV);
-
-			for (var i = 0, S = []; i < M.length; i++) {
-
-				if (S.length == 0) {
-
-					// Iterate the system
-					this._NextState();
-
-					// Generate 16 bytes of pseudo-random data
-					S = [
-						X[0] ^ (X[5] >>> 16) ^ (X[3] << 16),
-						X[2] ^ (X[7] >>> 16) ^ (X[5] << 16),
-						X[4] ^ (X[1] >>> 16) ^ (X[7] << 16),
-						X[6] ^ (X[3] >>> 16) ^ (X[1] << 16)
-					];
-
-					// Swap endian
-					for (var j = 0; j < 4; j++) {
-						S[j] = ((S[j] <<  8) | (S[j] >>> 24)) & 0x00FF00FF |
-						       ((S[j] << 24) | (S[j] >>>  8)) & 0xFF00FF00;
-					}
-
-					// Convert words to bytes
-					var bytes = [];
-					for (var b = 0; b < 128; b += 8)
-						bytes.push((S[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-					S = bytes;
-
-				}
-
-				M[i] ^= S.shift();
-			}
-
-		},
-
-
-		/**
-		 * Public API
-		 */
-
-		encrypt: function (message, key, IV) {
-
-			// Convert to bytes and words
-			var M = util.string_bytes(message),
-			    K = util.endian(util.string_words(key));
-
-			// Generate random IV, or use given IV if testing
-			if (!this.testMode) {
-				IV = [ Math.floor(Math.random() * 0x100000000),
-				       Math.floor(Math.random() * 0x100000000) ];
-			}
-
-			// Encrypt
-			this._Rabbit(M, K, IV);
-
-			// Return ciphertext
-			return !this.testMode ? util.words_bytes(IV).concat(M) : M;
-
-		},
-
-		decrypt: function (C, key, IV) {
-
-			// Convert to words
-			var K = util.endian(util.string_words(key));
-
-			// Separate IV and message, or use given IV if testing
-			if (!this.testMode) {
-				IV = util.bytes_words(C.slice(0,8));
-				C = C.slice(8);
-			}
-
-			// Decrypt
-			this._Rabbit(C, K, IV);
-
-			// Return plaintext
-			return util.bytes_string(C);
-
-		},
-
-		testMode: false
+		}
 
 	};
 
