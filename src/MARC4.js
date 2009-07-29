@@ -25,14 +25,15 @@ Crypto.MARC4 = function () {
 			this._MARC4(M, K);
 
 			// Return ciphertext
-			return !this.testMode ? K.slice(0,8).concat(M) : M;
+			return util.bytes_base64(!this.testMode ? K.slice(0,8).concat(M) : M);
 
 		},
 
-		decrypt: function (C, key) {
+		decrypt: function (ciphertext, key) {
 
 			// Convert to bytes
-			var K = util.string_bytes(key);
+			var C = util.base64_bytes(ciphertext),
+			    K = util.string_bytes(key);
 
 			// Retrieve IV
 			if (!this.testMode) {

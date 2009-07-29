@@ -31,12 +31,12 @@ new YAHOO.tool.TestCase({
 		Crypto.Rabbit.testMode = true;
 
 		// Test vectors
-		Assert.areEqual("02f74a1c26456bf5ecd6a536f05457b1", Crypto.util.bytes_hex(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")));
-		Assert.areEqual("9c51e28784c37fe9a127f63ec8f32d3d", Crypto.util.bytes_hex(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\xAC\xC3\x51\xDC\xF1\x62\xFC\x3B\xFE\x36\x3D\x2E\x29\x13\x28\x91")));
-		Assert.areEqual("9b60d002fd5ceb32accd41a0cd0db10c", Crypto.util.bytes_hex(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x43\x00\x9B\xC0\x01\xAB\xE9\xE9\x33\xC7\xE0\x87\x15\x74\x95\x83")));
-		Assert.areEqual("edb70567375dcd7cd89554f85e27a7c6", Crypto.util.bytes_hex(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", [0, 0])));
-		Assert.areEqual("6d7d012292ccdce0e2120058b94ecd1f", Crypto.util.bytes_hex(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", [0x597E26C1, 0x75F573C3])));
-		Assert.areEqual("4d1051a123afb670bf8d8505c8d85a44", Crypto.util.bytes_hex(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", [0x2717F4D2, 0x1A56EBA6])));
+		Assert.areEqual("02f74a1c26456bf5ecd6a536f05457b1", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"))));
+		Assert.areEqual("9c51e28784c37fe9a127f63ec8f32d3d", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\xAC\xC3\x51\xDC\xF1\x62\xFC\x3B\xFE\x36\x3D\x2E\x29\x13\x28\x91"))));
+		Assert.areEqual("9b60d002fd5ceb32accd41a0cd0db10c", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x43\x00\x9B\xC0\x01\xAB\xE9\xE9\x33\xC7\xE0\x87\x15\x74\x95\x83"))));
+		Assert.areEqual("edb70567375dcd7cd89554f85e27a7c6", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", [0, 0]))));
+		Assert.areEqual("6d7d012292ccdce0e2120058b94ecd1f", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", [0x597E26C1, 0x75F573C3]))));
+		Assert.areEqual("4d1051a123afb670bf8d8505c8d85a44", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.Rabbit.encrypt("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", [0x2717F4D2, 0x1A56EBA6]))));
 
 		// Test D(E(m)) == m
 		Crypto.Rabbit.testMode = false;

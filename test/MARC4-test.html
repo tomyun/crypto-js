@@ -31,8 +31,8 @@ new YAHOO.tool.TestCase({
 		Crypto.MARC4.testMode = true;
 
 		// Test vectors
-		Assert.areEqual("7494c2e7104b0879", Crypto.util.bytes_hex(Crypto.MARC4.encrypt("\0\0\0\0\0\0\0\0", "\x01\x23\x45\x67\x89\xAB\xCD\xEF")));
-		Assert.areEqual("f13829c9de", Crypto.util.bytes_hex(Crypto.MARC4.encrypt("\xDC\xEE\x4C\xF9\x2C", "\x61\x8A\x63\xD2\xFB")));
+		Assert.areEqual("7494c2e7104b0879", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.MARC4.encrypt("\0\0\0\0\0\0\0\0", "\x01\x23\x45\x67\x89\xAB\xCD\xEF"))));
+		Assert.areEqual("f13829c9de", Crypto.util.bytes_hex(Crypto.util.base64_bytes(Crypto.MARC4.encrypt("\xDC\xEE\x4C\xF9\x2C", "\x61\x8A\x63\xD2\xFB"))));
 
 		// Test D(E(m)) == m
 		Crypto.MARC4.testMode = false;

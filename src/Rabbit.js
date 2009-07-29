@@ -30,14 +30,15 @@ Crypto.Rabbit = function () {
 			this._Rabbit(M, K, IV);
 
 			// Return ciphertext
-			return !this.testMode ? util.words_bytes(IV).concat(M) : M;
+			return util.bytes_base64(!this.testMode ? util.words_bytes(IV).concat(M) : M);
 
 		},
 
-		decrypt: function (C, key, IV) {
+		decrypt: function (ciphertext, key, IV) {
 
-			// Convert to words
-			var K = util.endian(util.string_words(key));
+			// Convert to bytes and words
+			var C = util.base64_bytes(ciphertext),
+			    K = util.endian(util.string_words(key));
 
 			// Separate IV and message, or use given IV if testing
 			if (!this.testMode) IV = util.bytes_words(C.splice(0,8));
