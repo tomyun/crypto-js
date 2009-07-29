@@ -4,16 +4,14 @@ Crypto.MD5 = function () {
 	var util = Crypto.util;
 
 	// Public API
-	var self = function (message) {
-		return util.bytes_hex(util.words_bytes(self._MD5(message)));
-	};
-
-	self.words = function (message) {
-		return self._MD5(message);
+	var MD5 = function (message, options) {
+		if (options && options.asWords)
+			return MD5._MD5(message);
+		return util.bytes_hex(util.words_bytes(MD5._MD5(message)));
 	};
 
 	// The core
-	self._MD5 = function (message) {
+	MD5._MD5 = function (message) {
 
 		var m = util.endian(util.string_words(message)),
 		    l = message.length * 8,
@@ -113,15 +111,15 @@ Crypto.MD5 = function () {
 	};
 
 	// Auxiliary functions
-	self._FF  = function (a, b, c, d, x, s, t) { return this._cmn(b & c | ~b & d, a, b, x, s, t); };
-	self._GG  = function (a, b, c, d, x, s, t) { return this._cmn(b & d | c & ~d, a, b, x, s, t); };
-	self._HH  = function (a, b, c, d, x, s, t) { return this._cmn(b ^ c ^ d, a, b, x, s, t); };
-	self._II  = function (a, b, c, d, x, s, t) { return this._cmn(c ^ (b | ~d), a, b, x, s, t); };
-	self._cmn = function (q, a, b, x, s, t) {
+	MD5._FF  = function (a, b, c, d, x, s, t) { return this._cmn(b & c | ~b & d, a, b, x, s, t); };
+	MD5._GG  = function (a, b, c, d, x, s, t) { return this._cmn(b & d | c & ~d, a, b, x, s, t); };
+	MD5._HH  = function (a, b, c, d, x, s, t) { return this._cmn(b ^ c ^ d, a, b, x, s, t); };
+	MD5._II  = function (a, b, c, d, x, s, t) { return this._cmn(c ^ (b | ~d), a, b, x, s, t); };
+	MD5._cmn = function (q, a, b, x, s, t) {
 		var n = (a >>> 0) + (q >>> 0) + (x >>> 0) + (t >>> 0);
 		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
 	};
 
-	return self;
+	return MD5;
 
 }();

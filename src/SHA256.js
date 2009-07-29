@@ -4,12 +4,10 @@ Crypto.SHA256 = function () {
 	var util = Crypto.util;
 
 	// Public API
-	var self = function (message) {
-		return util.bytes_hex(util.words_bytes(self._SHA256(message)));
-	};
-
-	self.words = function (message) {
-		return self._SHA256(message);
+	var SHA256 = function (message, options) {
+		if (options && options.asWords)
+			return SHA256._SHA256(message);
+		return util.bytes_hex(util.words_bytes(SHA256._SHA256(message)));
 	};
 
 	// Constants
@@ -31,7 +29,7 @@ Crypto.SHA256 = function () {
 	         0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2];
 
 	// The core
-	self._SHA256 = function (message) {
+	SHA256._SHA256 = function (message) {
 
 		var m = util.string_words(message),
 		    l = message.length * 8,
@@ -101,14 +99,14 @@ Crypto.SHA256 = function () {
 
 			}
 
-			HASH[0] += a;
-			HASH[1] += b;
-			HASH[2] += c;
-			HASH[3] += d;
-			HASH[4] += e;
-			HASH[5] += f;
-			HASH[6] += g;
-			HASH[7] += h;
+			HASH[0] = (HASH[0] + a) >>> 0;
+			HASH[1] = (HASH[1] + b) >>> 0;
+			HASH[2] = (HASH[2] + c) >>> 0;
+			HASH[3] = (HASH[3] + d) >>> 0;
+			HASH[4] = (HASH[4] + e) >>> 0;
+			HASH[5] = (HASH[5] + f) >>> 0;
+			HASH[6] = (HASH[6] + g) >>> 0;
+			HASH[7] = (HASH[7] + h) >>> 0;
 
 		}
 
@@ -116,6 +114,6 @@ Crypto.SHA256 = function () {
 
 	};
 
-	return self;
+	return SHA256;
 
 }();
