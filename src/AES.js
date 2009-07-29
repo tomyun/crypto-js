@@ -187,31 +187,31 @@ Crypto.AES = function () {
 	return {
 
 		/**
-		 * Public API
+		 * Package private methods and properties
 		 */
 
-		encrypt: function (message, key) {
-			this._Init(key);
-			return this._Cipher(util.string_bytes(message));
+		_BlockSize: 4,
+
+		_EncryptBlock: function (B, K) {
+			this._Init(K);
+			return this._Cipher(B);
 		},
 
-		decrypt: function (C, key) {
-			this._Init(key);
-			return util.bytes_string(this._InvCipher(C));
+		_DecryptBlock: function (B, K) {
+			this._Init(K);
+			return this._InvCipher(B);
+		},
+
+		_Init: function (K) {
+			KeyLength = K.length / 4;
+			NRounds = KeyLength + 6;
+			this._KeyExpansion(K);
 		},
 
 
 		/**
 		 * Internal methods and properties
 		 */
-
-		_BlockSize: 4,
-
-		_Init: function (key) {
-			KeyLength = key.length / 4;
-			NRounds = KeyLength + 6;
-			this._KeyExpansion(util.string_bytes(key));
-		},
 
 		/**
 		 * Performs a Key Expansion routine to generate a key schedule.
