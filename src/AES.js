@@ -187,6 +187,52 @@ Crypto.AES = function () {
 	return {
 
 		/**
+		 * Public API
+		 */
+
+		encrypt: function (message, key, mode) {
+
+			// Convert to byte arrays
+			var M = util.string_bytes(message),
+			    K = util.string_bytes(key);
+
+			// Generate random IV
+			for (var i = 0, IV = []; i < this._BlockSize * 4; i++)
+				IV.push(Math.floor(Math.random() * 256));
+
+			// Determine mode
+			mode = mode || Crypto.mode.CBC;
+
+			// Encrypt
+			mode.encrypt(this, M, K, IV);
+
+			// Return ciphertext
+			return util.bytes_base64(IV.concat(M));
+
+		},
+
+		decrypt: function (ciphertext, key, mode) {
+
+			// Convert to byte arrays
+			var C = util.base64_bytes(ciphertext),
+			    K = util.string_bytes(key);
+
+			// Separate IV and message
+			var IV = C.splice(0, this._BlockSize * 4);
+
+			// Determine mode
+			mode = mode || Crypto.mode.CBC;
+
+			// Decrypt
+			mode.decrypt(this, C, K, IV);
+
+			// Return plaintext
+			return util.bytes_string(C);
+
+		},
+
+
+		/**
 		 * Package private methods and properties
 		 */
 
