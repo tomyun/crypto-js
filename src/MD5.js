@@ -4,9 +4,7 @@ Crypto.MD5 = function () {
 	var util = Crypto.util;
 
 	// Public API
-	var MD5 = function (message, options) {
-		if (options && options.asWords)
-			return MD5._MD5(message);
+	var MD5 = function (message) {
 		return util.bytes_hex(util.words_bytes(MD5._MD5(message)));
 	};
 
