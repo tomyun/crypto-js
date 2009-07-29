@@ -433,21 +433,10 @@ Crypto.AES = function () {
 		 * by different offsets.
 		 */
 		_ShiftRows: function () {
-
-			var temp = [[], [], [], []];
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					temp[r][c] = State[r][c];
-				}
-			}
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] = temp[r][(c + r) % this._BlockSize];
-				}
-			}
-
+			State[1].push(State[1].shift());
+			State[2].push(State[2].shift());
+			State[2].push(State[2].shift());
+			State[3].unshift(State[3].pop());
 		},
 
 		/**
