@@ -204,7 +204,8 @@ Crypto.AES = function () {
 			mode = mode || Crypto.mode.CBC;
 
 			// Encrypt
-			mode.encrypt(this, M, K, IV);
+			this._Init(K);
+			mode.encrypt(this, M, IV);
 
 			// Return ciphertext
 			return util.bytes_base64(IV.concat(M));
@@ -224,7 +225,8 @@ Crypto.AES = function () {
 			mode = mode || Crypto.mode.CBC;
 
 			// Decrypt
-			mode.decrypt(this, C, K, IV);
+			this._Init(K);
+			mode.decrypt(this, C, IV);
 
 			// Return plaintext
 			return util.bytes_string(C);
@@ -238,13 +240,11 @@ Crypto.AES = function () {
 
 		_BlockSize: 4,
 
-		_EncryptBlock: function (B, K) {
-			this._Init(K);
+		_EncryptBlock: function (B) {
 			return this._Cipher(B);
 		},
 
-		_DecryptBlock: function (B, K) {
-			this._Init(K);
+		_DecryptBlock: function (B) {
 			return this._InvCipher(B);
 		},
 
