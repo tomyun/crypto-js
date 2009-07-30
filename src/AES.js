@@ -341,64 +341,50 @@ Crypto.AES = function () {
 		 */
 		_KeyExpansion: function (K) {
 
-			KeySchedule = new Array(this._BlockSize * (NRounds + 1));
+			KeySchedule = [];
 
-			for (var rowNum = 0; rowNum < KeyLength; rowNum++) {
-				KeySchedule[rowNum] = [
-					K[4 * rowNum],
-					K[4 * rowNum + 1],
-					K[4 * rowNum + 2],
-					K[4 * rowNum + 3]
+			for (var row = 0; row < KeyLength; row++) {
+				KeySchedule[row] = [
+					K[row * 4],
+					K[row * 4 + 1],
+					K[row * 4 + 2],
+					K[row * 4 + 3]
 				];
 			}
 
-			var temp = new Array(4);
+			for (var row = KeyLength; row < this._BlockSize * (NRounds + 1); row++) {
 
-			for (var rowNum = KeyLength; rowNum < (this._BlockSize * (NRounds + 1)); rowNum++) {
+				var temp = [
+					KeySchedule[row - 1][0],
+					KeySchedule[row - 1][1],
+					KeySchedule[row - 1][2],
+					KeySchedule[row - 1][3]
+				];
 
-				temp[0] = KeySchedule[rowNum - 1][0];
-				temp[1] = KeySchedule[rowNum - 1][1];
-				temp[2] = KeySchedule[rowNum - 1][2];
-				temp[3] = KeySchedule[rowNum - 1][3];
+				if (row % KeyLength == 0) {
 
-				if (rowNum % KeyLength == 0) {
+					// Rot word
+					temp.push(temp.shift());
 
-					this._RotWord(temp);
 					this._SubWord(temp);
 
-					temp[0] ^= Rcon[rowNum / KeyLength][0];
-					temp[1] ^= Rcon[rowNum / KeyLength][1];
-					temp[2] ^= Rcon[rowNum / KeyLength][2];
-					temp[3] ^= Rcon[rowNum / KeyLength][3];
+					temp[0] ^= Rcon[row / KeyLength][0];
+					temp[1] ^= Rcon[row / KeyLength][1];
+					temp[2] ^= Rcon[row / KeyLength][2];
+					temp[3] ^= Rcon[row / KeyLength][3];
 
-				} else if (KeyLength > 6 && rowNum % KeyLength == 4) {
+				} else if (KeyLength > 6 && row % KeyLength == 4) {
 					this._SubWord(temp);
 				}
 
-				KeySchedule[rowNum] = new Array(4);
-				KeySchedule[rowNum][0] = KeySchedule[rowNum - KeyLength][0] ^ temp[0];
-				KeySchedule[rowNum][1] = KeySchedule[rowNum - KeyLength][1] ^ temp[1];
-				KeySchedule[rowNum][2] = KeySchedule[rowNum - KeyLength][2] ^ temp[2];
-				KeySchedule[rowNum][3] = KeySchedule[rowNum - KeyLength][3] ^ temp[3];
+				KeySchedule[row] = [
+					KeySchedule[row - KeyLength][0] ^ temp[0],
+					KeySchedule[row - KeyLength][1] ^ temp[1],
+					KeySchedule[row - KeyLength][2] ^ temp[2],
+					KeySchedule[row - KeyLength][3] ^ temp[3]
+				];
 
 			}
-
-		},
-
-		/**
-		 * Function used in the Key Expansion routine that takes
-		 * a four-byte word and performs a cyclic permutation.
-		 */
-		_RotWord: function (w) {
-
-			var temp = w[0];
-
-			w[0] = w[1];
-			w[1] = w[2];
-			w[2] = w[3];
-			w[3] = temp;
-
-			return w;
 
 		},
 
@@ -408,14 +394,10 @@ Crypto.AES = function () {
 		 * to produce an output word.
 		 */
 		_SubWord: function (w) {
-
 			w[0] = Sbox[w[0]];
 			w[1] = Sbox[w[1]];
 			w[2] = Sbox[w[2]];
 			w[3] = Sbox[w[3]];
-
-			return w;
-
 		},
 
 		/**
