@@ -324,16 +324,16 @@ Crypto.AES = function () {
 			return this._InvCipher(B);
 		},
 
+
+		/**
+		 * Internal methods and properties
+		 */
+
 		_Init: function (K) {
 			KeyLength = K.length / 4;
 			NRounds = KeyLength + 6;
 			this._KeyExpansion(K);
 		},
-
-
-		/**
-		 * Internal methods and properties
-		 */
 
 		/**
 		 * Performs a Key Expansion routine to generate a key schedule.
