@@ -240,8 +240,84 @@ Crypto.AES = function () {
 
 		_BlockSize: 4,
 
-		_EncryptBlock: function (B) {
-			return this._Cipher(B);
+		_EncryptBlock: function (M) {
+
+			// Set input
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = M[col * 4 + row];
+			}
+
+			// Add round key
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[col][row];
+			}
+
+			for (var round = 1; round < NRounds; ++round) {
+
+				// Sub bytes
+				for (var row = 0; row < 4; row++) {
+					for (var col = 0; col < 4; col++)
+						State[row][col] = Sbox[State[row][col]];
+				}
+
+				// Shift rows
+				State[1].push(State[1].shift());
+				State[2].push(State[2].shift());
+				State[2].push(State[2].shift());
+				State[3].unshift(State[3].pop());
+
+				// Mix columns
+				for (var col = 0; col < 4; col++) {
+
+					var s0 = State[0][col],
+					    s1 = State[1][col],
+					    s2 = State[2][col],
+					    s3 = State[3][col];
+
+					State[0][col] = Mult2[s0] ^ Mult3[s1] ^ s2 ^ s3;
+					State[1][col] = s0 ^ Mult2[s1] ^ Mult3[s2] ^ s3;
+					State[2][col] = s0 ^ s1 ^ Mult2[s2] ^ Mult3[s3];
+					State[3][col] = Mult3[s0] ^ s1 ^ s2 ^ Mult2[s3];
+
+				}
+
+				// Add round key
+				for (var row = 0; row < 4; row++) {
+					for (var col = 0; col < 4; col++)
+						State[row][col] ^= KeySchedule[round * 4 + col][row];
+				}
+
+			}
+
+			// Sub bytes
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = Sbox[State[row][col]];
+			}
+
+			// Shift rows
+			State[1].push(State[1].shift());
+			State[2].push(State[2].shift());
+			State[2].push(State[2].shift());
+			State[3].unshift(State[3].pop());
+
+			// Add round key
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[NRounds * 4 + col][row];
+			}
+
+			// Get output
+			var output = [];
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					output[col * 4 + row] = State[row][col];
+			}
+
+			return output;
+
 		},
 
 		_DecryptBlock: function (B) {
@@ -346,20 +422,81 @@ Crypto.AES = function () {
 		 */
 		_Cipher: function (M) {
 
-			this._SetInput(M);
-
-			this._AddRoundKey(0);
-			for (var round = 1; round < NRounds; ++round) {
-				this._SubBytes();
-				this._ShiftRows();
-				this._MixColumns();
-				this._AddRoundKey(round);
+			// Set input
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = M[col * 4 + row];
 			}
-			this._SubBytes();
-			this._ShiftRows();
-			this._AddRoundKey(NRounds);
 
-			return this._GetOutput();
+			// Add round key
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[col][row];
+			}
+
+			for (var round = 1; round < NRounds; ++round) {
+
+				// Sub bytes
+				for (var row = 0; row < 4; row++) {
+					for (var col = 0; col < 4; col++)
+						State[row][col] = Sbox[State[row][col]];
+				}
+
+				// Shift rows
+				State[1].push(State[1].shift());
+				State[2].push(State[2].shift());
+				State[2].push(State[2].shift());
+				State[3].unshift(State[3].pop());
+
+				// Mix columns
+				for (var col = 0; col < 4; col++) {
+
+					var s0 = State[0][col],
+					    s1 = State[1][col],
+					    s2 = State[2][col],
+					    s3 = State[3][col];
+
+					State[0][col] = Mult2[s0] ^ Mult3[s1] ^ s2 ^ s3;
+					State[1][col] = s0 ^ Mult2[s1] ^ Mult3[s2] ^ s3;
+					State[2][col] = s0 ^ s1 ^ Mult2[s2] ^ Mult3[s3];
+					State[3][col] = Mult3[s0] ^ s1 ^ s2 ^ Mult2[s3];
+
+				}
+
+				// Add round key
+				for (var row = 0; row < 4; row++) {
+					for (var col = 0; col < 4; col++)
+						State[row][col] ^= KeySchedule[round * 4 + col][row];
+				}
+
+			}
+
+			// Sub bytes
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = Sbox[State[row][col]];
+			}
+
+			// Shift rows
+			State[1].push(State[1].shift());
+			State[2].push(State[2].shift());
+			State[2].push(State[2].shift());
+			State[3].unshift(State[3].pop());
+
+			// Add round key
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[NRounds * 4 + col][row];
+			}
+
+			// Get output
+			var output = [];
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					output[col * 4 + row] = State[row][col];
+			}
+
+			return output;
 
 		},
 
@@ -389,17 +526,10 @@ Crypto.AES = function () {
 		 * Copies the input into the State array.
 		 */
 		_SetInput: function (input) {
-
-			var v, p;
-
-			for (var r = 0; r < this._BlockSize; r++) {
-				for (var c = 0; c < 4; c++) {
-					p = c * 4 + r;
-					v = input[p];
-					State[r][c] = v;
-				}
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = input[col * 4 + row];
 			}
-
 		},
 
 		/**
@@ -407,10 +537,9 @@ Crypto.AES = function () {
 		 */
 		_GetOutput: function () {
 			var output = [];
-			for (var r = 0; r < this._BlockSize; r++) {
-				for (var c = 0; c < 4; c++) {
-					output[c * 4 + r] = State[r][c];
-				}
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					output[col * 4 + row] = State[row][col];
 			}
 			return output;
 		},
@@ -420,10 +549,9 @@ Crypto.AES = function () {
 		 * is added to the State using an XOR operation.
 		 */
 		_AddRoundKey: function (round) {
-			for (var r = 0; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] ^= KeySchedule[round * 4 + c][r];
-				}
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[round * 4 + col][row];
 			}
 		},
 
@@ -468,10 +596,9 @@ Crypto.AES = function () {
 		 */
 		_SubBytes: function (box) {
 			box = box || Sbox;
-			for (var r = 0; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] = box[State[r][c]];
-				}
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = box[State[row][col]];
 			}
 		},
 
@@ -490,20 +617,17 @@ Crypto.AES = function () {
 		 */
 		_MixColumns: function () {
 
-			var s = State;
-			var t = [];
+			for (var col = 0; col < 4; col++) {
 
-			for (var c = 0; c < 4; c++) {
+				var s0 = State[0][col],
+				    s1 = State[1][col],
+				    s2 = State[2][col],
+				    s3 = State[3][col];
 
-				t[0] = s[0][c];
-				t[1] = s[1][c];
-				t[2] = s[2][c];
-				t[3] = s[3][c];
-
-				s[0][c] = Mult2[t[0]] ^ Mult3[t[1]] ^ t[2] ^ t[3];
-				s[1][c] = t[0] ^ Mult2[t[1]] ^ Mult3[t[2]] ^ t[3];
-				s[2][c] = t[0] ^ t[1] ^ Mult2[t[2]] ^ Mult3[t[3]];
-				s[3][c] = Mult3[t[0]] ^ t[1] ^ t[2] ^ Mult2[t[3]];
+				State[0][col] = Mult2[s0] ^ Mult3[s1] ^ s2 ^ s3;
+				State[1][col] = s0 ^ Mult2[s1] ^ Mult3[s2] ^ s3;
+				State[2][col] = s0 ^ s1 ^ Mult2[s2] ^ Mult3[s3];
+				State[3][col] = Mult3[s0] ^ s1 ^ s2 ^ Mult2[s3];
 
 			}
 
