@@ -9,16 +9,8 @@ Crypto.mode.ECB = {
 			M.push(0);
 
 		// Encrypt each block
-		for (var i = 0; i < M.length; i += cipher._BlockSize * 4) {
-
-			var block = M.slice(i, i + cipher._BlockSize * 4),
-			    crypted = cipher._EncryptBlock(block);
-
-			// Copy crypted bytes into message array
-			for (var j = 0; j < cipher._BlockSize * 4; j++)
-				M[i + j] = crypted[j];
-
-		}
+		for (var blockOffset = 0; blockOffset < M.length; blockOffset += cipher._BlockSize * 4)
+			cipher._EncryptBlock(M, blockOffset);
 
 	},
 

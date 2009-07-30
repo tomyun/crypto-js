@@ -240,12 +240,14 @@ Crypto.AES = function () {
 
 		_BlockSize: 4,
 
-		_EncryptBlock: function (M) {
+		_EncryptBlock: function (M, offset) {
+
+			offset = offset || 0;
 
 			// Set input
 			for (var row = 0; row < this._BlockSize; row++) {
 				for (var col = 0; col < 4; col++)
-					State[row][col] = M[col * 4 + row];
+					State[row][col] = M[offset + col * 4 + row];
 			}
 
 			// Add round key
@@ -254,7 +256,7 @@ Crypto.AES = function () {
 					State[row][col] ^= KeySchedule[col][row];
 			}
 
-			for (var round = 1; round < NRounds; ++round) {
+			for (var round = 1; round < NRounds; round++) {
 
 				// Sub bytes
 				for (var row = 0; row < 4; row++) {
@@ -310,13 +312,12 @@ Crypto.AES = function () {
 			}
 
 			// Get output
-			var output = [];
 			for (var row = 0; row < this._BlockSize; row++) {
 				for (var col = 0; col < 4; col++)
-					output[col * 4 + row] = State[row][col];
+					M[offset + col * 4 + row] = State[row][col];
 			}
 
-			return output;
+			return M;
 
 		},
 
