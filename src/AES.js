@@ -414,7 +414,7 @@ Crypto.AES = function () {
 		},
 
 		/**
-		 * Performs a Key Expansion routine to generate a key schedule.
+		 * Generate a key schedule
 		 */
 		_KeyExpansion: function (K) {
 
@@ -443,7 +443,11 @@ Crypto.AES = function () {
 					// Rot word
 					temp.push(temp.shift());
 
-					this._SubWord(temp);
+					// Sub word
+					temp[0] = Sbox[temp[0]];
+					temp[1] = Sbox[temp[1]];
+					temp[2] = Sbox[temp[2]];
+					temp[3] = Sbox[temp[3]];
 
 					temp[0] ^= Rcon[row / KeyLength][0];
 					temp[1] ^= Rcon[row / KeyLength][1];
@@ -451,7 +455,13 @@ Crypto.AES = function () {
 					temp[3] ^= Rcon[row / KeyLength][3];
 
 				} else if (KeyLength > 6 && row % KeyLength == 4) {
-					this._SubWord(temp);
+
+					// Sub word
+					temp[0] = Sbox[temp[0]];
+					temp[1] = Sbox[temp[1]];
+					temp[2] = Sbox[temp[2]];
+					temp[3] = Sbox[temp[3]];
+
 				}
 
 				KeySchedule[row] = [
@@ -460,142 +470,6 @@ Crypto.AES = function () {
 					KeySchedule[row - KeyLength][2] ^ temp[2],
 					KeySchedule[row - KeyLength][3] ^ temp[3]
 				];
-
-			}
-
-		},
-
-		/**
-		 * Function used in the Key Expansion routine that takes a
-		 * four-byte input word and applies an S-box to each of the four bytes
-		 * to produce an output word.
-		 */
-		_SubWord: function (w) {
-			w[0] = Sbox[w[0]];
-			w[1] = Sbox[w[1]];
-			w[2] = Sbox[w[2]];
-			w[3] = Sbox[w[3]];
-		},
-
-		/**
-		 * Copies the input into the State array.
-		 */
-		_SetInput: function (input) {
-			for (var row = 0; row < this._BlockSize; row++) {
-				for (var col = 0; col < 4; col++)
-					State[row][col] = input[col * 4 + row];
-			}
-		},
-
-		/**
-		 * Copies the final value into a byte array.
-		 */
-		_GetOutput: function () {
-			var output = [];
-			for (var row = 0; row < this._BlockSize; row++) {
-				for (var col = 0; col < 4; col++)
-					output[col * 4 + row] = State[row][col];
-			}
-			return output;
-		},
-
-		/**
-		 * Transformation in the Cipher and Inverse Cipher in which a Round Key
-		 * is added to the State using an XOR operation.
-		 */
-		_AddRoundKey: function (round) {
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					State[row][col] ^= KeySchedule[round * 4 + col][row];
-			}
-		},
-
-		/**
-		 * Transformation in the Cipher that processes the State
-		 * by cyclically shifting the last three rows of the State
-		 * by different offsets.
-		 */
-		_ShiftRows: function () {
-			State[1].push(State[1].shift());
-			State[2].push(State[2].shift());
-			State[2].push(State[2].shift());
-			State[3].unshift(State[3].pop());
-		},
-
-		/**
-		 * Transformation in the Inverse Cipher
-		 * that is the inverse of ShiftRows().
-		 */
-		_InvShiftRows: function () {
-			State[1].unshift(State[1].pop());
-			State[2].push(State[2].shift());
-			State[2].push(State[2].shift());
-			State[3].push(State[3].shift());
-		},
-
-		/**
-		 * Transformation in the Cipher that processes the State
-		 * using a non-linear byte substitution table (S-box) that operates
-		 * on each of the State bytes independently.
-		 */
-		_SubBytes: function () {
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					State[row][col] = Sbox[State[row][col]];
-			}
-		},
-
-		/**
-		 * Transformation in the Inverse Cipher
-		 * that is the inverse of SubBytes().
-		 */
-		_InvSubBytes: function () {
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					State[row][col] = InvSbox[State[row][col]];
-			}
-		},
-
-		/**
-		 * Transformation in the Cipher that takes all of the columns
-		 * of the State and mixes their data (independently of one another)
-		 * to produce new columns.
-		 */
-		_MixColumns: function () {
-
-			for (var col = 0; col < 4; col++) {
-
-				var s0 = State[0][col],
-				    s1 = State[1][col],
-				    s2 = State[2][col],
-				    s3 = State[3][col];
-
-				State[0][col] = Mult2[s0] ^ Mult3[s1] ^ s2 ^ s3;
-				State[1][col] = s0 ^ Mult2[s1] ^ Mult3[s2] ^ s3;
-				State[2][col] = s0 ^ s1 ^ Mult2[s2] ^ Mult3[s3];
-				State[3][col] = Mult3[s0] ^ s1 ^ s2 ^ Mult2[s3];
-
-			}
-
-		},
-
-		/**
-		 * Transformation in the Inverse Cipher
-		 * that is the inverse of MixColumns().
-		 */
-		_InvMixColumns: function () {
-
-			for (var col = 0; col < 4; col++) {
-
-				var s0 = State[0][col],
-				    s1 = State[1][col],
-				    s2 = State[2][col],
-				    s3 = State[3][col];
-
-				State[0][col] = MultE[s0] ^ MultB[s1] ^ MultD[s2] ^ Mult9[s3];
-				State[1][col] = Mult9[s0] ^ MultE[s1] ^ MultB[s2] ^ MultD[s3];
-				State[2][col] = MultD[s0] ^ Mult9[s1] ^ MultE[s2] ^ MultB[s3];
-				State[3][col] = MultB[s0] ^ MultD[s1] ^ Mult9[s2] ^ MultE[s3];
 
 			}
 
