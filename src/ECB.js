@@ -17,16 +17,8 @@ Crypto.mode.ECB = {
 	decrypt: function (cipher, C, IV) {
 
 		// Decrypt each block
-		for (var i = 0; i < C.length; i += cipher._BlockSize * 4) {
-
-			var block = C.slice(i, i + cipher._BlockSize * 4),
-			    plain = cipher._DecryptBlock(block);
-
-			// Copy plaintext bytes into ciphertext array
-			for (var j = 0; j < cipher._BlockSize * 4; j++)
-				C[i + j] = plain[j];
-
-		}
+		for (var blockOffset = 0; blockOffset < C.length; blockOffset += cipher._BlockSize * 4)
+			cipher._DecryptBlock(C, blockOffset);
 
 		// Strip padding
 		do { var popped = C.pop(); } while (popped != 0x80);

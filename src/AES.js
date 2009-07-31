@@ -321,8 +321,85 @@ Crypto.AES = function () {
 
 		},
 
-		_DecryptBlock: function (B) {
-			return this._InvCipher(B);
+		_DecryptBlock: function (C, offset) {
+
+			offset = offset || 0;
+
+			// Set input
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = C[offset + col * 4 + row];
+			}
+
+			// Add round key
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[NRounds * 4 + col][row];
+			}
+
+			for (var round = 1; round < NRounds; round++) {
+
+				// Inv shift rows
+				State[1].unshift(State[1].pop());
+				State[2].push(State[2].shift());
+				State[2].push(State[2].shift());
+				State[3].push(State[3].shift());
+
+				// Inv sub bytes
+				for (var row = 0; row < 4; row++) {
+					for (var col = 0; col < 4; col++)
+						State[row][col] = InvSbox[State[row][col]];
+				}
+
+				// Add round key
+				for (var row = 0; row < 4; row++) {
+					for (var col = 0; col < 4; col++)
+						State[row][col] ^= KeySchedule[(NRounds - round) * 4 + col][row];
+				}
+
+				// Inv mix columns
+				for (var col = 0; col < 4; col++) {
+
+					var s0 = State[0][col],
+					    s1 = State[1][col],
+					    s2 = State[2][col],
+					    s3 = State[3][col];
+
+					State[0][col] = MultE[s0] ^ MultB[s1] ^ MultD[s2] ^ Mult9[s3];
+					State[1][col] = Mult9[s0] ^ MultE[s1] ^ MultB[s2] ^ MultD[s3];
+					State[2][col] = MultD[s0] ^ Mult9[s1] ^ MultE[s2] ^ MultB[s3];
+					State[3][col] = MultB[s0] ^ MultD[s1] ^ Mult9[s2] ^ MultE[s3];
+
+				}
+
+			}
+
+			// Inv shift rows
+			State[1].unshift(State[1].pop());
+			State[2].push(State[2].shift());
+			State[2].push(State[2].shift());
+			State[3].push(State[3].shift());
+
+			// Inv sub bytes
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = InvSbox[State[row][col]];
+			}
+
+			// Add round key
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] ^= KeySchedule[col][row];
+			}
+
+			// Set output
+			for (var row = 0; row < this._BlockSize; row++) {
+				for (var col = 0; col < 4; col++)
+					C[offset + col * 4 + row] = State[row][col];
+			}
+
+			return C;
+
 		},
 
 
@@ -401,28 +478,6 @@ Crypto.AES = function () {
 		},
 
 		/**
-		 * The inverse cipher
-		 */
-		_InvCipher: function (C) {
-
-			this._SetInput(C);
-
-			this._AddRoundKey(NRounds);
-			for (var round = 1; round < NRounds; ++round) {
-				this._InvShiftRows();
-				this._InvSubBytes();
-				this._AddRoundKey(NRounds - round);
-				this._InvMixColumns();
-			}
-			this._InvShiftRows();
-			this._InvSubBytes();
-			this._AddRoundKey(0);
-
-			return this._GetOutput();
-
-		},
-
-		/**
 		 * Copies the input into the State array.
 		 */
 		_SetInput: function (input) {
@@ -472,21 +527,10 @@ Crypto.AES = function () {
 		 * that is the inverse of ShiftRows().
 		 */
 		_InvShiftRows: function () {
-
-			var temp = [[], [], [], []];
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					temp[r][(c + r) % this._BlockSize] = State[r][c];
-				}
-			}
-
-			for (var r = 1; r < 4; r++) {
-				for (var c = 0; c < 4; c++) {
-					State[r][c] = temp[r][c];
-				}
-			}
-
+			State[1].unshift(State[1].pop());
+			State[2].push(State[2].shift());
+			State[2].push(State[2].shift());
+			State[3].push(State[3].shift());
 		},
 
 		/**
@@ -494,11 +538,10 @@ Crypto.AES = function () {
 		 * using a non-linear byte substitution table (S-box) that operates
 		 * on each of the State bytes independently.
 		 */
-		_SubBytes: function (box) {
-			box = box || Sbox;
+		_SubBytes: function () {
 			for (var row = 0; row < 4; row++) {
 				for (var col = 0; col < 4; col++)
-					State[row][col] = box[State[row][col]];
+					State[row][col] = Sbox[State[row][col]];
 			}
 		},
 
@@ -507,7 +550,10 @@ Crypto.AES = function () {
 		 * that is the inverse of SubBytes().
 		 */
 		_InvSubBytes: function () {
-			this._SubBytes(InvSbox);
+			for (var row = 0; row < 4; row++) {
+				for (var col = 0; col < 4; col++)
+					State[row][col] = InvSbox[State[row][col]];
+			}
 		},
 
 		/**
@@ -539,27 +585,17 @@ Crypto.AES = function () {
 		 */
 		_InvMixColumns: function () {
 
-			var s = State;
-			var t = [];
+			for (var col = 0; col < 4; col++) {
 
-			for (var c = 0; c < 4; c++) {
+				var s0 = State[0][col],
+				    s1 = State[1][col],
+				    s2 = State[2][col],
+				    s3 = State[3][col];
 
-				t[0] = s[0][c];
-				t[1] = s[1][c];
-				t[2] = s[2][c];
-				t[3] = s[3][c];
-
-				s[0][c] = MultE[t[0]] ^ MultB[t[1]] ^
-				          MultD[t[2]] ^ Mult9[t[3]];
-
-				s[1][c] = Mult9[t[0]] ^ MultE[t[1]] ^
-				          MultB[t[2]] ^ MultD[t[3]];
-
-				s[2][c] = MultD[t[0]] ^ Mult9[t[1]] ^
-				          MultE[t[2]] ^ MultB[t[3]];
-
-				s[3][c] = MultB[t[0]] ^ MultD[t[1]] ^
-				          Mult9[t[2]] ^ MultE[t[3]];
+				State[0][col] = MultE[s0] ^ MultB[s1] ^ MultD[s2] ^ Mult9[s3];
+				State[1][col] = Mult9[s0] ^ MultE[s1] ^ MultB[s2] ^ MultD[s3];
+				State[2][col] = MultD[s0] ^ Mult9[s1] ^ MultE[s2] ^ MultB[s3];
+				State[3][col] = MultB[s0] ^ MultD[s1] ^ Mult9[s2] ^ MultE[s3];
 
 			}
 
