@@ -55,14 +55,6 @@ var Crypto = function () {
 				return words;
 			},
 
-			// Convert big-endian 32-bit words to a string
-			words_string: function (words) {
-				var str = [];
-				for (var b = 0; b < words.length * 32; b += 8)
-					str.push(String.fromCharCode((words[b >>> 5] >>> (24 - b % 32)) & 0xFF));
-				return str.join("");
-			},
-
 			// Convert a byte array to big-endian 32-bits words
 			bytes_words: function (bytes) {
 				var words = [];
