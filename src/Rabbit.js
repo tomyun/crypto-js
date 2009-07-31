@@ -60,20 +60,18 @@ Crypto.Rabbit = function () {
 			this._KeySetup(K);
 			if (IV) this._IVSetup(IV);
 
-			for (var i = 0, S = []; i < M.length; i++) {
+			for (var S = [], i = 0; i < M.length; i++) {
 
-				if (S.length == 0) {
+				if (i % 16 == 0) {
 
 					// Iterate the system
 					this._NextState();
 
 					// Generate 16 bytes of pseudo-random data
-					S = [
-						X[0] ^ (X[5] >>> 16) ^ (X[3] << 16),
-						X[2] ^ (X[7] >>> 16) ^ (X[5] << 16),
-						X[4] ^ (X[1] >>> 16) ^ (X[7] << 16),
-						X[6] ^ (X[3] >>> 16) ^ (X[1] << 16)
-					];
+					S[0] = X[0] ^ (X[5] >>> 16) ^ (X[3] << 16);
+					S[1] = X[2] ^ (X[7] >>> 16) ^ (X[5] << 16);
+					S[2] = X[4] ^ (X[1] >>> 16) ^ (X[7] << 16);
+					S[3] = X[6] ^ (X[3] >>> 16) ^ (X[1] << 16);
 
 					// Swap endian
 					for (var j = 0; j < 4; j++) {
@@ -82,10 +80,8 @@ Crypto.Rabbit = function () {
 					}
 
 					// Convert words to bytes
-					var bytes = [];
-					for (var b = 0; b < 128; b += 8)
-						bytes.push((S[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-					S = bytes;
+					for (var b = 120; b >= 0; b -= 8)
+						S[b / 8] = (S[b >>> 5] >>> (24 - b % 32)) & 0xFF;
 
 				}
 
