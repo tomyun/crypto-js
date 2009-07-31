@@ -14,34 +14,32 @@ Crypto.Rabbit = function () {
 		 * Public API
 		 */
 
-		encrypt: function (message, key, IV) {
+		encrypt: function (message, key) {
 
 			// Convert to bytes and words
 			var M = util.string_bytes(message),
 			    K = util.endian(util.string_words(key));
 
-			// Generate random IV, or use given IV if testing
-			if (!this.testMode) {
-				IV = [ Math.floor(Math.random() * 0x100000000),
-				       Math.floor(Math.random() * 0x100000000) ];
-			}
+			// Generate random IV
+			IV = [ Math.floor(Math.random() * 0x100000000),
+			       Math.floor(Math.random() * 0x100000000) ];
 
 			// Encrypt
 			this._Rabbit(M, K, IV);
 
 			// Return ciphertext
-			return util.bytes_base64(!this.testMode ? util.words_bytes(IV).concat(M) : M);
+			return util.bytes_base64(util.words_bytes(IV).concat(M));
 
 		},
 
-		decrypt: function (ciphertext, key, IV) {
+		decrypt: function (ciphertext, key) {
 
 			// Convert to bytes and words
 			var C = util.base64_bytes(ciphertext),
 			    K = util.endian(util.string_words(key));
 
-			// Separate IV and message, or use given IV if testing
-			if (!this.testMode) IV = util.bytes_words(C.splice(0,8));
+			// Separate IV and message
+			IV = util.bytes_words(C.splice(0, 8));
 
 			// Decrypt
 			this._Rabbit(C, K, IV);
@@ -50,8 +48,6 @@ Crypto.Rabbit = function () {
 			return util.bytes_string(C);
 
 		},
-
-		testMode: false,
 
 
 		/**
@@ -94,6 +90,7 @@ Crypto.Rabbit = function () {
 				}
 
 				M[i] ^= S.shift();
+
 			}
 
 		},
