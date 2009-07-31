@@ -317,8 +317,6 @@ Crypto.AES = function () {
 					M[offset + col * 4 + row] = State[row][col];
 			}
 
-			return M;
-
 		},
 
 		_DecryptBlock: function (C, offset) {
@@ -397,8 +395,6 @@ Crypto.AES = function () {
 				for (var col = 0; col < 4; col++)
 					C[offset + col * 4 + row] = State[row][col];
 			}
-
-			return C;
 
 		},
 
