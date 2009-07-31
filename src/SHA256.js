@@ -4,8 +4,10 @@ Crypto.SHA256 = function () {
 	var util = Crypto.util;
 
 	// Public API
-	var SHA256 = function (message) {
-		return util.bytes_hex(util.words_bytes(SHA256._SHA256(message)));
+	var SHA256 = function (message, options) {
+		return options && options.asBytes ?
+		       util.words_bytes(SHA256._SHA256(message)) :
+		       util.bytes_hex(util.words_bytes(SHA256._SHA256(message)));
 	};
 
 	// Constants
