@@ -58,14 +58,13 @@ Crypto.SHA256 = function () {
 				else {
 
 					var gamma0x = W[j - 15],
-					    gamma1x = W[j - 2];
-
-					var gamma0 = ((gamma0x << 25) | (gamma0x >>>  7)) ^
-					             ((gamma0x << 14) | (gamma0x >>> 18)) ^
-					              (gamma0x >>> 3),
-					    gamma1 = ((gamma1x <<  15) | (gamma1x >>> 17)) ^
-					             ((gamma1x <<  13) | (gamma1x >>> 19)) ^
-					              (gamma1x >>> 10);
+					    gamma1x = W[j - 2],
+					    gamma0  = ((gamma0x << 25) | (gamma0x >>>  7)) ^
+					              ((gamma0x << 14) | (gamma0x >>> 18)) ^
+					               (gamma0x >>> 3),
+					    gamma1  = ((gamma1x <<  15) | (gamma1x >>> 17)) ^
+					              ((gamma1x <<  13) | (gamma1x >>> 19)) ^
+					               (gamma1x >>> 10);
 
 					W[j] = (gamma0 >>> 0) + (W[j - 7] >>> 0) +
 					       (gamma1 >>> 0) + (W[j - 16] >>> 0);
