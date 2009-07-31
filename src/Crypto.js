@@ -5,38 +5,6 @@ var Crypto = function () {
 	return {
 		util: {
 
-			// Convert n to unsigned 32-bit integer
-			u32: function (n) {
-				return n >>> 0;
-			},
-
-			// Unsigned 32-bit addition
-			add: function (m, n) {
-
-				// Add any number of arguments
-				var result = this.u32(arguments[0]);
-				for (var i = 1; i < arguments.length; i++)
-					result = this.u32(result + this.u32(arguments[i]));
-				return result;
-
-			},
-
-			// Unsigned 32-bit multiplication
-			mult: function (m, n) {
-				return this.add((n & 0xFFFF0000) * m,
-				                (n & 0x0000FFFF) * m);
-			},
-
-			// Unsigned 32-bit greater than (>) comparison
-			gt: function (m, n) {
-				return this.u32(m) > this.u32(n);
-			},
-
-			// Unsigned 32-bit less than (<) comparison
-			lt: function (m, n) {
-				return this.u32(m) < this.u32(n);
-			},
-
 			// Bit-wise rotate left
 			rotl: function (n, b) {
 				return (n << b) | (n >>> (32 - b));
