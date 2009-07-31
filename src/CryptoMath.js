@@ -1,7 +1,5 @@
 (function(){
 
-	Crypto.util = Crypto.util || {};
-
 	// Shortcut
 	var util = Crypto.util;
 
