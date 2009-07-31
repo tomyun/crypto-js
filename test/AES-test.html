@@ -23,7 +23,7 @@
 
 // 15KB of random, dummy data
 var _15KB = [];
-for (var i = 0; i < 15000; i++) _15KB.push(Math.floor(Math.random() * 256));
+for (var i = 0; i < 15000; i++) _15KB.push(String.fromCharCode(Math.floor(Math.random() * 256)));
 _15KB = _15KB.join("");
 
 // Shortcut
