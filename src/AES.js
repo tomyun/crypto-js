@@ -164,19 +164,7 @@ Crypto.AES = function () {
 	];
 
 	// Precomputed RCon lookup
-	var Rcon = [
-		[0x00, 0x00, 0x00, 0x00],
-		[0x01, 0x00, 0x00, 0x00],
-		[0x02, 0x00, 0x00, 0x00],
-		[0x04, 0x00, 0x00, 0x00],
-		[0x08, 0x00, 0x00, 0x00],
-		[0x10, 0x00, 0x00, 0x00],
-		[0x20, 0x00, 0x00, 0x00],
-		[0x40, 0x00, 0x00, 0x00],
-		[0x80, 0x00, 0x00, 0x00],
-		[0x1b, 0x00, 0x00, 0x00],
-		[0x36, 0x00, 0x00, 0x00]
-	];
+	var Rcon = [ 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 ];
 
 	// Inner state
 	var State = [[], [], [], []],
@@ -197,7 +185,7 @@ Crypto.AES = function () {
 			    K = util.string_bytes(key);
 
 			// Generate random IV
-			for (var i = 0, IV = []; i < this._BlockSize * 4; i++)
+			for (var IV = [], i = 0; i < this._BlockSize * 4; i++)
 				IV.push(Math.floor(Math.random() * 256));
 
 			// Determine mode
@@ -241,8 +229,6 @@ Crypto.AES = function () {
 		_BlockSize: 4,
 
 		_EncryptBlock: function (M, offset) {
-
-			offset = offset || 0;
 
 			// Set input
 			for (var row = 0; row < this._BlockSize; row++) {
@@ -311,7 +297,7 @@ Crypto.AES = function () {
 					State[row][col] ^= KeySchedule[NRounds * 4 + col][row];
 			}
 
-			// Get output
+			// Set output
 			for (var row = 0; row < this._BlockSize; row++) {
 				for (var col = 0; col < 4; col++)
 					M[offset + col * 4 + row] = State[row][col];
@@ -320,8 +306,6 @@ Crypto.AES = function () {
 		},
 
 		_DecryptBlock: function (C, offset) {
-
-			offset = offset || 0;
 
 			// Set input
 			for (var row = 0; row < this._BlockSize; row++) {
@@ -445,10 +429,7 @@ Crypto.AES = function () {
 					temp[2] = Sbox[temp[2]];
 					temp[3] = Sbox[temp[3]];
 
-					temp[0] ^= Rcon[row / KeyLength][0];
-					temp[1] ^= Rcon[row / KeyLength][1];
-					temp[2] ^= Rcon[row / KeyLength][2];
-					temp[3] ^= Rcon[row / KeyLength][3];
+					temp[0] ^= Rcon[row / KeyLength];
 
 				} else if (KeyLength > 6 && row % KeyLength == 4) {
 
