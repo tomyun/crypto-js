@@ -12,12 +12,18 @@ Crypto.MD5 = function () {
 	// The core
 	MD5._MD5 = function (message) {
 
-		var m = util.endian(util.string_words(message)),
+		var m = util.string_words(message),
 		    l = message.length * 8,
 		    a =  1732584193,
 		    b = -271733879,
 		    c = -1732584194,
 		    d =  271733878;
+
+		// Swap endian
+		for (var i = 0; i < m.length; i++) {
+			m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
+			       ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
+		}
 
 		// Padding
 		m[l >>> 5] |= 0x80 << (l % 32);
@@ -110,12 +116,20 @@ Crypto.MD5 = function () {
 	};
 
 	// Auxiliary functions
-	MD5._FF  = function (a, b, c, d, x, s, t) { return this._cmn(b & c | ~b & d, a, b, x, s, t); };
-	MD5._GG  = function (a, b, c, d, x, s, t) { return this._cmn(b & d | c & ~d, a, b, x, s, t); };
-	MD5._HH  = function (a, b, c, d, x, s, t) { return this._cmn(b ^ c ^ d, a, b, x, s, t); };
-	MD5._II  = function (a, b, c, d, x, s, t) { return this._cmn(c ^ (b | ~d), a, b, x, s, t); };
-	MD5._cmn = function (q, a, b, x, s, t) {
-		var n = (a >>> 0) + (q >>> 0) + (x >>> 0) + (t >>> 0);
+	MD5._FF  = function (a, b, c, d, x, s, t) {
+		var n = (a >>> 0) + ((b & c | ~b & d) >>> 0) + (x >>> 0) + (t >>> 0);
+		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+	};
+	MD5._GG  = function (a, b, c, d, x, s, t) {
+		var n = (a >>> 0) + ((b & d | c & ~d) >>> 0) + (x >>> 0) + (t >>> 0);
+		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+	};
+	MD5._HH  = function (a, b, c, d, x, s, t) {
+		var n = (a >>> 0) + ((b ^ c ^ d) >>> 0) + (x >>> 0) + (t >>> 0);
+		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+	};
+	MD5._II  = function (a, b, c, d, x, s, t) {
+		var n = (a >>> 0) + ((c ^ (b | ~d)) >>> 0) + (x >>> 0) + (t >>> 0);
 		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
 	};
 
