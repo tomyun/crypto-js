@@ -85,7 +85,7 @@ Crypto.Rabbit = function () {
 
 				}
 
-				M[i] ^= S.shift();
+				M[i] ^= S[i % 16];
 
 			}
 
