@@ -24,8 +24,7 @@ Crypto.AES = function () {
 	];
 
 	// Compute inverse Sbox lookup table
-	var InvSbox = [];
-	for (var i = 0; i < 256; i++) InvSbox[Sbox[i]] = i;
+	for (var InvSbox = [], i = 0; i < 256; i++) InvSbox[Sbox[i]] = i;
 
 	// Precomputed RCon lookup
 	var Rcon = [ 0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 ];
