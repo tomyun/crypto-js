@@ -8,7 +8,7 @@
 <!-- Test subject -->
 <script type="text/javascript" src="../src/Crypto.js"></script>
 <script type="text/javascript" src="../src/AES.js"></script>
-<script type="text/javascript" src="../src/ECB.js"></script>
+<script type="text/javascript" src="../src/CBC.js"></script>
 
 <!-- Profiling -->
 <script type="text/javascript">
@@ -23,8 +23,8 @@ var key = [];
 for (var i = 0; i < 32; i++) key.push(String.fromCharCode(Math.floor(Math.random() * 256)));
 key = key.join("");
 
-profile(["Crypto.AES", "Crypto.mode.ECB", "Crypto.util"], function(){
-	Crypto.AES.decrypt(Crypto.AES.encrypt(_15KB, key, Crypto.mode.ECB), key, Crypto.mode.ECB);
+profile(["Crypto.AES", "Crypto.mode.CBC", "Crypto.util"], function(){
+	Crypto.AES.decrypt(Crypto.AES.encrypt(_15KB, key), key);
 });
 
 </script>
