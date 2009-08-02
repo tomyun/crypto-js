@@ -152,7 +152,8 @@ var Crypto = function () {
 
 			}
 
-		}
+		},
+		mode: {}
 	};
 
 }();

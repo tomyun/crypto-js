@@ -1,4 +1,3 @@
-Crypto.mode = Crypto.mode || {};
 Crypto.mode.ECB = {
 
 	encrypt: function (cipher, M, IV) {

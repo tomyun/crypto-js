@@ -1,4 +1,3 @@
-Crypto.mode = Crypto.mode || {};
 Crypto.mode.CBC = {
 
 	encrypt: function (cipher, M, IV) {
