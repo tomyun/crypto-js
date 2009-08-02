@@ -12,10 +12,10 @@
 <!-- Profiling -->
 <script type="text/javascript">
 
-// 15KB of random, dummy data
-var _15KB = [];
-for (var i = 0; i < 15000; i++) _15KB.push(String.fromCharCode(Math.floor(Math.random() * 256)));
-_15KB = _15KB.join("");
+// 1KB of random, dummy data
+var data = [];
+for (var i = 0; i < 1000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
+data = data.join("");
 
 // Random 128-bit key
 var key = [];
@@ -23,7 +23,7 @@ for (var i = 0; i < 16; i++) key.push(String.fromCharCode(Math.floor(Math.random
 key = key.join("");
 
 profile(["Crypto.MARC4", "Crypto.util"], function(){
-	Crypto.MARC4.decrypt(Crypto.MARC4.encrypt(_15KB, key), key);
+	Crypto.MARC4.decrypt(Crypto.MARC4.encrypt(data, key), key);
 });
 
 </script>

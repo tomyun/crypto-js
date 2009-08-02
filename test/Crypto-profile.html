@@ -11,17 +11,17 @@
 <!-- Profiling -->
 <script type="text/javascript">
 
-// 15KB of random, dummy data
-var _15KB = [];
-for (var i = 0; i < 15000; i++) _15KB.push(String.fromCharCode(Math.floor(Math.random() * 256)));
-_15KB = _15KB.join("");
+// 1KB of random, dummy data
+var data = [];
+for (var i = 0; i < 1000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
+data = data.join("");
 
 profile(["Crypto.util"], function(){
 
-	var bytes = Crypto.util.string_bytes(_15KB);
+	var bytes = Crypto.util.string_bytes(data);
 	Crypto.util.bytes_string(bytes);
 
-	var words = Crypto.util.string_words(_15KB);
+	var words = Crypto.util.string_words(data);
 
 	Crypto.util.bytes_words(bytes);
 	Crypto.util.words_bytes(words);
