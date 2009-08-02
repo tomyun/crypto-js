@@ -20,10 +20,10 @@
 <!-- Test cases -->
 <script type="text/javascript">
 
-// 15KB of random, dummy data
-var _15KB = [];
-for (var i = 0; i < 15000; i++) _15KB.push(String.fromCharCode(Math.floor(Math.random() * 256)));
-_15KB = _15KB.join("");
+// 1KB of random, dummy data
+var data = [];
+for (var i = 0; i < 1000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
+data = data.join("");
 
 // Random 128-bit key
 var key = [];
@@ -58,7 +58,7 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual([0x4D, 0x10, 0x51, 0xA1, 0x23, 0xAF, 0xB6, 0x70, 0xBF, 0x8D, 0x85, 0x05, 0xC8, 0xD8, 0x5A, 0x44].toString(), message.toString());
 
 		// Test D(E(m)) == m
-		Assert.areEqual(_15KB, Crypto.Rabbit.decrypt(Crypto.Rabbit.encrypt(_15KB, key), key));
+		Assert.areEqual(data, Crypto.Rabbit.decrypt(Crypto.Rabbit.encrypt(data, key), key));
 
 	}
 
