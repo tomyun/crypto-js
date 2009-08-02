@@ -167,7 +167,7 @@ Crypto.Rabbit = function () {
 			b = (C[7] >>> 0) < (C_old[7] >>> 0) ? 1 : 0;
 
 			// Calculate the g-values
-			for (var i = 0, g = []; i < 8; i++) {
+			for (var g = [], i = 0; i < 8; i++) {
 
 				var gx = (X[i] + C[i]) >>> 0;
 
