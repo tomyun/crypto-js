@@ -3,12 +3,6 @@ Crypto.MARC4 = function () {
 	// Shortcut
 	var util = Crypto.util;
 
-	// IV length in bytes
-	var ivLen = 16;
-
-	// Drop n keystream bytes
-	var drop = 1536;
-
 	return {
 
 		/**
@@ -22,12 +16,12 @@ Crypto.MARC4 = function () {
 			    K = util.string_bytes(key);
 
 			// Attach random IV
-			for (var IV = [], i = 0; i < ivLen; i++)
+			for (var IV = [], i = 0; i < 16; i++)
 				IV.push(Math.floor(Math.random() * 256));
 			K = K.concat(IV);
 
 			// Encrypt
-			this._MARC4(M, K, drop);
+			this._MARC4(M, K, 1536);
 
 			// Return ciphertext
 			return util.bytes_base64(IV.concat(M));
@@ -41,13 +35,13 @@ Crypto.MARC4 = function () {
 			    K = util.string_bytes(key);
 
 			// Separate IV and message
-			var IV = C.splice(0, ivLen);
+			var IV = C.splice(0, 16);
 
 			// Attach IV
 			K = K.concat(IV);
 
 			// Decrypt
-			this._MARC4(C, K, drop);
+			this._MARC4(C, K, 1536);
 
 			// Return plaintext
 			return util.bytes_string(C);
