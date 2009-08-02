@@ -153,8 +153,7 @@ Crypto.Rabbit = function () {
 		_NextState: function () {
 
 			// Save old counter values
-			var C_old = [];
-			for (var i = 0; i < 8; i++) C_old[i] = C[i];
+			for (var C_old = [], i = 0; i < 8; i++) C_old[i] = C[i];
 
 			// Calculate new counter values
 			C[0] = (C[0] + 0x4D34D34D + b) >>> 0;
