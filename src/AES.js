@@ -32,15 +32,23 @@ Crypto.AES = function () {
 
 	// Mulitplication by x in GF(2^8)
 	function xtime(a, b) {
+
 		var result = 0;
+
 		for (var i = 0; i < 8; i++) {
+
 			if (b & 1) result ^= a;
+
 			var hiBitSet = a & 0x80;
 			a = (a << 1) & 0xFF;
 			if (hiBitSet) a ^= 0x1b;
+
 			b >>>= 1;
+
 		}
+
 		return result;
+
 	}
 
 	// Compute mulitplication in GF(2^8) lookup tables
