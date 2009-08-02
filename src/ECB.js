@@ -2,22 +2,24 @@ Crypto.mode.ECB = {
 
 	encrypt: function (cipher, M, IV) {
 
+		var blockSize = cipher._BlockSize * 4;
+
 		// Pad
 		M.push(0x80);
-		while (M.length % (cipher._BlockSize * 4) != 0)
+		while (M.length % blockSize != 0)
 			M.push(0);
 
 		// Encrypt each block
-		for (var blockOffset = 0; blockOffset < M.length; blockOffset += cipher._BlockSize * 4)
-			cipher._EncryptBlock(M, blockOffset);
+		for (var offset = 0; offset < M.length; offset += blockSize)
+			cipher._EncryptBlock(M, offset);
 
 	},
 
 	decrypt: function (cipher, C, IV) {
 
 		// Decrypt each block
-		for (var blockOffset = 0; blockOffset < C.length; blockOffset += cipher._BlockSize * 4)
-			cipher._DecryptBlock(C, blockOffset);
+		for (var offset = 0; offset < C.length; offset += cipher._BlockSize * 4)
+			cipher._DecryptBlock(C, offset);
 
 		// Strip padding
 		do { var popped = C.pop(); } while (popped != 0x80);
