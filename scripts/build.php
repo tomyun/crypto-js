@@ -1,5 +1,14 @@
 <?php
 
+$copyrightInfo = '/*!
+ * Crypto-JS v1.0.0
+ * http://code.google.com/p/crypto-js/
+ * 
+ * Copyright (c) 2009, Jeff Mott. All rights reserved.
+ * http://code.google.com/p/crypto-js/wiki/License
+ */
+';
+
 $packages = array(
 
 	array('Crypto'),
@@ -33,6 +42,8 @@ foreach ($packages as $package) {
 
 	$process = proc_open($cmd, $descriptors, $pipes);
 	if ($process === false) die();
+
+	fwrite($pipes[0], $copyrightInfo);
 
 	foreach ($package as $file)
 		fwrite($pipes[0], file_get_contents("../src/$file.js"));
