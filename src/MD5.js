@@ -117,20 +117,20 @@ Crypto.MD5 = function () {
 
 	// Auxiliary functions
 	MD5._FF  = function (a, b, c, d, x, s, t) {
-		var n = (a >>> 0) + ((b & c | ~b & d) >>> 0) + (x >>> 0) + (t >>> 0);
-		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+		var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+		return ((n << s) | (n >>> (32 - s))) + b;
 	};
 	MD5._GG  = function (a, b, c, d, x, s, t) {
-		var n = (a >>> 0) + ((b & d | c & ~d) >>> 0) + (x >>> 0) + (t >>> 0);
-		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+		var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+		return ((n << s) | (n >>> (32 - s))) + b;
 	};
 	MD5._HH  = function (a, b, c, d, x, s, t) {
-		var n = (a >>> 0) + ((b ^ c ^ d) >>> 0) + (x >>> 0) + (t >>> 0);
-		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+		var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+		return ((n << s) | (n >>> (32 - s))) + b;
 	};
 	MD5._II  = function (a, b, c, d, x, s, t) {
-		var n = (a >>> 0) + ((c ^ (b | ~d)) >>> 0) + (x >>> 0) + (t >>> 0);
-		return ((n << s) | (n >>> (32 - s))) + (b >>> 0);
+		var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+		return ((n << s) | (n >>> (32 - s))) + b;
 	};
 
 	return MD5;
