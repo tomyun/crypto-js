@@ -36,41 +36,40 @@ Crypto.SHA1 = function () {
 			for (var j = 0; j < 80; j++) {
 
 				if (j < 16) W[j] = M[i + j];
-				else W[j] = util.rotl(W[j-3] ^ W[j-8] ^ W[j-14] ^ W[j-16], 1);
+				else {
+					var n = W[j-3] ^ W[j-8] ^ W[j-14] ^ W[j-16];
+					W[j] = (n << 1) | (n >>> 31);
+				}
 
-				var temp = util.add(util.rotl(H0, 5), this._f(j, H1, H2, H3), H4, W[j], this._K(j));
-				H4 = H3;
-				H3 = H2;
-				H2 = util.rotl(H1, 30);
-				H1 = H0;
-				H0 = temp;
+				var f = j < 20 ? H1 & H2 | ~H1 & H3 :
+				        j < 40 ? H1 ^ H2 ^ H3 :
+				        j < 60 ? H1 & H2 | H1 & H3 | H2 & H3 :
+				                 H1 ^ H2 ^ H3,
+				    K = j < 20 ?  1518500249 :
+				        j < 40 ?  1859775393 :
+				        j < 60 ? -1894007588 :
+				                 -899497514,
+				    t = ((H0 << 5) | (H0 >>> 27)) +
+				        f + H4 + (W[j] >>> 0) + K;
+
+				H4 =  H3;
+				H3 =  H2;
+				H2 = (H1 << 30) | (H1 >>> 2);
+				H1 =  H0;
+				H0 =  t;
 
 			}
 
-			H0 = util.add(H0, A);
-			H1 = util.add(H1, B);
-			H2 = util.add(H2, C);
-			H3 = util.add(H3, D);
-			H4 = util.add(H4, E);
+			H0 += A;
+			H1 += B;
+			H2 += C;
+			H3 += D;
+			H4 += E;
 
 		}
 
 		return [H0, H1, H2, H3, H4];
 
-	};
-
-	SHA1._f = function (t, b, c, d) {
-		if (t < 20) return (b & c) | ((~b) & d);
-		if (t < 40) return  b ^ c ^ d;
-		if (t < 60) return (b & c) | (b & d) | (c & d);
-		return b ^ c ^ d;
-	};
-
-	SHA1._K = function (t) {
-		if (t < 20) return  1518500249;
-		if (t < 40) return  1859775393;
-		if (t < 60) return -1894007588;
-		return -899497514
 	};
 
 	return SHA1;
