@@ -67,8 +67,8 @@ Crypto.SHA256 = function () {
 					              ((gamma1x <<  13) | (gamma1x >>> 19)) ^
 					               (gamma1x >>> 10);
 
-					W[j] = (gamma0 >>> 0) + (W[j - 7] >>> 0) +
-					       (gamma1 >>> 0) + (W[j - 16] >>> 0);
+					W[j] = gamma0 + (W[j - 7] >>> 0) +
+					       gamma1 + (W[j - 16] >>> 0);
 
 				}
 
@@ -82,9 +82,8 @@ Crypto.SHA256 = function () {
 				             ((e <<  7) | (e >>> 25));
 
 
-				T1 = (h >>> 0) + (sigma1 >>> 0) + (ch >>> 0) +
-				     (K[j] >>> 0) + (W[j] >>> 0);
-				T2 = (sigma0 >>> 0) + (maj >>> 0);
+				T1 = (h >>> 0) + sigma1 + ch + (K[j]) + (W[j] >>> 0);
+				T2 = sigma0 + maj;
 
 				h = g;
 				g = f;
@@ -97,14 +96,14 @@ Crypto.SHA256 = function () {
 
 			}
 
-			HASH[0] = (HASH[0] + a) >>> 0;
-			HASH[1] = (HASH[1] + b) >>> 0;
-			HASH[2] = (HASH[2] + c) >>> 0;
-			HASH[3] = (HASH[3] + d) >>> 0;
-			HASH[4] = (HASH[4] + e) >>> 0;
-			HASH[5] = (HASH[5] + f) >>> 0;
-			HASH[6] = (HASH[6] + g) >>> 0;
-			HASH[7] = (HASH[7] + h) >>> 0;
+			HASH[0] += a;
+			HASH[1] += b;
+			HASH[2] += c;
+			HASH[3] += d;
+			HASH[4] += e;
+			HASH[5] += f;
+			HASH[6] += g;
+			HASH[7] += h;
 
 		}
 
