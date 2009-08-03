@@ -30,11 +30,17 @@ Crypto.SHA256 = function () {
 	// The core
 	SHA256._SHA256 = function (message) {
 
-		var m = util.string_words(message),
-		    l = message.length * 8,
-		    HASH = [0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
-		            0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19],
-		    W = [64],
+		var m  = util.string_words(message),
+		    l  = message.length * 8,
+		    H0 = 0x6A09E667,
+		    H1 = 0xBB67AE85,
+		    H2 = 0x3C6EF372,
+		    H3 = 0xA54FF53A,
+		    H4 = 0x510E527F,
+		    H5 = 0x9B05688C,
+		    H6 = 0x1F83D9AB,
+		    H7 = 0x5BE0CD19,
+		    W  = [],
 		    a, b, c, d, e, f, g, h, i, j,
 		    T1, T2;
 
@@ -44,14 +50,14 @@ Crypto.SHA256 = function () {
 
 		for (var i = 0; i < m.length; i += 16) {
 
-			a = HASH[0];
-			b = HASH[1];
-			c = HASH[2];
-			d = HASH[3];
-			e = HASH[4];
-			f = HASH[5];
-			g = HASH[6];
-			h = HASH[7];
+			a = H0;
+			b = H1;
+			c = H2;
+			d = H3;
+			e = H4;
+			f = H5;
+			g = H6;
+			h = H7;
 
 			for (var j = 0; j < 64; j++) {
 
@@ -96,18 +102,18 @@ Crypto.SHA256 = function () {
 
 			}
 
-			HASH[0] += a;
-			HASH[1] += b;
-			HASH[2] += c;
-			HASH[3] += d;
-			HASH[4] += e;
-			HASH[5] += f;
-			HASH[6] += g;
-			HASH[7] += h;
+			H0 += a;
+			H1 += b;
+			H2 += c;
+			H3 += d;
+			H4 += e;
+			H5 += f;
+			H6 += g;
+			H7 += h;
 
 		}
 
-		return HASH;
+		return [H0, H1, H2, H3, H4, H5, H6, H7];
 
 	};
 
