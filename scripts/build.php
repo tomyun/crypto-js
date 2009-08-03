@@ -15,7 +15,7 @@ $packages = array(
 	array('Crypto', 'MD5'),
 	array('Crypto', 'SHA1'),
 	array('Crypto', 'SHA256'),
-	array('Crypto', 'MARC4'),
+	array('Crypto', 'SHA256', 'MARC4'),
 	array('Crypto', 'MD5', 'Rabbit'),
 	array('Crypto', 'SHA256', 'OFB', 'AES')
 
