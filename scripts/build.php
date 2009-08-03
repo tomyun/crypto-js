@@ -4,6 +4,7 @@ $packages = array(
 
 	array('Crypto'),
 	array('MD5'),
+	array('SHA1'),
 	array('SHA256'),
 	array('MARC4'),
 	array('Rabbit'),
@@ -12,6 +13,7 @@ $packages = array(
 	array('OFB'),
 
 	array('Crypto', 'MD5'),
+	array('Crypto', 'SHA1'),
 	array('Crypto', 'SHA256'),
 	array('Crypto', 'MARC4'),
 	array('Crypto', 'MD5', 'Rabbit'),
