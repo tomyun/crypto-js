@@ -84,7 +84,7 @@ Crypto.AES = function () {
 				IV.push(Math.floor(Math.random() * 256));
 
 			// Determine mode
-			mode = mode || Crypto.mode.CBC;
+			mode = mode || Crypto.mode.OFB;
 
 			// Encrypt
 			this._Init(K);
@@ -105,7 +105,7 @@ Crypto.AES = function () {
 			var IV = C.splice(0, this._BlockSize * 4);
 
 			// Determine mode
-			mode = mode || Crypto.mode.CBC;
+			mode = mode || Crypto.mode.OFB;
 
 			// Decrypt
 			this._Init(K);
