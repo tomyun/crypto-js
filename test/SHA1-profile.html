@@ -12,9 +12,9 @@
 <!-- Profiling -->
 <script type="text/javascript">
 
-// 1KB of random, dummy data
+// 5KB of random, dummy data
 var data = [];
-for (var i = 0; i < 1000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
+for (var i = 0; i < 5000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
 data = data.join("");
 
 profile(["Crypto.SHA1", "Crypto.util", "Crypto"], function(){
