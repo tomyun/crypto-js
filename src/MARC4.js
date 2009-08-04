@@ -9,19 +9,17 @@ Crypto.MARC4 = function () {
 		 * Public API
 		 */
 
-		encrypt: function (message, key, hasher) {
+		encrypt: function (message, key) {
 
 			// Convert to bytes
 			var M = util.string_bytes(message),
 			    K = util.string_bytes(key);
 
-			// Determine hasher
-			hasher = hasher || Crypto.SHA256;
-
-			// Attach random IV
-			for (var IV = [], i = 0; i < 16; i++)
+			// Generate random IV and mix with key
+			for (var IV = [], i = 0; i < 16; i++) {
 				IV.push(Math.floor(Math.random() * 256));
-			K = hasher(util.bytes_string(K.concat(IV)), { asBytes: true });
+				K[i] ^= IV[i];
+			}
 
 			// Encrypt
 			this._MARC4(M, K, 1536);
@@ -31,20 +29,17 @@ Crypto.MARC4 = function () {
 
 		},
 
-		decrypt: function (ciphertext, key, hasher) {
+		decrypt: function (ciphertext, key) {
 
 			// Convert to bytes
 			var C = util.base64_bytes(ciphertext),
 			    K = util.string_bytes(key);
 
-			// Determine hasher
-			hasher = hasher || Crypto.SHA256;
-
 			// Separate IV and message
 			var IV = C.splice(0, 16);
 
-			// Attach IV
-			K = hasher(util.bytes_string(K.concat(IV)), { asBytes: true });
+			// Mix IV with key
+			for (var i = 0; i < 16; i++) K[i] ^= IV[i];
 
 			// Decrypt
 			this._MARC4(C, K, 1536);
