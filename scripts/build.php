@@ -8,45 +8,46 @@ $copyrightInfo = '/*!
  */
 ';
 
-$packages = array(
-
-	array('Crypto'),
-	array('MD5'),
-	array('SHA1'),
-	array('SHA256'),
-	array('MARC4'),
-	array('Rabbit'),
-	array('AES'),
-	array('CBC'),
-	array('OFB'),
-
-	array('Crypto', 'MD5'),
-	array('Crypto', 'SHA1'),
-	array('Crypto', 'SHA256'),
-	array('Crypto', 'SHA256', 'MARC4'),
-	array('Crypto', 'MD5', 'Rabbit'),
-	array('Crypto', 'SHA256', 'OFB', 'AES')
-
+$files   = array('crypto', 'md5', 'sha1', 'sha256',
+                 'marc4', 'rabbit', 'aes', 'cbc', 'ofb');
+$rollups = array(
+	array('crypto', 'md5'),
+	array('crypto', 'sha1'),
+	array('crypto', 'sha256'),
+	array('crypto', 'marc4'),
+	array('crypto', 'md5', 'rabbit'),
+	array('crypto', 'sha256', 'ofb', 'aes')
 );
 
-$cmd = 'java -jar yuicompressor-2.4.2.jar --type js';
+foreach ($files as $file) {
+	mkdir("../build/$file");
+	$js = $copyrightInfo . file_get_contents("../src/$file.js");
+	file_put_contents("../build/$file/$file.js", $js);
+	file_put_contents("../build/$file/$file-min.js", compress($js));
+}
 
-$descriptors = array(
-	0 => array('pipe', 'r'),
-	1 => array('pipe', 'w'),
-	2 => array('pipe', 'w')
-);
+foreach ($rollups as $rollup) {
+	$rollupName = implode("-", $rollup);
+	mkdir("../build/$rollupName");
+	$js = $copyrightInfo;
+	foreach ($rollup as $file) $js .= file_get_contents("../src/$file.js");
+	file_put_contents("../build/$rollupName/$rollupName.js", compress($js));
+}
 
-foreach ($packages as $package) {
+function compress($js) {
+
+	$cmd = 'java -jar yuicompressor-2.4.2.jar --type js';
+
+	$descriptors = array(
+		0 => array('pipe', 'r'),
+		1 => array('pipe', 'w'),
+		2 => array('pipe', 'w')
+	);
 
 	$process = proc_open($cmd, $descriptors, $pipes);
 	if ($process === false) die();
 
-	fwrite($pipes[0], $copyrightInfo);
-
-	foreach ($package as $file)
-		fwrite($pipes[0], file_get_contents("../src/$file.js"));
-
+	fwrite($pipes[0], $js);
 	fclose($pipes[0]);
 
 	$compressed = stream_get_contents($pipes[1]);
@@ -55,10 +56,10 @@ foreach ($packages as $package) {
 	$errors = stream_get_contents($pipes[2]);
 	fclose($pipes[2]);
 
-	$status = proc_close($process);
+	$exitStatus = proc_close($process);
 
-	if ($status != 0 or $errors != '') die();
+	if ($exitStatus != 0 or $errors != '') die();
 
-	file_put_contents("../build/" . implode("-", $package) . "-min.js", $compressed);
+	return $compressed;
 
 }
