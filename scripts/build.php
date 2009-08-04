@@ -1,7 +1,7 @@
 <?php
 
 $copyrightInfo = '/*!
- * Crypto-JS vX.X.X
+ * Crypto-JS v1.0.X
  * http://code.google.com/p/crypto-js/
  * Copyright (c) 2009, Jeff Mott. All rights reserved.
  * http://code.google.com/p/crypto-js/wiki/License
