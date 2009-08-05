@@ -5,14 +5,14 @@ Crypto.MD5 = function () {
 
 	// Public API
 	var MD5 = function (message, options) {
-		var digestBytes = util.words_bytes(MD5._MD5(message));
-		return options && options.asBytes ? digestBytes : util.bytes_hex(digestBytes);
+		var digestBytes = util.wordsToBytes(MD5._MD5(message));
+		return options && options.asBytes ? digestBytes : util.bytesToHex(digestBytes);
 	};
 
 	// The core
 	MD5._MD5 = function (message) {
 
-		var m = util.string_words(message),
+		var m = util.stringToWords(message),
 		    l = message.length * 8,
 		    a =  1732584193,
 		    b = -271733879,

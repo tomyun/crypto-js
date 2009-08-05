@@ -12,8 +12,8 @@ Crypto.MARC4 = function () {
 		encrypt: function (message, key) {
 
 			// Convert to bytes
-			var M = util.string_bytes(message),
-			    K = util.string_bytes(key);
+			var M = util.stringToBytes(message),
+			    K = util.stringToBytes(key);
 
 			// Generate random IV and mix with key
 			for (var IV = [], i = 0; i < 16; i++) {
@@ -25,15 +25,15 @@ Crypto.MARC4 = function () {
 			this._MARC4(M, K, 1536);
 
 			// Return ciphertext
-			return util.bytes_base64(IV.concat(M));
+			return util.bytesToBase64(IV.concat(M));
 
 		},
 
 		decrypt: function (ciphertext, key) {
 
 			// Convert to bytes
-			var C = util.base64_bytes(ciphertext),
-			    K = util.string_bytes(key);
+			var C = util.base64ToBytes(ciphertext),
+			    K = util.stringToBytes(key);
 
 			// Separate IV and message
 			var IV = C.splice(0, 16);
@@ -45,7 +45,7 @@ Crypto.MARC4 = function () {
 			this._MARC4(C, K, 1536);
 
 			// Return plaintext
-			return util.bytes_string(C);
+			return util.bytesToString(C);
 
 		},
 

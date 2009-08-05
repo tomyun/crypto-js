@@ -17,8 +17,8 @@ Crypto.Rabbit = function () {
 		encrypt: function (message, key) {
 
 			// Convert to bytes and words
-			var M = util.string_bytes(message),
-			    K = util.endian(util.string_words(key));
+			var M = util.stringToBytes(message),
+			    K = util.endian(util.stringToWords(key));
 
 			// Generate random IV
 			IV = [ Math.floor(Math.random() * 0x100000000),
@@ -28,24 +28,24 @@ Crypto.Rabbit = function () {
 			this._Rabbit(M, K, IV);
 
 			// Return ciphertext
-			return util.bytes_base64(util.words_bytes(IV).concat(M));
+			return util.bytesToBase64(util.wordsToBytes(IV).concat(M));
 
 		},
 
 		decrypt: function (ciphertext, key) {
 
 			// Convert to bytes and words
-			var C = util.base64_bytes(ciphertext),
-			    K = util.endian(util.string_words(key));
+			var C = util.base64ToBytes(ciphertext),
+			    K = util.endian(util.stringToWords(key));
 
 			// Separate IV and message
-			IV = util.bytes_words(C.splice(0, 8));
+			IV = util.bytesToWords(C.splice(0, 8));
 
 			// Decrypt
 			this._Rabbit(C, K, IV);
 
 			// Return plaintext
-			return util.bytes_string(C);
+			return util.bytesToString(C);
 
 		},
 

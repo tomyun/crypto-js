@@ -76,8 +76,8 @@ Crypto.AES = function () {
 		encrypt: function (message, key, mode) {
 
 			// Convert to byte arrays
-			var M = util.string_bytes(message),
-			    K = util.string_bytes(key);
+			var M = util.stringToBytes(message),
+			    K = util.stringToBytes(key);
 
 			// Generate random IV
 			for (var IV = [], i = 0; i < this._BlockSize * 4; i++)
@@ -91,15 +91,15 @@ Crypto.AES = function () {
 			mode.encrypt(this, M, IV);
 
 			// Return ciphertext
-			return util.bytes_base64(IV.concat(M));
+			return util.bytesToBase64(IV.concat(M));
 
 		},
 
 		decrypt: function (ciphertext, key, mode) {
 
 			// Convert to byte arrays
-			var C = util.base64_bytes(ciphertext),
-			    K = util.string_bytes(key);
+			var C = util.base64ToBytes(ciphertext),
+			    K = util.stringToBytes(key);
 
 			// Separate IV and message
 			var IV = C.splice(0, this._BlockSize * 4);
@@ -112,7 +112,7 @@ Crypto.AES = function () {
 			mode.decrypt(this, C, IV);
 
 			// Return plaintext
-			return util.bytes_string(C);
+			return util.bytesToString(C);
 
 		},
 

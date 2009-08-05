@@ -5,14 +5,14 @@ Crypto.SHA1 = function () {
 
 	// Public API
 	var SHA1 = function (message, options) {
-		var digestBytes = util.words_bytes(SHA1._SHA1(message));
-		return options && options.asBytes ? digestBytes : util.bytes_hex(digestBytes);
+		var digestBytes = util.wordsToBytes(SHA1._SHA1(message));
+		return options && options.asBytes ? digestBytes : util.bytesToHex(digestBytes);
 	};
 
 	// The core
 	SHA1._SHA1 = function (message) {
 
-		var M  = util.string_words(message),
+		var M  = util.stringToWords(message),
 		    l  = message.length * 8,
 		    W  =  [],
 		    H0 =  1732584193,

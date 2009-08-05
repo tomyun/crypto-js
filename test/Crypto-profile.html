@@ -18,19 +18,19 @@ data = data.join("");
 
 profile(["Crypto.util"], function(){
 
-	var bytes = Crypto.util.string_bytes(data);
-	Crypto.util.bytes_string(bytes);
+	var bytes = Crypto.util.stringToBytes(data);
+	Crypto.util.bytesToString(bytes);
 
-	var words = Crypto.util.string_words(data);
+	var words = Crypto.util.stringToWords(data);
 
-	Crypto.util.bytes_words(bytes);
-	Crypto.util.words_bytes(words);
+	Crypto.util.bytesToWords(bytes);
+	Crypto.util.wordsToBytes(words);
 
-	var hex = Crypto.util.bytes_hex(bytes);
-	Crypto.util.hex_bytes(hex);
+	var hex = Crypto.util.bytesToHex(bytes);
+	Crypto.util.hexToBytes(hex);
 
-	var base64 = Crypto.util.bytes_base64(bytes);
-	Crypto.util.base64_bytes(base64);
+	var base64 = Crypto.util.bytesToBase64(bytes);
+	Crypto.util.base64ToBytes(base64);
 
 });
 

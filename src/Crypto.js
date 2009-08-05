@@ -32,7 +32,7 @@ var Crypto = function () {
 			},
 
 			// Convert a string to a byte array
-			string_bytes: function (str) {
+			stringToBytes: function (str) {
 				var bytes = [];
 				for (var i = 0; i < str.length; i++)
 					bytes.push(str.charCodeAt(i));
@@ -40,7 +40,7 @@ var Crypto = function () {
 			},
 
 			// Convert a byte array to a string
-			bytes_string: function (bytes) {
+			bytesToString: function (bytes) {
 				var str = [];
 				for (var i = 0; i < bytes.length; i++)
 					str.push(String.fromCharCode(bytes[i]));
@@ -48,7 +48,7 @@ var Crypto = function () {
 			},
 
 			// Convert a string to big-endian 32-bit words
-			string_words: function (str) {
+			stringToWords: function (str) {
 				var words = [];
 				for (var c = 0, b = 0; c < str.length; c++, b += 8)
 					words[b >>> 5] |= str.charCodeAt(c) << (24 - b % 32);
@@ -56,7 +56,7 @@ var Crypto = function () {
 			},
 
 			// Convert a byte array to big-endian 32-bits words
-			bytes_words: function (bytes) {
+			bytesToWords: function (bytes) {
 				var words = [];
 				for (var i = 0, b = 0; i < bytes.length; i++, b += 8)
 					words[b >>> 5] |= bytes[i] << (24 - b % 32);
@@ -64,7 +64,7 @@ var Crypto = function () {
 			},
 
 			// Convert big-endian 32-bit words to a byte array
-			words_bytes: function (words) {
+			wordsToBytes: function (words) {
 				var bytes = [];
 				for (var b = 0; b < words.length * 32; b += 8)
 					bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
@@ -72,7 +72,7 @@ var Crypto = function () {
 			},
 
 			// Convert a byte array to a hex string
-			bytes_hex: function (bytes) {
+			bytesToHex: function (bytes) {
 				var hex = [];
 				for (var i = 0; i < bytes.length; i++) {
 					hex.push((bytes[i] >>> 4).toString(16));
@@ -82,7 +82,7 @@ var Crypto = function () {
 			},
 
 			// Convert a hex string to a byte array
-			hex_bytes: function (hex) {
+			hexToBytes: function (hex) {
 				var bytes = [];
 				for (var c = 0; c < hex.length; c += 2)
 					bytes.push(parseInt(hex.substr(c, 2), 16));
@@ -90,7 +90,7 @@ var Crypto = function () {
 			},
 
 			// Convert a byte array to a base-64 string
-			bytes_base64: function (bytes) {
+			bytesToBase64: function (bytes) {
 
 				var base64 = [],
 				    overflow;
@@ -124,7 +124,7 @@ var Crypto = function () {
 			},
 
 			// Convert a base-64 string to a byte array
-			base64_bytes: function (base64) {
+			base64ToBytes: function (base64) {
 
 				// Remove non-base-64 characters
 				base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
