@@ -59,7 +59,7 @@ var MARC4 = Crypto.MARC4 = {
 	_marc4: function (m, k, drop) {
 
 		// State variables
-		var i, j, s;
+		var i, j, s, temp;
 
 		// Key setup
 		for (i = 0, s = []; i < 256; i++) s[i] = i;
@@ -68,9 +68,9 @@ var MARC4 = Crypto.MARC4 = {
 			j = (j + s[i] + k[i % k.length]) % 256;
 
 			// Swap
-			s[i] ^= s[j];
-			s[j] ^= s[i];
-			s[i] ^= s[j];
+			temp = s[i];
+			s[i] = s[j];
+			s[j] = temp;
 
 		}
 
@@ -84,9 +84,9 @@ var MARC4 = Crypto.MARC4 = {
 			j = (j + s[i]) % 256;
 
 			// Swap
-			s[i] ^= s[j];
-			s[j] ^= s[i];
-			s[i] ^= s[j];
+			temp = s[i];
+			s[i] = s[j];
+			s[j] = temp;
 
 			// Stop here if we're still dropping keystream
 			if (k < 0) continue;
