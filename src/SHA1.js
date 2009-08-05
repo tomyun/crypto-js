@@ -6,7 +6,9 @@ Crypto.SHA1 = function () {
 	// Public API
 	var SHA1 = function (message, options) {
 		var digestBytes = util.wordsToBytes(SHA1._SHA1(message));
-		return options && options.asBytes ? digestBytes : util.bytesToHex(digestBytes);
+		return options && options.asBytes ? digestBytes :
+		       options && options.asString ? util.bytesToString(digestBytes) :
+		       util.bytesToHex(digestBytes);
 	};
 
 	// The core

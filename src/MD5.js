@@ -6,7 +6,9 @@ Crypto.MD5 = function () {
 	// Public API
 	var MD5 = function (message, options) {
 		var digestBytes = util.wordsToBytes(MD5._MD5(message));
-		return options && options.asBytes ? digestBytes : util.bytesToHex(digestBytes);
+		return options && options.asBytes ? digestBytes :
+		       options && options.asString ? util.bytesToString(digestBytes) :
+		       util.bytesToHex(digestBytes);
 	};
 
 	// The core

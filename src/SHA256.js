@@ -6,7 +6,9 @@ Crypto.SHA256 = function () {
 	// Public API
 	var SHA256 = function (message, options) {
 		var digestBytes = util.wordsToBytes(SHA256._SHA256(message));
-		return options && options.asBytes ? digestBytes : util.bytesToHex(digestBytes);
+		return options && options.asBytes ? digestBytes :
+		       options && options.asString ? util.bytesToString(digestBytes) :
+		       util.bytesToHex(digestBytes);
 	};
 
 	// Constants
