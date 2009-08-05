@@ -32,7 +32,7 @@ Crypto.SHA256 = function () {
 	// The core
 	SHA256._SHA256 = function (message) {
 
-		var m  = util.stringToWords(message),
+		var M  = util.stringToWords(message),
 		    l  = message.length * 8,
 		    H0 = 0x6A09E667,
 		    H1 = 0xBB67AE85,
@@ -47,10 +47,10 @@ Crypto.SHA256 = function () {
 		    T1, T2;
 
 		// Padding
-		m[l >> 5] |= 0x80 << (24 - l % 32);
-		m[((l + 64 >> 9) << 4) + 15] = l;
+		M[l >> 5] |= 0x80 << (24 - l % 32);
+		M[((l + 64 >> 9) << 4) + 15] = l;
 
-		for (var i = 0; i < m.length; i += 16) {
+		for (var i = 0; i < M.length; i += 16) {
 
 			a = H0;
 			b = H1;
@@ -63,7 +63,7 @@ Crypto.SHA256 = function () {
 
 			for (var j = 0; j < 64; j++) {
 
-				if (j < 16) W[j] = m[j + i];
+				if (j < 16) W[j] = M[j + i];
 				else {
 
 					var gamma0x = W[j - 15],

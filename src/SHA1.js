@@ -29,11 +29,11 @@ Crypto.SHA1 = function () {
 
 		for (var i = 0; i < M.length; i += 16) {
 
-			var A = H0,
-			    B = H1,
-			    C = H2,
-			    D = H3,
-			    E = H4;
+			var a = H0,
+			    b = H1,
+			    c = H2,
+			    d = H3,
+			    e = H4;
 
 			for (var j = 0; j < 80; j++) {
 
@@ -62,11 +62,11 @@ Crypto.SHA1 = function () {
 
 			}
 
-			H0 += A;
-			H1 += B;
-			H2 += C;
-			H3 += D;
-			H4 += E;
+			H0 += a;
+			H1 += b;
+			H2 += c;
+			H3 += d;
+			H4 += e;
 
 		}
 
