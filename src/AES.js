@@ -3,8 +3,8 @@
 // Shortcut
 var util = Crypto.util;
 
-// Precomputed Sbox
-var Sbox = [ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
+// Precomputed SBOX
+var SBOX = [ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
              0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
              0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0,
              0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -37,16 +37,16 @@ var Sbox = [ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
              0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68,
              0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 ];
 
-// Compute inverse Sbox lookup table
-for (var InvSbox = [], i = 0; i < 256; i++) InvSbox[Sbox[i]] = i;
+// Compute inverse SBOX lookup table
+for (var INVSBOX = [], i = 0; i < 256; i++) INVSBOX[SBOX[i]] = i;
 
 // Compute mulitplication in GF(2^8) lookup tables
-var Mult2 = [],
-    Mult3 = [],
-    Mult9 = [],
-    MultB = [],
-    MultD = [],
-    MultE = [];
+var MULT2 = [],
+    MULT3 = [],
+    MULT9 = [],
+    MULTB = [],
+    MULTD = [],
+    MULTE = [];
 
 function xtime(a, b) {
 	for (var result = 0, i = 0; i < 8; i++) {
@@ -60,22 +60,22 @@ function xtime(a, b) {
 }
 
 for (var i = 0; i < 256; i++) {
-	Mult2[i] = xtime(i,2);
-	Mult3[i] = xtime(i,3);
-	Mult9[i] = xtime(i,9);
-	MultB[i] = xtime(i,0xB);
-	MultD[i] = xtime(i,0xD);
-	MultE[i] = xtime(i,0xE);
+	MULT2[i] = xtime(i,2);
+	MULT3[i] = xtime(i,3);
+	MULT9[i] = xtime(i,9);
+	MULTB[i] = xtime(i,0xB);
+	MULTD[i] = xtime(i,0xD);
+	MULTE[i] = xtime(i,0xE);
 }
 
 // Precomputed RCon lookup
-var Rcon = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
 
 // Inner state
-var State = [[], [], [], []],
-    KeyLength,
-    NRounds,
-    KeySchedule;
+var state = [[], [], [], []],
+    keylength,
+    nrounds,
+    keyschedule;
 
 var AES = Crypto.AES = {
 
@@ -86,43 +86,43 @@ var AES = Crypto.AES = {
 	encrypt: function (message, key, mode) {
 
 		// Convert to byte arrays
-		var M = util.stringToBytes(message),
-		    K = util.stringToBytes(key);
+		var m = util.stringToBytes(message),
+		    k = util.stringToBytes(key);
 
 		// Generate random IV
-		for (var IV = [], i = 0; i < this._BlockSize * 4; i++)
-			IV.push(Math.floor(Math.random() * 256));
+		for (var iv = [], i = 0; i < AES._blocksize * 4; i++)
+			iv.push(Math.floor(Math.random() * 256));
 
 		// Determine mode
 		mode = mode || Crypto.mode.OFB;
 
 		// Encrypt
-		AES._Init(K);
-		mode.encrypt(this, M, IV);
+		AES._init(k);
+		mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return util.bytesToBase64(IV.concat(M));
+		return util.bytesToBase64(iv.concat(m));
 
 	},
 
 	decrypt: function (ciphertext, key, mode) {
 
 		// Convert to byte arrays
-		var C = util.base64ToBytes(ciphertext),
-		    K = util.stringToBytes(key);
+		var c = util.base64ToBytes(ciphertext),
+		    k = util.stringToBytes(key);
 
 		// Separate IV and message
-		var IV = C.splice(0, this._BlockSize * 4);
+		var iv = c.splice(0, AES._blocksize * 4);
 
 		// Determine mode
 		mode = mode || Crypto.mode.OFB;
 
 		// Decrypt
-		AES._Init(K);
-		mode.decrypt(this, C, IV);
+		AES._init(k);
+		mode.decrypt(AES, c, iv);
 
 		// Return plaintext
-		return util.bytesToString(C);
+		return util.bytesToString(c);
 
 	},
 
@@ -131,55 +131,55 @@ var AES = Crypto.AES = {
 	 * Package private methods and properties
 	 */
 
-	_BlockSize: 4,
+	_blocksize: 4,
 
-	_EncryptBlock: function (M, offset) {
+	_encryptblock: function (m, offset) {
 
 		// Set input
-		for (var row = 0; row < this._BlockSize; row++) {
+		for (var row = 0; row < AES._blocksize; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] = M[offset + col * 4 + row];
+				state[row][col] = m[offset + col * 4 + row];
 		}
 
 		// Add round key
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] ^= KeySchedule[col][row];
+				state[row][col] ^= keyschedule[col][row];
 		}
 
-		for (var round = 1; round < NRounds; round++) {
+		for (var round = 1; round < nrounds; round++) {
 
 			// Sub bytes
 			for (var row = 0; row < 4; row++) {
 				for (var col = 0; col < 4; col++)
-					State[row][col] = Sbox[State[row][col]];
+					state[row][col] = SBOX[state[row][col]];
 			}
 
 			// Shift rows
-			State[1].push(State[1].shift());
-			State[2].push(State[2].shift());
-			State[2].push(State[2].shift());
-			State[3].unshift(State[3].pop());
+			state[1].push(state[1].shift());
+			state[2].push(state[2].shift());
+			state[2].push(state[2].shift());
+			state[3].unshift(state[3].pop());
 
 			// Mix columns
 			for (var col = 0; col < 4; col++) {
 
-				var s0 = State[0][col],
-				    s1 = State[1][col],
-				    s2 = State[2][col],
-				    s3 = State[3][col];
+				var s0 = state[0][col],
+				    s1 = state[1][col],
+				    s2 = state[2][col],
+				    s3 = state[3][col];
 
-				State[0][col] = Mult2[s0] ^ Mult3[s1] ^ s2 ^ s3;
-				State[1][col] = s0 ^ Mult2[s1] ^ Mult3[s2] ^ s3;
-				State[2][col] = s0 ^ s1 ^ Mult2[s2] ^ Mult3[s3];
-				State[3][col] = Mult3[s0] ^ s1 ^ s2 ^ Mult2[s3];
+				state[0][col] = MULT2[s0] ^ MULT3[s1] ^ s2 ^ s3;
+				state[1][col] = s0 ^ MULT2[s1] ^ MULT3[s2] ^ s3;
+				state[2][col] = s0 ^ s1 ^ MULT2[s2] ^ MULT3[s3];
+				state[3][col] = MULT3[s0] ^ s1 ^ s2 ^ MULT2[s3];
 
 			}
 
 			// Add round key
 			for (var row = 0; row < 4; row++) {
 				for (var col = 0; col < 4; col++)
-					State[row][col] ^= KeySchedule[round * 4 + col][row];
+					state[row][col] ^= keyschedule[round * 4 + col][row];
 			}
 
 		}
@@ -187,102 +187,102 @@ var AES = Crypto.AES = {
 		// Sub bytes
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] = Sbox[State[row][col]];
+				state[row][col] = SBOX[state[row][col]];
 		}
 
 		// Shift rows
-		State[1].push(State[1].shift());
-		State[2].push(State[2].shift());
-		State[2].push(State[2].shift());
-		State[3].unshift(State[3].pop());
+		state[1].push(state[1].shift());
+		state[2].push(state[2].shift());
+		state[2].push(state[2].shift());
+		state[3].unshift(state[3].pop());
 
 		// Add round key
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] ^= KeySchedule[NRounds * 4 + col][row];
+				state[row][col] ^= keyschedule[nrounds * 4 + col][row];
 		}
 
 		// Set output
-		for (var row = 0; row < this._BlockSize; row++) {
+		for (var row = 0; row < AES._blocksize; row++) {
 			for (var col = 0; col < 4; col++)
-				M[offset + col * 4 + row] = State[row][col];
+				m[offset + col * 4 + row] = state[row][col];
 		}
 
 	},
 
-	_DecryptBlock: function (C, offset) {
+	_decryptblock: function (c, offset) {
 
 		// Set input
-		for (var row = 0; row < this._BlockSize; row++) {
+		for (var row = 0; row < AES._blocksize; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] = C[offset + col * 4 + row];
+				state[row][col] = c[offset + col * 4 + row];
 		}
 
 		// Add round key
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] ^= KeySchedule[NRounds * 4 + col][row];
+				state[row][col] ^= keyschedule[nrounds * 4 + col][row];
 		}
 
-		for (var round = 1; round < NRounds; round++) {
+		for (var round = 1; round < nrounds; round++) {
 
 			// Inv shift rows
-			State[1].unshift(State[1].pop());
-			State[2].push(State[2].shift());
-			State[2].push(State[2].shift());
-			State[3].push(State[3].shift());
+			state[1].unshift(state[1].pop());
+			state[2].push(state[2].shift());
+			state[2].push(state[2].shift());
+			state[3].push(state[3].shift());
 
 			// Inv sub bytes
 			for (var row = 0; row < 4; row++) {
 				for (var col = 0; col < 4; col++)
-					State[row][col] = InvSbox[State[row][col]];
+					state[row][col] = INVSBOX[state[row][col]];
 			}
 
 			// Add round key
 			for (var row = 0; row < 4; row++) {
 				for (var col = 0; col < 4; col++)
-					State[row][col] ^= KeySchedule[(NRounds - round) * 4 + col][row];
+					state[row][col] ^= keyschedule[(nrounds - round) * 4 + col][row];
 			}
 
 			// Inv mix columns
 			for (var col = 0; col < 4; col++) {
 
-				var s0 = State[0][col],
-				    s1 = State[1][col],
-				    s2 = State[2][col],
-				    s3 = State[3][col];
+				var s0 = state[0][col],
+				    s1 = state[1][col],
+				    s2 = state[2][col],
+				    s3 = state[3][col];
 
-				State[0][col] = MultE[s0] ^ MultB[s1] ^ MultD[s2] ^ Mult9[s3];
-				State[1][col] = Mult9[s0] ^ MultE[s1] ^ MultB[s2] ^ MultD[s3];
-				State[2][col] = MultD[s0] ^ Mult9[s1] ^ MultE[s2] ^ MultB[s3];
-				State[3][col] = MultB[s0] ^ MultD[s1] ^ Mult9[s2] ^ MultE[s3];
+				state[0][col] = MULTE[s0] ^ MULTB[s1] ^ MULTD[s2] ^ MULT9[s3];
+				state[1][col] = MULT9[s0] ^ MULTE[s1] ^ MULTB[s2] ^ MULTD[s3];
+				state[2][col] = MULTD[s0] ^ MULT9[s1] ^ MULTE[s2] ^ MULTB[s3];
+				state[3][col] = MULTB[s0] ^ MULTD[s1] ^ MULT9[s2] ^ MULTE[s3];
 
 			}
 
 		}
 
 		// Inv shift rows
-		State[1].unshift(State[1].pop());
-		State[2].push(State[2].shift());
-		State[2].push(State[2].shift());
-		State[3].push(State[3].shift());
+		state[1].unshift(state[1].pop());
+		state[2].push(state[2].shift());
+		state[2].push(state[2].shift());
+		state[3].push(state[3].shift());
 
 		// Inv sub bytes
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] = InvSbox[State[row][col]];
+				state[row][col] = INVSBOX[state[row][col]];
 		}
 
 		// Add round key
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				State[row][col] ^= KeySchedule[col][row];
+				state[row][col] ^= keyschedule[col][row];
 		}
 
 		// Set output
-		for (var row = 0; row < this._BlockSize; row++) {
+		for (var row = 0; row < AES._blocksize; row++) {
 			for (var col = 0; col < 4; col++)
-				C[offset + col * 4 + row] = State[row][col];
+				c[offset + col * 4 + row] = state[row][col];
 		}
 
 	},
@@ -292,63 +292,63 @@ var AES = Crypto.AES = {
 	 * Private methods
 	 */
 
-	_Init: function (K) {
-		KeyLength = K.length / 4;
-		NRounds = KeyLength + 6;
-		AES._KeyExpansion(K);
+	_init: function (k) {
+		keylength = k.length / 4;
+		nrounds = keylength + 6;
+		AES._keyexpansion(k);
 	},
 
 	// Generate a key schedule
-	_KeyExpansion: function (K) {
+	_keyexpansion: function (k) {
 
-		KeySchedule = [];
+		keyschedule = [];
 
-		for (var row = 0; row < KeyLength; row++) {
-			KeySchedule[row] = [
-				K[row * 4],
-				K[row * 4 + 1],
-				K[row * 4 + 2],
-				K[row * 4 + 3]
+		for (var row = 0; row < keylength; row++) {
+			keyschedule[row] = [
+				k[row * 4],
+				k[row * 4 + 1],
+				k[row * 4 + 2],
+				k[row * 4 + 3]
 			];
 		}
 
-		for (var row = KeyLength; row < this._BlockSize * (NRounds + 1); row++) {
+		for (var row = keylength; row < AES._blocksize * (nrounds + 1); row++) {
 
 			var temp = [
-				KeySchedule[row - 1][0],
-				KeySchedule[row - 1][1],
-				KeySchedule[row - 1][2],
-				KeySchedule[row - 1][3]
+				keyschedule[row - 1][0],
+				keyschedule[row - 1][1],
+				keyschedule[row - 1][2],
+				keyschedule[row - 1][3]
 			];
 
-			if (row % KeyLength == 0) {
+			if (row % keylength == 0) {
 
 				// Rot word
 				temp.push(temp.shift());
 
 				// Sub word
-				temp[0] = Sbox[temp[0]];
-				temp[1] = Sbox[temp[1]];
-				temp[2] = Sbox[temp[2]];
-				temp[3] = Sbox[temp[3]];
+				temp[0] = SBOX[temp[0]];
+				temp[1] = SBOX[temp[1]];
+				temp[2] = SBOX[temp[2]];
+				temp[3] = SBOX[temp[3]];
 
-				temp[0] ^= Rcon[row / KeyLength];
+				temp[0] ^= RCON[row / keylength];
 
-			} else if (KeyLength > 6 && row % KeyLength == 4) {
+			} else if (keylength > 6 && row % keylength == 4) {
 
 				// Sub word
-				temp[0] = Sbox[temp[0]];
-				temp[1] = Sbox[temp[1]];
-				temp[2] = Sbox[temp[2]];
-				temp[3] = Sbox[temp[3]];
+				temp[0] = SBOX[temp[0]];
+				temp[1] = SBOX[temp[1]];
+				temp[2] = SBOX[temp[2]];
+				temp[3] = SBOX[temp[3]];
 
 			}
 
-			KeySchedule[row] = [
-				KeySchedule[row - KeyLength][0] ^ temp[0],
-				KeySchedule[row - KeyLength][1] ^ temp[1],
-				KeySchedule[row - KeyLength][2] ^ temp[2],
-				KeySchedule[row - KeyLength][3] ^ temp[3]
+			keyschedule[row] = [
+				keyschedule[row - keylength][0] ^ temp[0],
+				keyschedule[row - keylength][1] ^ temp[1],
+				keyschedule[row - keylength][2] ^ temp[2],
+				keyschedule[row - keylength][3] ^ temp[3]
 			];
 
 		}

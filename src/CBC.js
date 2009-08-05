@@ -1,55 +1,55 @@
 Crypto.mode.CBC = {
 
-	encrypt: function (cipher, M, IV) {
+	encrypt: function (cipher, m, iv) {
 
-		var blockSizeInBytes = cipher._BlockSize * 4;
+		var blockSizeInBytes = cipher._blocksize * 4;
 
 		// Pad
-		M.push(0x80);
+		m.push(0x80);
 
 		// Encrypt each block
-		for (var offset = 0; offset < M.length; offset += blockSizeInBytes) {
+		for (var offset = 0; offset < m.length; offset += blockSizeInBytes) {
 
 			if (offset == 0) {
 				// XOR IV with first block
 				for (var i = 0; i < blockSizeInBytes; i++)
-					M[i] ^= IV[i];
+					m[i] ^= iv[i];
 			}
 			else {
 				// XOR this block with previous crypted block
 				for (var i = 0; i < blockSizeInBytes; i++)
-					M[offset + i] ^= M[offset + i - blockSizeInBytes];
+					m[offset + i] ^= m[offset + i - blockSizeInBytes];
 			}
 
 			// Encrypt block
-			cipher._EncryptBlock(M, offset);
+			cipher._encryptblock(m, offset);
 
 		}
 
 	},
 
-	decrypt: function (cipher, C, IV) {
+	decrypt: function (cipher, c, iv) {
 
-		var blockSizeInBytes = cipher._BlockSize * 4;
+		var blockSizeInBytes = cipher._blocksize * 4;
 
 		// Decrypt each block
-		for (var offset = 0; offset < C.length; offset += blockSizeInBytes) {
+		for (var offset = 0; offset < c.length; offset += blockSizeInBytes) {
 
 			// Save this crypted block
-			var thisCryptedBlock = C.slice(offset, offset + blockSizeInBytes);
+			var thisCryptedBlock = c.slice(offset, offset + blockSizeInBytes);
 
 			// Decrypt block
-			cipher._DecryptBlock(C, offset);
+			cipher._decryptblock(c, offset);
 
 			if (offset == 0) {
 				// XOR IV with first block
 				for (var i = 0; i < blockSizeInBytes; i++)
-					C[i] ^= IV[i];
+					c[i] ^= iv[i];
 			}
 			else {
 				// XOR decrypted block with previous crypted block
 				for (var i = 0; i < blockSizeInBytes; i++)
-					C[offset + i] ^= prevCryptedBlock[i];
+					c[offset + i] ^= prevCryptedBlock[i];
 			}
 
 			// This crypted block is the new previou crypted block
@@ -58,7 +58,7 @@ Crypto.mode.CBC = {
 		}
 
 		// Strip padding
-		while (C.pop() != 0x80) ;
+		while (c.pop() != 0x80) ;
 
 	}
 

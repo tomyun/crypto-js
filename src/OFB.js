@@ -7,20 +7,20 @@ Crypto.mode.OFB = {
 };
 
 // The mode function
-function OFB(cipher, M, IV) {
+function OFB(cipher, m, iv) {
 
-	var blockSizeInBytes = cipher._BlockSize * 4,
-	    keystream = IV.slice(0);
+	var blockSizeInBytes = cipher._blocksize * 4,
+	    keystream = iv.slice(0);
 
 	// Encrypt each byte
-	for (var i = 0; i < M.length; i++) {
+	for (var i = 0; i < m.length; i++) {
 
 		// Generate keystream
 		if (i % blockSizeInBytes == 0)
-			cipher._EncryptBlock(keystream, 0);
+			cipher._encryptblock(keystream, 0);
 
 		// Encrypt byte
-		M[i] ^= keystream[i % blockSizeInBytes];
+		m[i] ^= keystream[i % blockSizeInBytes];
 
 	}
 
