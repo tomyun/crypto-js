@@ -15,11 +15,12 @@ Crypto.MARC4 = function () {
 			var M = util.stringToBytes(message),
 			    K = util.stringToBytes(key);
 
-			// Generate random IV and mix with key
-			for (var IV = [], i = 0; i < 16; i++) {
+			// Generate random IV
+			for (var IV = [], i = 0; i < 16; i++)
 				IV.push(Math.floor(Math.random() * 256));
-				K[i] ^= IV[i];
-			}
+
+			// Attach IV to key
+			K = K.concat(IV);
 
 			// Encrypt
 			this._MARC4(M, K, 1536);
@@ -38,8 +39,8 @@ Crypto.MARC4 = function () {
 			// Separate IV and message
 			var IV = C.splice(0, 16);
 
-			// Mix IV with key
-			for (var i = 0; i < 16; i++) K[i] ^= IV[i];
+			// Attach IV to key
+			K = K.concat(IV);
 
 			// Decrypt
 			this._MARC4(C, K, 1536);
