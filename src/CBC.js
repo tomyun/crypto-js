@@ -11,12 +11,12 @@ Crypto.mode.CBC = {
 		for (var offset = 0; offset < m.length; offset += blockSizeInBytes) {
 
 			if (offset == 0) {
-				// XOR IV with first block
+				// XOR first block using IV
 				for (var i = 0; i < blockSizeInBytes; i++)
 					m[i] ^= iv[i];
 			}
 			else {
-				// XOR this block with previous crypted block
+				// XOR this block using previous crypted block
 				for (var i = 0; i < blockSizeInBytes; i++)
 					m[offset + i] ^= m[offset + i - blockSizeInBytes];
 			}
@@ -42,17 +42,17 @@ Crypto.mode.CBC = {
 			cipher._decryptblock(c, offset);
 
 			if (offset == 0) {
-				// XOR IV with first block
+				// XOR first block using IV
 				for (var i = 0; i < blockSizeInBytes; i++)
 					c[i] ^= iv[i];
 			}
 			else {
-				// XOR decrypted block with previous crypted block
+				// XOR decrypted block using previous crypted block
 				for (var i = 0; i < blockSizeInBytes; i++)
 					c[offset + i] ^= prevCryptedBlock[i];
 			}
 
-			// This crypted block is the new previou crypted block
+			// This crypted block is the new previous crypted block
 			var prevCryptedBlock = thisCryptedBlock;
 
 		}
