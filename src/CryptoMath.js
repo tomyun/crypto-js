@@ -9,20 +9,17 @@
 	};
 
 	// Unsigned 32-bit addition
-	util.add = function (m, n) {
-
-		// Add any number of arguments
+	util.add = function () {
 		var result = this.u32(arguments[0]);
 		for (var i = 1; i < arguments.length; i++)
 			result = this.u32(result + this.u32(arguments[i]));
 		return result;
-
 	};
 
 	// Unsigned 32-bit multiplication
 	util.mult = function (m, n) {
 		return this.add((n & 0xFFFF0000) * m,
-				(n & 0x0000FFFF) * m);
+		                (n & 0x0000FFFF) * m);
 	};
 
 	// Unsigned 32-bit greater than (>) comparison

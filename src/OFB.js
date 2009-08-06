@@ -1,26 +1,29 @@
-Crypto.mode.OFB = function () {
+(function(){
 
-	function OFB(cipher, M, IV) {
+// Public API
+Crypto.mode.OFB = {
+	encrypt: OFB,
+	decrypt: OFB
+};
 
-		var blockSize = cipher._BlockSize * 4,
-		    keystream = IV.slice(0);
+// The mode function
+function OFB(cipher, m, iv) {
 
-		// Encrypt each byte
-		for (var i = 0; i < M.length; i++) {
+	var blockSizeInBytes = cipher._blocksize * 4,
+	    keystream = iv.slice(0);
 
-			// Generate keystream
-			if (i % blockSize == 0) cipher._EncryptBlock(keystream, 0);
+	// Encrypt each byte
+	for (var i = 0; i < m.length; i++) {
 
-			// Encrypt byte
-			M[i] ^= keystream[i % blockSize];
+		// Generate keystream
+		if (i % blockSizeInBytes == 0)
+			cipher._encryptblock(keystream, 0);
 
-		}
+		// Encrypt byte
+		m[i] ^= keystream[i % blockSizeInBytes];
 
 	}
 
-	return {
-		encrypt: OFB,
-		decrypt: OFB
-	};
+}
 
-}();
+})();
