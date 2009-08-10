@@ -8,7 +8,7 @@ $copyrightInfo = '/*!
  */
 ';
 
-$files   = array('crypto', 'md5', 'sha1', 'sha256',
+$files   = array('crypto', 'pbkdf2', 'md5', 'sha1', 'sha256',
                  'marc4', 'rabbit', 'aes', 'cbc', 'ofb');
 $rollups = array(
 	array('crypto', 'md5'),
@@ -16,7 +16,8 @@ $rollups = array(
 	array('crypto', 'sha256'),
 	array('crypto', 'marc4'),
 	array('crypto', 'md5', 'rabbit'),
-	array('crypto', 'sha256', 'ofb', 'aes')
+	array('crypto', 'sha256', 'ofb', 'aes'),
+	array('crypto', 'sha256', 'pbkdf2')
 );
 
 foreach ($files as $file) {
