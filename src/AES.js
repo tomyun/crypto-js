@@ -90,8 +90,7 @@ var AES = Crypto.AES = {
 		    k = util.stringToBytes(key);
 
 		// Generate random IV
-		for (var iv = [], i = 0; i < AES._blocksize * 4; i++)
-			iv.push(Math.floor(Math.random() * 256));
+		var iv = util.randomBytes(AES._blocksize * 4);
 
 		// Determine mode
 		mode = mode || Crypto.mode.OFB;
