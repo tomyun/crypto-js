@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- Profiler -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuiloader-dom-event/yuiloader-dom-event.js"></script>
+<script type="text/javascript" src="lib/Profiler.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/SHA256.js"></script>
+<script type="text/javascript" src="../src/PBKDF2.js"></script>
+
+<!-- Profiling -->
+<script type="text/javascript">
+
+profile(["Crypto.PBKDF2", "Crypto.SHA256", "Crypto.util", "Crypto"], function(){
+	Crypto.PBKDF2("password", "\x01\x23\x45\x67", 64, function(p,s){
+		return Crypto.SHA256(p+s, { asBytes: true });
+	});
+});
+
+</script>
+
+</head>
+<body class="yui-skin-sam">
+</body>
