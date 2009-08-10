@@ -34,6 +34,13 @@ var util = Crypto.util = {
 
 	},
 
+	// Generate an array of any length of random bytes
+	randomBytes: function (n) {
+		for (var bytes = []; n > 0; n--)
+			bytes.push(Math.floor(Math.random() * 256));
+		return bytes;
+	},
+
 	// Convert a string to a byte array
 	stringToBytes: function (str) {
 		var bytes = [];
