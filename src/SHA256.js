@@ -113,4 +113,7 @@ SHA256._sha256 = function (message) {
 
 };
 
+// Package private blocksize
+MD5._blocksize = 16;
+
 })();
