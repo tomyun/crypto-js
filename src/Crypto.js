@@ -34,6 +34,13 @@ var util = Crypto.util = {
 
 	},
 
+	// Generate an array of any length of random bytes
+	randomBytes: function (n) {
+		for (var bytes = []; n > 0; n--)
+			bytes.push(Math.floor(Math.random() * 256));
+		return bytes;
+	},
+
 	// Convert a string to a byte array
 	stringToBytes: function (str) {
 		var bytes = [];
@@ -95,6 +102,9 @@ var util = Crypto.util = {
 	// Convert a byte array to a base-64 string
 	bytesToBase64: function (bytes) {
 
+		// Use browser-native function if it exists
+		if (typeof btoa == "function") return btoa(util.bytesToString(bytes));
+
 		var base64 = [],
 		    overflow;
 
@@ -128,6 +138,9 @@ var util = Crypto.util = {
 
 	// Convert a base-64 string to a byte array
 	base64ToBytes: function (base64) {
+
+		// Use browser-native function if it exists
+		if (typeof atob == "function") return util.stringToBytes(atob(base64));
 
 		// Remove non-base-64 characters
 		base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");

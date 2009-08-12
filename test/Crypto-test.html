@@ -71,6 +71,11 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual(2160124144|0, Crypto.util.endian(Crypto.util.endian(2160124144)));
 	},
 
+	test_randomBytes: function(){
+		Assert.areEqual(32, Crypto.util.randomBytes(32).length);
+		Assert.areNotEqual(Crypto.util.randomBytes(32).toString(), Crypto.util.randomBytes(32).toString());
+	},
+
 	test_string_bytes: function(){
 		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString(), Crypto.util.stringToBytes("Hello, World!").toString());
 	},

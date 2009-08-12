@@ -21,8 +21,7 @@ var Rabbit = Crypto.Rabbit = {
 		    k = util.endian(util.stringToWords(key));
 
 		// Generate random IV
-		var iv = [ Math.floor(Math.random() * 0x100000000),
-		           Math.floor(Math.random() * 0x100000000) ];
+		var iv = util.bytesToWords(util.randomBytes(8));
 
 		// Encrypt
 		Rabbit._rabbit(m, k, iv);

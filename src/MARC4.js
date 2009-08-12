@@ -16,8 +16,7 @@ var MARC4 = Crypto.MARC4 = {
 		    k = util.stringToBytes(key);
 
 		// Generate random IV
-		for (var iv = [], i = 0; i < 16; i++)
-			iv.push(Math.floor(Math.random() * 256));
+		var iv = util.randomBytes(16);
 
 		// Attach IV to key
 		k = k.concat(iv);
