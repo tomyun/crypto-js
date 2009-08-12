@@ -3,9 +3,16 @@
 // Shortcut
 var util = Crypto.util;
 
-Crypto.PBKDF2 = function (password, salt, keylen, prf, options) {
+Crypto.PBKDF2 = function (password, salt, keylen, options) {
 
-	var iterations = options && options.iterations || 1;
+	// Defaults
+	var hasher = options && options.hasher || Crypto.SHA256,
+	    iterations = options && options.iterations || 1;
+
+	// Pseudo-random function
+	var prf = function (password, salt) {
+		return Crypto.HMAC(hasher, password, salt, { asBytes: true });
+	};
 
 	var derivedkey = "",
 	    blockindex = 1;

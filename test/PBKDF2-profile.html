@@ -8,15 +8,14 @@
 <!-- Test subject -->
 <script type="text/javascript" src="../src/Crypto.js"></script>
 <script type="text/javascript" src="../src/SHA256.js"></script>
+<script type="text/javascript" src="../src/HMAC.js"></script>
 <script type="text/javascript" src="../src/PBKDF2.js"></script>
 
 <!-- Profiling -->
 <script type="text/javascript">
 
-profile(["Crypto.PBKDF2", "Crypto.SHA256", "Crypto.util", "Crypto"], function(){
-	Crypto.PBKDF2("password", "\x01\x23\x45\x67", 64, function(p,s){
-		return Crypto.SHA256(p+s, { asBytes: true });
-	});
+profile(["Crypto.PBKDF2", "Crypto.HMAC", "Crypto.SHA256", "Crypto.util", "Crypto"], function(){
+	Crypto.PBKDF2("password", "\x01\x23\x45\x67", 512/8);
 });
 
 </script>
