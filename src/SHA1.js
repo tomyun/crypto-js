@@ -70,6 +70,6 @@ SHA1._sha1 = function (message) {
 };
 
 // Package private blocksize
-MD5._blocksize = 16;
+SHA1._blocksize = 16;
 
 })();
