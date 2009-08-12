@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+
+<!-- Customizations -->
+<link rel="stylesheet" type="text/css" href="lib/tester.css">
+
+<!-- YUI JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+
+<!-- Test subject -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/MD5.js"></script>
+<script type="text/javascript" src="../src/HMAC.js"></script>
+
+<!-- Test cases -->
+<script type="text/javascript">
+
+// Shortcut
+var Assert = YAHOO.util.Assert;
+
+YAHOO.tool.TestRunner.add(
+new YAHOO.tool.TestCase({
+
+	test_HMAC: function () {
+		Assert.areEqual("\x92\x94\x72\x7a\x36\x38\xbb\x1c\x13\xf4\x8e\xf8\x15\x8b\xfc\x9d", Crypto.HMAC(Crypto.MD5, "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b", "Hi There"));
+		Assert.areEqual("\x75\x0c\x78\x3e\x6a\xb0\xb5\x03\xea\xa8\x6e\x31\x0a\x5d\xb7\x38", Crypto.HMAC(Crypto.MD5, "Jefe", "what do ya want for nothing?"));
+		Assert.areEqual("\x56\xbe\x34\x52\x1d\x14\x4c\x88\xdb\xb8\xc7\x33\xf0\xe8\xb3\xf6", Crypto.HMAC(Crypto.MD5, "\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA", "\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD"));
+	}
+
+})
+);
+
+YAHOO.util.Event.onDOMReady(function(){
+
+	// Display results from the TestRunner
+	var logger = new YAHOO.tool.TestLogger();
+
+	// Hide info category
+	logger.hideCategory("info");
+
+	// Run all tests
+	YAHOO.tool.TestRunner.run();
+
+});
+
+</script>
+
+</head>
+<body>
+</body>
