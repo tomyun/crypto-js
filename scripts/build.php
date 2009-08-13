@@ -14,7 +14,7 @@ $rollups = array(
 	array('crypto', 'md5'),
 	array('crypto', 'sha1'),
 	array('crypto', 'sha256'),
-	array('crypto', 'marc4'),
+	array('crypto', 'md5', 'marc4'),
 	array('crypto', 'md5', 'rabbit'),
 	array('crypto', 'sha256', 'ofb', 'aes')
 );
