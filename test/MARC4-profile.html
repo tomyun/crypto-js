@@ -7,6 +7,9 @@
 
 <!-- Test subject -->
 <script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/HMAC.js"></script>
+<script type="text/javascript" src="../src/SHA1.js"></script>
+<script type="text/javascript" src="../src/PBKDF2.js"></script>
 <script type="text/javascript" src="../src/MARC4.js"></script>
 
 <!-- Profiling -->
@@ -22,7 +25,7 @@ var key = [];
 for (var i = 0; i < 16; i++) key.push(String.fromCharCode(Math.floor(Math.random() * 256)));
 key = key.join("");
 
-profile(["Crypto.MARC4", "Crypto.util"], function(){
+profile(["Crypto.MARC4", "Crypto.util", "Crypto"], function(){
 	Crypto.MARC4.decrypt(Crypto.MARC4.encrypt(data, key), key);
 });
 
