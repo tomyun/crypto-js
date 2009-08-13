@@ -14,10 +14,10 @@ $rollups = array(
 	array('crypto', 'md5'),
 	array('crypto', 'sha1'),
 	array('crypto', 'sha256'),
-	array('crypto', 'sha256', 'pbkdf2'),
-	array('crypto', 'sha256', 'hmac', 'pbkdf2', 'marc4'),
-	array('crypto', 'sha256', 'hmac', 'pbkdf2', 'rabbit'),
-	array('crypto', 'sha256', 'hmac', 'pbkdf2', 'ofb', 'aes')
+	array('crypto', 'sha1', 'pbkdf2'),
+	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'marc4'),
+	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'rabbit'),
+	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'ofb', 'aes')
 );
 
 foreach ($files as $file) {

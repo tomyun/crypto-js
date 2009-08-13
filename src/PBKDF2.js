@@ -6,7 +6,7 @@ var util = Crypto.util;
 Crypto.PBKDF2 = function (password, salt, keylen, options) {
 
 	// Defaults
-	var hasher = options && options.hasher || Crypto.SHA256,
+	var hasher = options && options.hasher || Crypto.SHA1,
 	    iterations = options && options.iterations || 1;
 
 	// Pseudo-random function
