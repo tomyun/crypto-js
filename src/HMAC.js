@@ -10,7 +10,7 @@ Crypto.HMAC = function (hasher, key, message, options) {
 	      hasher(key, { asBytes: true }) :
 	      util.stringToBytes(key);
 
-	// XOR pad constants
+	// XOR keys with pad constants
 	var okey = key,
 	    ikey = key.slice(0);
 	for (var i = 0; i < hasher._blocksize * 4; i++) {
