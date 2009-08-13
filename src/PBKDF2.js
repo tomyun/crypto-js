@@ -10,13 +10,13 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	    iterations = options && options.iterations || 1;
 
 	// Pseudo-random function
-	var prf = function (password, salt) {
+	function prf(password, salt) {
 		return Crypto.HMAC(hasher, password, salt, { asBytes: true });
-	};
+	}
 
-	var derivedkey = "",
+	var derivedKeyBytes = [],
 	    blockindex = 1;
-	while (derivedkey.length < keylen) {
+	while (derivedKeyBytes.length < keylen) {
 
 		var block = prf(password, salt + util.bytesToString(
 		                                 util.wordsToBytes([blockindex])));
@@ -25,12 +25,16 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 			for (var j = 0; j < block.length; j++) block[j] ^= t[j];
 		}
 
-		derivedkey += util.bytesToString(block);
+		derivedKeyBytes = derivedKeyBytes.concat(block);
 		blockindex++;
 
 	}
 
-	return derivedkey.substr(0, keylen);
+	// Truncate excess bytes
+	derivedKeyBytes.splice(keylen);
+
+	return options && options.asBytes ? derivedKeyBytes :
+	       util.bytesToString(derivedKeyBytes);
 
 };
 
