@@ -14,6 +14,7 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 		return Crypto.HMAC(hasher, password, salt, { asBytes: true });
 	}
 
+	// Generate key
 	var derivedKeyBytes = [],
 	    blockindex = 1;
 	while (derivedKeyBytes.length < keylen) {
