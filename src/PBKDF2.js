@@ -36,7 +36,8 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	derivedKeyBytes.splice(keylen);
 
 	return options && options.asBytes ? derivedKeyBytes :
-	       util.bytesToString(derivedKeyBytes);
+	       options && options.asString ? util.bytesToString(derivedKeyBytes) :
+	       util.bytesToHex(derivedKeyBytes);
 
 };
 
