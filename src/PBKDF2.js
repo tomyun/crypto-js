@@ -20,9 +20,9 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	while (derivedKeyBytes.length < keylen) {
 
 		var block = PRF(password, salt + util.bytesToString(
-		                          util.wordsToBytes([blockindex]))),
-		    u = block;
-		for (var i = 1; i < iterations; i++) {
+		                                 util.wordsToBytes([blockindex])));
+
+		for (var u = block, i = 1; i < iterations; i++) {
 			u = PRF(password, util.bytesToString(u));
 			for (var j = 0; j < block.length; j++) block[j] ^= u[j];
 		}
