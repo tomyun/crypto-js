@@ -3,7 +3,7 @@
 // Shortcut
 var util = Crypto.util;
 
-Crypto.HMAC = function (hasher, key, message, options) {
+Crypto.HMAC = function (hasher, message, key, options) {
 
 	// Allow arbitrary length keys
 	key = key.length > hasher._blocksize * 4 ?

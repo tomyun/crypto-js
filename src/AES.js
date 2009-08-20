@@ -94,7 +94,7 @@ var AES = Crypto.AES = {
 		    iv = util.randomBytes(AES._blocksize * 4),
 
 		    // Generate key
-		    k = Crypto.PBKDF2(password, iv, 32, { asBytes: true });
+		    k = Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true });
 
 		// Determine mode
 		mode = mode || Crypto.mode.OFB;
@@ -119,7 +119,7 @@ var AES = Crypto.AES = {
 		    iv = c.splice(0, AES._blocksize * 4),
 
 		    // Generate key
-		    k = Crypto.PBKDF2(password, iv, 32, { asBytes: true });
+		    k = Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true });
 
 		// Determine mode
 		mode = mode || Crypto.mode.OFB;

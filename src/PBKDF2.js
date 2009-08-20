@@ -10,8 +10,8 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	    iterations = options && options.iterations || 1;
 
 	// Pseudo-random function
-	function prf(password, salt) {
-		return Crypto.HMAC(hasher, password, salt, { asBytes: true });
+	function PRF(password, salt) {
+		return Crypto.HMAC(hasher, salt, password, { asBytes: true });
 	}
 
 	// Generate key
@@ -19,11 +19,11 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	    blockindex = 1;
 	while (derivedKeyBytes.length < keylen) {
 
-		var block = prf(password, salt + util.bytesToString(
-		                          util.wordsToBytes([blockindex]))),
-		    u = block;
-		for (var i = 1; i < iterations; i++) {
-			u = prf(password, util.bytesToString(u));
+		var block = PRF(password, salt + util.bytesToString(
+		                                 util.wordsToBytes([blockindex])));
+
+		for (var u = block, i = 1; i < iterations; i++) {
+			u = PRF(password, util.bytesToString(u));
 			for (var j = 0; j < block.length; j++) block[j] ^= u[j];
 		}
 
