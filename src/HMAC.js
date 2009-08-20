@@ -22,8 +22,8 @@ Crypto.HMAC = function (hasher, message, key, options) {
 	                       hasher(util.bytesToString(ikey) + message, { asString: true }),
 	                       { asBytes: true });
 	return options && options.asBytes ? hmacbytes :
-	       options && options.asHex ? util.bytesToHex(hmacbytes) :
-	       util.bytesToString(hmacbytes);
+	       options && options.asString ? util.bytesToString(hmacbytes) :
+	       util.bytesToHex(hmacbytes);
 
 };
 
