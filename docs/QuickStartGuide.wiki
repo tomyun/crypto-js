@@ -1,0 +1,170 @@
+<wiki:toc/>
+
+= Quick-start Guide =
+
+== MD5 ==
+
+MD5 is a widely used hash function. It's been used in a wide variety of security applications and is also commonly used to check the integrity of files. Though, MD5 is not collision resistant, and it isn't suitable for applications like SSL certificates or digital signatures that rely on this property.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-md5.js"></script>
+<script type="text/javascript">
+
+var digest = Crypto.MD5("Message");
+
+var digestBytes = Crypto.MD5("Message", { asBytes: true });
+var digestString = Crypto.MD5("Message", { asString: true });
+
+</script>
+}}}
+
+== SHA-1 ==
+
+The SHA hash functions were designed by the National Security Agency (NSA). SHA-1 is the most established of the existing SHA hash functions, and it's used in a variety of security applications and protocols. Though, SHA-1's collision resistance has been weakening as new attacks are discovered or improved.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha1.js"></script>
+<script type="text/javascript">
+
+var digest = Crypto.SHA1("Message");
+
+var digestBytes = Crypto.SHA1("Message", { asBytes: true });
+var digestString = Crypto.SHA1("Message", { asString: true });
+
+</script>
+}}}
+
+== SHA-256 ==
+
+SHA-256 is one of the three variants in the SHA-2 set. It isn't as widely used as SHA-1, though it appears to provide much better security.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha256.js"></script>
+<script type="text/javascript">
+
+var digest = Crypto.SHA256("Message");
+
+var digestBytes = Crypto.SHA256("Message", { asBytes: true });
+var digestString = Crypto.SHA256("Message", { asString: true });
+
+</script>
+}}}
+
+== AES ==
+
+The Advanced Encryption Standard (AES) is a U.S. Federal Information Processing Standard (FIPS). It was selected after a 5-year process where 15 competing designs were evaluated.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha1-hmac-pbkdf2-ofb-aes.js"></script>
+<script type="text/javascript">
+
+var crypted = Crypto.AES.encrypt("Message", "Secret Passphrase");
+var plain = Crypto.AES.decrypt(crypted, "Secret Passphrase");
+
+</script>
+}}}
+
+== Rabbit ==
+
+Rabbit is a high-performance stream cipher and a finalist in the eSTREAM Portfolio. It is one of the four designs selected after a 3 1/2-year process where 22 designs were evaluated.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha1-hmac-pbkdf2-rabbit.js"></script>
+<script type="text/javascript">
+
+var crypted = Crypto.Rabbit.encrypt("Message", "Secret Passphrase");
+var plain = Crypto.Rabbit.decrypt(crypted, "Secret Passphrase");
+
+</script>
+}}}
+
+== MARC4 ==
+
+MARC4 (Modified Allegedly RC4) is based on RC4, a widely-used stream cipher. RC4 is used in popular protocols such as SSL and WEP. But although it's remarkable for its simplicity and speed, it has weaknesses. Crypto-JS provides a modified version that corrects these weaknesses, but the algorithm's history still doesn't inspire confidence in its security.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha1-hmac-pbkdf2-marc4.js"></script>
+<script type="text/javascript">
+
+var crypted = Crypto.MARC4.encrypt("Message", "Secret Passphrase");
+var plain = Crypto.MARC4.decrypt(crypted, "Secret Passphrase");
+
+</script>
+}}}
+
+== HMAC ==
+
+Keyed-hash message authentication codes (HMAC) is a mechanism for message authentication using cryptographic hash functions. HMAC can be used in combination with any iterated cryptographic hash function.
+
+=== HMAC-MD5 ===
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-md5.js"></script>
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-hmac-min.js"></script>
+<script type="text/javascript">
+
+var hmac = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase");
+
+</script>
+}}}
+
+=== HMAC-SHA1 ===
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha1.js"></script>
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-hmac-min.js"></script>
+<script type="text/javascript">
+
+var hmac = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase");
+
+</script>
+}}}
+
+=== HMAC-SHA256 ===
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha256.js"></script>
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-hmac-min.js"></script>
+<script type="text/javascript">
+
+var hmac = Crypto.HMAC(Crypto.SHA256, "Message", "Secret Passphrase");
+
+</script>
+}}}
+
+== PBKDF2 ==
+
+PBKDF2 is a password-based key derivation function. In many applications of cryptography, user security is ultimately dependent on a password. And because a password usually cannot be used directly as a cryptographic key, some processing is required. A salt in password-based cryptography provides a large set of keys for any given password. An iteration count has traditionally served the purpose of increasing the cost of producing keys from a password, thereby also increasing the difficulty of attack.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-sha1-hmac-pbkdf2.js"></script>
+<script type="text/javascript">
+
+var salt = Crypto.util.bytesToString(Crypto.util.randomBytes(16));
+
+var key128bit = Crypto.PBKDF2("Secret Passphrase", salt, 16);
+var key256bit = Crypto.PBKDF2("Secret Passphrase", salt, 32);
+var key512bit = Crypto.PBKDF2("Secret Passphrase", salt, 64);
+
+var key512bit1000 = Crypto.PBKDF2("Secret Passphrase", salt, 64, { iterations: 1000 });
+
+</script>
+}}}
+
+== Utilities ==
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.1.0-beta2-crypto-min.js"></script>
+<script type="text/javascript">
+
+var helloBytes = Crypto.util.stringToBytes("Hello, World!");
+var helloString = Crypto.util.bytesToString(helloBytes);
+
+var helloHex = Crypto.util.bytesToHex(helloBytes);
+var helloBytes = Crypto.util.hexToBytes(helloHex);
+
+var helloBase64 = Crypto.util.bytesToBase64(helloBytes);
+var helloBytes = Crypto.util.base64ToBytes(helloBase64);
+
+</script>
+}}}
