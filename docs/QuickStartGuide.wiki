@@ -105,6 +105,9 @@ Keyed-hash message authentication codes (HMAC) is a mechanism for message authen
 
 var hmac = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase");
 
+var hmacBytes = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase", { asBytes: true });
+var hmacString = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase", { asString: true });
+
 </script>
 }}}
 
@@ -117,6 +120,9 @@ var hmac = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase");
 
 var hmac = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase");
 
+var hmacBytes = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase", { asBytes: true });
+var hmacString = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase", { asString: true });
+
 </script>
 }}}
 
@@ -128,6 +134,9 @@ var hmac = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase");
 <script type="text/javascript">
 
 var hmac = Crypto.HMAC(Crypto.SHA256, "Message", "Secret Passphrase");
+
+var hmacBytes = Crypto.HMAC(Crypto.SHA256, "Message", "Secret Passphrase", { asBytes: true });
+var hmacString = Crypto.HMAC(Crypto.SHA256, "Message", "Secret Passphrase", { asString: true });
 
 </script>
 }}}
