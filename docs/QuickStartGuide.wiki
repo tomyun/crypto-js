@@ -1,0 +1,114 @@
+<wiki:toc/>
+
+= Quick-start Guide =
+
+== MD5 ==
+
+MD5 is a widely used hash function. It's been used in a wide variety of security applications and is also commonly used to check the integrity of files. Though, MD5 is not collision resistant, and it isn't suitable for applications like SSL certificates or digital signatures that rely on this property.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-md5.js"></script>
+<script type="text/javascript">
+
+var digestHex = Crypto.MD5("Hello, World!");
+var digestByteArray = Crypto.MD5("Hello, World!", { asBytes: true });
+var digestString = Crypto.MD5("Hello, World!", { asString: true });
+
+</script>
+}}}
+
+== SHA-1 ==
+
+The SHA hash functions were designed by the National Security Agency (NSA). SHA-1 is the most established of the existing SHA hash functions, and it's used in a variety of security applications and protocols. Though, SHA-1's collision resistance has been weakening as new attacks are discovered or improved.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-sha1.js"></script>
+<script type="text/javascript">
+
+var digestHex = Crypto.SHA1("Hello, World!");
+var digestByteArray = Crypto.SHA1("Hello, World!", { asBytes: true });
+var digestString = Crypto.SHA1("Hello, World!", { asString: true });
+
+</script>
+}}}
+
+== SHA-256 ==
+
+SHA-256 is one of the three variants in the SHA-2 set. It isn't as widely used as SHA-1, though it appears to provide much better security.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-sha256.js"></script>
+<script type="text/javascript">
+
+var digestHex = Crypto.SHA256("Hello, World!");
+var digestByteArray = Crypto.SHA256("Hello, World!", { asBytes: true });
+var digestString = Crypto.SHA256("Hello, World!", { asString: true });
+
+</script>
+}}}
+
+== AES ==
+
+The Advanced Encryption Standard (AES) is a U.S. Federal Information Processing Standard (FIPS). It was selected after a 5-year process where 15 competing designs were evaluated.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-sha256-ofb-aes.js"></script>
+<script type="text/javascript">
+
+var secretKey = Crypto.SHA256("Secret Passphrase", { asString: true });
+
+var crypted = Crypto.AES.encrypt("Hello, World!", secretKey);
+var plain = Crypto.AES.decrypt(crypted, secretKey);
+
+</script>
+}}}
+
+== Rabbit ==
+
+Rabbit is a high-performance stream cipher and a finalist in the eSTREAM Portfolio. It is one of the four designs selected after a 3 1/2-year process where 22 designs were evaluated.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-md5-rabbit.js"></script>
+<script type="text/javascript">
+
+var secretKey = Crypto.MD5("Secret Passphrase", { asString: true });
+
+var crypted = Crypto.Rabbit.encrypt("Hello, World!", secretKey);
+var plain = Crypto.Rabbit.decrypt(crypted, secretKey);
+
+</script>
+}}}
+
+== MARC4 ==
+
+MARC4 (Modified Allegedly RC4) is based on RC4, a widely-used stream cipher. RC4 is used in popular protocols such as SSL and WEP. But although it's remarkable for its simplicity and speed, it has weaknesses. Crypto-JS provides a modified version that corrects these weaknesses, but the algorithm's history still doesn't inspire confidence in its security.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-md5-marc4.js"></script>
+<script type="text/javascript">
+
+var secretKey = Crypto.MD5("Secret Passphrase", { asString: true });
+
+var crypted = Crypto.MARC4.encrypt("Hello, World!", secretKey);
+var plain = Crypto.MARC4.decrypt(crypted, secretKey);
+
+</script>
+}}}
+
+== Utilities ==
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/1.0.0-crypto-min.js"></script>
+<script type="text/javascript">
+
+var helloBytes = Crypto.util.stringToBytes("Hello, World!");
+var helloString = Crypto.util.bytesToString(helloBytes);
+
+var helloHex = Crypto.util.bytesToHex(helloBytes);
+var helloBytes = Crypto.util.hexToBytes(helloHex);
+
+var helloBase64 = Crypto.util.bytesToBase64(helloBytes);
+var helloBytes = Crypto.util.base64ToBytes(helloBase64);
+
+</script>
+}}}
