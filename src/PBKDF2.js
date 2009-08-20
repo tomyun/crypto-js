@@ -33,7 +33,7 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	}
 
 	// Truncate excess bytes
-	derivedKeyBytes.splice(keylen);
+	derivedKeyBytes.length = keylen;
 
 	return options && options.asBytes ? derivedKeyBytes :
 	       options && options.asString ? util.bytesToString(derivedKeyBytes) :
