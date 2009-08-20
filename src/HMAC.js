@@ -18,9 +18,16 @@ Crypto.HMAC = function (hasher, message, key, options) {
 		ikey[i] ^= 0x36;
 	}
 
-	var hmacbytes = hasher(util.bytesToString(okey) +
-	                       hasher(util.bytesToString(ikey) + message, { asString: true }),
-	                       { asBytes: true });
+	var hmacbytes =
+		hasher(
+			util.bytesToString(okey) +
+			hasher(
+				util.bytesToString(ikey) + message,
+				{ asString: true }
+			),
+			{ asBytes: true }
+		);
+
 	return options && options.asBytes ? hmacbytes :
 	       options && options.asString ? util.bytesToString(hmacbytes) :
 	       util.bytesToHex(hmacbytes);
