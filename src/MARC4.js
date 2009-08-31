@@ -20,7 +20,11 @@ var MARC4 = Crypto.MARC4 = {
 		    iv = util.randomBytes(16),
 
 		    // Generate key
-		    k = Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true });
+		    k = password.constructor == String ?
+		        // Derive key from passphrase
+		        Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true }) :
+		        // else, assume byte array representing cryptographic key
+		        password;
 
 		// Encrypt
 		MARC4._marc4(m, k, 1536);
@@ -41,7 +45,11 @@ var MARC4 = Crypto.MARC4 = {
 		    iv = c.splice(0, 16),
 
 		    // Generate key
-		    k = Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true });
+		    k = password.constructor == String ?
+		        // Derive key from passphrase
+		        Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true }) :
+		        // else, assume byte array representing cryptographic key
+		        password;
 
 		// Decrypt
 		MARC4._marc4(c, k, 1536);
