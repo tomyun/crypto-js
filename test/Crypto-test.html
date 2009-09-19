@@ -76,41 +76,41 @@ new YAHOO.tool.TestCase({
 		Assert.areNotEqual(Crypto.util.randomBytes(32).toString(), Crypto.util.randomBytes(32).toString());
 	},
 
-	test_string_bytes: function(){
+	test_stringToBytes: function(){
 		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString(), Crypto.util.stringToBytes("Hello, World!").toString());
 	},
 
-	test_bytes_string: function(){
+	test_bytesToString: function(){
 		Assert.areEqual("Hello, World!", Crypto.util.bytesToString([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]));
 	},
 
-	test_string_words: function(){
+	test_stringToWords: function(){
 		Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.stringToWords("Hello, World!").toString());
 	},
 
-	test_bytes_words: function(){
+	test_bytesToWords: function(){
 		Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.bytesToWords([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]).toString());
 	},
 
-	test_words_bytes: function(){
+	test_wordsToBytes: function(){
 		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x00, 0x00, 0x00].toString(), Crypto.util.wordsToBytes([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]).toString());
 	},
 
-	test_bytes_hex: function(){
+	test_bytesToHex: function(){
 		Assert.areEqual("48656c6c6f2c20576f726c6421", Crypto.util.bytesToHex([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]))
 	},
 
-	test_hex_bytes: function(){
+	test_hexToBytes: function(){
 		Assert.areEqual([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21].toString(), Crypto.util.hexToBytes("48656c6c6f2c20576f726c6421"));
 	},
 
-	test_bytes_base64: function(){
+	test_bytesToBase64: function(){
 		Assert.areEqual("FPucA9l+", Crypto.util.bytesToBase64([0x14, 0xFB, 0x9C, 0x03, 0xD9, 0x7E]));
 		Assert.areEqual("FPucA9k=", Crypto.util.bytesToBase64([0x14, 0xFB, 0x9C, 0x03, 0xD9]));
 		Assert.areEqual("FPucAw==", Crypto.util.bytesToBase64([0x14, 0xFB, 0x9C, 0x03]));
 	},
 
-	test_base64_bytes: function(){
+	test_base64ToBytes: function(){
 		Assert.areEqual([0x14, 0xFB, 0x9C, 0x03, 0xD9, 0x7E].toString(), Crypto.util.base64ToBytes("FPucA9l+"));
 		Assert.areEqual([0x14, 0xFB, 0x9C, 0x03, 0xD9].toString(), Crypto.util.base64ToBytes("FPucA9k="));
 		Assert.areEqual([0x14, 0xFB, 0x9C, 0x03].toString(), Crypto.util.base64ToBytes("FPucAw=="));
