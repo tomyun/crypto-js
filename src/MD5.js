@@ -106,10 +106,10 @@ MD5._md5 = function (message) {
 		c = MD5._ii(c, d, a, b, m[i+ 2], 15,  718787259);
 		b = MD5._ii(b, c, d, a, m[i+ 9], 21, -343485551);
 
-		a += aa;
-		b += bb;
-		c += cc;
-		d += dd;
+		a = (a + aa) >>> 0;
+		b = (b + bb) >>> 0;
+		c = (c + cc) >>> 0;
+		d = (d + dd) >>> 0;
 
 	}
 
