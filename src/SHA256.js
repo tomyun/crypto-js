@@ -1,7 +1,11 @@
 (function(){
 
-// Shortcut
-var util = Crypto.util;
+// Shortcuts
+var C = Crypto,
+    util = C.util,
+    charenc = C.charenc,
+    UTF8 = charenc.UTF8,
+    Binary = charenc.Binary;
 
 // Constants
 var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -25,15 +29,16 @@ var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 var SHA256 = Crypto.SHA256 = function (message, options) {
 	var digestbytes = util.wordsToBytes(SHA256._sha256(message));
 	return options && options.asBytes ? digestbytes :
-	       options && options.asString ? util.bytesToString(digestbytes) :
+	       options && options.asString ? Binary.bytesToString(digestbytes) :
 	       util.bytesToHex(digestbytes);
 };
 
 // The core
 SHA256._sha256 = function (message) {
 
-	var m  = util.stringToWords(message),
-	    l  = message.length * 8,
+	var m  = UTF8.stringToBytes(message),
+	    l  = m.length * 8,
+	    m  = util.bytesToWords(m),
 	    H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
 	          0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ],
 	    w  = [],
