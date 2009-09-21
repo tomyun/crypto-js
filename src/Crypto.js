@@ -43,24 +43,21 @@ var util = Crypto.util = {
 
 	// Convert a byte array to big-endian 32-bits words
 	bytesToWords: function (bytes) {
-		var words = [];
-		for (var i = 0, b = 0; i < bytes.length; i++, b += 8)
+		for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
 			words[b >>> 5] |= bytes[i] << (24 - b % 32);
 		return words;
 	},
 
 	// Convert big-endian 32-bit words to a byte array
 	wordsToBytes: function (words) {
-		var bytes = [];
-		for (var b = 0; b < words.length * 32; b += 8)
+		for (var bytes = [], b = 0; b < words.length * 32; b += 8)
 			bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
 		return bytes;
 	},
 
 	// Convert a byte array to a hex string
 	bytesToHex: function (bytes) {
-		var hex = [];
-		for (var i = 0; i < bytes.length; i++) {
+		for (var hex = [], i = 0; i < bytes.length; i++) {
 			hex.push((bytes[i] >>> 4).toString(16));
 			hex.push((bytes[i] & 0xF).toString(16));
 		}
@@ -69,8 +66,7 @@ var util = Crypto.util = {
 
 	// Convert a hex string to a byte array
 	hexToBytes: function (hex) {
-		var bytes = [];
-		for (var c = 0; c < hex.length; c += 2)
+		for (var bytes = [], c = 0; c < hex.length; c += 2)
 			bytes.push(parseInt(hex.substr(c, 2), 16));
 		return bytes;
 	},
@@ -79,8 +75,7 @@ var util = Crypto.util = {
 	bytesToBase64: function (bytes) {
 
 		// Use browser-native function if it exists
-		if (typeof btoa == "function")
-			return btoa(Crypto.charenc.Binary.bytesToString(bytes));
+		if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
 
 		var base64 = [],
 		    overflow;
@@ -117,15 +112,12 @@ var util = Crypto.util = {
 	base64ToBytes: function (base64) {
 
 		// Use browser-native function if it exists
-		if (typeof atob == "function")
-			return Crypto.charenc.Binary.stringToBytes(atob(base64));
+		if (typeof atob == "function") return Binary.stringToBytes(atob(base64));
 
 		// Remove non-base-64 characters
 		base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
 
-		var bytes = [];
-
-		for (var i = 0; i < base64.length; i++) {
+		for (var bytes = [], i = 0; i < base64.length; i++) {
 			switch (i % 4) {
 				case 1:
 					bytes.push((base64map.indexOf(base64.charAt(i - 1)) << 2) |
@@ -152,53 +144,50 @@ var util = Crypto.util = {
 Crypto.mode = {};
 
 // Crypto character encodings
-Crypto.charenc = {
+var charenc = Crypto.charenc = {};
 
-	UTF8: {
+// UTF-8 encoding
+var UTF8 = charenc.UTF8 = {
 
-		// Convert a string to a byte array
-		stringToBytes: function (str) {
-			return Crypto.charenc.Binary.stringToBytes(unescape(encodeURIComponent(str)));
-		},
-
-		// Convert a byte array to a string
-		bytesToString: function (bytes) {
-			return decodeURIComponent(escape(Crypto.charenc.Binary.bytesToString(bytes)));
-		},
-
-		// Convert a string to big-endian 32-bit words
-		stringToWords: function (str) {
-			return util.bytesToWords(this.stringToBytes(str));
-		}
-
+	// Convert a string to a byte array
+	stringToBytes: function (str) {
+		return Binary.stringToBytes(unescape(encodeURIComponent(str)));
 	},
 
-	Binary: {
+	// Convert a byte array to a string
+	bytesToString: function (bytes) {
+		return decodeURIComponent(escape(Binary.bytesToString(bytes)));
+	},
 
-		// Convert a string to a byte array
-		stringToBytes: function (str) {
-			var bytes = [];
-			for (var i = 0; i < str.length; i++)
-				bytes.push(str.charCodeAt(i));
-			return bytes;
-		},
+	// Convert a string to big-endian 32-bit words
+	stringToWords: function (str) {
+		return util.bytesToWords(UTF8.stringToBytes(str));
+	}
 
-		// Convert a byte array to a string
-		bytesToString: function (bytes) {
-			var str = [];
-			for (var i = 0; i < bytes.length; i++)
-				str.push(String.fromCharCode(bytes[i]));
-			return str.join("");
-		},
+};
 
-		// Convert a string to big-endian 32-bit words
-		stringToWords: function (str) {
-			var words = [];
-			for (var c = 0, b = 0; c < str.length; c++, b += 8)
-				words[b >>> 5] |= str.charCodeAt(c) << (24 - b % 32);
-			return words;
-		}
+// Binary encoding
+var Binary = charenc.Binary = {
 
+	// Convert a string to a byte array
+	stringToBytes: function (str) {
+		for (var bytes = [], i = 0; i < str.length; i++)
+			bytes.push(str.charCodeAt(i));
+		return bytes;
+	},
+
+	// Convert a byte array to a string
+	bytesToString: function (bytes) {
+		for (var str = [], i = 0; i < bytes.length; i++)
+			str.push(String.fromCharCode(bytes[i]));
+		return str.join("");
+	},
+
+	// Convert a string to big-endian 32-bit words
+	stringToWords: function (str) {
+		for (var words = [], c = 0, b = 0; c < str.length; c++, b += 8)
+			words[b >>> 5] |= str.charCodeAt(c) << (24 - b % 32);
+		return words;
 	}
 
 };
