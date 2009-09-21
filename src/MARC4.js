@@ -1,7 +1,11 @@
 (function(){
 
-// Shortcut
-var util = Crypto.util;
+// Shortcuts
+var C = Crypto,
+    util = C.util,
+    charenc = C.charenc,
+    UTF8 = charenc.UTF8,
+    Binary = charenc.Binary;
 
 var MARC4 = Crypto.MARC4 = {
 
@@ -14,7 +18,7 @@ var MARC4 = Crypto.MARC4 = {
 		var
 
 		    // Convert to bytes
-		    m = util.stringToBytes(message),
+		    m = UTF8.stringToBytes(message),
 
 		    // Generate random IV
 		    iv = util.randomBytes(16),
@@ -22,7 +26,7 @@ var MARC4 = Crypto.MARC4 = {
 		    // Generate key
 		    k = password.constructor == String ?
 		        // Derive key from passphrase
-		        Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true }) :
+		        Crypto.PBKDF2(password, Binary.bytesToString(iv), 32, { asBytes: true }) :
 		        // else, assume byte array representing cryptographic key
 		        password;
 
@@ -47,7 +51,7 @@ var MARC4 = Crypto.MARC4 = {
 		    // Generate key
 		    k = password.constructor == String ?
 		        // Derive key from passphrase
-		        Crypto.PBKDF2(password, util.bytesToString(iv), 32, { asBytes: true }) :
+		        Crypto.PBKDF2(password, Binary.bytesToString(iv), 32, { asBytes: true }) :
 		        // else, assume byte array representing cryptographic key
 		        password;
 
@@ -55,7 +59,7 @@ var MARC4 = Crypto.MARC4 = {
 		MARC4._marc4(c, k, 1536);
 
 		// Return plaintext
-		return util.bytesToString(c);
+		return UTF8.bytesToString(c);
 
 	},
 
