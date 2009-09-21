@@ -27,17 +27,13 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	var derivedKeyBytes = [],
 	    blockindex = 1;
 	while (derivedKeyBytes.length < keylen) {
-
 		var block = PRF(password, salt.concat(util.wordsToBytes([blockindex])));
-
 		for (var u = block, i = 1; i < iterations; i++) {
 			u = PRF(password, u);
 			for (var j = 0; j < block.length; j++) block[j] ^= u[j];
 		}
-
 		derivedKeyBytes = derivedKeyBytes.concat(block);
 		blockindex++;
-
 	}
 
 	// Truncate excess bytes

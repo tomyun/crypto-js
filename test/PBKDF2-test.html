@@ -41,8 +41,8 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual("139c30c0966bc32ba55fdbf212530ac9c5ec59f1a452f5cc9ad940fea0598ed1", Crypto.PBKDF2("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "pass phrase equals block size", 256/8, { iterations: 1200 }));
 		Assert.areEqual("9ccad6d468770cd51b10e6a68721be61", Crypto.PBKDF2("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "pass phrase exceeds block size", 128/8, { iterations: 1200 }));
 		Assert.areEqual("9ccad6d468770cd51b10e6a68721be611a8b4d282601db3b36be9246915ec82a", Crypto.PBKDF2("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "pass phrase exceeds block size", 256/8, { iterations: 1200 }));
-		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39", Crypto.PBKDF2("\xf0\x9d\x84\x9e", "EXAMPLE.COMpianist", 128/8, { iterations: 50 }));
-		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52", Crypto.PBKDF2("\xf0\x9d\x84\x9e", "EXAMPLE.COMpianist", 256/8, { iterations: 50 }));
+		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39", Crypto.PBKDF2([0xf0, 0x9d, 0x84, 0x9e], "EXAMPLE.COMpianist", 128/8, { iterations: 50 }));
+		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52", Crypto.PBKDF2([0xf0, 0x9d, 0x84, 0x9e], "EXAMPLE.COMpianist", 256/8, { iterations: 50 }));
 	}
 
 })
