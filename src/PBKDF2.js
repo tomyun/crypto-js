@@ -1,9 +1,18 @@
 (function(){
 
-// Shortcut
-var util = Crypto.util;
+// Shortcuts
+var C = Crypto,
+    util = C.util,
+    charenc = C.charenc,
+    UTF8 = charenc.UTF8,
+    Binary = charenc.Binary;
 
 Crypto.PBKDF2 = function (password, salt, keylen, options) {
+
+	// Convert to byte arrays
+	if (password.constructor == String) password = UTF8.stringToBytes(password);
+	if (salt.constructor == String) salt = UTF8.stringToBytes(salt);
+	/* else, assume byte array already */
 
 	// Defaults
 	var hasher = options && options.hasher || Crypto.SHA1,
@@ -19,11 +28,10 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	    blockindex = 1;
 	while (derivedKeyBytes.length < keylen) {
 
-		var block = PRF(password, salt + util.bytesToString(
-		                                 util.wordsToBytes([blockindex])));
+		var block = PRF(password, salt.concat(util.wordsToBytes([blockindex])));
 
 		for (var u = block, i = 1; i < iterations; i++) {
-			u = PRF(password, util.bytesToString(u));
+			u = PRF(password, u);
 			for (var j = 0; j < block.length; j++) block[j] ^= u[j];
 		}
 
@@ -36,7 +44,7 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	derivedKeyBytes.length = keylen;
 
 	return options && options.asBytes ? derivedKeyBytes :
-	       options && options.asString ? util.bytesToString(derivedKeyBytes) :
+	       options && options.asString ? Binary.bytesToString(derivedKeyBytes) :
 	       util.bytesToHex(derivedKeyBytes);
 
 };
