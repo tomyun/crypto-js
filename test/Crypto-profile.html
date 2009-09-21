@@ -16,14 +16,12 @@ var data = [];
 for (var i = 0; i < 5000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
 data = data.join("");
 
-profile(["Crypto.util"], function(){
+profile(["Crypto.util", "Crypto.charenc.UTF8", "Crypto.charenc.Binary"], function(){
 
-	var bytes = Crypto.util.stringToBytes(data);
-	Crypto.util.bytesToString(bytes);
+	var bytes = Crypto.charenc.UTF8.stringToBytes(data);
+	Crypto.charenc.UTF8.bytesToString(bytes);
 
-	var words = Crypto.util.stringToWords(data);
-
-	Crypto.util.bytesToWords(bytes);
+	var words = Crypto.util.bytesToWords(bytes);
 	Crypto.util.wordsToBytes(words);
 
 	var hex = Crypto.util.bytesToHex(bytes);
