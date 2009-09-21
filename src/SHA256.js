@@ -36,7 +36,8 @@ var SHA256 = Crypto.SHA256 = function (message, options) {
 // The core
 SHA256._sha256 = function (message) {
 
-	var m  = UTF8.stringToBytes(message),
+	var m  = message.constructor == String ?
+	         UTF8.stringToBytes(message) : message,
 	    l  = m.length * 8,
 	    m  = util.bytesToWords(m),
 	    H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,

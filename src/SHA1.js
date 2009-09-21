@@ -18,7 +18,8 @@ var SHA1 = Crypto.SHA1 = function (message, options) {
 // The core
 SHA1._sha1 = function (message) {
 
-	var m  = UTF8.stringToBytes(message),
+	var m  = message.constructor == String ? 
+	         UTF8.stringToBytes(message) : message,
 	    l  = m.length * 8,
 	    m  = util.bytesToWords(m),
 	    w  =  [],

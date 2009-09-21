@@ -18,7 +18,8 @@ var MD5 = Crypto.MD5 = function (message, options) {
 // The core
 MD5._md5 = function (message) {
 
-	var m = UTF8.stringToBytes(message),
+	var m = message.constructor == String ?
+	        UTF8.stringToBytes(message) : message,
 	    l = m.length * 8,
 	    m = util.bytesToWords(m),
 	    a =  1732584193,
