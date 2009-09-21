@@ -90,10 +90,6 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual("\u65E5\u672C\u8A9E", Crypto.charenc.UTF8.bytesToString([0xE6, 0x97, 0xA5, 0xE6, 0x9C, 0xAC, 0xE8, 0xAA, 0x9E]));
 	},
 
-	test_stringToWords: function(){
-		Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.charenc.Binary.stringToWords("Hello, World!").toString());
-	},
-
 	test_bytesToWords: function(){
 		Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.bytesToWords([0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x2C, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21]).toString());
 	},

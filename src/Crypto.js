@@ -157,11 +157,6 @@ var UTF8 = charenc.UTF8 = {
 	// Convert a byte array to a string
 	bytesToString: function (bytes) {
 		return decodeURIComponent(escape(Binary.bytesToString(bytes)));
-	},
-
-	// Convert a string to big-endian 32-bit words
-	stringToWords: function (str) {
-		return util.bytesToWords(UTF8.stringToBytes(str));
 	}
 
 };
@@ -181,13 +176,6 @@ var Binary = charenc.Binary = {
 		for (var str = [], i = 0; i < bytes.length; i++)
 			str.push(String.fromCharCode(bytes[i]));
 		return str.join("");
-	},
-
-	// Convert a string to big-endian 32-bit words
-	stringToWords: function (str) {
-		for (var words = [], c = 0, b = 0; c < str.length; c++, b += 8)
-			words[b >>> 5] |= str.charCodeAt(c) << (24 - b % 32);
-		return words;
 	}
 
 };
