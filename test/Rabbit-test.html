@@ -62,6 +62,7 @@ new YAHOO.tool.TestCase({
 
 		// Test D(E(m)) == m
 		Assert.areEqual(data, Crypto.Rabbit.decrypt(Crypto.Rabbit.encrypt(data, key), key));
+		Assert.areEqual('Сообщение', Crypto.Rabbit.decrypt(Crypto.Rabbit.encrypt('Сообщение', 'Пароль'), 'Пароль'));
 
 	}
 

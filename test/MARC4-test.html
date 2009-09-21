@@ -50,6 +50,7 @@ new YAHOO.tool.TestCase({
 
 		// Test D(E(m)) == m
 		Assert.areEqual(data, Crypto.MARC4.decrypt(Crypto.MARC4.encrypt(data, key), key));
+		Assert.areEqual('Сообщение', Crypto.MARC4.decrypt(Crypto.MARC4.encrypt('Сообщение', 'Пароль'), 'Пароль'));
 
 	}
 

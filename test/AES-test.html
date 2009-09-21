@@ -89,6 +89,8 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key, Crypto.mode.CBC), key, Crypto.mode.CBC));
 		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key), key));
 
+		Assert.areEqual('Сообщение', Crypto.AES.decrypt(Crypto.AES.encrypt('Сообщение', 'Пароль'), 'Пароль'));
+
 	}
 
 })
