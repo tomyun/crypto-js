@@ -19,7 +19,7 @@ Crypto.HMAC = function (hasher, message, key, options) {
 		key = hasher(key, { asBytes: true });
 
 	// XOR keys with pad constants
-	var okey = key,
+	var okey = key.slice(0),
 	    ikey = key.slice(0);
 	for (var i = 0; i < hasher._blocksize * 4; i++) {
 		okey[i] ^= 0x5C;
