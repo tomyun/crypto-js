@@ -9,31 +9,24 @@ var C = Crypto,
 
 Crypto.HMAC = function (hasher, message, key, options) {
 
+	// Convert to byte arrays
+	if (message.constructor == String) message = UTF8.stringToBytes(message);
+	if (key.constructor == String) key = UTF8.stringToBytes(key);
+	/* else, assume byte array already */
+
 	// Allow arbitrary length keys
-	var keybytes = key.constructor == String ?
-	               UTF8.stringToBytes(key) : key;
-	if (keybytes.length > hasher._blocksize * 4)
-		keybytes = hasher(keybytes, { asBytes: true });
+	if (key.length > hasher._blocksize * 4)
+		key = hasher(key, { asBytes: true });
 
 	// XOR keys with pad constants
-	var okey = keybytes,
-	    ikey = keybytes.slice(0);
+	var okey = key,
+	    ikey = key.slice(0);
 	for (var i = 0; i < hasher._blocksize * 4; i++) {
 		okey[i] ^= 0x5C;
 		ikey[i] ^= 0x36;
 	}
 
-	var hmacbytes =
-		hasher(
-			okey.concat(
-				hasher(
-					ikey.concat(message.constructor == String ?
-						    UTF8.stringToBytes(message) : message),
-					{ asBytes: true }
-				)
-			),
-			{ asBytes: true }
-		);
+	var hmacbytes = hasher(okey.concat(hasher(ikey.concat(message), { asBytes: true })), { asBytes: true });
 
 	return options && options.asBytes ? hmacbytes :
 	       options && options.asString ? Binary.bytesToString(hmacbytes) :
