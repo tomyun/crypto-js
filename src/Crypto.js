@@ -78,9 +78,7 @@ var util = Crypto.util = {
 		if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
 
 		for(var base64 = [], i = 0; i < bytes.length; i += 3) {
-			var triplet = bytes[i] << 16;
-			if (i + 1 < bytes.length) triplet |= bytes[i + 1] << 8;
-			if (i + 2 < bytes.length) triplet |= bytes[i + 2];
+			var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
 			for(var j = 0; j < 4; j++) {
 				if (i * 8 + j * 6 <= bytes.length * 8)
 					base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
