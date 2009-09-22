@@ -77,29 +77,13 @@ var util = Crypto.util = {
 		// Use browser-native function if it exists
 		if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
 
-		var base64 = [],
-		    overflow;
-
-		for (var i = 0; i < bytes.length; i++) {
-			switch (i % 3) {
-				case 0:
-					base64.push(base64map.charAt(bytes[i] >>> 2));
-					overflow = (bytes[i] & 0x3) << 4;
-					break;
-				case 1:
-					base64.push(base64map.charAt(overflow | (bytes[i] >>> 4)));
-					overflow = (bytes[i] & 0xF) << 2;
-					break;
-				case 2:
-					base64.push(base64map.charAt(overflow | (bytes[i] >>> 6)));
-					base64.push(base64map.charAt(bytes[i] & 0x3F));
-					overflow = -1;
-			}
+		for(var base64 = [], i = 0; i < bytes.length; i += 3) {
+			var triplet = bytes[i] << 16;
+			if (i + 1 < bytes.length) triplet |= bytes[i + 1] << 8;
+			if (i + 2 < bytes.length) triplet |= bytes[i + 2];
+			for(var j = 0; j < 4; j++)
+				base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
 		}
-
-		// Encode overflow bits, if there are any
-		if (overflow != undefined && overflow != -1)
-			base64.push(base64map.charAt(overflow));
 
 		// Add padding
 		while (base64.length % 4 != 0) base64.push("=");
