@@ -99,21 +99,10 @@ var util = Crypto.util = {
 		// Remove non-base-64 characters
 		base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
 
-		for (var bytes = [], i = 0; i < base64.length; i++) {
-			switch (i % 4) {
-				case 1:
-					bytes.push((base64map.indexOf(base64.charAt(i - 1)) << 2) |
-					           (base64map.indexOf(base64.charAt(i)) >>> 4));
-					break;
-				case 2:
-					bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & 0xF) << 4) |
-					           (base64map.indexOf(base64.charAt(i)) >>> 2));
-					break;
-				case 3:
-					bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & 0x3) << 6) |
-					           (base64map.indexOf(base64.charAt(i))));
-					break;
-			}
+		for (var bytes = [], i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
+			if (imod4 == 0) continue;
+			bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
+			           (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
 		}
 
 		return bytes;
