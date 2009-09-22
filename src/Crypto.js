@@ -79,7 +79,7 @@ var util = Crypto.util = {
 
 		for(var base64 = [], i = 0; i < bytes.length; i += 3) {
 			var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-			for(var j = 0; j < 4; j++) {
+			for (var j = 0; j < 4; j++) {
 				if (i * 8 + j * 6 <= bytes.length * 8)
 					base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
 				else base64.push("=");
