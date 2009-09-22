@@ -81,12 +81,12 @@ var util = Crypto.util = {
 			var triplet = bytes[i] << 16;
 			if (i + 1 < bytes.length) triplet |= bytes[i + 1] << 8;
 			if (i + 2 < bytes.length) triplet |= bytes[i + 2];
-			for(var j = 0; j < 4; j++)
-				base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+			for(var j = 0; j < 4; j++) {
+				if (i * 8 + j * 6 <= bytes.length * 8)
+					base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+				else base64.push("=");
+			}
 		}
-
-		// Add padding
-		while (base64.length % 4 != 0) base64.push("=");
 
 		return base64.join("");
 
