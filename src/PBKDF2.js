@@ -12,7 +12,7 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	// Convert to byte arrays
 	if (password.constructor == String) password = UTF8.stringToBytes(password);
 	if (salt.constructor == String) salt = UTF8.stringToBytes(salt);
-	/* else, assume byte array already */
+	/* else, assume byte arrays already */
 
 	// Defaults
 	var hasher = options && options.hasher || Crypto.SHA1,

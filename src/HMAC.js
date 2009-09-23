@@ -12,7 +12,7 @@ Crypto.HMAC = function (hasher, message, key, options) {
 	// Convert to byte arrays
 	if (message.constructor == String) message = UTF8.stringToBytes(message);
 	if (key.constructor == String) key = UTF8.stringToBytes(key);
-	/* else, assume byte array already */
+	/* else, assume byte arrays already */
 
 	// Allow arbitrary length keys
 	if (key.length > hasher._blocksize * 4)

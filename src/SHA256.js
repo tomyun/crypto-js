@@ -40,11 +40,11 @@ SHA256._sha256 = function (message) {
 	if (message.constructor == String) message = UTF8.stringToBytes(message);
 	/* else, assume byte array already */
 
-	var m  = util.bytesToWords(message),
-	    l  = message.length * 8,
+	var m = util.bytesToWords(message),
+	    l = message.length * 8,
 	    H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
 	          0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ],
-	    w  = [],
+	    w = [],
 	    a, b, c, d, e, f, g, h, i, j,
 	    t1, t2;
 
