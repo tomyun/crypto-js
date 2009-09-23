@@ -100,7 +100,7 @@ var AES = Crypto.AES = {
 		    // Generate key
 		    k = password.constructor == String ?
 		        // Derive key from passphrase
-		        Crypto.PBKDF2(password, Binary.bytesToString(iv), 32, { asBytes: true }) :
+		        Crypto.PBKDF2(password, iv, 32, { asBytes: true }) :
 		        // else, assume byte array representing cryptographic key
 		        password;
 
@@ -129,7 +129,7 @@ var AES = Crypto.AES = {
 		    // Generate key
 		    k = password.constructor == String ?
 		        // Derive key from passphrase
-		        Crypto.PBKDF2(password, Binary.bytesToString(iv), 32, { asBytes: true }) :
+		        Crypto.PBKDF2(password, iv, 32, { asBytes: true }) :
 		        // else, assume byte array representing cryptographic key
 		        password;
 
