@@ -87,7 +87,7 @@ var AES = Crypto.AES = {
 	 * Public API
 	 */
 
-	encrypt: function (message, password, mode) {
+	encrypt: function (message, password, options) {
 
 		var
 
@@ -105,7 +105,7 @@ var AES = Crypto.AES = {
 		        password;
 
 		// Determine mode
-		mode = mode || Crypto.mode.OFB;
+		mode = options && options.mode || Crypto.mode.OFB;
 
 		// Encrypt
 		AES._init(k);
@@ -116,7 +116,7 @@ var AES = Crypto.AES = {
 
 	},
 
-	decrypt: function (ciphertext, password, mode) {
+	decrypt: function (ciphertext, password, options) {
 
 		var
 
@@ -134,7 +134,7 @@ var AES = Crypto.AES = {
 		        password;
 
 		// Determine mode
-		mode = mode || Crypto.mode.OFB;
+		mode = options && options.mode || Crypto.mode.OFB;
 
 		// Decrypt
 		AES._init(k);
