@@ -41,7 +41,7 @@ var util = Crypto.util = {
 		return bytes;
 	},
 
-	// Convert a byte array to big-endian 32-bits words
+	// Convert a byte array to big-endian 32-bit words
 	bytesToWords: function (bytes) {
 		for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
 			words[b >>> 5] |= bytes[i] << (24 - b % 32);
@@ -77,32 +77,14 @@ var util = Crypto.util = {
 		// Use browser-native function if it exists
 		if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
 
-		var base64 = [],
-		    overflow;
-
-		for (var i = 0; i < bytes.length; i++) {
-			switch (i % 3) {
-				case 0:
-					base64.push(base64map.charAt(bytes[i] >>> 2));
-					overflow = (bytes[i] & 0x3) << 4;
-					break;
-				case 1:
-					base64.push(base64map.charAt(overflow | (bytes[i] >>> 4)));
-					overflow = (bytes[i] & 0xF) << 2;
-					break;
-				case 2:
-					base64.push(base64map.charAt(overflow | (bytes[i] >>> 6)));
-					base64.push(base64map.charAt(bytes[i] & 0x3F));
-					overflow = -1;
+		for(var base64 = [], i = 0; i < bytes.length; i += 3) {
+			var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+			for (var j = 0; j < 4; j++) {
+				if (i * 8 + j * 6 <= bytes.length * 8)
+					base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+				else base64.push("=");
 			}
 		}
-
-		// Encode overflow bits, if there are any
-		if (overflow != undefined && overflow != -1)
-			base64.push(base64map.charAt(overflow));
-
-		// Add padding
-		while (base64.length % 4 != 0) base64.push("=");
 
 		return base64.join("");
 
@@ -117,21 +99,10 @@ var util = Crypto.util = {
 		// Remove non-base-64 characters
 		base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
 
-		for (var bytes = [], i = 0; i < base64.length; i++) {
-			switch (i % 4) {
-				case 1:
-					bytes.push((base64map.indexOf(base64.charAt(i - 1)) << 2) |
-					           (base64map.indexOf(base64.charAt(i)) >>> 4));
-					break;
-				case 2:
-					bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & 0xF) << 4) |
-					           (base64map.indexOf(base64.charAt(i)) >>> 2));
-					break;
-				case 3:
-					bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & 0x3) << 6) |
-					           (base64map.indexOf(base64.charAt(i))));
-					break;
-			}
+		for (var bytes = [], i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
+			if (imod4 == 0) continue;
+			bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
+			           (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
 		}
 
 		return bytes;
