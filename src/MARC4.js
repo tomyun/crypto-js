@@ -91,7 +91,7 @@ var MARC4 = Crypto.MARC4 = {
 		i = j = 0;
 
 		// Encryption
-		for (var k = 0 - drop; k < m.length; k++) {
+		for (var k = -drop; k < m.length; k++) {
 
 			i = (i + 1) % 256;
 			j = (j + s[i]) % 256;
