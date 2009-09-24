@@ -7,7 +7,7 @@ var C = Crypto,
     UTF8 = charenc.UTF8,
     Binary = charenc.Binary;
 
-Crypto.HMAC = function (hasher, message, key, options) {
+C.HMAC = function (hasher, message, key, options) {
 
 	// Convert to byte arrays
 	if (message.constructor == String) message = UTF8.stringToBytes(message);

@@ -8,7 +8,7 @@ var C = Crypto,
     Binary = charenc.Binary;
 
 // Public API
-var MD5 = Crypto.MD5 = function (message, options) {
+var MD5 = C.MD5 = function (message, options) {
 	var digestbytes = util.wordsToBytes(MD5._md5(message));
 	return options && options.asBytes ? digestbytes :
 	       options && options.asString ? Binary.bytesToString(digestbytes) :

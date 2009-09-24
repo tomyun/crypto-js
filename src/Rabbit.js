@@ -12,7 +12,7 @@ var x = [],
     c = [],
     b;
 
-var Rabbit = Crypto.Rabbit = {
+var Rabbit = C.Rabbit = {
 
 	/**
 	 * Public API
@@ -31,7 +31,7 @@ var Rabbit = Crypto.Rabbit = {
 		    // Generate key
 		    k = password.constructor == String ?
 		        // Derive key from passphrase
-		        Crypto.PBKDF2(password, iv, 32, { asBytes: true }) :
+		        C.PBKDF2(password, iv, 32, { asBytes: true }) :
 		        // else, assume byte array representing cryptographic key
 		        password;
 
@@ -56,7 +56,7 @@ var Rabbit = Crypto.Rabbit = {
 		    // Generate key
 		    k = password.constructor == String ?
 		        // Derive key from passphrase
-		        Crypto.PBKDF2(password, iv, 32, { asBytes: true }) :
+		        C.PBKDF2(password, iv, 32, { asBytes: true }) :
 		        // else, assume byte array representing cryptographic key
 		        password;
 
