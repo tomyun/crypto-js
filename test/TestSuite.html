@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+
+<!-- YUI CSS -->
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+
+<!-- CSS customizations -->
+<style type="text/css">
+.yui-log { font-size: 13px }
+.yui-log-container { right: auto; left: 1em }
+.yui-log .yui-log-bd { height: 40em }
+</style>
+
+<!-- YUI JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+
+<!-- Test subjects -->
+<script type="text/javascript" src="../src/Crypto.js"></script>
+<script type="text/javascript" src="../src/CryptoMath.js"></script>
+<script type="text/javascript" src="../src/MD5.js"></script>
+<script type="text/javascript" src="../src/SHA1.js"></script>
+<script type="text/javascript" src="../src/SHA256.js"></script>
+<script type="text/javascript" src="../src/HMAC.js"></script>
+<script type="text/javascript" src="../src/PBKDF2.js"></script>
+<script type="text/javascript" src="../src/MARC4.js"></script>
+<script type="text/javascript" src="../src/Rabbit.js"></script>
+<script type="text/javascript" src="../src/OFB.js"></script>
+<script type="text/javascript" src="../src/CBC.js"></script>
+<script type="text/javascript" src="../src/AES.js"></script>
+
+<!-- Test suite -->
+<script type="text/javascript">
+
+// 1KB of random, dummy data
+var data = Crypto.util.randomBytes(1000);
+
+// Create test suite
+var TestSuite = new YAHOO.tool.TestSuite();
+YAHOO.tool.TestRunner.add(TestSuite);
+
+// Shortcut
+var Assert = YAHOO.util.Assert;
+
+</script>
+
+<!-- Test cases -->
+<script type="text/javascript" src="Crypto-test.js"></script>
+<script type="text/javascript" src="MD5-test.js"></script>
+<script type="text/javascript" src="SHA1-test.js"></script>
+<script type="text/javascript" src="SHA256-test.js"></script>
+<script type="text/javascript" src="HMAC-test.js"></script>
+<script type="text/javascript" src="MARC4-test.js"></script>
+<script type="text/javascript" src="Rabbit-test.js"></script>
+<script type="text/javascript" src="AES-test.js"></script>
+<script type="text/javascript" src="PBKDF2-test.js"></script>
+
+<script type="text/javascript">
+YAHOO.util.Event.onDOMReady(function(){
+
+	// Display results from the TestRunner
+	var logger = new YAHOO.tool.TestLogger();
+
+	// Hide info category
+	logger.hideCategory("info");
+
+	// Run all tests
+	YAHOO.tool.TestRunner.run();
+
+});
+
+</script>
+
+</head>
+<body></body>

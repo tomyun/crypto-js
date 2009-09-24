@@ -26,7 +26,7 @@ var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
           0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2 ];
 
 // Public API
-var SHA256 = Crypto.SHA256 = function (message, options) {
+var SHA256 = C.SHA256 = function (message, options) {
 	var digestbytes = util.wordsToBytes(SHA256._sha256(message));
 	return options && options.asBytes ? digestbytes :
 	       options && options.asString ? Binary.bytesToString(digestbytes) :

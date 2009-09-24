@@ -7,7 +7,7 @@ var C = Crypto,
     UTF8 = charenc.UTF8,
     Binary = charenc.Binary;
 
-Crypto.PBKDF2 = function (password, salt, keylen, options) {
+C.PBKDF2 = function (password, salt, keylen, options) {
 
 	// Convert to byte arrays
 	if (password.constructor == String) password = UTF8.stringToBytes(password);
@@ -15,12 +15,12 @@ Crypto.PBKDF2 = function (password, salt, keylen, options) {
 	/* else, assume byte arrays already */
 
 	// Defaults
-	var hasher = options && options.hasher || Crypto.SHA1,
+	var hasher = options && options.hasher || C.SHA1,
 	    iterations = options && options.iterations || 1;
 
 	// Pseudo-random function
 	function PRF(password, salt) {
-		return Crypto.HMAC(hasher, salt, password, { asBytes: true });
+		return C.HMAC(hasher, salt, password, { asBytes: true });
 	}
 
 	// Generate key

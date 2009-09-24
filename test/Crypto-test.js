@@ -1,30 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<head>
-
-<!-- YUI CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
-
-<!-- Customizations -->
-<link rel="stylesheet" type="text/css" href="lib/tester.css">
-
-<!-- YUI JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
-
-<!-- Test subject -->
-<script type="text/javascript" src="../src/Crypto.js"></script>
-<script type="text/javascript" src="../src/CryptoMath.js"></script>
-
-<!-- Test cases -->
-<script type="text/javascript">
-
-// Shortcut
-var Assert = YAHOO.util.Assert;
-
-YAHOO.tool.TestRunner.add(
-new YAHOO.tool.TestCase({
+TestSuite.add(new YAHOO.tool.TestCase({
 
 	test_u32: function(){
 		Assert.areEqual(2147483647, Crypto.util.u32(2147483647));
@@ -118,24 +92,4 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual([0x14, 0xFB, 0x9C, 0x03].toString(), Crypto.util.base64ToBytes("FPucAw=="));
 	}
 
-})
-);
-
-YAHOO.util.Event.onDOMReady(function(){
-
-	// Display results from the TestRunner
-	var logger = new YAHOO.tool.TestLogger();
-
-	// Hide info category
-	logger.hideCategory("info");
-
-	// Run all tests
-	YAHOO.tool.TestRunner.run();
-
-});
-
-</script>
-
-</head>
-<body>
-</body>
+}));

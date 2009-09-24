@@ -8,7 +8,7 @@ var C = Crypto,
     Binary = charenc.Binary;
 
 // Public API
-var SHA1 = Crypto.SHA1 = function (message, options) {
+var SHA1 = C.SHA1 = function (message, options) {
 	var digestbytes = util.wordsToBytes(SHA1._sha1(message));
 	return options && options.asBytes ? digestbytes :
 	       options && options.asString ? Binary.bytesToString(digestbytes) :
