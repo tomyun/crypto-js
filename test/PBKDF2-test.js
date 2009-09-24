@@ -1,32 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<head>
-
-<!-- YUI CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
-
-<!-- Customizations -->
-<link rel="stylesheet" type="text/css" href="lib/tester.css">
-
-<!-- YUI JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
-
-<!-- Test subject -->
-<script type="text/javascript" src="../src/Crypto.js"></script>
-<script type="text/javascript" src="../src/SHA1.js"></script>
-<script type="text/javascript" src="../src/HMAC.js"></script>
-<script type="text/javascript" src="../src/PBKDF2.js"></script>
-
-<!-- Test cases -->
-<script type="text/javascript">
-
-// Shortcut
-var Assert = YAHOO.util.Assert;
-
-YAHOO.tool.TestRunner.add(
-new YAHOO.tool.TestCase({
+TestSuite.add(new YAHOO.tool.TestCase({
 
 	test_PBKDF2: function () {
 		Assert.areEqual("cdedb5281bb2f801565a1122b2563515", Crypto.PBKDF2("password", "ATHENA.MIT.EDUraeburn", 128/8));
@@ -45,24 +17,4 @@ new YAHOO.tool.TestCase({
 		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52", Crypto.PBKDF2([0xf0, 0x9d, 0x84, 0x9e], "EXAMPLE.COMpianist", 256/8, { iterations: 50 }));
 	}
 
-})
-);
-
-YAHOO.util.Event.onDOMReady(function(){
-
-	// Display results from the TestRunner
-	var logger = new YAHOO.tool.TestLogger();
-
-	// Hide info category
-	logger.hideCategory("info");
-
-	// Run all tests
-	YAHOO.tool.TestRunner.run();
-
-});
-
-</script>
-
-</head>
-<body>
-</body>
+}));
