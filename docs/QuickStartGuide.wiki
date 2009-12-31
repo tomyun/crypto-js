@@ -99,8 +99,7 @@ Keyed-hash message authentication codes (HMAC) is a mechanism for message authen
 === HMAC-MD5 ===
 
 {{{
-<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-md5.js"></script>
-<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-hmac-min.js"></script>
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-md5-hmac.js"></script>
 <script type="text/javascript">
 
 var hmac = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase");
@@ -114,8 +113,7 @@ var hmacString = Crypto.HMAC(Crypto.MD5, "Message", "Secret Passphrase", { asStr
 === HMAC-SHA1 ===
 
 {{{
-<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha1.js"></script>
-<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-hmac-min.js"></script>
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha1-hmac.js"></script>
 <script type="text/javascript">
 
 var hmac = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase");
@@ -129,8 +127,7 @@ var hmacString = Crypto.HMAC(Crypto.SHA1, "Message", "Secret Passphrase", { asSt
 === HMAC-SHA256 ===
 
 {{{
-<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha256.js"></script>
-<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-hmac-min.js"></script>
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha256-hmac.js"></script>
 <script type="text/javascript">
 
 var hmac = Crypto.HMAC(Crypto.SHA256, "Message", "Secret Passphrase");

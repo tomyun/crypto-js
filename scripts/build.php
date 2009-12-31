@@ -10,10 +10,14 @@ $copyrightInfo = '/*!
 
 $files = array('crypto', 'md5', 'sha1', 'sha256', 'hmac', 'pbkdf2',
                'marc4', 'rabbit', 'aes', 'cbc', 'ofb');
+
 $rollups = array(
 	array('crypto', 'md5'),
 	array('crypto', 'sha1'),
 	array('crypto', 'sha256'),
+	array('crypto', 'md5', 'hmac'),
+	array('crypto', 'sha1', 'hmac'),
+	array('crypto', 'sha256', 'hmac'),
 	array('crypto', 'sha1', 'hmac', 'pbkdf2'),
 	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'marc4'),
 	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'rabbit'),
