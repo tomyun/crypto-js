@@ -151,7 +151,7 @@ A salt in password-based cryptography provides a large set of keys for any given
 <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha1-hmac-pbkdf2.js"></script>
 <script type="text/javascript">
 
-var salt = Crypto.util.bytesToString(Crypto.util.randomBytes(16));
+var salt = Crypto.charenc.Binary.bytesToString(Crypto.util.randomBytes(16));
 
 var key128bit = Crypto.PBKDF2("Secret Passphrase", salt, 16);
 var key256bit = Crypto.PBKDF2("Secret Passphrase", salt, 32);
