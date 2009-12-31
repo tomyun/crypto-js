@@ -25,6 +25,7 @@ $rollups = array(
 );
 
 foreach ($files as $file) {
+	echo "building file $file.js...\n";
 	mkdir("../build/$file");
 	$js = $copyrightInfo . file_get_contents("../src/$file.js");
 	file_put_contents("../build/$file/$file.js", $js);
@@ -33,6 +34,7 @@ foreach ($files as $file) {
 
 foreach ($rollups as $rollup) {
 	$rollupName = implode("-", $rollup);
+	echo "building rollup $rollupName.js...\n";
 	mkdir("../build/$rollupName");
 	$js = $copyrightInfo;
 	foreach ($rollup as $file) $js .= file_get_contents("../src/$file.js");
