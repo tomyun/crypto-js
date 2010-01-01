@@ -94,7 +94,7 @@ var AES = C.AES = {
 		    m = UTF8.stringToBytes(message),
 
 		    // Generate random IV
-		    iv = util.randomBytes(AES._blocksize * 4),
+		    iv = util.randomBytes(16),
 
 		    // Generate key
 		    k = password.constructor == String ?
@@ -123,7 +123,7 @@ var AES = C.AES = {
 		    c = util.base64ToBytes(ciphertext),
 
 		    // Separate IV and message
-		    iv = c.splice(0, AES._blocksize * 4),
+		    iv = c.splice(0, 16),
 
 		    // Generate key
 		    k = password.constructor == String ?
@@ -153,25 +153,14 @@ var AES = C.AES = {
 
 	_encryptblock: function (m, offset) {
 
-		// Set input
-		for (var row = 0; row < AES._blocksize; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] = m[offset + col * 4 + row];
-		}
-
-		// Add round key
+		// Set input and add round key
 		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] ^= keyschedule[col][row];
+			for (var col = 0; col < 4; col++) {
+				state[row][col] = m[offset + col * 4 + row] ^ keyschedule[col][row];
+			}
 		}
 
 		for (var round = 1; round < nrounds; round++) {
-
-			// Sub bytes
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					state[row][col] = SBOX[state[row][col]];
-			}
 
 			// Shift rows
 			state[1].push(state[1].shift());
@@ -179,33 +168,21 @@ var AES = C.AES = {
 			state[2].push(state[2].shift());
 			state[3].unshift(state[3].pop());
 
-			// Mix columns
+			// Sub bytes, mix columns, and add round key
 			for (var col = 0; col < 4; col++) {
 
-				var s0 = state[0][col],
-				    s1 = state[1][col],
-				    s2 = state[2][col],
-				    s3 = state[3][col];
+				var s0 = SBOX[state[0][col]],
+				    s1 = SBOX[state[1][col]],
+				    s2 = SBOX[state[2][col]],
+				    s3 = SBOX[state[3][col]];
 
-				state[0][col] = MULT2[s0] ^ MULT3[s1] ^ s2 ^ s3;
-				state[1][col] = s0 ^ MULT2[s1] ^ MULT3[s2] ^ s3;
-				state[2][col] = s0 ^ s1 ^ MULT2[s2] ^ MULT3[s3];
-				state[3][col] = MULT3[s0] ^ s1 ^ s2 ^ MULT2[s3];
+				state[0][col] = MULT2[s0] ^ MULT3[s1] ^ s2 ^ s3 ^ keyschedule[round * 4 + col][0];
+				state[1][col] = s0 ^ MULT2[s1] ^ MULT3[s2] ^ s3 ^ keyschedule[round * 4 + col][1];
+				state[2][col] = s0 ^ s1 ^ MULT2[s2] ^ MULT3[s3] ^ keyschedule[round * 4 + col][2];
+				state[3][col] = MULT3[s0] ^ s1 ^ s2 ^ MULT2[s3] ^ keyschedule[round * 4 + col][3];
 
 			}
 
-			// Add round key
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					state[row][col] ^= keyschedule[round * 4 + col][row];
-			}
-
-		}
-
-		// Sub bytes
-		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] = SBOX[state[row][col]];
 		}
 
 		// Shift rows
@@ -214,32 +191,22 @@ var AES = C.AES = {
 		state[2].push(state[2].shift());
 		state[3].unshift(state[3].pop());
 
-		// Add round key
+		// Sub bytes, add round key, and set output
 		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] ^= keyschedule[nrounds * 4 + col][row];
-		}
-
-		// Set output
-		for (var row = 0; row < AES._blocksize; row++) {
-			for (var col = 0; col < 4; col++)
-				m[offset + col * 4 + row] = state[row][col];
+			for (var col = 0; col < 4; col++) {
+				m[offset + col * 4 + row] = SBOX[state[row][col]] ^ keyschedule[nrounds * 4 + col][row];
+			}
 		}
 
 	},
 
 	_decryptblock: function (c, offset) {
 
-		// Set input
-		for (var row = 0; row < AES._blocksize; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] = c[offset + col * 4 + row];
-		}
-
-		// Add round key
+		// Set input and add round key
 		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] ^= keyschedule[nrounds * 4 + col][row];
+			for (var col = 0; col < 4; col++) {
+				state[row][col] = c[offset + col * 4 + row] ^ keyschedule[nrounds * 4 + col][row];
+			}
 		}
 
 		for (var round = 1; round < nrounds; round++) {
@@ -250,16 +217,11 @@ var AES = C.AES = {
 			state[2].push(state[2].shift());
 			state[3].push(state[3].shift());
 
-			// Inv sub bytes
+			// Inv sub bytes and add round key
 			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					state[row][col] = INVSBOX[state[row][col]];
-			}
-
-			// Add round key
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++)
-					state[row][col] ^= keyschedule[(nrounds - round) * 4 + col][row];
+				for (var col = 0; col < 4; col++) {
+					state[row][col] = INVSBOX[state[row][col]] ^ keyschedule[(nrounds - round) * 4 + col][row];
+				}
 			}
 
 			// Inv mix columns
@@ -285,22 +247,10 @@ var AES = C.AES = {
 		state[2].push(state[2].shift());
 		state[3].push(state[3].shift());
 
-		// Inv sub bytes
+		// Inv sub bytes, add round key, and set output
 		for (var row = 0; row < 4; row++) {
 			for (var col = 0; col < 4; col++)
-				state[row][col] = INVSBOX[state[row][col]];
-		}
-
-		// Add round key
-		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++)
-				state[row][col] ^= keyschedule[col][row];
-		}
-
-		// Set output
-		for (var row = 0; row < AES._blocksize; row++) {
-			for (var col = 0; col < 4; col++)
-				c[offset + col * 4 + row] = state[row][col];
+				c[offset + col * 4 + row] = INVSBOX[state[row][col]] ^ keyschedule[col][row];
 		}
 
 	},
@@ -330,7 +280,7 @@ var AES = C.AES = {
 			];
 		}
 
-		for (var row = keylength; row < AES._blocksize * (nrounds + 1); row++) {
+		for (var row = keylength; row < (nrounds + 1) * 4; row++) {
 
 			var temp = [
 				keyschedule[row - 1][0],
