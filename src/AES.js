@@ -108,10 +108,10 @@ var AES = C.AES = {
 
 		// Encrypt
 		AES._init(k);
-		mode.encrypt(AES, m, iv);
+		var c = mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return util.bytesToBase64(iv.concat(m));
+		return util.bytesToBase64(iv.concat(c));
 
 	},
 
@@ -137,10 +137,10 @@ var AES = C.AES = {
 
 		// Decrypt
 		AES._init(k);
-		mode.decrypt(AES, c, iv);
+		var m = mode.decrypt(AES, c, iv);
 
 		// Return plaintext
-		return UTF8.bytesToString(c);
+		return UTF8.bytesToString(m);
 
 	},
 
@@ -154,48 +154,72 @@ var AES = C.AES = {
 	_encryptblock: function (m, offset) {
 
 		// Set input and add round key
-		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++) {
-				state[row][col] = m[offset + col * 4 + row] ^ keyschedule[col][row];
-			}
+		for (var i = 0; i < 4; i++) {
+			state[i] = ((((m[0] >>> (24 - i * 8)) & 0xFF) << 24) |
+			            (((m[1] >>> (24 - i * 8)) & 0xFF) << 16) |
+			            (((m[2] >>> (24 - i * 8)) & 0xFF) <<  8) |
+			             ((m[3] >>> (24 - i * 8)) & 0xFF)) ^
+			           ((keyschedule[0][i] << 24) |
+			            (keyschedule[1][i] << 16) |
+			            (keyschedule[2][i] <<  8) |
+			             keyschedule[3][i]);
 		}
 
 		for (var round = 1; round < nrounds; round++) {
 
 			// Shift rows
-			state[1].push(state[1].shift());
-			state[2].push(state[2].shift());
-			state[2].push(state[2].shift());
-			state[3].unshift(state[3].pop());
+			state[1] = (state[1] <<  8) | (state[1] >>> 24);
+			state[2] = (state[2] << 16) | (state[2] >>> 16);
+			state[3] = (state[3] << 24) | (state[3] >>>  8);
 
 			// Sub bytes, mix columns, and add round key
 			for (var col = 0; col < 4; col++) {
 
-				var s0 = SBOX[state[0][col]],
-				    s1 = SBOX[state[1][col]],
-				    s2 = SBOX[state[2][col]],
-				    s3 = SBOX[state[3][col]];
+				var s0 = SBOX[(state[0] >>> (24 - col * 8)) & 0xFF],
+				    s1 = SBOX[(state[1] >>> (24 - col * 8)) & 0xFF],
+				    s2 = SBOX[(state[2] >>> (24 - col * 8)) & 0xFF],
+				    s3 = SBOX[(state[3] >>> (24 - col * 8)) & 0xFF];
 
-				state[0][col] = MULT2[s0] ^ MULT3[s1] ^ s2 ^ s3 ^ keyschedule[round * 4 + col][0];
-				state[1][col] = s0 ^ MULT2[s1] ^ MULT3[s2] ^ s3 ^ keyschedule[round * 4 + col][1];
-				state[2][col] = s0 ^ s1 ^ MULT2[s2] ^ MULT3[s3] ^ keyschedule[round * 4 + col][2];
-				state[3][col] = MULT3[s0] ^ s1 ^ s2 ^ MULT2[s3] ^ keyschedule[round * 4 + col][3];
+				state[0] = (state[0] & ~(0xFF << (24 - col * 8))) |
+				           ((MULT2[s0] ^ MULT3[s1] ^ s2 ^ s3 ^
+					     keyschedule[round * 4 + col][0]) << (24 - col * 8));
+				state[1] = (state[1] & ~(0xFF << (24 - col * 8))) |
+				           ((s0 ^ MULT2[s1] ^ MULT3[s2] ^ s3 ^
+					     keyschedule[round * 4 + col][1]) << (24 - col * 8));
+				state[2] = (state[2] & ~(0xFF << (24 - col * 8))) |
+				           ((s0 ^ s1 ^ MULT2[s2] ^ MULT3[s3] ^
+					     keyschedule[round * 4 + col][2]) << (24 - col * 8));
+				state[3] = (state[3] & ~(0xFF << (24 - col * 8))) |
+				           ((MULT3[s0] ^ s1 ^ s2 ^ MULT2[s3] ^
+					     keyschedule[round * 4 + col][3]) << (24 - col * 8));
 
 			}
 
 		}
 
 		// Shift rows
-		state[1].push(state[1].shift());
-		state[2].push(state[2].shift());
-		state[2].push(state[2].shift());
-		state[3].unshift(state[3].pop());
+		state[1] = (state[1] <<  8) | (state[1] >>> 24);
+		state[2] = (state[2] << 16) | (state[2] >>> 16);
+		state[3] = (state[3] << 24) | (state[3] >>>  8);
 
-		// Sub bytes, add round key, and set output
-		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++) {
-				m[offset + col * 4 + row] = SBOX[state[row][col]] ^ keyschedule[nrounds * 4 + col][row];
-			}
+		// Sub bytes and add round key
+		for (var i = 0; i < 4; i++) {
+			state[i] = ((SBOX[(state[i] >>> 24) & 0xFF] << 24) |
+			            (SBOX[(state[i] >>> 16) & 0xFF] << 16) |
+			            (SBOX[(state[i] >>>  8) & 0xFF] <<  8) |
+			             SBOX[ state[i] & 0xFF]) ^
+			           ((keyschedule[nrounds * 4    ][i] << 24) |
+			            (keyschedule[nrounds * 4 + 1][i] << 16) |
+			            (keyschedule[nrounds * 4 + 2][i] <<  8) |
+			             keyschedule[nrounds * 4 + 3][i]);
+		}
+
+		// Set output
+		for (var i = 0; i < 4; i++) {
+			m[i] = (((state[0] >>> (24 - i * 8)) & 0xFF) << 24) |
+			       (((state[1] >>> (24 - i * 8)) & 0xFF) << 16) |
+			       (((state[2] >>> (24 - i * 8)) & 0xFF) <<  8) |
+			        ((state[3] >>> (24 - i * 8)) & 0xFF);
 		}
 
 	},
