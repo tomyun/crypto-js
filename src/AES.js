@@ -151,76 +151,84 @@ var AES = C.AES = {
 
 	_blocksize: 4,
 
-	_encryptblock: function (m, offset) {
+	_encryptblock: function (block, offset) {
 
 		// Set input and add round key
-		for (var i = 0; i < 4; i++) {
-			state[i] = ((((m[0] >>> (24 - i * 8)) & 0xFF) << 24) |
-			            (((m[1] >>> (24 - i * 8)) & 0xFF) << 16) |
-			            (((m[2] >>> (24 - i * 8)) & 0xFF) <<  8) |
-			             ((m[3] >>> (24 - i * 8)) & 0xFF)) ^
-			           ((keyschedule[0][i] << 24) |
-			            (keyschedule[1][i] << 16) |
-			            (keyschedule[2][i] <<  8) |
-			             keyschedule[3][i]);
-		}
+		var s0 = block[0] ^ ((keyschedule[0][0] << 24) | (keyschedule[0][1] << 16) |
+		                     (keyschedule[0][2] <<  8) | keyschedule[0][3]);
+		var s1 = block[1] ^ ((keyschedule[1][0] << 24) | (keyschedule[1][1] << 16) |
+		                     (keyschedule[1][2] <<  8) | keyschedule[1][3]);
+		var s2 = block[2] ^ ((keyschedule[2][0] << 24) | (keyschedule[2][1] << 16) |
+		                     (keyschedule[2][2] <<  8) | keyschedule[2][3]);
+		var s3 = block[3] ^ ((keyschedule[3][0] << 24) | (keyschedule[3][1] << 16) |
+		                     (keyschedule[3][2] <<  8) | keyschedule[3][3]);
 
 		for (var round = 1; round < nrounds; round++) {
 
+			// Temp copy
+			var t0 = s0,
+			    t1 = s1,
+			    t2 = s2,
+			    t3 = s3;
+
 			// Shift rows
-			state[1] = (state[1] <<  8) | (state[1] >>> 24);
-			state[2] = (state[2] << 16) | (state[2] >>> 16);
-			state[3] = (state[3] << 24) | (state[3] >>>  8);
+			s0 = (t0 & 0xFF000000) | (t1 & 0x00FF0000) | (t2 & 0x0000FF00) | (t3 & 0x000000FF);
+			s1 = (t1 & 0xFF000000) | (t2 & 0x00FF0000) | (t3 & 0x0000FF00) | (t0 & 0x000000FF);
+			s2 = (t2 & 0xFF000000) | (t3 & 0x00FF0000) | (t0 & 0x0000FF00) | (t1 & 0x000000FF);
+			s3 = (t3 & 0xFF000000) | (t0 & 0x00FF0000) | (t1 & 0x0000FF00) | (t2 & 0x000000FF);
 
 			// Sub bytes, mix columns, and add round key
-			for (var col = 0; col < 4; col++) {
+			t0 = ((MULT2[SBOX[s0 >>> 24]] ^ MULT3[SBOX[(s0 >>> 16) & 0xFF]] ^ SBOX[(s0 >>> 8) & 0xFF]        ^ SBOX[s0 & 0xFF]        ^ keyschedule[round * 4][0]) << 24) |
+			     ((SBOX[s0 >>> 24]        ^ MULT2[SBOX[(s0 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s0 >>> 8) & 0xFF]] ^ SBOX[s0 & 0xFF]        ^ keyschedule[round * 4][1]) << 16) |
+			     ((SBOX[s0 >>> 24]        ^ SBOX[(s0 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s0 >>> 8) & 0xFF]] ^ MULT3[SBOX[s0 & 0xFF]] ^ keyschedule[round * 4][2]) <<  8) |
+			      (MULT3[SBOX[s0 >>> 24]] ^ SBOX[(s0 >>> 16) & 0xFF]        ^ SBOX[(s0 >>> 8) & 0xFF]        ^ MULT2[SBOX[s0 & 0xFF]] ^ keyschedule[round * 4][3]);
+			t1 = ((MULT2[SBOX[s1 >>> 24]] ^ MULT3[SBOX[(s1 >>> 16) & 0xFF]] ^ SBOX[(s1 >>> 8) & 0xFF]        ^ SBOX[s1 & 0xFF]        ^ keyschedule[round * 4 + 1][0]) << 24) |
+			     ((SBOX[s1 >>> 24]        ^ MULT2[SBOX[(s1 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s1 >>> 8) & 0xFF]] ^ SBOX[s1 & 0xFF]        ^ keyschedule[round * 4 + 1][1]) << 16) |
+			     ((SBOX[s1 >>> 24]        ^ SBOX[(s1 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s1 >>> 8) & 0xFF]] ^ MULT3[SBOX[s1 & 0xFF]] ^ keyschedule[round * 4 + 1][2]) <<  8) |
+			      (MULT3[SBOX[s1 >>> 24]] ^ SBOX[(s1 >>> 16) & 0xFF]        ^ SBOX[(s1 >>> 8) & 0xFF]        ^ MULT2[SBOX[s1 & 0xFF]] ^ keyschedule[round * 4 + 1][3]);
+			t2 = ((MULT2[SBOX[s2 >>> 24]] ^ MULT3[SBOX[(s2 >>> 16) & 0xFF]] ^ SBOX[(s2 >>> 8) & 0xFF]        ^ SBOX[s2 & 0xFF]        ^ keyschedule[round * 4 + 2][0]) << 24) |
+			     ((SBOX[s2 >>> 24]        ^ MULT2[SBOX[(s2 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s2 >>> 8) & 0xFF]] ^ SBOX[s2 & 0xFF]        ^ keyschedule[round * 4 + 2][1]) << 16) |
+			     ((SBOX[s2 >>> 24]        ^ SBOX[(s2 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s2 >>> 8) & 0xFF]] ^ MULT3[SBOX[s2 & 0xFF]] ^ keyschedule[round * 4 + 2][2]) <<  8) |
+			      (MULT3[SBOX[s2 >>> 24]] ^ SBOX[(s2 >>> 16) & 0xFF]        ^ SBOX[(s2 >>> 8) & 0xFF]        ^ MULT2[SBOX[s2 & 0xFF]] ^ keyschedule[round * 4 + 2][3]);
+			t3 = ((MULT2[SBOX[s3 >>> 24]] ^ MULT3[SBOX[(s3 >>> 16) & 0xFF]] ^ SBOX[(s3 >>> 8) & 0xFF]        ^ SBOX[s3 & 0xFF]        ^ keyschedule[round * 4 + 3][0]) << 24) |
+			     ((SBOX[s3 >>> 24]        ^ MULT2[SBOX[(s3 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s3 >>> 8) & 0xFF]] ^ SBOX[s3 & 0xFF]        ^ keyschedule[round * 4 + 3][1]) << 16) |
+			     ((SBOX[s3 >>> 24]        ^ SBOX[(s3 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s3 >>> 8) & 0xFF]] ^ MULT3[SBOX[s3 & 0xFF]] ^ keyschedule[round * 4 + 3][2]) <<  8) |
+			      (MULT3[SBOX[s3 >>> 24]] ^ SBOX[(s3 >>> 16) & 0xFF]        ^ SBOX[(s3 >>> 8) & 0xFF]        ^ MULT2[SBOX[s3 & 0xFF]] ^ keyschedule[round * 4 + 3][3]);
 
-				var s0 = SBOX[(state[0] >>> (24 - col * 8)) & 0xFF],
-				    s1 = SBOX[(state[1] >>> (24 - col * 8)) & 0xFF],
-				    s2 = SBOX[(state[2] >>> (24 - col * 8)) & 0xFF],
-				    s3 = SBOX[(state[3] >>> (24 - col * 8)) & 0xFF];
-
-				state[0] = (state[0] & ~(0xFF << (24 - col * 8))) |
-				           ((MULT2[s0] ^ MULT3[s1] ^ s2 ^ s3 ^
-					     keyschedule[round * 4 + col][0]) << (24 - col * 8));
-				state[1] = (state[1] & ~(0xFF << (24 - col * 8))) |
-				           ((s0 ^ MULT2[s1] ^ MULT3[s2] ^ s3 ^
-					     keyschedule[round * 4 + col][1]) << (24 - col * 8));
-				state[2] = (state[2] & ~(0xFF << (24 - col * 8))) |
-				           ((s0 ^ s1 ^ MULT2[s2] ^ MULT3[s3] ^
-					     keyschedule[round * 4 + col][2]) << (24 - col * 8));
-				state[3] = (state[3] & ~(0xFF << (24 - col * 8))) |
-				           ((MULT3[s0] ^ s1 ^ s2 ^ MULT2[s3] ^
-					     keyschedule[round * 4 + col][3]) << (24 - col * 8));
-
-			}
+			s0 = t0;
+			s1 = t1;
+			s2 = t2;
+			s3 = t3;
 
 		}
+
+		// Temp copy
+		var t0 = s0,
+		    t1 = s1,
+		    t2 = s2,
+		    t3 = s3;
 
 		// Shift rows
-		state[1] = (state[1] <<  8) | (state[1] >>> 24);
-		state[2] = (state[2] << 16) | (state[2] >>> 16);
-		state[3] = (state[3] << 24) | (state[3] >>>  8);
+		s0 = (t0 & 0xFF000000) | (t1 & 0x00FF0000) | (t2 & 0x0000FF00) | (t3 & 0x000000FF);
+		s1 = (t1 & 0xFF000000) | (t2 & 0x00FF0000) | (t3 & 0x0000FF00) | (t0 & 0x000000FF);
+		s2 = (t2 & 0xFF000000) | (t3 & 0x00FF0000) | (t0 & 0x0000FF00) | (t1 & 0x000000FF);
+		s3 = (t3 & 0xFF000000) | (t0 & 0x00FF0000) | (t1 & 0x0000FF00) | (t2 & 0x000000FF);
 
 		// Sub bytes and add round key
-		for (var i = 0; i < 4; i++) {
-			state[i] = ((SBOX[(state[i] >>> 24) & 0xFF] << 24) |
-			            (SBOX[(state[i] >>> 16) & 0xFF] << 16) |
-			            (SBOX[(state[i] >>>  8) & 0xFF] <<  8) |
-			             SBOX[ state[i] & 0xFF]) ^
-			           ((keyschedule[nrounds * 4    ][i] << 24) |
-			            (keyschedule[nrounds * 4 + 1][i] << 16) |
-			            (keyschedule[nrounds * 4 + 2][i] <<  8) |
-			             keyschedule[nrounds * 4 + 3][i]);
-		}
+		s0 = ((SBOX[s0 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xFF] << 16) | (SBOX[(s0 >>>  8) & 0xFF] <<  8) | SBOX[s0 & 0xFF]) ^
+		     ((keyschedule[nrounds * 4][0] << 24) | (keyschedule[nrounds * 4][1] << 16) | (keyschedule[nrounds * 4][2] << 8) | keyschedule[nrounds * 4][3]);
+		s1 = ((SBOX[s1 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xFF] << 16) | (SBOX[(s1 >>>  8) & 0xFF] <<  8) | SBOX[s1 & 0xFF]) ^
+		     ((keyschedule[nrounds * 4 + 1][0] << 24) | (keyschedule[nrounds * 4 + 1][1] << 16) | (keyschedule[nrounds * 4 + 1][2] << 8) | keyschedule[nrounds * 4 + 1][3]);
+		s2 = ((SBOX[s2 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xFF] << 16) | (SBOX[(s2 >>>  8) & 0xFF] <<  8) | SBOX[s2 & 0xFF]) ^
+		     ((keyschedule[nrounds * 4 + 2][0] << 24) | (keyschedule[nrounds * 4 + 2][1] << 16) | (keyschedule[nrounds * 4 + 2][2] << 8) | keyschedule[nrounds * 4 + 2][3]);
+		s3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xFF] << 16) | (SBOX[(s3 >>>  8) & 0xFF] <<  8) | SBOX[s3 & 0xFF]) ^
+		     ((keyschedule[nrounds * 4 + 3][0] << 24) | (keyschedule[nrounds * 4 + 3][1] << 16) | (keyschedule[nrounds * 4 + 3][2] << 8) | keyschedule[nrounds * 4 + 3][3]);
 
 		// Set output
-		for (var i = 0; i < 4; i++) {
-			m[i] = (((state[0] >>> (24 - i * 8)) & 0xFF) << 24) |
-			       (((state[1] >>> (24 - i * 8)) & 0xFF) << 16) |
-			       (((state[2] >>> (24 - i * 8)) & 0xFF) <<  8) |
-			        ((state[3] >>> (24 - i * 8)) & 0xFF);
-		}
+		block[0] = s0;
+		block[1] = s1;
+		block[2] = s2;
+		block[3] = s3;
 
 	},
 
