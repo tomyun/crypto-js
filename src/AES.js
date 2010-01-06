@@ -7,18 +7,26 @@ var C = Crypto,
     UTF8 = charenc.UTF8,
     Binary = charenc.Binary;
 
-// Compute Sbox
-var SBOX = [],
-    INVSBOX = [];
-
 // Compute double table
 for (var d = [], i = 0; i < 256; i++) {
 	d[i] = i >= 128 ? i << 1 ^ 0x11b : i << 1
 }
 
+// Compute mulitplication in GF(2^8) lookup tables
+var SBOX = [],
+    INVSBOX = [],
+    MULT2 = [],
+    MULT3 = [],
+    MULT9 = [],
+    MULTB = [],
+    MULTD = [],
+    MULTE = [];
+    MULT2_SBOX = [],
+    MULT3_SBOX = [];
+
 // Walk GF(2^8)
 var x = 0, xi = 0;
-while (1) {
+for (var x = 0, xi = 0, i = 0; i < 256; i++) {
 
 	var sx = xi ^ xi << 1 ^ xi << 2 ^ xi << 3 ^ xi << 4;
 	sx = sx >>> 8 ^ sx & 0xFF ^ 0x63;
@@ -30,49 +38,20 @@ while (1) {
 	    x4 = d[x2],
 	    x8 = d[x4];
 
-	if (x == 5) {
-		break;
-	}
-	else if (x) {
+	MULT2[x] = x2;
+	MULT3[x] = x2 ^ x;
+	MULT9[x] = x8 ^ x;
+	MULTB[x] = x8 ^ x2 ^ x;
+	MULTD[x] = x8 ^ x4 ^ x;
+	MULTE[x] = x8 ^ x4 ^ x2;
+
+	if (x == 0) x = xi = 1;
+	else {
 		x = x2 ^ d[d[d[x8 ^ x2]]];
 		xi ^= d[d[xi]];
 	}
-	else {
-		x = xi = 1;
-	}
 
 }
-
-// Compute mulitplication in GF(2^8) lookup tables
-var MULT2 = [],
-    MULT3 = [],
-    MULT9 = [],
-    MULTB = [],
-    MULTD = [],
-    MULTE = [];
-
-function xtime(a, b) {
-	for (var result = 0, i = 0; i < 8; i++) {
-		if (b & 1) result ^= a;
-		var hiBitSet = a & 0x80;
-		a = (a << 1) & 0xFF;
-		if (hiBitSet) a ^= 0x1b;
-		b >>>= 1;
-	}
-	return result;
-}
-
-for (var i = 0; i < 256; i++) {
-	MULT2[i] = d[i];
-	MULT3[i] = xtime(i,3);
-	MULT9[i] = xtime(i,9);
-	MULTB[i] = xtime(i,0xB);
-	MULTD[i] = xtime(i,0xD);
-	MULTE[i] = xtime(i,0xE);
-}
-
-var MULT2_SBOX = [],
-    MULT3_SBOX = [];
 
 for (var i = 0; i < 256; i++) {
 	MULT2_SBOX[i] = MULT2[SBOX[i]];
