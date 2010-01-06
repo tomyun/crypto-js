@@ -63,7 +63,7 @@ function xtime(a, b) {
 }
 
 for (var i = 0; i < 256; i++) {
-	MULT2[i] = xtime(i,2);
+	MULT2[i] = d[i];
 	MULT3[i] = xtime(i,3);
 	MULT9[i] = xtime(i,9);
 	MULTB[i] = xtime(i,0xB);
@@ -71,10 +71,18 @@ for (var i = 0; i < 256; i++) {
 	MULTE[i] = xtime(i,0xE);
 }
 
+var MULT2_SBOX = [],
+    MULT3_SBOX = [];
+
+for (var i = 0; i < 256; i++) {
+	MULT2_SBOX[i] = MULT2[SBOX[i]];
+	MULT3_SBOX[i] = MULT3[SBOX[i]];
+}
+
 // Precomputed RCon lookup
-var RCON = [ 0x00000000, 0x01000000, 0x02000000, 0x04000000, 0x08000000,
-             0x10000000, 0x20000000, 0x40000000, 0x80000000, 0x1b000000,
-             0x36000000 ];
+var RCON = [ 0x00000000, 0x01000000, 0x02000000, 0x04000000,
+             0x08000000, 0x10000000, 0x20000000, 0x40000000,
+             0x80000000, 0x1b000000, 0x36000000 ];
 
 // Inner state
 var state = [[], [], [], []],
@@ -113,7 +121,7 @@ var AES = C.AES = {
 		var c = mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return util.bytesToBase64(iv.concat(c));
+		return /*util.bytesToBase64*/(iv.concat(c));
 
 	},
 
@@ -156,10 +164,10 @@ var AES = C.AES = {
 	_encryptblock: function (block, offset) {
 
 		// Set input and add round key
-		var s0 = block[0] ^ keyschedule[0];
-		var s1 = block[1] ^ keyschedule[1];
-		var s2 = block[2] ^ keyschedule[2];
-		var s3 = block[3] ^ keyschedule[3];
+		var s0 = block[0 + offset] ^ keyschedule[0];
+		var s1 = block[1 + offset] ^ keyschedule[1];
+		var s2 = block[2 + offset] ^ keyschedule[2];
+		var s3 = block[3 + offset] ^ keyschedule[3];
 
 		for (var ksrow = 4, round = 1; round < nrounds; round++) {
 
@@ -176,22 +184,22 @@ var AES = C.AES = {
 			s3 = (t3 & 0xFF000000) | (t0 & 0x00FF0000) | (t1 & 0x0000FF00) | (t2 & 0x000000FF);
 
 			// Sub bytes, mix columns, and add round key
-			t0 = ((MULT2[SBOX[s0 >>> 24]] ^ MULT3[SBOX[(s0 >>> 16) & 0xFF]] ^ SBOX[(s0 >>> 8) & 0xFF]        ^ SBOX[s0 & 0xFF])        << 24) |
-			     ((SBOX[s0 >>> 24]        ^ MULT2[SBOX[(s0 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s0 >>> 8) & 0xFF]] ^ SBOX[s0 & 0xFF])        << 16) |
-			     ((SBOX[s0 >>> 24]        ^ SBOX[(s0 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s0 >>> 8) & 0xFF]] ^ MULT3[SBOX[s0 & 0xFF]]) <<  8) |
-			      (MULT3[SBOX[s0 >>> 24]] ^ SBOX[(s0 >>> 16) & 0xFF]        ^ SBOX[(s0 >>> 8) & 0xFF]        ^ MULT2[SBOX[s0 & 0xFF]]);
-			t1 = ((MULT2[SBOX[s1 >>> 24]] ^ MULT3[SBOX[(s1 >>> 16) & 0xFF]] ^ SBOX[(s1 >>> 8) & 0xFF]        ^ SBOX[s1 & 0xFF])        << 24) |
-			     ((SBOX[s1 >>> 24]        ^ MULT2[SBOX[(s1 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s1 >>> 8) & 0xFF]] ^ SBOX[s1 & 0xFF])        << 16) |
-			     ((SBOX[s1 >>> 24]        ^ SBOX[(s1 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s1 >>> 8) & 0xFF]] ^ MULT3[SBOX[s1 & 0xFF]]) <<  8) |
-			      (MULT3[SBOX[s1 >>> 24]] ^ SBOX[(s1 >>> 16) & 0xFF]        ^ SBOX[(s1 >>> 8) & 0xFF]        ^ MULT2[SBOX[s1 & 0xFF]]);
-			t2 = ((MULT2[SBOX[s2 >>> 24]] ^ MULT3[SBOX[(s2 >>> 16) & 0xFF]] ^ SBOX[(s2 >>> 8) & 0xFF]        ^ SBOX[s2 & 0xFF])        << 24) |
-			     ((SBOX[s2 >>> 24]        ^ MULT2[SBOX[(s2 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s2 >>> 8) & 0xFF]] ^ SBOX[s2 & 0xFF])        << 16) |
-			     ((SBOX[s2 >>> 24]        ^ SBOX[(s2 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s2 >>> 8) & 0xFF]] ^ MULT3[SBOX[s2 & 0xFF]]) <<  8) |
-			      (MULT3[SBOX[s2 >>> 24]] ^ SBOX[(s2 >>> 16) & 0xFF]        ^ SBOX[(s2 >>> 8) & 0xFF]        ^ MULT2[SBOX[s2 & 0xFF]]);
-			t3 = ((MULT2[SBOX[s3 >>> 24]] ^ MULT3[SBOX[(s3 >>> 16) & 0xFF]] ^ SBOX[(s3 >>> 8) & 0xFF]        ^ SBOX[s3 & 0xFF])        << 24) |
-			     ((SBOX[s3 >>> 24]        ^ MULT2[SBOX[(s3 >>> 16) & 0xFF]] ^ MULT3[SBOX[(s3 >>> 8) & 0xFF]] ^ SBOX[s3 & 0xFF])        << 16) |
-			     ((SBOX[s3 >>> 24]        ^ SBOX[(s3 >>> 16) & 0xFF]        ^ MULT2[SBOX[(s3 >>> 8) & 0xFF]] ^ MULT3[SBOX[s3 & 0xFF]]) <<  8) |
-			      (MULT3[SBOX[s3 >>> 24]] ^ SBOX[(s3 >>> 16) & 0xFF]        ^ SBOX[(s3 >>> 8) & 0xFF]        ^ MULT2[SBOX[s3 & 0xFF]]);
+			t0 = ((MULT2_SBOX[s0 >>> 24] ^ MULT3_SBOX[(s0 >>> 16) & 0xFF] ^ SBOX[(s0 >>> 8) & 0xFF]       ^ SBOX[s0 & 0xFF])       << 24) |
+			     ((SBOX[s0 >>> 24]       ^ MULT2_SBOX[(s0 >>> 16) & 0xFF] ^ MULT3_SBOX[(s0 >>> 8) & 0xFF] ^ SBOX[s0 & 0xFF])       << 16) |
+			     ((SBOX[s0 >>> 24]       ^ SBOX[(s0 >>> 16) & 0xFF]       ^ MULT2_SBOX[(s0 >>> 8) & 0xFF] ^ MULT3_SBOX[s0 & 0xFF]) <<  8) |
+			      (MULT3_SBOX[s0 >>> 24] ^ SBOX[(s0 >>> 16) & 0xFF]       ^ SBOX[(s0 >>> 8) & 0xFF]       ^ MULT2_SBOX[s0 & 0xFF]);
+			t1 = ((MULT2_SBOX[s1 >>> 24] ^ MULT3_SBOX[(s1 >>> 16) & 0xFF] ^ SBOX[(s1 >>> 8) & 0xFF]       ^ SBOX[s1 & 0xFF])       << 24) |
+			     ((SBOX[s1 >>> 24]       ^ MULT2_SBOX[(s1 >>> 16) & 0xFF] ^ MULT3_SBOX[(s1 >>> 8) & 0xFF] ^ SBOX[s1 & 0xFF])       << 16) |
+			     ((SBOX[s1 >>> 24]       ^ SBOX[(s1 >>> 16) & 0xFF]       ^ MULT2_SBOX[(s1 >>> 8) & 0xFF] ^ MULT3_SBOX[s1 & 0xFF]) <<  8) |
+			      (MULT3_SBOX[s1 >>> 24] ^ SBOX[(s1 >>> 16) & 0xFF]       ^ SBOX[(s1 >>> 8) & 0xFF]       ^ MULT2_SBOX[s1 & 0xFF]);
+			t2 = ((MULT2_SBOX[s2 >>> 24] ^ MULT3_SBOX[(s2 >>> 16) & 0xFF] ^ SBOX[(s2 >>> 8) & 0xFF]       ^ SBOX[s2 & 0xFF])       << 24) |
+			     ((SBOX[s2 >>> 24]       ^ MULT2_SBOX[(s2 >>> 16) & 0xFF] ^ MULT3_SBOX[(s2 >>> 8) & 0xFF] ^ SBOX[s2 & 0xFF])       << 16) |
+			     ((SBOX[s2 >>> 24]       ^ SBOX[(s2 >>> 16) & 0xFF]       ^ MULT2_SBOX[(s2 >>> 8) & 0xFF] ^ MULT3_SBOX[s2 & 0xFF]) <<  8) |
+			      (MULT3_SBOX[s2 >>> 24] ^ SBOX[(s2 >>> 16) & 0xFF]       ^ SBOX[(s2 >>> 8) & 0xFF]       ^ MULT2_SBOX[s2 & 0xFF]);
+			t3 = ((MULT2_SBOX[s3 >>> 24] ^ MULT3_SBOX[(s3 >>> 16) & 0xFF] ^ SBOX[(s3 >>> 8) & 0xFF]       ^ SBOX[s3 & 0xFF])       << 24) |
+			     ((SBOX[s3 >>> 24]       ^ MULT2_SBOX[(s3 >>> 16) & 0xFF] ^ MULT3_SBOX[(s3 >>> 8) & 0xFF] ^ SBOX[s3 & 0xFF])       << 16) |
+			     ((SBOX[s3 >>> 24]       ^ SBOX[(s3 >>> 16) & 0xFF]       ^ MULT2_SBOX[(s3 >>> 8) & 0xFF] ^ MULT3_SBOX[s3 & 0xFF]) <<  8) |
+			      (MULT3_SBOX[s3 >>> 24] ^ SBOX[(s3 >>> 16) & 0xFF]       ^ SBOX[(s3 >>> 8) & 0xFF]       ^ MULT2_SBOX[s3 & 0xFF]);
 
 			// Add round key
 			s0 = t0 ^ keyschedule[ksrow++];
@@ -220,10 +228,10 @@ var AES = C.AES = {
 		s3 = (SBOX[s3 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xFF] << 16) | (SBOX[(s3 >>>  8) & 0xFF] <<  8) | SBOX[s3 & 0xFF];
 
 		// Set output and add round key
-		block[0] = s0 ^ keyschedule[ksrow++];
-		block[1] = s1 ^ keyschedule[ksrow++];
-		block[2] = s2 ^ keyschedule[ksrow++];
-		block[3] = s3 ^ keyschedule[ksrow++];
+		block[0 + offset] = s0 ^ keyschedule[ksrow++];
+		block[1 + offset] = s1 ^ keyschedule[ksrow++];
+		block[2 + offset] = s2 ^ keyschedule[ksrow++];
+		block[3 + offset] = s3 ^ keyschedule[ksrow++];
 
 	},
 
