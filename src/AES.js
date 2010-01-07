@@ -192,58 +192,62 @@ var AES = C.AES = {
 
 	},
 
-	_decryptblock: function (c, offset) {
+	_decryptblock: function (block, offset) {
+
+		var ksrow = nrounds * 4;
 
 		// Set input and add round key
-		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++) {
-				state[row][col] = c[offset + col * 4 + row] ^ keyschedule[nrounds * 4 + col][row];
-			}
-		}
+		var s0 = block[0 + offset] ^ keyschedule[ksrow++],
+		    s1 = block[1 + offset] ^ keyschedule[ksrow++],
+		    s2 = block[2 + offset] ^ keyschedule[ksrow++],
+		    s3 = block[3 + offset] ^ keyschedule[ksrow++];
 
 		for (var round = 1; round < nrounds; round++) {
 
-			// Inv shift rows
-			state[1].unshift(state[1].pop());
-			state[2].push(state[2].shift());
-			state[2].push(state[2].shift());
-			state[3].push(state[3].shift());
+			ksrow -= 8;
 
-			// Inv sub bytes and add round key
-			for (var row = 0; row < 4; row++) {
-				for (var col = 0; col < 4; col++) {
-					state[row][col] = INVSBOX[state[row][col]] ^ keyschedule[(nrounds - round) * 4 + col][row];
-				}
-			}
+			// Inv shift rows, inv sub bytes, and add round key
+			var t0 = ((INVSBOX[s0 >>> 24] << 24) | (INVSBOX[(s3 >>> 16) & 0xFF] << 16) | (INVSBOX[(s2 >>> 8) & 0xFF] << 8) | INVSBOX[s1 & 0xFF]) ^ keyschedule[ksrow++],
+			    t1 = ((INVSBOX[s1 >>> 24] << 24) | (INVSBOX[(s0 >>> 16) & 0xFF] << 16) | (INVSBOX[(s3 >>> 8) & 0xFF] << 8) | INVSBOX[s2 & 0xFF]) ^ keyschedule[ksrow++],
+			    t2 = ((INVSBOX[s2 >>> 24] << 24) | (INVSBOX[(s1 >>> 16) & 0xFF] << 16) | (INVSBOX[(s0 >>> 8) & 0xFF] << 8) | INVSBOX[s3 & 0xFF]) ^ keyschedule[ksrow++],
+			    t3 = ((INVSBOX[s3 >>> 24] << 24) | (INVSBOX[(s2 >>> 16) & 0xFF] << 16) | (INVSBOX[(s1 >>> 8) & 0xFF] << 8) | INVSBOX[s0 & 0xFF]) ^ keyschedule[ksrow++];
 
 			// Inv mix columns
-			for (var col = 0; col < 4; col++) {
+			s0 = ((MULTE[t0 >>> 24] ^ MULTB[(t0 >>> 16) & 0xFF] ^ MULTD[(t0 >>> 8) & 0xFF] ^ MULT9[t0 & 0xFF]) << 24) |
+			     ((MULT9[t0 >>> 24] ^ MULTE[(t0 >>> 16) & 0xFF] ^ MULTB[(t0 >>> 8) & 0xFF] ^ MULTD[t0 & 0xFF]) << 16) |
+			     ((MULTD[t0 >>> 24] ^ MULT9[(t0 >>> 16) & 0xFF] ^ MULTE[(t0 >>> 8) & 0xFF] ^ MULTB[t0 & 0xFF]) <<  8) |
+			      (MULTB[t0 >>> 24] ^ MULTD[(t0 >>> 16) & 0xFF] ^ MULT9[(t0 >>> 8) & 0xFF] ^ MULTE[t0 & 0xFF]);
 
-				var s0 = state[0][col],
-				    s1 = state[1][col],
-				    s2 = state[2][col],
-				    s3 = state[3][col];
+			s1 = ((MULTE[t1 >>> 24] ^ MULTB[(t1 >>> 16) & 0xFF] ^ MULTD[(t1 >>> 8) & 0xFF] ^ MULT9[t1 & 0xFF]) << 24) |
+			     ((MULT9[t1 >>> 24] ^ MULTE[(t1 >>> 16) & 0xFF] ^ MULTB[(t1 >>> 8) & 0xFF] ^ MULTD[t1 & 0xFF]) << 16) |
+			     ((MULTD[t1 >>> 24] ^ MULT9[(t1 >>> 16) & 0xFF] ^ MULTE[(t1 >>> 8) & 0xFF] ^ MULTB[t1 & 0xFF]) <<  8) |
+			      (MULTB[t1 >>> 24] ^ MULTD[(t1 >>> 16) & 0xFF] ^ MULT9[(t1 >>> 8) & 0xFF] ^ MULTE[t1 & 0xFF]);
 
-				state[0][col] = MULTE[s0] ^ MULTB[s1] ^ MULTD[s2] ^ MULT9[s3];
-				state[1][col] = MULT9[s0] ^ MULTE[s1] ^ MULTB[s2] ^ MULTD[s3];
-				state[2][col] = MULTD[s0] ^ MULT9[s1] ^ MULTE[s2] ^ MULTB[s3];
-				state[3][col] = MULTB[s0] ^ MULTD[s1] ^ MULT9[s2] ^ MULTE[s3];
+			s2 = ((MULTE[t2 >>> 24] ^ MULTB[(t2 >>> 16) & 0xFF] ^ MULTD[(t2 >>> 8) & 0xFF] ^ MULT9[t2 & 0xFF]) << 24) |
+			     ((MULT9[t2 >>> 24] ^ MULTE[(t2 >>> 16) & 0xFF] ^ MULTB[(t2 >>> 8) & 0xFF] ^ MULTD[t2 & 0xFF]) << 16) |
+			     ((MULTD[t2 >>> 24] ^ MULT9[(t2 >>> 16) & 0xFF] ^ MULTE[(t2 >>> 8) & 0xFF] ^ MULTB[t2 & 0xFF]) <<  8) |
+			      (MULTB[t2 >>> 24] ^ MULTD[(t2 >>> 16) & 0xFF] ^ MULT9[(t2 >>> 8) & 0xFF] ^ MULTE[t2 & 0xFF]);
 
-			}
+			s3 = ((MULTE[t3 >>> 24] ^ MULTB[(t3 >>> 16) & 0xFF] ^ MULTD[(t3 >>> 8) & 0xFF] ^ MULT9[t3 & 0xFF]) << 24) |
+			     ((MULT9[t3 >>> 24] ^ MULTE[(t3 >>> 16) & 0xFF] ^ MULTB[(t3 >>> 8) & 0xFF] ^ MULTD[t3 & 0xFF]) << 16) |
+			     ((MULTD[t3 >>> 24] ^ MULT9[(t3 >>> 16) & 0xFF] ^ MULTE[(t3 >>> 8) & 0xFF] ^ MULTB[t3 & 0xFF]) <<  8) |
+			      (MULTB[t3 >>> 24] ^ MULTD[(t3 >>> 16) & 0xFF] ^ MULT9[(t3 >>> 8) & 0xFF] ^ MULTE[t3 & 0xFF]);
 
 		}
 
-		// Inv shift rows
-		state[1].unshift(state[1].pop());
-		state[2].push(state[2].shift());
-		state[2].push(state[2].shift());
-		state[3].push(state[3].shift());
+		ksrow -= 8;
 
-		// Inv sub bytes, add round key, and set output
-		for (var row = 0; row < 4; row++) {
-			for (var col = 0; col < 4; col++)
-				c[offset + col * 4 + row] = INVSBOX[state[row][col]] ^ keyschedule[col][row];
-		}
+		// Inv shift rows, inv sub bytes, and add round key
+		var t0 = ((INVSBOX[s0 >>> 24] << 24) | (INVSBOX[(s3 >>> 16) & 0xFF] << 16) | (INVSBOX[(s2 >>> 8) & 0xFF] << 8) | INVSBOX[s1 & 0xFF]) ^ keyschedule[ksrow++],
+		    t1 = ((INVSBOX[s1 >>> 24] << 24) | (INVSBOX[(s0 >>> 16) & 0xFF] << 16) | (INVSBOX[(s3 >>> 8) & 0xFF] << 8) | INVSBOX[s2 & 0xFF]) ^ keyschedule[ksrow++],
+		    t2 = ((INVSBOX[s2 >>> 24] << 24) | (INVSBOX[(s1 >>> 16) & 0xFF] << 16) | (INVSBOX[(s0 >>> 8) & 0xFF] << 8) | INVSBOX[s3 & 0xFF]) ^ keyschedule[ksrow++],
+		    t3 = ((INVSBOX[s3 >>> 24] << 24) | (INVSBOX[(s2 >>> 16) & 0xFF] << 16) | (INVSBOX[(s1 >>> 8) & 0xFF] << 8) | INVSBOX[s0 & 0xFF]) ^ keyschedule[ksrow++];
+
+		// Set output
+		block[0 + offset] = t0;
+		block[1 + offset] = t1;
+		block[2 + offset] = t2;
+		block[3 + offset] = t3;
 
 	},
 
