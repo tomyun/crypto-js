@@ -100,7 +100,7 @@ var AES = C.AES = {
 		var c = mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return /*util.bytesToBase64*/(iv.concat(c));
+		return util.bytesToBase64(iv.concat(c));
 
 	},
 
