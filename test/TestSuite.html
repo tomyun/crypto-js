@@ -1,77 +1,179 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
 
-<!-- YUI CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Crypto-JS Test Suite</title>
 
-<!-- CSS customizations -->
-<style type="text/css">
-.yui-log { font-size: 13px }
-.yui-log-container { right: auto; left: 1em }
-.yui-log .yui-log-bd { height: 40em }
-</style>
+	<!-- YUI seed file -->
+	<script src="http://yui.yahooapis.com/3.0.0/build/yui/yui-min.js"></script>
 
-<!-- YUI JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+	<!-- Customized styles -->
+	<style type="text/css">
 
-<!-- Test subjects -->
-<script type="text/javascript" src="../src/Crypto.js"></script>
-<script type="text/javascript" src="../src/CryptoMath.js"></script>
-<script type="text/javascript" src="../src/MD5.js"></script>
-<script type="text/javascript" src="../src/SHA1.js"></script>
-<script type="text/javascript" src="../src/SHA256.js"></script>
-<script type="text/javascript" src="../src/HMAC.js"></script>
-<script type="text/javascript" src="../src/PBKDF2.js"></script>
-<script type="text/javascript" src="../src/MARC4.js"></script>
-<script type="text/javascript" src="../src/Rabbit.js"></script>
-<script type="text/javascript" src="../src/OFB.js"></script>
-<script type="text/javascript" src="../src/CBC.js"></script>
-<script type="text/javascript" src="../src/AES.js"></script>
+		/* Enlarge body */
+		.yui-skin-sam .yui-console {
+			width: 600px !important;
+		}
+		.yui-skin-sam .yui-console-bd {
+			height: 452px !important;
+		}
 
-<!-- Test suite -->
-<script type="text/javascript">
+		/* Hide irrelevant data */
+		.yui-skin-sam .yui-console-entry-info,
+		.yui-skin-sam .yui-console-entry-src,
+		.yui-skin-sam .yui-console-entry-time {
+			display: none;
+		}
 
-// 1KB of random, dummy data
-var data = Crypto.util.randomBytes(1000);
+		/* Minimize meta and content */
+		.yui-skin-sam .yui-console-entry-meta,
+		.yui-skin-sam .yui-console-entry-content {
+			float: left;
+		}
+		.yui-skin-sam .yui-console-entry {
+			padding: 0.5ex;
+			min-height: 0 !important;
+			overflow: auto;
+		}
 
-// Create test suite
-var TestSuite = new YAHOO.tool.TestSuite();
-YAHOO.tool.TestRunner.add(TestSuite);
+		/* Color pass and fail */
+		.yui-skin-sam .yui-console-entry-pass .yui-console-entry-cat {
+			background: green;
+			color: white;
+		}
+		.yui-skin-sam .yui-console-entry-fail .yui-console-entry-cat {
+			background: red;
+			color: white;
+		}
 
-// Shortcut
-var Assert = YAHOO.util.Assert;
+	</style>
 
-</script>
+	<!-- Crypto-JS source files -->
+	<script src="../src/Crypto.js"></script>
 
-<!-- Test cases -->
-<script type="text/javascript" src="Crypto-test.js"></script>
-<script type="text/javascript" src="MD5-test.js"></script>
-<script type="text/javascript" src="SHA1-test.js"></script>
-<script type="text/javascript" src="SHA256-test.js"></script>
-<script type="text/javascript" src="HMAC-test.js"></script>
-<script type="text/javascript" src="MARC4-test.js"></script>
-<script type="text/javascript" src="Rabbit-test.js"></script>
-<script type="text/javascript" src="AES-test.js"></script>
-<script type="text/javascript" src="PBKDF2-test.js"></script>
+	<script type="text/javascript">
 
-<script type="text/javascript">
-YAHOO.util.Event.onDOMReady(function(){
+		YUI().use("test", "console", function(Y) {
 
-	// Display results from the TestRunner
-	var logger = new YAHOO.tool.TestLogger();
+			// Crypto.util test cases
+			Y.Test.Runner.add(new Y.Test.Case({
 
-	// Hide info category
-	logger.hideCategory("info");
+				"test util.u32": function() {
+					Y.Assert.areEqual(2147483647, Crypto.util.u32(2147483647));
+					Y.Assert.areEqual(2147483646, Crypto.util.u32(2147483646));
+					Y.Assert.areEqual(2, Crypto.util.u32(2));
+					Y.Assert.areEqual(1, Crypto.util.u32(1));
+					Y.Assert.areEqual(0, Crypto.util.u32(0));
+					Y.Assert.areEqual(4294967295, Crypto.util.u32(-1));
+					Y.Assert.areEqual(4294967294, Crypto.util.u32(-2));
+					Y.Assert.areEqual(2147483649, Crypto.util.u32(-2147483647));
+					Y.Assert.areEqual(2147483648, Crypto.util.u32(-2147483648));
+				},
 
-	// Run all tests
-	YAHOO.tool.TestRunner.run();
+				"test util.add": function() {
+					Y.Assert.areEqual(0, Crypto.util.add(4294967295, 1));
+					Y.Assert.areEqual(2147483648, Crypto.util.add(2147483647, 1));
+					Y.Assert.areEqual(2147483647, Crypto.util.add(4294967295, 2147483647, 1));
+				},
 
-});
+				"test util.mult": function() {
+					Y.Assert.areEqual(1, Crypto.util.mult(4294967295, 4294967295));
+					Y.Assert.areEqual(0, Crypto.util.mult(2147483648, 2147483648));
+					Y.Assert.areEqual(3817748708, Crypto.util.mult(2863311530, 2863311530));
+				},
 
-</script>
+				"test util.gt": function() {
+					Y.Assert.isTrue(Crypto.util.gt(-1, 1));
+				},
+
+				"test util.lt": function() {
+					Y.Assert.isTrue(Crypto.util.lt(1, -1));
+				},
+
+				"test util.rotl": function() {
+					Y.Assert.areEqual(0x00FF00AA, Crypto.util.rotl(0xAA00FF00, 8));
+				},
+
+				"test util.rotr": function() {
+					Y.Assert.areEqual(0x00AA00FF, Crypto.util.rotr(0xAA00FF00, 8));
+				},
+
+				"test util.endian": function() {
+					Y.Assert.areEqual(0xF0E0C080, Crypto.util.u32(Crypto.util.endian(0x80C0E0F0)));
+					Y.Assert.areEqual(0x80C0E0F0, Crypto.util.u32(Crypto.util.endian(Crypto.util.endian(0x80C0E0F0))));
+				},
+
+				"test util.randomWords": function() {
+					Y.Assert.areEqual(8, Crypto.util.randomWords(8).length);
+					Y.Assert.areNotEqual(Crypto.util.randomWords(8).toString(), Crypto.util.randomWords(8).toString());
+				}
+
+			}));
+
+			// Crypto.chr test cases
+			Y.Test.Runner.add(new Y.Test.Case({
+
+				"test chr.Binary.stringToWords": function() {
+					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.chr.Binary.stringToWords("Hello, World!")).toString());
+				},
+
+				"test chr.Binary.wordsToString": function() {
+					Y.Assert.areEqual("Hello, World!", Crypto.chr.Binary.wordsToString([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000], 13));
+					Y.Assert.areEqual("Hello, World!\0\0\0", Crypto.chr.Binary.wordsToString([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]));
+				},
+
+				"test chr.UTF8.stringToWords": function() {
+					Y.Assert.areEqual([0x41E289A2, 0xCE912E00].toString(), Crypto.util.u32(Crypto.chr.UTF8.stringToWords("\u0041\u2262\u0391\u002E")).toString());
+					Y.Assert.areEqual([0xED959CEA, 0xB5ADEC96, 0xB4000000].toString(), Crypto.util.u32(Crypto.chr.UTF8.stringToWords("\uD55C\uAD6D\uC5B4")).toString());
+					Y.Assert.areEqual([0xE697A5E6, 0x9CACE8AA, 0x9E000000].toString(), Crypto.util.u32(Crypto.chr.UTF8.stringToWords("\u65E5\u672C\u8A9E")).toString());
+				},
+
+				"test chr.UTF8.wordsToString": function() {
+					Y.Assert.areEqual("\u0041\u2262\u0391\u002E", Crypto.chr.UTF8.wordsToString([0x41E289A2, 0xCE912E00], 4));
+					Y.Assert.areEqual("\uD55C\uAD6D\uC5B4", Crypto.chr.UTF8.wordsToString([0xED959CEA, 0xB5ADEC96, 0xB4000000], 3));
+					Y.Assert.areEqual("\u65E5\u672C\u8A9E", Crypto.chr.UTF8.wordsToString([0xE697A5E6, 0x9CACE8AA, 0x9E000000], 3));
+				}
+
+			}));
+
+			// Crypto.enc test cases
+			Y.Test.Runner.add(new Y.Test.Case({
+
+				"test enc.Hex.encode": function() {
+					Y.Assert.areEqual("48656c6c6f2c20576f726c6421000000", Crypto.enc.Hex.encode([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]));
+				},
+
+				"test enc.Hex.decode": function() {
+					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.enc.Hex.decode("48656c6c6f2c20576f726c6421000000")));
+				},
+
+				"test enc.Base64.encode": function() {
+					Y.Assert.areEqual("FPucA9l+AAA=", Crypto.enc.Base64.encode([0x14FB9C03, 0xD97E0000]));
+					Y.Assert.areEqual("FPucA9kAAAA=", Crypto.enc.Base64.encode([0x14FB9C03, 0xD9000000]));
+					Y.Assert.areEqual("FPucAw==", Crypto.enc.Base64.encode([0x14FB9C03]));
+				},
+
+				"test enc.Base64.decode": function() {
+					Y.Assert.areEqual([0x14FB9C03, 0xD97E0000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9l+AAA=")));
+					Y.Assert.areEqual([0x14FB9C03, 0xD9000000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9kAAAA=")));
+					Y.Assert.areEqual([0x14FB9C03].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucAw==")));
+				}
+
+			}));
+
+			// Initialize console
+			new Y.Console({newestOnTop: false, style: "block"}).render("#log");
+
+			// Run the tests
+			Y.Test.Runner.run();
+
+		});
+
+	</script>
 
 </head>
-<body></body>
+<body class="yui-skin-sam">
+	<div id="log"></div>
+</body>
+</html>
