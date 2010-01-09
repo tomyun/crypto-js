@@ -60,8 +60,8 @@ var util = C.util = {
 
 		// If number given, swap endian
 		if (n.constructor == Number) {
-			return (util.rotl(n,  8) & 0x00FF00FF) |
-			       (util.rotl(n, 24) & 0xFF00FF00);
+			return (util.rotl(n, 8) & 0x00FF00FF) |
+			       (util.rotr(n, 8) & 0xFF00FF00);
 		}
 
 		// Else, assume array and swap all items
@@ -93,7 +93,7 @@ var Binary = chr.Binary = {
 	// Convert string to words
 	stringToWords: function(str) {
 		for (var words = [], i = 0; i < str.length; i++) {
-			words[i >>> 2] |= str.charCodeAt(i) << 24 - (i % 4) * 8;
+			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
 		}
 		return words;
 	},
@@ -154,12 +154,12 @@ var Hex = enc.Hex = {
 
 /* Base64
 -------------------------------------------------------------- */
-var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+var b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 var Base64 = enc.Base64 = {
 
 	encode: function(words) {
 
-		for(var b64 = [], i = 0; i < words.length * 4; i += 3) {
+		for(var b64str = [], i = 0; i < words.length * 4; i += 3) {
 
 			var triplet = (((words[ i      >>> 2] >>> (24 - ( i      % 4) * 8)) & 0xFF) << 16) |
 			              (((words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xFF) <<  8) |
@@ -167,28 +167,28 @@ var Base64 = enc.Base64 = {
 
 			for (var j = 0; j < 4; j++) {
 				if (i * 8 + j * 6 <= words.length * 32) {
-					b64.push(base64map.charAt((triplet >>> (6 * (3 - j))) & 0x3F));
+					b64str.push(b64map.charAt((triplet >>> (6 * (3 - j))) & 0x3F));
 				}
 				else {
-					b64.push("=");
+					b64str.push("=");
 				}
 			}
 
 		}
 
-		return b64.join("");
+		return b64str.join("");
 
 	},
 
-	decode: function(b64) {
+	decode: function(b64str) {
 
 		// Remove padding
-		b64 = b64.replace(/=+$/, "");
+		b64str = b64str.replace(/=+$/, "");
 
-		for (var words = [], b = 0, i = 0; i < b64.length; i++) {
+		for (var words = [], b = 0, i = 0; i < b64str.length; i++) {
 			if (i % 4) {
-				words[b >>> 2] |= (((base64map.indexOf(b64.charAt(i - 1)) << ((i % 4) * 2)) |
-				                    (base64map.indexOf(b64.charAt(i)) >>> (6 - (i % 4) * 2))) & 0xFF) << (24 - (b % 4) * 8);
+				words[b >>> 2] |= (((b64map.indexOf(b64str.charAt(i - 1)) << ((i % 4) * 2)) |
+				                    (b64map.indexOf(b64str.charAt(i)) >>> (6 - (i % 4) * 2))) & 0xFF) << (24 - (b % 4) * 8);
 				b++;
 			}
 		}
