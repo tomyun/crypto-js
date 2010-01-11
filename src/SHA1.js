@@ -3,37 +3,44 @@
 // Shortcuts
 var C = Crypto,
     util = C.util,
-    charenc = C.charenc,
-    UTF8 = charenc.UTF8,
-    Binary = charenc.Binary;
+    chr = C.chr,
+    enc = C.enc,
+    UTF8 = chr.UTF8,
+    Binary = chr.Binary,
+    Hex = enc.Hex;
 
 // Public API
 var SHA1 = C.SHA1 = function (message, options) {
-	var digestbytes = util.wordsToBytes(SHA1._sha1(message));
-	return options && options.asBytes ? digestbytes :
-	       options && options.asString ? Binary.bytesToString(digestbytes) :
-	       util.bytesToHex(digestbytes);
+
+	// Digest
+	var digestWords = SHA1._sha1(message);
+
+	// Set default output
+	var output = options && options.output || Hex;
+
+	// Return encoded output
+	return output.encode(digestWords);
+
 };
 
 // The core
 SHA1._sha1 = function (message) {
 
-	// Convert to byte array
-	if (message.constructor == String) message = UTF8.stringToBytes(message);
-	/* else, assume byte array already */
+	// Convert to words, else assume words already
+	var m = message.constructor == String ? UTF8.stringToWords(message) : message;
 
-	var m  = util.bytesToWords(message),
-	    l  = message.length * 8,
-	    w  =  [],
-	    H0 =  1732584193,
-	    H1 = -271733879,
-	    H2 = -1732584194,
-	    H3 =  271733878,
-	    H4 = -1009589776;
-
-	// Padding
+	// Add padding
+	var l = message.length * 8;
 	m[l >> 5] |= 0x80 << (24 - l % 32);
 	m[((l + 64 >>> 9) << 4) + 15] = l;
+
+	// Initial values
+	var w  = [],
+	    H0 = 0x67452301,
+	    H1 = 0xEFCDAB89,
+	    H2 = 0x98BADCFE,
+	    H3 = 0x10325476,
+	    H4 = 0xC3D2E1F0;
 
 	for (var i = 0; i < m.length; i += 16) {
 
@@ -47,15 +54,15 @@ SHA1._sha1 = function (message) {
 
 			if (j < 16) w[j] = m[i + j];
 			else {
-				var n = w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16];
+				var n = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16];
 				w[j] = (n << 1) | (n >>> 31);
 			}
 
 			var t = ((H0 << 5) | (H0 >>> 27)) + H4 + (w[j] >>> 0) + (
-			         j < 20 ? (H1 & H2 | ~H1 & H3) + 1518500249 :
-			         j < 40 ? (H1 ^ H2 ^ H3) + 1859775393 :
-			         j < 60 ? (H1 & H2 | H1 & H3 | H2 & H3) - 1894007588 :
-			                  (H1 ^ H2 ^ H3) - 899497514);
+			         j < 20 ? (H1 & H2 | ~H1 & H3)           + 0x5A827999 :
+			         j < 40 ? (H1 ^ H2 ^  H3)                + 0x6ED9EBA1 :
+			         j < 60 ? (H1 & H2 |  H1 & H3 | H2 & H3) - 0x70E44324 :
+			                  (H1 ^ H2 ^  H3)                - 0x359D3E2A);
 
 			H4 =  H3;
 			H3 =  H2;
@@ -78,6 +85,6 @@ SHA1._sha1 = function (message) {
 };
 
 // Package private blocksize
-SHA1._blocksize = 16;
+SHA1._blockSize = 16;
 
 })();
