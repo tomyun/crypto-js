@@ -112,52 +112,46 @@
 
 			}));
 
-			// Crypto.chr test cases
-			Y.Test.Runner.add(new Y.Test.Case({
-
-				"test chr.Binary.stringToWords": function() {
-					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.chr.Binary.stringToWords("Hello, World!")).toString());
-				},
-
-				"test chr.Binary.wordsToString": function() {
-					Y.Assert.areEqual("Hello, World!", Crypto.chr.Binary.wordsToString([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000], 13));
-					Y.Assert.areEqual("Hello, World!\0\0\0", Crypto.chr.Binary.wordsToString([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]));
-				},
-
-				"test chr.UTF8.stringToWords": function() {
-					Y.Assert.areEqual([0x41E289A2, 0xCE912E00].toString(), Crypto.util.u32(Crypto.chr.UTF8.stringToWords("\u0041\u2262\u0391\u002E")).toString());
-					Y.Assert.areEqual([0xED959CEA, 0xB5ADEC96, 0xB4000000].toString(), Crypto.util.u32(Crypto.chr.UTF8.stringToWords("\uD55C\uAD6D\uC5B4")).toString());
-					Y.Assert.areEqual([0xE697A5E6, 0x9CACE8AA, 0x9E000000].toString(), Crypto.util.u32(Crypto.chr.UTF8.stringToWords("\u65E5\u672C\u8A9E")).toString());
-				},
-
-				"test chr.UTF8.wordsToString": function() {
-					Y.Assert.areEqual("\u0041\u2262\u0391\u002E", Crypto.chr.UTF8.wordsToString([0x41E289A2, 0xCE912E00], 4));
-					Y.Assert.areEqual("\uD55C\uAD6D\uC5B4", Crypto.chr.UTF8.wordsToString([0xED959CEA, 0xB5ADEC96, 0xB4000000], 3));
-					Y.Assert.areEqual("\u65E5\u672C\u8A9E", Crypto.chr.UTF8.wordsToString([0xE697A5E6, 0x9CACE8AA, 0x9E000000], 3));
-				}
-
-			}));
-
 			// Crypto.enc test cases
 			Y.Test.Runner.add(new Y.Test.Case({
 
+				"test enc.ByteStr.encode": function() {
+					Y.Assert.areEqual("Hello, World!", Crypto.enc.ByteStr.encode(Crypto.enc.ByteStr.decode("Hello, World!")));
+				},
+
+				"test enc.ByteStr.decode": function() {
+					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.enc.ByteStr.decode("Hello, World!")).toString());
+				},
+
+				"test enc.UTF8.encode": function() {
+					Y.Assert.areEqual("\u0041\u2262\u0391\u002E", Crypto.enc.UTF8.encode(Crypto.enc.UTF8.decode("\u0041\u2262\u0391\u002E")));
+					Y.Assert.areEqual("\uD55C\uAD6D\uC5B4", Crypto.enc.UTF8.encode(Crypto.enc.UTF8.decode("\uD55C\uAD6D\uC5B4")));
+					Y.Assert.areEqual("\u65E5\u672C\u8A9E", Crypto.enc.UTF8.encode(Crypto.enc.UTF8.decode("\u65E5\u672C\u8A9E")));
+				},
+
+				"test enc.UTF8.decode": function() {
+					Y.Assert.areEqual([0x41E289A2, 0xCE912E00].toString(), Crypto.util.u32(Crypto.enc.UTF8.decode("\u0041\u2262\u0391\u002E")).toString());
+					Y.Assert.areEqual([0xED959CEA, 0xB5ADEC96, 0xB4000000].toString(), Crypto.util.u32(Crypto.enc.UTF8.decode("\uD55C\uAD6D\uC5B4")).toString());
+					Y.Assert.areEqual([0xE697A5E6, 0x9CACE8AA, 0x9E000000].toString(), Crypto.util.u32(Crypto.enc.UTF8.decode("\u65E5\u672C\u8A9E")).toString());
+				},
+
 				"test enc.Hex.encode": function() {
-					Y.Assert.areEqual("48656c6c6f2c20576f726c6421000000", Crypto.enc.Hex.encode([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000]));
+					Y.Assert.areEqual("48656c6c6f2c20576f726c6421", Crypto.enc.Hex.encode(Crypto.enc.Hex.decode("48656c6c6f2c20576f726c6421")));
 				},
 
 				"test enc.Hex.decode": function() {
-					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.enc.Hex.decode("48656c6c6f2c20576f726c6421000000")));
+					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.enc.Hex.decode("48656c6c6f2c20576f726c6421")));
 				},
 
 				"test enc.Base64.encode": function() {
-					Y.Assert.areEqual("FPucA9l+AAA=", Crypto.enc.Base64.encode([0x14FB9C03, 0xD97E0000]));
-					Y.Assert.areEqual("FPucA9kAAAA=", Crypto.enc.Base64.encode([0x14FB9C03, 0xD9000000]));
-					Y.Assert.areEqual("FPucAw==", Crypto.enc.Base64.encode([0x14FB9C03]));
+					Y.Assert.areEqual("FPucA9l+", Crypto.enc.Base64.encode(Crypto.enc.Base64.decode("FPucA9l+")));
+					Y.Assert.areEqual("FPucA9k=", Crypto.enc.Base64.encode(Crypto.enc.Base64.decode("FPucA9k=")));
+					Y.Assert.areEqual("FPucAw==", Crypto.enc.Base64.encode(Crypto.enc.Base64.decode("FPucAw==")));
 				},
 
 				"test enc.Base64.decode": function() {
-					Y.Assert.areEqual([0x14FB9C03, 0xD97E0000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9l+AAA=")));
-					Y.Assert.areEqual([0x14FB9C03, 0xD9000000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9kAAAA=")));
+					Y.Assert.areEqual([0x14FB9C03, 0xD97E0000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9l+")));
+					Y.Assert.areEqual([0x14FB9C03, 0xD9000000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9k=")));
 					Y.Assert.areEqual([0x14FB9C03].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucAw==")));
 				}
 

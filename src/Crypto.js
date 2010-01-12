@@ -82,46 +82,21 @@ var util = C.util = {
 
 };
 
-/* Character encodings
+/* Data types
 ----------------------------------------------------------------------------- */
-var chr = C.chr = {};
+var types = C.types = {};
 
-/* Binary characters
+/* Word array
 -------------------------------------------------------------- */
-var Binary = chr.Binary = {
+var WordArray = types.WordArray = {
 
-	// Convert string to words
-	stringToWords: function(str) {
-		for (var words = [], i = 0; i < str.length; i++) {
-			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
-		}
-		return words;
+	getSignificantBytes: function(words) {
+		return words._Crypto && words._Crypto.significantBytes != undefined ?
+		       words._Crypto.significantBytes : words.length * 4;
 	},
 
-	// Convert words to string
-	wordsToString: function(words, strlen) {
-		for (var str = [], i = 0; i < words.length * 4; i++) {
-			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
-		}
-		if (strlen != undefined) str.length = strlen;
-		return str.join("");
-	}
-
-};
-
-/* UTF8 characters
--------------------------------------------------------------- */
-var UTF8 = chr.UTF8 = {
-
-	// Convert string to words
-	stringToWords: function(str) {
-		return Binary.stringToWords(unescape(encodeURIComponent(str)));
-	},
-
-	// Convert words to string
-	wordsToString: function(words, strlen) {
-		var str = decodeURIComponent(escape(Binary.wordsToString(words)));
-		return strlen != undefined ? str.substr(0, strlen) : str;
+	setSignificantBytes: function(words, n) {
+		words._Crypto = { significantBytes: n };
 	}
 
 };
@@ -130,12 +105,47 @@ var UTF8 = chr.UTF8 = {
 ----------------------------------------------------------------------------- */
 var enc = C.enc = {};
 
+/* Byte string
+-------------------------------------------------------------- */
+var ByteStr = enc.ByteStr = {
+
+	encode: function(words) {
+		for (var str = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
+			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
+		}
+		return str.join("");
+	},
+
+	decode: function(str) {
+		for (var words = [], i = 0; i < str.length; i++) {
+			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
+		}
+		WordArray.setSignificantBytes(words, str.length);
+		return words;
+	}
+
+};
+
+/* UTF8 byte string
+-------------------------------------------------------------- */
+var UTF8 = enc.UTF8 = {
+
+	encode: function(words) {
+		return decodeURIComponent(escape(ByteStr.encode(words)));
+	},
+
+	decode: function(str) {
+		return ByteStr.decode(unescape(encodeURIComponent(str)));
+	}
+
+};
+
 /* Hex
 -------------------------------------------------------------- */
 var Hex = enc.Hex = {
 
 	encode: function(words) {
-		for (var hex = [], i = 0; i < words.length * 4; i++) {
+		for (var hex = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
 			var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF;
 			hex.push((bite >>> 4).toString(16));
 			hex.push((bite & 0xF).toString(16));
@@ -144,9 +154,10 @@ var Hex = enc.Hex = {
 	},
 
 	decode: function(hex) {
-		for (var words = [], i = 0; i < hex.length; i += 8) {
-			words.push(parseInt(hex.substr(i, 8), 16));
+		for (var words = [], i = 0; i < hex.length; i += 2) {
+			words[i >>> 3] |= parseInt(hex.substr(i, 2), 16) << (24 - (i % 8) * 4);
 		}
+		WordArray.setSignificantBytes(words, hex.length / 2)
 		return words;
 	}
 
@@ -159,14 +170,14 @@ var Base64 = enc.Base64 = {
 
 	encode: function(words) {
 
-		for(var b64str = [], i = 0; i < words.length * 4; i += 3) {
+		for(var b64str = [], i = 0; i < WordArray.getSignificantBytes(words); i += 3) {
 
 			var triplet = (((words[ i      >>> 2] >>> (24 - ( i      % 4) * 8)) & 0xFF) << 16) |
 			              (((words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xFF) <<  8) |
 			               ((words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xFF);
 
 			for (var j = 0; j < 4; j++) {
-				if (i * 8 + j * 6 <= words.length * 32) {
+				if (i * 8 + j * 6 <= WordArray.getSignificantBytes(words) * 8) {
 					b64str.push(b64map.charAt((triplet >>> (6 * (3 - j))) & 0x3F));
 				}
 				else {
@@ -192,6 +203,8 @@ var Base64 = enc.Base64 = {
 				b++;
 			}
 		}
+
+		WordArray.setSignificantBytes(words, Math.floor(b64str.length * 0.75));
 
 		return words;
 

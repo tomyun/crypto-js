@@ -2,15 +2,13 @@
 
 // Shortcuts
 var C = Crypto,
-    util = C.util,
-    chr = C.chr,
     enc = C.enc,
-    UTF8 = chr.UTF8,
-    Binary = chr.Binary,
-    Hex = enc.Hex;
+    UTF8 = enc.UTF8,
+    Hex = enc.Hex,
+    WordArray = C.types.WordArray;
 
 // Public API
-var SHA1 = C.SHA1 = function (message, options) {
+var SHA1 = C.SHA1 = function(message, options) {
 
 	// Digest
 	var digestWords = SHA1._sha1(message);
@@ -24,13 +22,13 @@ var SHA1 = C.SHA1 = function (message, options) {
 };
 
 // The core
-SHA1._sha1 = function (message) {
+SHA1._sha1 = function(message) {
 
 	// Convert to words, else assume words already
-	var m = message.constructor == String ? UTF8.stringToWords(message) : message;
+	var m = message.constructor == String ? UTF8.decode(message) : message;
 
 	// Add padding
-	var l = message.length * 8;
+	var l = WordArray.getSignificantBytes(m) * 8;
 	m[l >> 5] |= 0x80 << (24 - l % 32);
 	m[((l + 64 >>> 9) << 4) + 15] = l;
 
