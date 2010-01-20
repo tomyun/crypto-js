@@ -8,20 +8,23 @@ $copyrightInfo = '/*!
  */
 ';
 
-$files = array('crypto', 'md5', 'sha1', 'sha256', 'hmac', 'pbkdf2',
-               'marc4', 'rabbit', 'aes', 'cbc', 'ofb');
+$files = array('crypto', 'hex', 'base64',
+               'md5', 'sha1', 'sha256',
+               'hmac', 'pbkdf2',
+               'marc4', 'rabbit', 'aes',
+               'cbc', 'ofb');
 
 $rollups = array(
-	array('crypto', 'md5'),
-	array('crypto', 'sha1'),
-	array('crypto', 'sha256'),
-	array('crypto', 'md5', 'hmac'),
-	array('crypto', 'sha1', 'hmac'),
-	array('crypto', 'sha256', 'hmac'),
-	array('crypto', 'sha1', 'hmac', 'pbkdf2'),
-	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'marc4'),
-	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'rabbit'),
-	array('crypto', 'sha1', 'hmac', 'pbkdf2', 'ofb', 'aes')
+	array('crypto', 'hex', 'md5'),
+	array('crypto', 'hex', 'sha1'),
+	array('crypto', 'hex', 'sha256'),
+	array('crypto', 'hex', 'md5', 'hmac'),
+	array('crypto', 'hex', 'sha1', 'hmac'),
+	array('crypto', 'hex', 'sha256', 'hmac'),
+	array('crypto', 'hex', 'sha1', 'hmac', 'pbkdf2'),
+	array('crypto', 'base64', 'sha1', 'hmac', 'pbkdf2', 'marc4'),
+	array('crypto', 'base64', 'sha1', 'hmac', 'pbkdf2', 'rabbit'),
+	array('crypto', 'base64', 'sha1', 'hmac', 'pbkdf2', 'ofb', 'aes')
 );
 
 foreach ($files as $file) {
