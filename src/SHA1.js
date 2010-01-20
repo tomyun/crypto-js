@@ -11,7 +11,7 @@ var C = Crypto,
 var SHA1 = C.SHA1 = function(message, options) {
 
 	// Digest
-	var digestWords = SHA1._sha1(message);
+	var digestWords = SHA1._digest(message);
 
 	// Set default output
 	var output = options && options.output || Hex;
@@ -22,7 +22,7 @@ var SHA1 = C.SHA1 = function(message, options) {
 };
 
 // The core
-SHA1._sha1 = function(message) {
+SHA1._digest = function(message) {
 
 	// Convert to words, else assume words already
 	var m = message.constructor == String ? UTF8.decode(message) : message;
