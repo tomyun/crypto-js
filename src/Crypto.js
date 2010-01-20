@@ -1,12 +1,74 @@
-(function() {
+(function(){
 
-/* Global crypto object
+/* Crypto namespaces
 ----------------------------------------------------------------------------- */
-var C = window.Crypto = {};
+var C = window.Crypto = {
+	enc:   {},
+	mode:  {},
+	types: {}
+};
+
+/* Word array
+----------------------------------------------------------------------------- */
+var WordArray = C.types.WordArray = {
+
+	getSignificantBytes: function(words) {
+		return words._Crypto && words._Crypto.significantBytes != undefined ?
+		       words._Crypto.significantBytes : words.length * 4;
+	},
+
+	setSignificantBytes: function(words, n) {
+		words._Crypto = { significantBytes: n };
+	}
+
+};
+
+/* Byte string
+----------------------------------------------------------------------------- */
+var ByteStr = C.enc.ByteStr = {
+
+	encode: function(words) {
+		for (var str = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
+			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
+		}
+		return str.join("");
+	},
+
+	decode: function(str) {
+		for (var words = [], i = 0; i < str.length; i++) {
+			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
+		}
+		WordArray.setSignificantBytes(words, str.length);
+		return words;
+	}
+
+};
+
+/* UTF8 byte string
+----------------------------------------------------------------------------- */
+var UTF8 = C.enc.UTF8 = {
+
+	encode: function(words) {
+		return decodeURIComponent(escape(ByteStr.encode(words)));
+	},
+
+	decode: function(str) {
+		return ByteStr.decode(unescape(encodeURIComponent(str)));
+	}
+
+};
+
+
+})();
+
+
+
 
 /* Crypto utilities
 ----------------------------------------------------------------------------- */
-var util = C.util = {
+(function(){
+
+var util = Crypto.util = {
 
 	// Convert to unsigned 32-bit integer
 	u32: function(n) {
@@ -82,67 +144,17 @@ var util = C.util = {
 
 };
 
-/* Data types
------------------------------------------------------------------------------ */
-var types = C.types = {};
-
-/* Word array
--------------------------------------------------------------- */
-var WordArray = types.WordArray = {
-
-	getSignificantBytes: function(words) {
-		return words._Crypto && words._Crypto.significantBytes != undefined ?
-		       words._Crypto.significantBytes : words.length * 4;
-	},
-
-	setSignificantBytes: function(words, n) {
-		words._Crypto = { significantBytes: n };
-	}
-
-};
-
-/* Data encodings
------------------------------------------------------------------------------ */
-var enc = C.enc = {};
-
-/* Byte string
--------------------------------------------------------------- */
-var ByteStr = enc.ByteStr = {
-
-	encode: function(words) {
-		for (var str = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
-			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
-		}
-		return str.join("");
-	},
-
-	decode: function(str) {
-		for (var words = [], i = 0; i < str.length; i++) {
-			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
-		}
-		WordArray.setSignificantBytes(words, str.length);
-		return words;
-	}
-
-};
-
-/* UTF8 byte string
--------------------------------------------------------------- */
-var UTF8 = enc.UTF8 = {
-
-	encode: function(words) {
-		return decodeURIComponent(escape(ByteStr.encode(words)));
-	},
-
-	decode: function(str) {
-		return ByteStr.decode(unescape(encodeURIComponent(str)));
-	}
-
-};
+})();
 
 /* Hex
--------------------------------------------------------------- */
-var Hex = enc.Hex = {
+----------------------------------------------------------------------------- */
+(function(){
+
+// Shortcuts
+var C = Crypto,
+    WordArray = C.types.WordArray;
+
+C.enc.Hex = {
 
 	encode: function(words) {
 		for (var hex = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
@@ -157,16 +169,25 @@ var Hex = enc.Hex = {
 		for (var words = [], i = 0; i < hex.length; i += 2) {
 			words[i >>> 3] |= parseInt(hex.substr(i, 2), 16) << (24 - (i % 8) * 4);
 		}
-		WordArray.setSignificantBytes(words, hex.length / 2)
+		WordArray.setSignificantBytes(words, hex.length / 2);
 		return words;
 	}
 
 };
 
+})();
+
 /* Base64
--------------------------------------------------------------- */
+----------------------------------------------------------------------------- */
+(function(){
+
 var b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-var Base64 = enc.Base64 = {
+
+// Shortcut
+var C = Crypto,
+    WordArray = C.types.WordArray;
+
+C.enc.Base64 = {
 
 	encode: function(words) {
 
@@ -211,9 +232,5 @@ var Base64 = enc.Base64 = {
 	}
 
 };
-
-/* Block cipher mode namespace
------------------------------------------------------------------------------ */
-C.mode = {};
 
 })();
