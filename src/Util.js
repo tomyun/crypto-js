@@ -54,8 +54,8 @@ var util = Crypto.util = {
 
 		// If number given, swap endian
 		if (n.constructor == Number) {
-			return (util.rotl(n, 8) & 0x00FF00FF) |
-			       (util.rotr(n, 8) & 0xFF00FF00);
+			return util.rotl(n, 8) & 0x00FF00FF |
+			       util.rotr(n, 8) & 0xFF00FF00;
 		}
 
 		// Else, assume array and swap all items
