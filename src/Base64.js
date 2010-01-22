@@ -10,7 +10,7 @@ C.enc.Base64 = {
 
 	encode: function(words) {
 
-		for(var b64str = [], i = 0; i < WordArray.getSignificantBytes(words); i += 3) {
+		for(var b64str = [], b = WordArray.getSignificantBytes(words), i = 0; i < b; i += 3) {
 
 			var triplet = (((words[ i      >>> 2] >>> (24 - ( i      % 4) * 8)) & 0xFF) << 16) |
 			              (((words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xFF) <<  8) |

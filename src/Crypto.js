@@ -28,7 +28,7 @@ var WordArray = C.types.WordArray = {
 var ByteStr = C.enc.ByteStr = {
 
 	encode: function(words) {
-		for (var str = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
+		for (var str = [], b = WordArray.getSignificantBytes(words), i = 0; i < b; i++) {
 			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
 		}
 		return str.join("");

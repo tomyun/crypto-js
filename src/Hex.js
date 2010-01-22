@@ -7,7 +7,7 @@ var C = Crypto,
 C.enc.Hex = {
 
 	encode: function(words) {
-		for (var hex = [], i = 0; i < WordArray.getSignificantBytes(words); i++) {
+		for (var hex = [], b = WordArray.getSignificantBytes(words), i = 0; i < b; i++) {
 			var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF;
 			hex.push((bite >>> 4).toString(16));
 			hex.push((bite & 0xF).toString(16));
