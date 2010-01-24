@@ -2,10 +2,24 @@
 
 // Shortcuts
 var C = Crypto,
-    util = C.util,
-    charenc = C.charenc,
-    UTF8 = charenc.UTF8,
-    Binary = charenc.Binary;
+    enc = C.enc,
+    UTF8 = enc.UTF8,
+    Hex = enc.Hex,
+    WordArray = C.type.WordArray;
+
+// Public API
+var SHA256 = C.SHA256 = function(message, options) {
+
+	// Digest
+	var digestWords = SHA256._digest(message);
+
+	// Set default output
+	var output = options && options.output || Hex;
+
+	// Return encoded output
+	return output.encode(digestWords);
+
+};
 
 // Constants
 var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -25,32 +39,23 @@ var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
           0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
           0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2 ];
 
-// Public API
-var SHA256 = C.SHA256 = function (message, options) {
-	var digestbytes = util.wordsToBytes(SHA256._sha256(message));
-	return options && options.asBytes ? digestbytes :
-	       options && options.asString ? Binary.bytesToString(digestbytes) :
-	       util.bytesToHex(digestbytes);
-};
-
 // The core
-SHA256._sha256 = function (message) {
+SHA256._digest = function(message) {
 
-	// Convert to byte array
-	if (message.constructor == String) message = UTF8.stringToBytes(message);
-	/* else, assume byte array already */
+	// Convert to words, else assume words already
+	var m = message.constructor == String ? UTF8.decode(message) : message;
 
-	var m = util.bytesToWords(message),
-	    l = message.length * 8,
-	    H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
+	// Add padding
+	var l = WordArray.getSigBytes(m) * 8;
+	m[l >> 5] |= 0x80 << (24 - l % 32);
+	m[(l + 64 >> 9 << 4) + 15] = l;
+
+	// Initial values
+	var H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
 	          0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ],
 	    w = [],
 	    a, b, c, d, e, f, g, h, i, j,
 	    t1, t2;
-
-	// Padding
-	m[l >> 5] |= 0x80 << (24 - l % 32);
-	m[((l + 64 >> 9) << 4) + 15] = l;
 
 	for (var i = 0; i < m.length; i += 16) {
 
@@ -65,34 +70,32 @@ SHA256._sha256 = function (message) {
 
 		for (var j = 0; j < 64; j++) {
 
-			if (j < 16) w[j] = m[j + i];
+			if (j < 16) w[j] = m[j + i] >>> 0;
 			else {
 
 				var gamma0x = w[j - 15],
 				    gamma1x = w[j - 2],
-				    gamma0  = ((gamma0x << 25) | (gamma0x >>>  7)) ^
-				              ((gamma0x << 14) | (gamma0x >>> 18)) ^
-				               (gamma0x >>> 3),
-				    gamma1  = ((gamma1x <<  15) | (gamma1x >>> 17)) ^
-				              ((gamma1x <<  13) | (gamma1x >>> 19)) ^
-				               (gamma1x >>> 10);
+				    gamma0  = (gamma0x << 25 | gamma0x >>>  7) ^
+				              (gamma0x << 14 | gamma0x >>> 18) ^
+				               gamma0x >>> 3,
+				    gamma1  = (gamma1x <<  15 | gamma1x >>> 17) ^
+				              (gamma1x <<  13 | gamma1x >>> 19) ^
+				               gamma1x >>> 10;
 
-				w[j] = gamma0 + (w[j - 7] >>> 0) +
-				       gamma1 + (w[j - 16] >>> 0);
+				w[j] = gamma0 + w[j - 7] + gamma1 + w[j - 16];
 
 			}
 
 			var ch  = e & f ^ ~e & g,
 			    maj = a & b ^ a & c ^ b & c,
-			    sigma0 = ((a << 30) | (a >>>  2)) ^
-			             ((a << 19) | (a >>> 13)) ^
-			             ((a << 10) | (a >>> 22)),
-			    sigma1 = ((e << 26) | (e >>>  6)) ^
-			             ((e << 21) | (e >>> 11)) ^
-			             ((e <<  7) | (e >>> 25));
+			    sigma0 = (a << 30 | a >>>  2) ^
+			             (a << 19 | a >>> 13) ^
+			             (a << 10 | a >>> 22),
+			    sigma1 = (e << 26 | e >>>  6) ^
+			             (e << 21 | e >>> 11) ^
+			             (e <<  7 | e >>> 25);
 
-
-			t1 = (h >>> 0) + sigma1 + ch + (K[j]) + (w[j] >>> 0);
+			t1 = h + sigma1 + ch + K[j] + w[j] >>> 0;
 			t2 = sigma0 + maj;
 
 			h = g;
@@ -122,6 +125,6 @@ SHA256._sha256 = function (message) {
 };
 
 // Package private blocksize
-SHA256._blocksize = 16;
+SHA256._blockSize = 16;
 
 })();
