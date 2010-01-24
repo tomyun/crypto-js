@@ -5,12 +5,12 @@
 var C = window.Crypto = {
 	enc:   {},
 	mode:  {},
-	types: {}
+	type: {}
 };
 
 /* Word array
 ----------------------------------------------------------------------------- */
-var WordArray = C.types.WordArray = {
+var WordArray = C.type.WordArray = {
 
 	getSignificantBytes: function(words) {
 		return words._Crypto && words._Crypto.significantBytes != undefined ?

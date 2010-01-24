@@ -5,7 +5,7 @@ var C = Crypto,
     enc = C.enc,
     UTF8 = enc.UTF8,
     Hex = enc.Hex,
-    WordArray = C.types.WordArray;
+    WordArray = C.type.WordArray;
 
 // Public API
 var MD5 = C.MD5 = function(message, options) {

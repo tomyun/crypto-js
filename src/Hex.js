@@ -2,7 +2,7 @@
 
 // Shortcuts
 var C = Crypto,
-    WordArray = C.types.WordArray;
+    WordArray = C.type.WordArray;
 
 C.enc.Hex = {
 
