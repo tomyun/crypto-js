@@ -34,7 +34,7 @@ MD5._digest = function(message) {
 	}
 
 	// Add padding
-	var l = WordArray.getSignificantBytes(m) * 8;
+	var l = WordArray.getSigBytes(m) * 8;
 	m[l >>> 5] |= 0x80 << l % 32;
 	m[(l + 64 >>> 9 << 4) + 14] = l;
 
@@ -125,10 +125,10 @@ MD5._digest = function(message) {
 		c = II(c, d, a, b, m[i +  2], 15, 0x2AD7D2BB);
 		b = II(b, c, d, a, m[i +  9], 21, 0xEB86D391);
 
-		a = (a + aa) >>> 0;
-		b = (b + bb) >>> 0;
-		c = (c + cc) >>> 0;
-		d = (d + dd) >>> 0;
+		a = a + aa >>> 0;
+		b = b + bb >>> 0;
+		c = c + cc >>> 0;
+		d = d + dd >>> 0;
 
 	}
 

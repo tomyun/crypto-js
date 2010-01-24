@@ -28,7 +28,7 @@ SHA1._digest = function(message) {
 	var m = message.constructor == String ? UTF8.decode(message) : message;
 
 	// Add padding
-	var l = WordArray.getSignificantBytes(m) * 8;
+	var l = WordArray.getSigBytes(m) * 8;
 	m[l >> 5] |= 0x80 << 24 - l % 32;
 	m[(l + 64 >>> 9 << 4) + 15] = l;
 

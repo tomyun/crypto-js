@@ -10,14 +10,14 @@ C.enc.Base64 = {
 
 	encode: function(words) {
 
-		for(var b64str = [], b = WordArray.getSignificantBytes(words), i = 0; i < b; i += 3) {
+		for(var b64str = [], b = WordArray.getSigBytes(words), i = 0; i < b; i += 3) {
 
 			var triplet = (((words[ i      >>> 2] >>> (24 - ( i      % 4) * 8)) & 0xFF) << 16) |
 			              (((words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xFF) <<  8) |
 			               ((words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xFF);
 
 			for (var j = 0; j < 4; j++) {
-				if (i * 8 + j * 6 <= WordArray.getSignificantBytes(words) * 8) {
+				if (i * 8 + j * 6 <= b * 8) {
 					b64str.push(b64map.charAt((triplet >>> (6 * (3 - j))) & 0x3F));
 				}
 				else {
@@ -44,7 +44,7 @@ C.enc.Base64 = {
 			}
 		}
 
-		WordArray.setSignificantBytes(words, Math.floor(b64str.length * 0.75));
+		WordArray.setSigBytes(words, Math.floor(b64str.length * 0.75));
 
 		return words;
 

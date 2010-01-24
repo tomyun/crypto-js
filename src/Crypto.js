@@ -12,13 +12,15 @@ var C = window.Crypto = {
 ----------------------------------------------------------------------------- */
 var WordArray = C.type.WordArray = {
 
-	getSignificantBytes: function(words) {
-		return words._Crypto && words._Crypto.significantBytes != undefined ?
-		       words._Crypto.significantBytes : words.length * 4;
+	// Get significant bytes
+	getSigBytes: function(words) {
+		return words._Crypto && words._Crypto.sigBytes != undefined ?
+		       words._Crypto.sigBytes : words.length * 4;
 	},
 
-	setSignificantBytes: function(words, n) {
-		words._Crypto = { significantBytes: n };
+	// Set significant bytes
+	setSigBytes: function(words, n) {
+		words._Crypto = { sigBytes: n };
 	}
 
 };
@@ -28,7 +30,7 @@ var WordArray = C.type.WordArray = {
 var ByteStr = C.enc.ByteStr = {
 
 	encode: function(words) {
-		for (var str = [], b = WordArray.getSignificantBytes(words), i = 0; i < b; i++) {
+		for (var str = [], b = WordArray.getSigBytes(words), i = 0; i < b; i++) {
 			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
 		}
 		return str.join("");
@@ -38,7 +40,7 @@ var ByteStr = C.enc.ByteStr = {
 		for (var words = [], i = 0; i < str.length; i++) {
 			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
 		}
-		WordArray.setSignificantBytes(words, str.length);
+		WordArray.setSigBytes(words, str.length);
 		return words;
 	}
 
