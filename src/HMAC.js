@@ -2,35 +2,37 @@
 
 // Shortcuts
 var C = Crypto,
-    util = C.util,
-    charenc = C.charenc,
-    UTF8 = charenc.UTF8,
-    Binary = charenc.Binary;
+    enc = C.enc,
+    UTF8 = enc.UTF8,
+    Hex = enc.Hex,
+    Words = enc.Words,
+    WordArray = C.type.WordArray;
 
-C.HMAC = function (hasher, message, key, options) {
+C.HMAC = function(hasher, message, key, options) {
 
-	// Convert to byte arrays
-	if (message.constructor == String) message = UTF8.stringToBytes(message);
-	if (key.constructor == String) key = UTF8.stringToBytes(key);
-	/* else, assume byte arrays already */
+	// Convert to words, else assume words already
+	var m = message.constructor == String ? UTF8.decode(message) : message,
+	    k = key.constructor == String ? UTF8.decode(key) : key;
 
 	// Allow arbitrary length keys
-	if (key.length > hasher._blocksize * 4)
-		key = hasher(key, { asBytes: true });
-
-	// XOR keys with pad constants
-	var okey = key.slice(0),
-	    ikey = key.slice(0);
-	for (var i = 0; i < hasher._blocksize * 4; i++) {
-		okey[i] ^= 0x5C;
-		ikey[i] ^= 0x36;
+	if (k.length > hasher._blockSize) {
+		k = hasher(k, { output: Words });
 	}
 
-	var hmacbytes = hasher(okey.concat(hasher(ikey.concat(message), { asBytes: true })), { asBytes: true });
+	// XOR keys with pad constants
+	for (var okey = k.slice(0), ikey = k.slice(0), i = 0; i < hasher._blockSize; i++) {
+		okey[i] ^= 0x5C5C5C5C;
+		ikey[i] ^= 0x36363636;
+	}
 
-	return options && options.asBytes ? hmacbytes :
-	       options && options.asString ? Binary.bytesToString(hmacbytes) :
-	       util.bytesToHex(hmacbytes);
+	// Hash
+	var hmacWords = hasher(okey.concat(hasher(WordArray.concat(ikey, m), { output: Words })), { output: Words });
+
+	// Set default output
+	var output = options && options.output || Hex;
+
+	// Return encoded output
+	return output.encode(hmacWords);
 
 };
 
