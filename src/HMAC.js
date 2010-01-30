@@ -20,13 +20,13 @@ C.HMAC = function(hasher, message, key, options) {
 	}
 
 	// XOR keys with pad constants
-	for (var okey = k.slice(0), ikey = k.slice(0), i = 0; i < hasher._blockSize; i++) {
-		okey[i] ^= 0x5C5C5C5C;
-		ikey[i] ^= 0x36363636;
+	for (var oKey = k.slice(0), iKey = k.slice(0), i = 0; i < hasher._blockSize; i++) {
+		oKey[i] ^= 0x5C5C5C5C;
+		iKey[i] ^= 0x36363636;
 	}
 
 	// Hash
-	var hmacWords = hasher(okey.concat(hasher(WordArray.concat(ikey, m), { output: Words })), { output: Words });
+	var hmacWords = hasher(WordArray.concat(oKey, hasher(WordArray.concat(iKey, m), { output: Words })), { output: Words });
 
 	// Set default output
 	var output = options && options.output || Hex;

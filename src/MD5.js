@@ -133,10 +133,10 @@ MD5._digest = function(message) {
 	}
 
 	// Swap endian
-	a = (a <<  8 | a >>> 24) & 0x00FF00FF | (a << 24 | a >>>  8) & 0xFF00FF00;
-	b = (b <<  8 | b >>> 24) & 0x00FF00FF | (b << 24 | b >>>  8) & 0xFF00FF00;
-	c = (c <<  8 | c >>> 24) & 0x00FF00FF | (c << 24 | c >>>  8) & 0xFF00FF00;
-	d = (d <<  8 | d >>> 24) & 0x00FF00FF | (d << 24 | d >>>  8) & 0xFF00FF00;
+	a = (a << 8 | a >>> 24) & 0x00FF00FF | (a << 24 | a >>> 8) & 0xFF00FF00;
+	b = (b << 8 | b >>> 24) & 0x00FF00FF | (b << 24 | b >>> 8) & 0xFF00FF00;
+	c = (c << 8 | c >>> 24) & 0x00FF00FF | (c << 24 | c >>> 8) & 0xFF00FF00;
+	d = (d << 8 | d >>> 24) & 0x00FF00FF | (d << 24 | d >>> 8) & 0xFF00FF00;
 
 	return [a, b, c, d];
 
@@ -144,20 +144,20 @@ MD5._digest = function(message) {
 
 // Auxiliary functions
 MD5._ff  = function(a, b, c, d, x, s, t) {
-	var n = a + (b & c | ~b & d) + (x >>> 0) + t;
-	return (n << s | n >>> 32 - s) + b;
+	x = a + (b & c | ~b & d) + (x >>> 0) + t;
+	return (x << s | x >>> 32 - s) + b;
 };
 MD5._gg  = function(a, b, c, d, x, s, t) {
-	var n = a + (b & d | c & ~d) + (x >>> 0) + t;
-	return (n << s | n >>> 32 - s) + b;
+	x = a + (b & d | c & ~d) + (x >>> 0) + t;
+	return (x << s | x >>> 32 - s) + b;
 };
 MD5._hh  = function(a, b, c, d, x, s, t) {
-	var n = a + (b ^ c ^ d) + (x >>> 0) + t;
-	return (n << s | n >>> 32 - s) + b;
+	x = a + (b ^ c ^ d) + (x >>> 0) + t;
+	return (x << s | x >>> 32 - s) + b;
 };
 MD5._ii  = function(a, b, c, d, x, s, t) {
-	var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
-	return (n << s | n >>> 32 - s) + b;
+	x = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+	return (x << s | x >>> 32 - s) + b;
 };
 
 // Package private blocksize

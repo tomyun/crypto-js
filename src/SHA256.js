@@ -47,8 +47,8 @@ SHA256._digest = function(message) {
 
 	// Add padding
 	var l = WordArray.getSigBytes(m) * 8;
-	m[l >> 5] |= 0x80 << (24 - l % 32);
-	m[(l + 64 >> 9 << 4) + 15] = l;
+	m[l >>> 5] |= 0x80 << (24 - l % 32);
+	m[(l + 64 >>> 9 << 4) + 15] = l;
 
 	// Initial values
 	var H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,

@@ -4,13 +4,17 @@
 ----------------------------------------------------------------------------- */
 var C = window.Crypto = {
 	enc:  {},
-	mode: {},
-	type: {}
+	type: {},
+	mode: {}
 };
+
+// Shortcuts
+var enc = C.enc,
+    type = C.type;
 
 /* Word array
 ----------------------------------------------------------------------------- */
-var WordArray = C.type.WordArray = {
+var WordArray = type.WordArray = {
 
 	// Get significant bytes
 	getSigBytes: function(words) {
@@ -23,38 +27,27 @@ var WordArray = C.type.WordArray = {
 		words._Crypto = { sigBytes: n };
 	},
 
-	// Concatenate two word arrays
+	// Concatenate word arrays
 	concat: function(w1, w2) {
-
-		var words = w1.slice(0),
-		    wb1 = WordArray.getSigBytes(w1),
-		    wb2 = WordArray.getSigBytes(w2);
-
-		for (var i = 0; i < wb2; i++) {
-			words[wb1 + i >>> 2] |= (w2[i >>> 2] >>> 24 - i % 4 * 8 & 0xFF) << 24 - (wb1 + i) % 4 * 8;
-		}
-		WordArray.setSigBytes(words, wb1 + wb2);
-
-		return words;
-
+		return ByteStr.decode(ByteStr.encode(w1) + ByteStr.encode(w2));
 	}
 
 };
 
 /* Byte string
 ----------------------------------------------------------------------------- */
-var ByteStr = C.enc.ByteStr = {
+var ByteStr = enc.ByteStr = {
 
 	encode: function(words) {
-		for (var str = [], b = WordArray.getSigBytes(words), i = 0; i < b; i++) {
-			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
+		for (var sigBytes = WordArray.getSigBytes(words), str = [], i = 0; i < sigBytes; i++) {
+			str.push(String.fromCharCode((words[i >>> 2] >>> 24 - i % 4 * 8) & 0xFF));
 		}
 		return str.join("");
 	},
 
 	decode: function(str) {
 		for (var words = [], i = 0; i < str.length; i++) {
-			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
+			words[i >>> 2] |= str.charCodeAt(i) << 24 - i % 4 * 8;
 		}
 		WordArray.setSigBytes(words, str.length);
 		return words;
@@ -64,7 +57,7 @@ var ByteStr = C.enc.ByteStr = {
 
 /* UTF8 byte string
 ----------------------------------------------------------------------------- */
-C.enc.UTF8 = {
+enc.UTF8 = {
 
 	encode: function(words) {
 		return decodeURIComponent(escape(ByteStr.encode(words)));
@@ -74,6 +67,13 @@ C.enc.UTF8 = {
 		return ByteStr.decode(unescape(encodeURIComponent(str)));
 	}
 
+};
+
+/* Words
+----------------------------------------------------------------------------- */
+enc.Words = {
+	encode: function(words) { return words; },
+	decode: function(words) { return words; }
 };
 
 })();

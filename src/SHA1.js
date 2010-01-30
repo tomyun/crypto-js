@@ -29,7 +29,7 @@ SHA1._digest = function(message) {
 
 	// Add padding
 	var l = WordArray.getSigBytes(m) * 8;
-	m[l >> 5] |= 0x80 << 24 - l % 32;
+	m[l >>> 5] |= 0x80 << 24 - l % 32;
 	m[(l + 64 >>> 9 << 4) + 15] = l;
 
 	// Initial values
