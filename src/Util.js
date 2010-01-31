@@ -41,12 +41,12 @@ var util = Crypto.util = {
 
 	// Bit-wise rotate left
 	rotl: function(n, b) {
-		return (n << b) | (n >>> (32 - b));
+		return n << b | n >>> 32 - b;
 	},
 
 	// Bit-wise rotate right
 	rotr: function(n, b) {
-		return (n << (32 - b)) | (n >>> b);
+		return n << 32 - b | n >>> b;
 	},
 
 	// Swap big-endian to little-endian and vice versa
