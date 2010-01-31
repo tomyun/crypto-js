@@ -4,7 +4,6 @@
 var C = Crypto,
     enc = C.enc,
     UTF8 = enc.UTF8,
-    Hex = enc.Hex,
     WordArray = C.type.WordArray;
 
 // Public API
@@ -14,7 +13,7 @@ var SHA1 = C.SHA1 = function(message, options) {
 	var digestWords = SHA1._digest(message);
 
 	// Set default output
-	var output = options && options.output || Hex;
+	var output = options && options.output || enc.Hex;
 
 	// Return encoded output
 	return output.encode(digestWords);

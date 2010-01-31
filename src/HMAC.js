@@ -4,7 +4,6 @@
 var C = Crypto,
     enc = C.enc,
     UTF8 = enc.UTF8,
-    Hex = enc.Hex,
     Words = enc.Words,
     WordArray = C.type.WordArray;
 
@@ -29,7 +28,7 @@ C.HMAC = function(hasher, message, key, options) {
 	var hmacWords = hasher(WordArray.concat(oKey, hasher(WordArray.concat(iKey, m), { output: Words })), { output: Words });
 
 	// Set default output
-	var output = options && options.output || Hex;
+	var output = options && options.output || enc.Hex;
 
 	// Return encoded output
 	return output.encode(hmacWords);
