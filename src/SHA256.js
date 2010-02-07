@@ -1,19 +1,18 @@
-(function(){
+(function () {
 
 // Shortcuts
-var C = Crypto,
-    enc = C.enc,
-    UTF8 = enc.UTF8,
-    WordArray = C.type.WordArray;
+var C = Crypto;
+var UTF8 = C.enc.UTF8;
+var WordArray = C.types.WordArray;
 
 // Public API
-var SHA256 = C.SHA256 = function(message, options) {
+var SHA256 = C["SHA256"] = function (message, options) {
 
 	// Digest
-	var digestWords = SHA256._digest(message);
+	var digestWords = SHA256.digest(message);
 
 	// Set default output
-	var output = options && options.output || enc.Hex;
+	var output = options && options["output"] || C.enc.Hex;
 
 	// Return encoded output
 	return output.encode(digestWords);
@@ -39,7 +38,7 @@ var K = [ 0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
           0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2 ];
 
 // The core
-SHA256._digest = function(message) {
+SHA256.digest = function (message) {
 
 	// Convert to words, else assume words already
 	var m = message.constructor == String ? UTF8.decode(message) : message;
@@ -47,14 +46,14 @@ SHA256._digest = function(message) {
 	// Add padding
 	var l = WordArray.getSigBytes(m) * 8;
 	m[l >>> 5] |= 0x80 << (24 - l % 32);
-	m[(l + 64 >>> 9 << 4) + 15] = l;
+	m[(((l + 64) >>> 9) << 4) + 15] = l;
 
 	// Initial values
 	var H = [ 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
-	          0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ],
-	    w = [],
-	    a, b, c, d, e, f, g, h, i, j,
-	    t1, t2;
+	          0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19 ];
+	var w = [];
+	var a, b, c, d, e, f, g, h;
+	var t1, t2;
 
 	for (var i = 0; i < m.length; i += 16) {
 
@@ -72,29 +71,33 @@ SHA256._digest = function(message) {
 			if (j < 16) w[j] = m[j + i] >>> 0;
 			else {
 
-				var gamma0x = w[j - 15],
-				    gamma1x = w[j - 2],
-				    gamma0  = (gamma0x << 25 | gamma0x >>>  7) ^
-				              (gamma0x << 14 | gamma0x >>> 18) ^
-				               gamma0x >>> 3,
-				    gamma1  = (gamma1x <<  15 | gamma1x >>> 17) ^
-				              (gamma1x <<  13 | gamma1x >>> 19) ^
-				               gamma1x >>> 10;
+				var gamma0x = w[j - 15];
+				var gamma1x = w[j - 2];
+
+				var gamma0  = ((gamma0x << 25) | (gamma0x >>>  7)) ^
+				              ((gamma0x << 14) | (gamma0x >>> 18)) ^
+				               (gamma0x >>> 3);
+
+				var gamma1  = ((gamma1x <<  15) | (gamma1x >>> 17)) ^
+				              ((gamma1x <<  13) | (gamma1x >>> 19)) ^
+				               (gamma1x >>> 10);
 
 				w[j] = gamma0 + w[j - 7] + gamma1 + w[j - 16];
 
 			}
 
-			var ch  = e & f ^ ~e & g,
-			    maj = a & b ^ a & c ^ b & c,
-			    sigma0 = (a << 30 | a >>>  2) ^
-			             (a << 19 | a >>> 13) ^
-			             (a << 10 | a >>> 22),
-			    sigma1 = (e << 26 | e >>>  6) ^
-			             (e << 21 | e >>> 11) ^
-			             (e <<  7 | e >>> 25);
+			var ch  = (e & f) ^ (~e & g);
+			var maj = (a & b) ^ (a & c) ^ (b & c);
 
-			t1 = h + sigma1 + ch + K[j] + w[j] >>> 0;
+			var sigma0 = ((a << 30) | (a >>>  2)) ^
+			             ((a << 19) | (a >>> 13)) ^
+			             ((a << 10) | (a >>> 22));
+
+			var sigma1 = ((e << 26) | (e >>>  6)) ^
+			             ((e << 21) | (e >>> 11)) ^
+			             ((e <<  7) | (e >>> 25));
+
+			t1 = (h + sigma1 + ch + K[j] + w[j]) >>> 0;
 			t2 = sigma0 + maj;
 
 			h = g;
@@ -124,6 +127,6 @@ SHA256._digest = function(message) {
 };
 
 // Package private blocksize
-SHA256._blockSize = 16;
+SHA256.blockSize = 16;
 
 })();

@@ -51,7 +51,6 @@
 
 	<!-- Crypto-JS source files -->
 	<script src="../src/Crypto.js"></script>
-	<script src="../src/Words.js"></script>
 	<script src="../src/Util.js"></script>
 	<script src="../src/Hex.js"></script>
 	<script src="../src/Base64.js"></script>
@@ -63,12 +62,12 @@
 
 	<script type="text/javascript">
 
-		YUI().use("test", "console", function(Y) {
+		YUI().use("test", "console", function (Y) {
 
 			// Crypto.util test cases
 			Y.Test.Runner.add(new Y.Test.Case({
 
-				"test util.u32": function() {
+				"test util.u32": function () {
 					Y.Assert.areEqual(2147483647, Crypto.util.u32(2147483647));
 					Y.Assert.areEqual(2147483646, Crypto.util.u32(2147483646));
 					Y.Assert.areEqual(2, Crypto.util.u32(2));
@@ -80,42 +79,42 @@
 					Y.Assert.areEqual(2147483648, Crypto.util.u32(-2147483648));
 				},
 
-				"test util.add": function() {
-					Y.Assert.areEqual(0, Crypto.util.add(4294967295, 1));
-					Y.Assert.areEqual(2147483648, Crypto.util.add(2147483647, 1));
-					Y.Assert.areEqual(2147483647, Crypto.util.add(4294967295, 2147483647, 1));
+				"test util.plus": function () {
+					Y.Assert.areEqual(0, Crypto.util.plus(4294967295, 1));
+					Y.Assert.areEqual(2147483648, Crypto.util.plus(2147483647, 1));
+					Y.Assert.areEqual(2147483647, Crypto.util.plus(4294967295, 2147483647, 1));
 				},
 
-				"test util.mult": function() {
+				"test util.mult": function () {
 					Y.Assert.areEqual(1, Crypto.util.mult(4294967295, 4294967295));
 					Y.Assert.areEqual(0, Crypto.util.mult(2147483648, 2147483648));
 					Y.Assert.areEqual(3817748708, Crypto.util.mult(2863311530, 2863311530));
 				},
 
-				"test util.gt": function() {
+				"test util.gt": function () {
 					Y.Assert.isTrue(Crypto.util.gt(-1, 1));
 				},
 
-				"test util.lt": function() {
+				"test util.lt": function () {
 					Y.Assert.isTrue(Crypto.util.lt(1, -1));
 				},
 
-				"test util.rotl": function() {
+				"test util.rotl": function () {
 					Y.Assert.areEqual(0x00FF00AA, Crypto.util.rotl(0xAA00FF00, 8));
 				},
 
-				"test util.rotr": function() {
+				"test util.rotr": function () {
 					Y.Assert.areEqual(0x00AA00FF, Crypto.util.rotr(0xAA00FF00, 8));
 				},
 
-				"test util.endian": function() {
+				"test util.endian": function () {
 					Y.Assert.areEqual(0xF0E0C080, Crypto.util.u32(Crypto.util.endian(0x80C0E0F0)));
 					Y.Assert.areEqual(0x80C0E0F0, Crypto.util.u32(Crypto.util.endian(Crypto.util.endian(0x80C0E0F0))));
 				},
 
-				"test util.randomWords": function() {
-					Y.Assert.areEqual(8, Crypto.util.randomWords(8).length);
+				"test util.randomWords": function () {
 					Y.Assert.areNotEqual(Crypto.util.randomWords(8).toString(), Crypto.util.randomWords(8).toString());
+					Y.Assert.areEqual(8, Crypto.util.randomWords(8).length);
 				}
 
 			}));
@@ -123,41 +122,41 @@
 			// Crypto.enc test cases
 			Y.Test.Runner.add(new Y.Test.Case({
 
-				"test enc.ByteStr.encode": function() {
+				"test enc.ByteStr.encode": function () {
 					Y.Assert.areEqual("Hello, World!", Crypto.enc.ByteStr.encode(Crypto.enc.ByteStr.decode("Hello, World!")));
 				},
 
-				"test enc.ByteStr.decode": function() {
+				"test enc.ByteStr.decode": function () {
 					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.enc.ByteStr.decode("Hello, World!")).toString());
 				},
 
-				"test enc.UTF8.encode": function() {
+				"test enc.UTF8.encode": function () {
 					Y.Assert.areEqual("\u0041\u2262\u0391\u002E", Crypto.enc.UTF8.encode(Crypto.enc.UTF8.decode("\u0041\u2262\u0391\u002E")));
 					Y.Assert.areEqual("\uD55C\uAD6D\uC5B4", Crypto.enc.UTF8.encode(Crypto.enc.UTF8.decode("\uD55C\uAD6D\uC5B4")));
 					Y.Assert.areEqual("\u65E5\u672C\u8A9E", Crypto.enc.UTF8.encode(Crypto.enc.UTF8.decode("\u65E5\u672C\u8A9E")));
 				},
 
-				"test enc.UTF8.decode": function() {
+				"test enc.UTF8.decode": function () {
 					Y.Assert.areEqual([0x41E289A2, 0xCE912E00].toString(), Crypto.util.u32(Crypto.enc.UTF8.decode("\u0041\u2262\u0391\u002E")).toString());
 					Y.Assert.areEqual([0xED959CEA, 0xB5ADEC96, 0xB4000000].toString(), Crypto.util.u32(Crypto.enc.UTF8.decode("\uD55C\uAD6D\uC5B4")).toString());
 					Y.Assert.areEqual([0xE697A5E6, 0x9CACE8AA, 0x9E000000].toString(), Crypto.util.u32(Crypto.enc.UTF8.decode("\u65E5\u672C\u8A9E")).toString());
 				},
 
-				"test enc.Hex.encode": function() {
+				"test enc.Hex.encode": function () {
 					Y.Assert.areEqual("48656c6c6f2c20576f726c6421", Crypto.enc.Hex.encode(Crypto.enc.Hex.decode("48656c6c6f2c20576f726c6421")));
 				},
 
-				"test enc.Hex.decode": function() {
+				"test enc.Hex.decode": function () {
 					Y.Assert.areEqual([0x48656C6C, 0x6F2C2057, 0x6F726C64, 0x21000000].toString(), Crypto.util.u32(Crypto.enc.Hex.decode("48656c6c6f2c20576f726c6421")));
 				},
 
-				"test enc.Base64.encode": function() {
+				"test enc.Base64.encode": function () {
 					Y.Assert.areEqual("FPucA9l+", Crypto.enc.Base64.encode(Crypto.enc.Base64.decode("FPucA9l+")));
 					Y.Assert.areEqual("FPucA9k=", Crypto.enc.Base64.encode(Crypto.enc.Base64.decode("FPucA9k=")));
 					Y.Assert.areEqual("FPucAw==", Crypto.enc.Base64.encode(Crypto.enc.Base64.decode("FPucAw==")));
 				},
 
-				"test enc.Base64.decode": function() {
+				"test enc.Base64.decode": function () {
 					Y.Assert.areEqual([0x14FB9C03, 0xD97E0000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9l+")));
 					Y.Assert.areEqual([0x14FB9C03, 0xD9000000].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucA9k=")));
 					Y.Assert.areEqual([0x14FB9C03].toString(), Crypto.util.u32(Crypto.enc.Base64.decode("FPucAw==")));
@@ -165,16 +164,16 @@
 
 			}));
 
-			// Crypto.type test cases
+			// Crypto.types test cases
 			Y.Test.Runner.add(new Y.Test.Case({
-				"test type.WordArray.concat": function() {
-					Y.Assert.areEqual([0xFFFFFFFF].toString(), Crypto.util.u32(Crypto.type.WordArray.concat(Crypto.enc.ByteStr.decode("\xFF\xFF"), Crypto.enc.ByteStr.decode("\xFF\xFF"))).toString());
+				"test types.WordArray.concat": function () {
+					Y.Assert.areEqual([0xFFFFFFFF].toString(), Crypto.util.u32(Crypto.types.WordArray.cat(Crypto.enc.ByteStr.decode("\xFF\xFF"), Crypto.enc.ByteStr.decode("\xFF\xFF"))).toString());
 				}
 			}));
 
 			// Crypto.MD5 test cases
 			Y.Test.Runner.add(new Y.Test.Case({
-				"test MD5": function() {
+				"test MD5": function () {
 					Y.Assert.areEqual("d41d8cd98f00b204e9800998ecf8427e", Crypto.MD5(""));
 					Y.Assert.areEqual("0cc175b9c0f1b6a831c399e269772661", Crypto.MD5("a"));
 					Y.Assert.areEqual("900150983cd24fb0d6963f7d28e17f72", Crypto.MD5("abc"));
@@ -192,7 +191,7 @@
 
 			// Crypto.SHA1 test cases
 			Y.Test.Runner.add(new Y.Test.Case({
-				"test SHA1": function() {
+				"test SHA1": function () {
 					Y.Assert.areEqual("da39a3ee5e6b4b0d3255bfef95601890afd80709", Crypto.SHA1(""));
 					Y.Assert.areEqual("86f7e437faa5a7fce15d1ddcb9eaeaea377667b8", Crypto.SHA1("a"));
 					Y.Assert.areEqual("a9993e364706816aba3e25717850c26c9cd0d89d", Crypto.SHA1("abc"));
@@ -210,7 +209,7 @@
 
 			// Crypto.SHA256 test cases
 			Y.Test.Runner.add(new Y.Test.Case({
-				"test SHA256": function() {
+				"test SHA256": function () {
 					Y.Assert.areEqual("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", Crypto.SHA256(""));
 					Y.Assert.areEqual("ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb", Crypto.SHA256("a"));
 					Y.Assert.areEqual("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", Crypto.SHA256("abc"));
@@ -228,7 +227,7 @@
 
 			// Crypto.HMAC test cases
 			Y.Test.Runner.add(new Y.Test.Case({
-				"test HMAC": function() {
+				"test HMAC": function () {
 					Y.Assert.areEqual("9294727a3638bb1c13f48ef8158bfc9d", Crypto.HMAC(Crypto.MD5, "Hi There", "\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b"));
 					Y.Assert.areEqual("750c783e6ab0b503eaa86e310a5db738", Crypto.HMAC(Crypto.MD5, "what do ya want for nothing?", "Jefe"));
 					Y.Assert.areEqual("56be34521d144c88dbb8c733f0e8b3f6", Crypto.HMAC(Crypto.MD5, Crypto.enc.ByteStr.decode("\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD"), Crypto.enc.ByteStr.decode("\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA")));
@@ -240,7 +239,7 @@
 
 			// Crypto.PBKDF2 test cases
 			Y.Test.Runner.add(new Y.Test.Case({
-				"test PBKDF2": function() {
+				"test PBKDF2": function () {
 					Y.Assert.areEqual("cdedb5281bb2f801565a1122b2563515", Crypto.PBKDF2("password", "ATHENA.MIT.EDUraeburn", 128/8));
 					Y.Assert.areEqual("cdedb5281bb2f801565a1122b25635150ad1f7a04bb9f3a333ecc0e2e1f70837", Crypto.PBKDF2("password", "ATHENA.MIT.EDUraeburn", 256/8));
 					Y.Assert.areEqual("01dbee7f4a9e243e988b62c73cda935d", Crypto.PBKDF2("password", "ATHENA.MIT.EDUraeburn", 128/8, { iterations: 2 }));

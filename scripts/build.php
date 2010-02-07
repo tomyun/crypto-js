@@ -1,6 +1,6 @@
 <?php
 
-$copyrightInfo = '/*!
+$copyrightInfo = '/**
  * Crypto-JS vX.X.X
  * http://code.google.com/p/crypto-js/
  * Copyright (c) 2009, Jeff Mott. All rights reserved.
@@ -30,23 +30,27 @@ $rollups = array(
 foreach ($files as $file) {
 	echo "building file $file.js...\n";
 	mkdir("../build/$file");
-	$js = $copyrightInfo . file_get_contents("../src/$file.js");
-	file_put_contents("../build/$file/$file.js", $js);
-	file_put_contents("../build/$file/$file-min.js", compress($js));
+	$js = file_get_contents("../src/$file.js");
+	file_put_contents("../build/$file/$file.js", $copyrightInfo . $js);
+	file_put_contents("../build/$file/$file-min.js", $copyrightInfo . compress($js));
 }
 
 foreach ($rollups as $rollup) {
 	$rollupName = implode("-", $rollup);
 	echo "building rollup $rollupName.js...\n";
 	mkdir("../build/$rollupName");
-	$js = $copyrightInfo;
+	$js = '';
 	foreach ($rollup as $file) $js .= file_get_contents("../src/$file.js");
-	file_put_contents("../build/$rollupName/$rollupName.js", compress($js));
+	file_put_contents("../build/$rollupName/$rollupName.js", $copyrightInfo . compress($js, true));
 }
 
-function compress($js) {
+function compress($js, $advanced = NULL) {
 
-	$cmd = 'java -jar yuicompressor-2.4.2.jar --type js';
+	if ($advanced) {
+		$cmd = 'java -jar ClosureCompiler.jar --compilation_level ADVANCED_OPTIMIZATIONS';
+	} else {
+		$cmd = 'java -jar ClosureCompiler.jar';
+	}
 
 	$descriptors = array(
 		0 => array('pipe', 'r'),

@@ -1,79 +1,93 @@
-(function(){
+(function () {
 
-/* Crypto namespaces
------------------------------------------------------------------------------ */
-var C = window.Crypto = {
-	enc:  {},
-	type: {},
-	mode: {}
-};
+/* Global crypto object
+ ---------------------------------------------------------------------------- */
+var C = Crypto = {};
 
-// Shortcuts
-var enc = C.enc,
-    type = C.type;
+/* Types
+ ---------------------------------------------------------------------------- */
+var types = C.types = {};
 
-/* Word array
------------------------------------------------------------------------------ */
-var WordArray = type.WordArray = {
+/* Word arrays
+ ------------------------------------------------------------- */
+var WordArray = types.WordArray = {
 
 	// Get significant bytes
-	getSigBytes: function(words) {
-		return words._Crypto && words._Crypto.sigBytes != undefined ?
-		       words._Crypto.sigBytes : words.length * 4;
+	getSigBytes: function (words) {
+		if (words["_Crypto"] && words["_Crypto"].sigBytes != undefined) {
+			return words["_Crypto"].sigBytes;
+		} else {
+			return words.length * 4;
+		}
 	},
 
 	// Set significant bytes
-	setSigBytes: function(words, n) {
-		words._Crypto = { sigBytes: n };
+	setSigBytes: function (words, n) {
+		words["_Crypto"] = { sigBytes: n };
 	},
 
 	// Concatenate word arrays
-	concat: function(w1, w2) {
+	cat: function (w1, w2) {
 		return ByteStr.decode(ByteStr.encode(w1) + ByteStr.encode(w2));
 	}
 
 };
 
-/* Byte string
------------------------------------------------------------------------------ */
+/* Encodings
+ ---------------------------------------------------------------------------- */
+var enc = C.enc = {};
+
+/* Byte strings
+ ------------------------------------------------------------- */
 var ByteStr = enc.ByteStr = {
 
-	encode: function(words) {
-		for (var sigBytes = WordArray.getSigBytes(words), str = [], i = 0; i < sigBytes; i++) {
-			str.push(String.fromCharCode((words[i >>> 2] >>> 24 - i % 4 * 8) & 0xFF));
+	encode: function (words) {
+
+		var sigBytes = WordArray.getSigBytes(words);
+		var str = [];
+
+		for (var i = 0; i < sigBytes; i++) {
+			str.push(String.fromCharCode((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF));
 		}
+
 		return str.join("");
+
 	},
 
-	decode: function(str) {
-		for (var words = [], i = 0; i < str.length; i++) {
-			words[i >>> 2] |= str.charCodeAt(i) << 24 - i % 4 * 8;
+	decode: function (str) {
+
+		var words = [];
+
+		for (var i = 0; i < str.length; i++) {
+			words[i >>> 2] |= str.charCodeAt(i) << (24 - (i % 4) * 8);
 		}
 		WordArray.setSigBytes(words, str.length);
+
 		return words;
+
 	}
 
 };
 
-/* UTF8 byte string
------------------------------------------------------------------------------ */
+/* UTF8 strings
+ ------------------------------------------------------------- */
 enc.UTF8 = {
 
-	encode: function(words) {
+	encode: function (words) {
 		return decodeURIComponent(escape(ByteStr.encode(words)));
 	},
 
-	decode: function(str) {
+	decode: function (str) {
 		return ByteStr.decode(unescape(encodeURIComponent(str)));
 	}
 
 };
 
-/* Words
------------------------------------------------------------------------------ */
+/* Word arrays
+ ------------------------------------------------------------- */
 enc.Words = {
-	encode: function(words) { return words; },
-	decode: function(words) { return words; }
+	encode: function (words) { return words; },
+	decode: function (words) { return words; }
 };
 
 })();
