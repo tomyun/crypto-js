@@ -6,13 +6,13 @@ var UTF8 = C.enc.UTF8;
 var WordArray = C.types.WordArray;
 
 // Public API
-var SHA256 = C["SHA256"] = function (message, options) {
+var SHA256 = C.SHA256 = function (message, options) {
 
 	// Digest
 	var digestWords = SHA256.digest(message);
 
 	// Set default output
-	var output = options && options["output"] || C.enc.Hex;
+	var output = options && options.output || C.enc.Hex;
 
 	// Return encoded output
 	return output.encode(digestWords);
@@ -126,7 +126,7 @@ SHA256.digest = function (message) {
 
 };
 
-// Package private blocksize
+// Block size
 SHA256.blockSize = 16;
 
 })();

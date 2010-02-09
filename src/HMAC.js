@@ -6,7 +6,7 @@ var UTF8 = C.enc.UTF8;
 var Words = C.enc.Words;
 var WordArray = C.types.WordArray;
 
-C["HMAC"] = function (hasher, message, key, options) {
+C.HMAC = function (hasher, message, key, options) {
 
 	// Convert to words, else assume words already
 	var m = message.constructor == String ? UTF8.decode(message) : message;
@@ -14,7 +14,7 @@ C["HMAC"] = function (hasher, message, key, options) {
 
 	// Allow arbitrary length keys
 	if (k.length > hasher.blockSize) {
-		k = hasher(k, { "output": Words });
+		k = hasher(k, { output: Words });
 	}
 
 	// XOR keys with pad constants
@@ -26,10 +26,10 @@ C["HMAC"] = function (hasher, message, key, options) {
 	}
 
 	// Hash
-	var hmacWords = hasher(WordArray.cat(oKey, hasher(WordArray.cat(iKey, m), { "output": Words })), { "output": Words });
+	var hmacWords = hasher(WordArray.cat(oKey, hasher(WordArray.cat(iKey, m), { output: Words })), { output: Words });
 
 	// Set default output
-	var output = options && options["output"] || C.enc.Hex;
+	var output = options && options.output || C.enc.Hex;
 
 	// Return encoded output
 	return output.encode(hmacWords);

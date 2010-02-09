@@ -6,13 +6,13 @@ var UTF8 = C.enc.UTF8;
 var WordArray = C.types.WordArray;
 
 // Public API
-var SHA1 = C["SHA1"] = function (message, options) {
+var SHA1 = C.SHA1 = function (message, options) {
 
 	// Digest
 	var digestWords = SHA1.digest(message);
 
 	// Set default output
-	var output = options && options["output"] || C.enc.Hex;
+	var output = options && options.output || C.enc.Hex;
 
 	// Return encoded output
 	return output.encode(digestWords);
@@ -80,7 +80,7 @@ SHA1.digest = function (message) {
 
 };
 
-// Package private blocksize
+// Block size
 SHA1.blockSize = 16;
 
 })();
