@@ -1,3 +1,5 @@
+if (typeof Crypto == "undefined" || ! Crypto.util)
+{
 (function(){
 
 var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -152,3 +154,4 @@ var Binary = charenc.Binary = {
 };
 
 })();
+}
