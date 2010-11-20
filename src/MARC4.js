@@ -1,116 +1,58 @@
-(function(){
+(function (C)
+{
+  var MARC4 = C["MARC4"] = C["extend"](C.typ.Cipher,
+  {
+    doEncrypt: function (m, k, iv)
+    {
+      // State
+      var s = [];
+      for (var i = 0; i < 256; i++)
+      {
+        s[i] = i;
+      }
 
-// Shortcuts
-var C = Crypto,
-    util = C.util,
-    charenc = C.charenc,
-    UTF8 = charenc.UTF8,
-    Binary = charenc.Binary;
+      // Key setup
+      for (var i = 0, j = 0; i < 256; i++)
+      {
+        var kByte = i % k.getSigBytes();
 
-var MARC4 = C.MARC4 = {
+        j = (j + s[i] + ((k[kByte >>> 2] >>> (24 - (kByte % 4) * 8)) & 0xFF)) % 256;
 
-	/**
-	 * Public API
-	 */
+        // Swap
+        var t = s[i];
+        s[i]  = s[j];
+        s[j]  = t;
+      }
 
-	encrypt: function (message, password) {
+      // Encryption
+      for (var i = -MARC4.drop, a = 0, b = 0; i < m.length; i++)
+      {
+        var keystream = 0;
+        for (var n = 0; n < 4; n++)
+        {
+          a = (a + 1) % 256;
+          b = (b + s[a]) % 256;
 
-		var
+          // Swap
+          var t = s[a];
+          s[a]  = s[b];
+          s[b]  = t;
 
-		    // Convert to bytes
-		    m = UTF8.stringToBytes(message),
+          keystream |= s[(s[a] + s[b]) % 256] << (24 - n * 8);
+        }
 
-		    // Generate random IV
-		    iv = util.randomBytes(16),
+        // Stop here if we're still dropping keystream
+        if (i < 0) continue;
 
-		    // Generate key
-		    k = password.constructor == String ?
-		        // Derive key from passphrase
-		        C.PBKDF2(password, iv, 32, { asBytes: true }) :
-		        // else, assume byte array representing cryptographic key
-		        password;
+        // Encrypt
+        m[i] ^= keystream;
+      }
+    },
 
-		// Encrypt
-		MARC4._marc4(m, k, 1536);
+    drop: 384
+  });
 
-		// Return ciphertext
-		return util.bytesToBase64(iv.concat(m));
+  // Decryption is the same process as encryption
+  MARC4.doDecrypt = MARC4.doEncrypt;
 
-	},
-
-	decrypt: function (ciphertext, password) {
-
-		var
-
-		    // Convert to bytes
-		    c = util.base64ToBytes(ciphertext),
-
-		    // Separate IV and message
-		    iv = c.splice(0, 16),
-
-		    // Generate key
-		    k = password.constructor == String ?
-		        // Derive key from passphrase
-		        C.PBKDF2(password, iv, 32, { asBytes: true }) :
-		        // else, assume byte array representing cryptographic key
-		        password;
-
-		// Decrypt
-		MARC4._marc4(c, k, 1536);
-
-		// Return plaintext
-		return UTF8.bytesToString(c);
-
-	},
-
-
-	/**
-	 * Internal methods
-	 */
-
-	// The core
-	_marc4: function (m, k, drop) {
-
-		// State variables
-		var i, j, s, temp;
-
-		// Key setup
-		for (i = 0, s = []; i < 256; i++) s[i] = i;
-		for (i = 0, j = 0;  i < 256; i++) {
-
-			j = (j + s[i] + k[i % k.length]) % 256;
-
-			// Swap
-			temp = s[i];
-			s[i] = s[j];
-			s[j] = temp;
-
-		}
-
-		// Clear counters
-		i = j = 0;
-
-		// Encryption
-		for (var k = -drop; k < m.length; k++) {
-
-			i = (i + 1) % 256;
-			j = (j + s[i]) % 256;
-
-			// Swap
-			temp = s[i];
-			s[i] = s[j];
-			s[j] = temp;
-
-			// Stop here if we're still dropping keystream
-			if (k < 0) continue;
-
-			// Encrypt
-			m[k] ^= s[(s[i] + s[j]) % 256];
-
-		}
-
-	}
-
-};
-
-})();
+})(CryptoJS);

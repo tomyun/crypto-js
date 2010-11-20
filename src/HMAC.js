@@ -1,39 +1,32 @@
-(function () {
+(function (C)
+{
+  // Shortcuts
+  var Utf8Str = C["enc"]["Utf8Str"];
+  var WordArray = C.typ.WordArray;
 
-// Shortcuts
-var C = Crypto;
-var UTF8 = C.enc.UTF8;
-var Words = C.enc.Words;
-var WordArray = C.types.WordArray;
+  var HMAC = C["HMAC"] = function (hasher, message, key)
+  {
+    // Convert string to WordArray, else assume WordArray already
+    if (message.constructor == String) message = Utf8Str["decode"](message);
+    if (key.constructor == String) key = Utf8Str["decode"](key);
 
-C.HMAC = function (hasher, message, key, options) {
+    // Allow arbitrary length keys
+    if (key.length > hasher.blockSize)
+    {
+      key = hasher(key);
+    }
 
-	// Convert to words, else assume words already
-	var m = message.constructor == String ? UTF8.decode(message) : message;
-	var k = key.constructor == String ? UTF8.decode(key) : key;
+    // XOR keys with pad constants
+    var oKey = WordArray(key.slice(0));
+    var iKey = WordArray(key.slice(0));
+    for (var i = 0; i < hasher.blockSize; i++)
+    {
+      oKey[i] ^= 0x5C5C5C5C;
+      iKey[i] ^= 0x36363636;
+    }
 
-	// Allow arbitrary length keys
-	if (k.length > hasher.blockSize) {
-		k = hasher(k, { output: Words });
-	}
+    // Do hash
+    return hasher(oKey.cat(hasher(iKey.cat(message))));
+  };
 
-	// XOR keys with pad constants
-	var oKey = k.slice(0);
-	var iKey = k.slice(0);
-	for (var i = 0; i < hasher.blockSize; i++) {
-		oKey[i] ^= 0x5C5C5C5C;
-		iKey[i] ^= 0x36363636;
-	}
-
-	// Hash
-	var hmacWords = hasher(WordArray.cat(oKey, hasher(WordArray.cat(iKey, m), { output: Words })), { output: Words });
-
-	// Set default output
-	var output = options && options.output || C.enc.Hex;
-
-	// Return encoded output
-	return output.encode(hmacWords);
-
-};
-
-})();
+})(CryptoJS);
