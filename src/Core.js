@@ -1,4 +1,4 @@
-if ( ! window["CryptoJS"])
+if (typeof CryptoJS == undefined)
 {
   (function ()
   {
@@ -32,7 +32,7 @@ if ( ! window["CryptoJS"])
       return subtype;
     }
 
-    function extendFunctionObject(subtype, supertype, overrides)
+    function extendFunctionObject(supertype, subtype, overrides)
     {
       subtype.prototype = extendObject(supertype.prototype, overrides);
       subtype.prototype.constructor = subtype;
@@ -67,7 +67,7 @@ if ( ! window["CryptoJS"])
 
     var WordArray = typ.WordArray = function (words, sigBytes)
     {
-        // IE won't let us extend Array directly, so instead we augment an array object
+      // IE won't let us extend Array directly, so instead we augment an array object
       var wordArray = override(words || [], wordArrayOverrides);
 
       if (sigBytes != undefined)
@@ -80,8 +80,6 @@ if ( ! window["CryptoJS"])
 
     var wordArrayOverrides =
     {
-      constructor: WordArray,
-
       getSigBytes: function ()
       {
         if (this.sigBytes != undefined)
@@ -114,7 +112,7 @@ if ( ! window["CryptoJS"])
     /* Type -> Hasher
     --------------------------------------------- */
 
-    var Hasher = typ.Hasher = function (message)
+    var AbstractHasher = typ.AbstractHasher = function (message)
     {
       // Convert string to WordArray, else assume WordArray already
       if (message.constructor == String) message = Utf8Str["decode"](message);
@@ -126,7 +124,7 @@ if ( ! window["CryptoJS"])
     /* Type -> Cipher
     --------------------------------------------- */
 
-    var Cipher = typ.Cipher =
+    var AbstractCipher = typ.AbstractCipher =
     {
       "encrypt": function (message, password)
       {
@@ -135,7 +133,7 @@ if ( ! window["CryptoJS"])
 
         // Generate random IV
         var iv = WordArray();
-        for (var i = 0; i < /*this.ivSize ||*/ 16; i++)
+        for (var i = 0; i < this.ivSize || 2; i++)
         {
           iv.push(Math.floor(Math.random() * 0x100000000));
         }
@@ -143,23 +141,23 @@ if ( ! window["CryptoJS"])
         // Derive key, else assume key already
         if (password.constructor == String)
         {
-          password = C["PBKDF2"](password, iv, /*this.keySize ||*/ 16);
+          password = C["PBKDF2"](password, iv, this.keySize || 4);
         }
 
         this.doEncrypt(message, password, iv);
 
-        return new C.typ.Ciphertext(message, iv);
+        return new Ciphertext(message, iv);
       },
 
       "decrypt": function (ciphertext, password)
       {
         // Convert string to Ciphertext, else assume Ciphertext already
-        if (ciphertext.constructor == String) new C.typ.Ciphertext(ciphertext);
+        if (ciphertext.constructor == String) new Ciphertext(ciphertext);
 
         // Derive key, else assume key already
         if (password.constructor == String)
         {
-          password = C["PBKDF2"](password, ciphertext.getIV(), /*this.keySize ||*/ 16);
+          password = C["PBKDF2"](password, ciphertext.getIV(), this.keySize || 4);
         }
 
         this.doDecrypt(ciphertext.getCiphertext(), password, ciphertext.getIV());
@@ -280,7 +278,6 @@ if ( ! window["CryptoJS"])
       {
         return ByteStr["decode"](unescape(encodeURIComponent(utf8Str)));
       }
-
     };
 
 
@@ -315,7 +312,6 @@ if ( ! window["CryptoJS"])
 
         return WordArray(words, hexStr.length / 2);
       }
-
     };
 
 
@@ -371,7 +367,6 @@ if ( ! window["CryptoJS"])
       },
 
       charMap: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-
     };
 
   })();

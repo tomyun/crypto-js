@@ -2,7 +2,7 @@
 {
   var SHA1 = C["SHA1"] = function (message)
   {
-    return C.typ.Hasher.call(SHA1, message);
+    return C.typ.AbstractHasher.call(SHA1, message);
   };
 
   SHA1.blockSize = 16;

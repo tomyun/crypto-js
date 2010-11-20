@@ -2,7 +2,7 @@
 {
   var MD5 = C["MD5"] = function (message)
   {
-    return C.typ.Hasher.call(MD5, message);
+    return C.typ.AbstractHasher.call(MD5, message);
   };
 
   MD5.blockSize = 16;

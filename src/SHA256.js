@@ -2,7 +2,7 @@
 {
   var SHA256 = C["SHA256"] = function (message)
   {
-    return C.typ.Hasher.call(SHA256, message);
+    return C.typ.AbstractHasher.call(SHA256, message);
   };
 
   SHA256.blockSize = 16;

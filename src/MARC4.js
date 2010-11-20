@@ -1,6 +1,6 @@
 (function (C)
 {
-  var MARC4 = C["MARC4"] = C["extend"](C.typ.Cipher,
+  var MARC4 = C["MARC4"] = C["extend"](C.typ.AbstractCipher,
   {
     doEncrypt: function (m, k, iv)
     {
