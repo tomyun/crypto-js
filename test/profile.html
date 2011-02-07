@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>CryptoJS Profile</title>
+
+        <!-- YUI -->
+        <script src="http://yui.yahooapis.com/3.2.0/build/yui/yui-min.js"></script>
+
+        <!-- CryptoJS -->
+        <script src="../src/core.js"></script>
+        <script src="../src/base64.js"></script>
+        <script src="../src/hasher.js"></script>
+        <script src="../src/md5.js"></script>
+        <script src="../src/sha1.js"></script>
+        <script src="../src/sha256.js"></script>
+        <script src="../src/hmac.js"></script>
+        <script src="../src/pbkdf2.js"></script>
+
+        <!-- Profile modules -->
+        <script type="text/javascript">
+            YUI.add('cryptojs-profile', function (Y) {
+                // Register objects and constructors
+                Y.Profiler.registerObject('CryptoJS.oop.BaseObject');
+                Y.Profiler.registerConstructor('CryptoJS.oop.BaseFunction');
+                Y.Profiler.registerConstructor('CryptoJS.lib.WordArray');
+                Y.Profiler.registerObject('CryptoJS.enc.Hex');
+                Y.Profiler.registerObject('CryptoJS.enc.ByteStr');
+                Y.Profiler.registerObject('CryptoJS.enc.Utf8Str');
+                Y.Profiler.registerObject('CryptoJS.enc.Base64');
+                Y.Profiler.registerObject('CryptoJS.enc.Base64.UrlSafe');
+                Y.Profiler.registerConstructor('CryptoJS.lib.Hasher');
+                Y.Profiler.registerConstructor('CryptoJS.MD5');
+                Y.Profiler.registerConstructor('CryptoJS.SHA1');
+                Y.Profiler.registerConstructor('CryptoJS.SHA256');
+                Y.Profiler.registerConstructor('CryptoJS.HMAC');
+                Y.Profiler.registerConstructor('CryptoJS.PBKDF2');
+
+                // Create profiles namespace
+                Y.namespace('Profiler.CryptoJS.Modules');
+
+                // Profile modules function
+                Y.Profiler.CryptoJS.profileModules = function () {
+                    // Iterate over modules
+                    for (var moduleName in Y.Profiler.CryptoJS.Modules) {
+                        // Run code to profile
+                        Y.Profiler.CryptoJS.Modules[moduleName]();
+
+                        // Get the information
+                        var reports = Y.Profiler.getFullReport(function (report) {
+                            // Skip reports with 0 calls
+                            if ( ! report.calls) return false;
+
+                            // Create 'total' entry
+                            report.total = 0;
+                            for (var i = 0; i < report.points.length; i++) {
+                                report.total += report.points[i];
+                            }
+
+                            return true;
+                        });
+
+                        // Sort reports by total time
+                        var orderedReports = [];
+                        for (var f in reports) {
+                            orderedReports.push({
+                                name: f,
+                                report: reports[f]
+                            });
+                        }
+                        orderedReports.sort(function (a, b) {
+                            return (
+                                (b.report.total - a.report.total) ||
+                                (b.report.calls - a.report.calls)
+                            );
+                        });
+
+                        // Create console
+                        var yconsole = new Y.Console({
+                            style: 'block',
+                            width: '100%',
+                            height: '600px',
+                            entryTemplate:
+                              ' <div class="{entry_class} {cat_class} {src_class}">' +
+                              '     <pre class="{entry_content_class}">{message}</pre>' +
+                              ' </div>',
+                            strings: {
+                                title: moduleName,
+                                pause: 'Pause',
+                                clear: 'Clear',
+                                collapse: 'Collapse',
+                                expand: 'Expand'
+                            },
+                            newestOnTop: false,
+                            plugins: [ Y.Plugin.ConsoleFilters ],
+                            render: true
+                        });
+
+                        // Hide other module sources
+                        for (var m in Y.Profiler.CryptoJS.Modules) {
+                            yconsole.filter.hideSource(m);
+                        }
+                        yconsole.filter.showSource(moduleName);
+
+                        // Log reports
+                        for (var i = 0; i < orderedReports.length; i++) {
+                            var name = orderedReports[i].name;
+                            var report = orderedReports[i].report;
+
+                            Y.log(
+                                '[' + report.total + 'ms] ' + name + '(): ' +
+                                'Called ' + report.calls + ' times. ' +
+                                'Avg: '   + (Math.round(report.avg * 10000) / 10000) + 'ms, ' +
+                                'Min: '   + report.min   + 'ms, ' +
+                                'Max: '   + report.max   + 'ms',
+                                null,
+                                moduleName
+                            );
+                        }
+
+                        // Clear report data
+                        Y.Profiler.clear();
+                    }
+                };
+            });
+
+            YUI.add('cryptojs-profile-md5', function (Y) {
+                Y.Profiler.CryptoJS.Modules.MD5 = function () {
+                    var md5 = new CryptoJS.MD5();
+                    for (var i = 0; i < 100; i++) {
+                        md5.update('12345678901234567890123456789012345678901234567890');
+                    }
+                    var hash = md5.finalize().toString();
+                };
+            });
+
+            YUI.add('cryptojs-profile-sha1', function (Y) {
+                Y.Profiler.CryptoJS.Modules.SHA1 = function () {
+                    var sha1 = new CryptoJS.SHA1();
+                    for (var i = 0; i < 100; i++) {
+                        sha1.update('12345678901234567890123456789012345678901234567890');
+                    }
+                    var hash = sha1.finalize().toString();
+                };
+            });
+
+            YUI.add('cryptojs-profile-sha256', function (Y) {
+                Y.Profiler.CryptoJS.Modules.SHA256 = function () {
+                    var sha256 = new CryptoJS.SHA256();
+                    for (var i = 0; i < 100; i++) {
+                        sha256.update('12345678901234567890123456789012345678901234567890');
+                    }
+                    var hash = sha256.finalize().toString();
+                };
+            });
+
+            YUI.add('cryptojs-profile-hmac', function (Y) {
+                Y.Profiler.CryptoJS.Modules.HAMC = function () {
+                    var hmac = new CryptoJS.HMAC(CryptoJS.MD5, 'Hi There');
+                    for (var i = 0; i < 100; i++) {
+                        hmac.update('12345678901234567890123456789012345678901234567890');
+                    }
+                    var hash = hmac.finalize().toString();
+                };
+            });
+
+            YUI.add('cryptojs-profile-pbkdf2', function (Y) {
+                Y.Profiler.CryptoJS.Modules.PBKDF2 = function () {
+                    CryptoJS.PBKDF2("password", "ATHENA.MIT.EDUraeburn", { keySize: 256/32, iterations: 10 });
+                };
+            });
+        </script>
+
+        <!-- Profiler -->
+        <script type="text/javascript">
+            YUI().use(
+                'profiler', 'console', 'console-filters', 'cryptojs-profile',
+                'cryptojs-profile-md5', 'cryptojs-profile-sha1', 'cryptojs-profile-sha256',
+                'cryptojs-profile-hmac', 'cryptojs-profile-pbkdf2',
+                function (Y) {
+                    Y.Profiler.CryptoJS.profileModules();
+                }
+            );
+        </script>
+
+        <!-- Console -->
+        <style type="text/css">
+            body.yui3-skin-sam .yui3-console {
+                margin: 1em 0;
+            }
+            body.yui3-skin-sam .yui3-console-entry-meta,
+            body.yui3-skin-sam .yui3-console-entry-content {
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            body.yui3-skin-sam .yui3-console-entry-cat {
+                display: inline-block;
+                width: 35px;
+                text-align: center;
+            }
+
+            body.yui3-skin-sam .yui3-console-entry {
+                min-height: 0;
+            }
+
+            body.yui3-skin-sam .yui3-console-ft .yui3-console-filters-categories,
+            body.yui3-skin-sam .yui3-console-ft .yui3-console-filters-sources {
+                display: none;
+            }
+        </style>
+    </head>
+    <body class="yui3-skin-sam">
+    </body>
+</html>

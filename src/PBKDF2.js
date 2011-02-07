@@ -1,48 +1,64 @@
-(function (C)
-{
-  // Shortcuts
-  var Utf8Str = C["enc"]["Utf8Str"];
-  var WordArray = C.typ.WordArray;
+(function (C) {
+    // Shortcuts
+    var WordArray = C.lib.WordArray;
 
-  var PBKDF2 = C["PBKDF2"] = function (password, salt, keyLength, options)
-  {
-    // Default options
-    var hasher = options && options["hasher"] || C["SHA1"];
-    var iterations = options && options["iterations"] || 1;
+    // Option defaults
+    var optionDefaults = C.oop.BaseObj.extend({
+        keySize: 4,
+        hasher: C.SHA1,
+        iterations: 1
+    });
 
-    // Convert string to WordArray, else assume WordArray already
-    if (password.constructor == String) password = Utf8Str["decode"](password);
-    if (salt.constructor == String) salt = Utf8Str["decode"](salt);
+    var PBKDF2 = C.PBKDF2 = C.oop.BaseFn.extend({
+        init: function (password, salt, options) {
+            // Apply option defaults
+            options = optionDefaults.extend(options);
 
-    // Initial values
-    var derivedKey = WordArray();
-    var blockIndex = WordArray([1]);
+            // Convert string to WordArray, else assume WordArray already
+            if (typeof salt == 'string') salt = C.enc.Utf8Str.decode(salt);
 
-    // Generate key
-    while (derivedKey.getSigBytes() < keyLength)
-    {
-      var block = C["HMAC"](hasher, salt.cat(blockIndex), password);
+            // Initial values
+            var derivedKey = new WordArray();
+            var blockIndex = new WordArray([1]);
 
-      // Iterations
-      var u = block;
-      for (var i = 1; i < iterations; i++)
-      {
-        u = C["HMAC"](hasher, u, password);
+            // Shortcuts
+            var derivedKeyWords = derivedKey.words;
+            var blockIndexWords = blockIndex.words;
+            var keySize = options.keySize;
+            var hasher = options.hasher;
+            var iterations = options.iterations;
 
-        for (var j = 0; j < block.length; j++)
-        {
-          block[j] ^= u[j];
+            // Init HMAC
+            var hmac = new C.HMAC(hasher, password);
+
+            // Generate key
+            while (derivedKeyWords.length < keySize) {
+                var block = hmac.finalize(salt.clone().concat(blockIndex));
+
+                // Shortcuts
+                var blockWords = block.words;
+                var blockWordsLength = blockWords.length;
+
+                // Iterations
+                var intermediate = block;
+                for (var i = 1; i < iterations; i++) {
+                    intermediate = hmac.finalize(intermediate);
+
+                    // Shortcuts
+                    var intermediateWords = intermediate.words;
+
+                    // XOR intermediate with block
+                    for (var j = 0; j < blockWordsLength; j++) {
+                        blockWords[j] ^= intermediateWords[j];
+                    }
+                }
+
+                derivedKey.concat(block);
+                blockIndexWords[0]++;
+            }
+            derivedKey.setSigBytes(keySize * 4);
+
+            return derivedKey;
         }
-      }
-
-      derivedKey = derivedKey.cat(block);
-      blockIndex[0]++;
-    }
-
-    // Ignore excess bytes
-    derivedKey.setSigBytes(keyLength);
-
-    return derivedKey;
-  };
-
+    });
 })(CryptoJS);

@@ -1,70 +1,76 @@
-(function (C)
-{
-  var SHA1 = C["SHA1"] = function (message)
-  {
-    return C.typ.AbstractHasher.call(SHA1, message);
-  };
+(function (C) {
+    var SHA1 = C.SHA1 = C.lib.Hasher.extend({
+        _doReset: function () {
+            // Shortcuts
+            var H = this._hash.words;
 
-  SHA1.blockSize = 16;
+            // Initial values
+            H[0] = 0x67452301;
+            H[1] = 0xEFCDAB89;
+            H[2] = 0x98BADCFE;
+            H[3] = 0x10325476;
+            H[4] = 0xC3D2E1F0;
+        },
 
-  SHA1.doHash = function (m)
-  {
-    // Add padding
-    var l = m.getSigBytes() * 8;
-    m[l >>> 5] |= 0x80 << (24 - l % 32);
-    m[(((l + 64) >>> 9) << 4) + 15] = l;
+        _hashBlock: function (offset) {
+            // Shortcuts
+            var m = this._message.words;
+            var H = this._hash.words;
 
-    // Initial values
-    var H0 = 0x67452301;
-    var H1 = 0xEFCDAB89;
-    var H2 = 0x98BADCFE;
-    var H3 = 0x10325476;
-    var H4 = 0xC3D2E1F0;
+            var a = H[0];
+            var b = H[1];
+            var c = H[2];
+            var d = H[3];
+            var e = H[4];
 
-    var w  = [];
+            var w = [];
 
-    // Iterate
-    for (var i = 0; i < m.length; i += 16)
-    {
-      var a = H0;
-      var b = H1;
-      var c = H2;
-      var d = H3;
-      var e = H4;
+            for (var i = 0; i < 80; i++) {
+                if (i < 16) {
+                    w[i] = m[i + offset];
+                } else {
+                    var n = w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16];
+                    w[i] = (n << 1) | (n >>> 31);
+                }
 
-      for (var j = 0; j < 80; j++)
-      {
-        if (j < 16)
-        {
-          w[j] = m[i + j];
+                var t = ((a << 5) | (a >>> 27)) + e + (w[i] >>> 0);
+                if      (i < 20) t += ((b & c) | (~b & d)) + 0x5A827999;
+                else if (i < 40) t += (b ^ c ^ d) + 0x6ED9EBA1;
+                else if (i < 60) t += ((b & c) | (b & d) | (c & d)) - 0x70E44324;
+                else             t += (b ^ c ^ d) - 0x359D3E2A;
+
+                e = d;
+                d = c;
+                c = (b << 30) | (b >>> 2);
+                b = a;
+                a = t;
+            }
+
+            H[0] = (H[0] + a) >>> 0;
+            H[1] = (H[1] + b) >>> 0;
+            H[2] = (H[2] + c) >>> 0;
+            H[3] = (H[3] + d) >>> 0;
+            H[4] = (H[4] + e) >>> 0;
+        },
+
+        _doFinalize: function () {
+            // Shortcuts
+            var message = this._message;
+            var m = message.words;
+
+            var nBitsTotal = this._length * 8;
+            var nBitsLeft = message.getSigBytes() * 8;
+
+            // Add padding
+            m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            m[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+            message.setSigBytes(m.length * 4);
+
+            // Hash final blocks
+            this._hashBlocks();
         }
-        else
-        {
-          var n = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16];
-          w[j] = (n << 1) | (n >>> 31);
-        }
+    });
 
-        var t = ((H0 << 5) | (H0 >>> 27)) + H4 + (w[j] >>> 0);
-        if      (j < 20) t += ((H1 & H2) | (~H1 & H3)) + 0x5A827999;
-        else if (j < 40) t += (H1 ^ H2 ^ H3) + 0x6ED9EBA1;
-        else if (j < 60) t += ((H1 & H2) | (H1 & H3) | (H2 & H3)) - 0x70E44324;
-        else             t += (H1 ^ H2 ^ H3) - 0x359D3E2A;
-
-        H4 = H3;
-        H3 = H2;
-        H2 = (H1 << 30) | (H1 >>> 2);
-        H1 = H0;
-        H0 = t;
-      }
-
-      H0 += a;
-      H1 += b;
-      H2 += c;
-      H3 += d;
-      H4 += e;
-    }
-
-    return C.typ.WordArray([H0, H1, H2, H3, H4]);
-  };
-
+    // Static block size
+    SHA1.blockSize = 16;
 })(CryptoJS);
