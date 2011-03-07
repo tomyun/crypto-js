@@ -37,7 +37,7 @@ foreach ($rollups as $rollup) {
 
 function compress($js) {
 
-	$cmd = 'java -jar yuicompressor-2.4.2.jar --type js';
+	$cmd = 'java -jar compiler/compiler.jar';
 
 	$descriptors = array(
 		0 => array('pipe', 'r'),
