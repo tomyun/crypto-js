@@ -91,21 +91,23 @@ var AES = C.AES = {
 
 		var
 
-		    // Convert to bytes
-		    m = UTF8.stringToBytes(message),
+			// Convert to bytes
+			m = UTF8.stringToBytes(message),
 
-		    // Generate random IV
-		    iv = util.randomBytes(AES._blocksize * 4),
+			// Generate random IV
+			iv = util.randomBytes(AES._blocksize * 4),
 
-		    // Generate key
-		    k = password.constructor == String ?
-		        // Derive key from passphrase
-		        C.PBKDF2(password, iv, 32, { asBytes: true }) :
-		        // else, assume byte array representing cryptographic key
-		        password;
+			// Generate key
+			k = (
+				password.constructor == String ?
+				// Derive key from passphrase
+				C.PBKDF2(password, iv, 32, { asBytes: true }) :
+				// else, assume byte array representing cryptographic key
+				password
+			),
 
-		// Determine mode
-		mode = options && options.mode || C.mode.OFB;
+			// Determine mode
+			mode = options && options.mode || C.mode.OFB;
 
 		// Encrypt
 		AES._init(k);
@@ -120,21 +122,23 @@ var AES = C.AES = {
 
 		var
 
-		    // Convert to bytes
-		    c = util.base64ToBytes(ciphertext),
+			// Convert to bytes
+			c = util.base64ToBytes(ciphertext),
 
-		    // Separate IV and message
-		    iv = c.splice(0, AES._blocksize * 4),
+			// Separate IV and message
+			iv = c.splice(0, AES._blocksize * 4),
 
-		    // Generate key
-		    k = password.constructor == String ?
-		        // Derive key from passphrase
-		        C.PBKDF2(password, iv, 32, { asBytes: true }) :
-		        // else, assume byte array representing cryptographic key
-		        password;
+			// Generate key
+			k = (
+				password.constructor == String ?
+				// Derive key from passphrase
+				C.PBKDF2(password, iv, 32, { asBytes: true }) :
+				// else, assume byte array representing cryptographic key
+				password
+			),
 
-		// Determine mode
-		mode = options && options.mode || C.mode.OFB;
+			// Determine mode
+			mode = options && options.mode || C.mode.OFB;
 
 		// Decrypt
 		AES._init(k);
