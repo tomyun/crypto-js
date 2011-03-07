@@ -140,7 +140,7 @@ var Binary = charenc.Binary = {
 	// Convert a string to a byte array
 	stringToBytes: function (str) {
 		for (var bytes = [], i = 0; i < str.length; i++)
-			bytes.push(str.charCodeAt(i));
+			bytes.push(str.charCodeAt(i) & 0xFF);
 		return bytes;
 	},
 
