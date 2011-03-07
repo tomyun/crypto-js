@@ -58,7 +58,7 @@ Crypto.mode.CBC = {
 		}
 
 		// Strip padding
-		while (c.pop() != 0x80) ;
+		while (c.pop() != 0x80) {}
 
 	}
 
