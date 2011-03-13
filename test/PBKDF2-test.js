@@ -15,6 +15,18 @@ TestSuite.add(new YAHOO.tool.TestCase({
 		Assert.areEqual("9ccad6d468770cd51b10e6a68721be611a8b4d282601db3b36be9246915ec82a", Crypto.PBKDF2("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "pass phrase exceeds block size", 256/8, { iterations: 1200 }));
 		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39", Crypto.PBKDF2([0xf0, 0x9d, 0x84, 0x9e], "EXAMPLE.COMpianist", 128/8, { iterations: 50 }));
 		Assert.areEqual("6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52", Crypto.PBKDF2([0xf0, 0x9d, 0x84, 0x9e], "EXAMPLE.COMpianist", 256/8, { iterations: 50 }));
+	},
+
+	test_PBKDF2Async: function () {
+		var thisTestCase = this;
+
+		Crypto.PBKDF2Async("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", "pass phrase exceeds block size", 256/8, function (result) {
+			thisTestCase.resume(function () {
+				Assert.areEqual("9ccad6d468770cd51b10e6a68721be611a8b4d282601db3b36be9246915ec82a", result);
+			});
+		}, { iterations: 1200 });
+
+		thisTestCase.wait(300000);
 	}
 
 }));

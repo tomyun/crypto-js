@@ -2,8 +2,9 @@
 <head>
 
 <!-- YUI CSS -->
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/logger/assets/logger.css">
-<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/yuitest/assets/testlogger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/logger/assets/logger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/yuitest/assets/testlogger.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/assets/skins/sam/skin.css">
 
 <!-- CSS customizations -->
 <style type="text/css">
@@ -13,9 +14,10 @@
 </style>
 
 <!-- YUI JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/logger/logger-min.js"></script>
-<script type="text/javascript" src="http://yui.yahooapis.com/2.7.0/build/yuitest/yuitest-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/container/container-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/logger/logger-min.js"></script>
+<script type="text/javascript" src="http://yui.yahooapis.com/2.8.2r1/build/yuitest/yuitest-min.js"></script>
 
 <!-- Test subjects -->
 <script type="text/javascript" src="../src/Crypto.js"></script>
@@ -25,6 +27,7 @@
 <script type="text/javascript" src="../src/SHA256.js"></script>
 <script type="text/javascript" src="../src/HMAC.js"></script>
 <script type="text/javascript" src="../src/PBKDF2.js"></script>
+<script type="text/javascript" src="../src/PBKDF2Async.js"></script>
 <script type="text/javascript" src="../src/MARC4.js"></script>
 <script type="text/javascript" src="../src/Rabbit.js"></script>
 <script type="text/javascript" src="../src/OFB.js"></script>
@@ -69,6 +72,28 @@ YAHOO.util.Event.onDOMReady(function(){
 	// Hide info category
 	logger.hideCategory("info");
 
+	// Initialize the "Loading" panel
+	var loadingPanel = new YAHOO.widget.Panel("loading", {
+		width: "240px",
+		fixedcenter: true,
+		close: false,
+		draggable: false,
+		zindex: 9000,
+		modal: true,
+		visible: false
+	});
+	loadingPanel.setHeader("Loading, please wait...");
+	loadingPanel.setBody('<img src="http://l.yimg.com/a/i/us/per/gr/gp/rel_interstitial_loading.gif" />');
+	loadingPanel.render("loading-panel");
+
+	// Show "Loading" panel while tests are running
+	YAHOO.tool.TestRunner.subscribe('begin', function () {
+		loadingPanel.show();
+	});
+	YAHOO.tool.TestRunner.subscribe('complete', function () {
+		loadingPanel.hide();
+	});
+
 	// Run all tests
 	YAHOO.tool.TestRunner.run();
 
@@ -77,4 +102,6 @@ YAHOO.util.Event.onDOMReady(function(){
 </script>
 
 </head>
-<body></body>
+<body>
+	<div id="loading-panel" class="yui-skin-sam"></div>
+</body>
