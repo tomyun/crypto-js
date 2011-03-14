@@ -143,9 +143,9 @@ var hmacString = Crypto.HMAC(Crypto.SHA256, "Message", "Secret Passphrase", { as
 
 == PBKDF2 ==
 
-PBKDF2 is a password-based key derivation function. In many applications of cryptography, user security is ultimately dependent on a password. And because a password usually cannot be used directly as a cryptographic key, some processing is required.
+PBKDF2 is a password-based key derivation function. In many applications of cryptography, user security is ultimately dependent on a password, and because a password usually can't be used directly as a cryptographic key, some processing is required.
 
-A salt in password-based cryptography provides a large set of keys for any given password. An iteration count has traditionally served the purpose of increasing the cost of producing keys from a password, thereby also increasing the difficulty of attack.
+A salt provides a large set of keys for any given password, and an iteration count increases the cost of producing keys from a password, thereby also increasing the difficulty of attack.
 
 {{{
 <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha1-hmac-pbkdf2.js"></script>
@@ -158,6 +158,27 @@ var key256bit = Crypto.PBKDF2("Secret Passphrase", salt, 32);
 var key512bit = Crypto.PBKDF2("Secret Passphrase", salt, 64);
 
 var key512bit1000 = Crypto.PBKDF2("Secret Passphrase", salt, 64, { iterations: 1000 });
+
+</script>
+}}}
+
+PBKDF2 with a large iteration count can take a long time to compute. To avoid long-running script warnings, CryptoJS provided an alternative version that executes asyncronously and passes the result to a callback. You also have the option to specify an onProgressChange callback that allows you to keep the user updated.
+
+{{{
+<script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha1-hmac-pbkdf2async.js"></script>
+<script type="text/javascript">
+
+var salt = Crypto.util.bytesToString(Crypto.util.randomBytes(16));
+
+function onCompleteHandler(result) {
+    var key512bit1000 = result;
+}
+
+function onProgressChangeHandler(percent) {
+    document.getElementById('progress').innerHTML = percent + '%';
+}
+
+Crypto.PBKDF2Async("Secret Passphrase", salt, 64, onCompleteHandler, { iterations: 1000, onProgressChange: onProgressChangeHandler });
 
 </script>
 }}}
