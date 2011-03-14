@@ -36,7 +36,7 @@ C.PBKDF2Async = function (password, salt, keylen, callback, options) {
         if (progressChangeHandler) {
             var iterationsSoFar = derivedKeyBytes.length / hasher._digestsize * iterations + currentIteration;
             setTimeout(function () {
-                progressChangeHandler(iterationsSoFar / totalIterations * 100);
+                progressChangeHandler(Math.round(iterationsSoFar / totalIterations * 100));
             }, 0);
         }
     }
