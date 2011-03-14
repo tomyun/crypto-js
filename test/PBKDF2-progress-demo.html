@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- YUI CSS -->
+        <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.2r1/build/progressbar/assets/skins/sam/progressbar.css">
+
+        <!-- YUI JS -->
+        <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.2r1/build/yahoo-dom-event/yahoo-dom-event.js&2.8.2r1/build/element/element-min.js&2.8.2r1/build/progressbar/progressbar-min.js"></script>
+
+        <!-- CryptoJS -->
+        <script type="text/javascript" src="../src/Crypto.js"></script>
+        <script type="text/javascript" src="../src/SHA1.js"></script>
+        <script type="text/javascript" src="../src/HMAC.js"></script>
+        <script type="text/javascript" src="../src/PBKDF2.js"></script>
+        <script type="text/javascript" src="../src/PBKDF2Async.js"></script>
+
+        <!-- Demo -->
+        <script type="text/javascript">
+            (function (Y) {
+                Y.util.Event.onDOMReady(function () {
+                    var progressBar = new Y.widget.ProgressBar();
+                    progressBar.render('pbkdf2async-progress');
+                    Crypto.PBKDF2Async(
+                        "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                        "pass phrase exceeds block size",
+                        256/8,
+                        function (key) {
+                            Y.util.Dom.get('pbkdf2async-key').innerHTML = key;
+                        },
+                        {
+                            iterations: 1200,
+                            onProgressChange: function (percent) {
+                                progressBar.set('value', percent);
+                            }
+                        }
+                    );
+                });
+            }(YAHOO));
+        </script>
+    </head>
+    <body class="yui-skin-sam">
+        <p>Password: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX<br>
+           Salt: pass phrase exceeds block size<br>
+           Key length: 256 bits<br>
+           Iterations: 1200</p>
+        <p id="pbkdf2async-progress"></p>
+        <p id="pbkdf2async-key"></p>
+    </body>
+</html>

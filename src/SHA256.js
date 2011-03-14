@@ -124,4 +124,6 @@ SHA256._sha256 = function (message) {
 // Package private blocksize
 SHA256._blocksize = 16;
 
+SHA256._digestsize = 32;
+
 })();

@@ -152,4 +152,6 @@ MD5._ii  = function (a, b, c, d, x, s, t) {
 // Package private blocksize
 MD5._blocksize = 16;
 
+MD5._digestsize = 16;
+
 })();
