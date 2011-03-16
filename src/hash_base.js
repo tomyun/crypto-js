@@ -1,76 +1,83 @@
 (function (C) {
     // Shortcuts
-    var WordArray = C.lib.WordArray;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
 
-    var Hasher = C.lib.Hasher = C.oop.BaseFn.extend({
+    // Hash
+    var Hash = C_lib.Hash = WordArray.extend({
+        encoder: C.enc.Hex
+    });
+
+    // Hasher template
+    var Hasher = C_lib.Hasher = C.oop.BaseObj.extend({
         init: function () {
-            if (this instanceof Hasher)
-            {
-                /* New instance */
-
-                this.reset();
-            }
-            else
-            {
-                /* Static call */
-
-                var concreteHasher = arguments.callee.caller;
-                var message = arguments[0];
-
-                var hasher = new concreteHasher();
-                return hasher.finalize(message);
-            }
+            this.reset();
         },
 
         reset: function () {
-            this._message = new WordArray();
-            this._length = 0;
-            this._hash = new WordArray();
+            this.message = WordArray.create();
+            this.length = 0;
+            this.hash = Hash.create();
 
-            this._doReset();
+            this.doReset();
         },
 
         update: function (messageUpdate) {
             // Convert String to WordArray, else assume WordArray already
             if (typeof messageUpdate == 'string') {
-                messageUpdate = C.enc.Utf8Str.decode(messageUpdate);
+                messageUpdate = WordArray.fromString(messageUpdate);
             }
 
-            this._message.concat(messageUpdate);
-            this._length += messageUpdate.getSigBytes();
+            this.message.concat(messageUpdate);
+            this.length += messageUpdate.sigBytes;
 
-            this._hashBlocks();
+            this.hashBlocks();
+
+            // Chainable
+            return this;
         },
 
-        _hashBlocks: function () {
+        hashBlocks: function () {
             // Shortcuts
-            var message = this._message;
-            var blockSize = this.constructor.blockSize;
+            var message = this.message;
+            var sigBytes = message.sigBytes;
+            var blockSize = this.blockSize;
 
             // Count blocks ready
-            var nBlocksReady = Math.floor(message.getSigBytes() / (blockSize * 4));
+            var nBlocksReady = Math.floor(sigBytes / (blockSize * 4));
 
             if (nBlocksReady) {
                 // Hash blocks
                 var nWordsReady = nBlocksReady * blockSize;
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
-                    this._hashBlock(offset);
+                    this.doHashBlock(offset);
                 }
 
                 // Remove processed words
                 message.words.splice(0, nWordsReady);
-                message.setSigBytes(message.getSigBytes() - nWordsReady * 4);
+                message.sigBytes = sigBytes - nWordsReady * 4;
             }
         },
 
-        finalize: function (messageUpdate) {
-            if (messageUpdate) this.update(messageUpdate);
+        compute: function (messageUpdate) {
+            if (messageUpdate) {
+                this.update(messageUpdate);
+            }
 
-            this._doFinalize();
-            var hash = this._hash;
+            this.doCompute();
+
+            // Keep hash after reset
+            var hash = this.hash;
+
+            // Update sigBytes using length of hash
+            hash.sigBytes = hash.words.length * 4;
+
             this.reset();
 
             return hash;
-        }
+        },
+
+        // Default, because it's common
+        blockSize: 16
     });
-})(CryptoJS);
+}(CryptoJS));

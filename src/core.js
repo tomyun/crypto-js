@@ -1,3 +1,4 @@
+// Global namespace object
 var CryptoJS;
 
 // Don't overwrite
@@ -8,148 +9,72 @@ if ( ! CryptoJS) {
 
         /* OOP
         ------------------------------------------------------------ */
-        var oop = C.oop = {};
+        var C_oop = C.oop = {};
 
-        /* OOP / Base
+        /* OOP / BaseObj
         --------------------------------------------- */
-        var BaseObj = oop.BaseObj = extendObject.call(Object.prototype, {
-            extend: extendObject
-        });
+        var BaseObj = C_oop.BaseObj = {
+            extend: function (overrides) {
+                // Spawn
+                function F() {}
+                F.prototype = this;
+                var subtype = new F();
 
-        var BaseFn = oop.BaseFn = extendFunction.call(Object, {
+                // Constructor is meaningless in this pattern
+                delete subtype.constructor;
+
+                // Augment
+                if (overrides) {
+                    for (var o in overrides) {
+                        if (overrides.hasOwnProperty(o)) {
+                            subtype[o] = overrides[o];
+                        }
+                    }
+
+                    // IE won't copy toString using the loop above
+                    if (overrides.hasOwnProperty('toString')) {
+                        subtype.toString = overrides.toString;
+                    }
+                }
+
+                // Reference supertype
+                subtype.super_ = this;
+
+                return subtype;
+            },
+
+            create: function () {
+                var instance = this.extend();
+                instance.init.apply(instance, arguments);
+
+                return instance;
+            },
+
             init: function () {
-            }
-        });
-
-        function F() {}
-
-        function extendObject(overrides) {
-            // Create subtype
-            F.prototype = this;
-            var subtype = new F();
-
-            // Override properties
-            if (overrides) {
-                for (var p in overrides) {
-                    subtype[p] = overrides[p];
-                }
-
-                // IE won't copy toString using the loop
-                if (overrides.hasOwnProperty('toString')) {
-                    subtype.toString = overrides.toString;
-                }
-            }
-
-            // Reference supertype
-            subtype.$super = this;
-
-            return subtype;
-        }
-
-        function extendFunction(overrides) {
-            // Create subtype constructor
-            function Subtype() {
-                return Subtype.prototype.init.apply(this, arguments);
-            }
-
-            // Make subtype extendable
-            Subtype.extend = extendFunction;
-
-            // Create subtype prototype that inherits from supertype prototype
-            Subtype.prototype = extendObject.call(this.prototype, overrides);
-
-            // Fix constructor property
-            Subtype.prototype.constructor = Subtype;
-
-            return Subtype;
-        }
-
-        /* Library
-        ------------------------------------------------------------ */
-        var lib = C.lib = {};
-
-        /* Library / WordArray
-        --------------------------------------------- */
-        var WordArray = lib.WordArray = BaseFn.extend({
-            init: function (words, sigBytes) {
-                this.words = words || [];
-
-                if (sigBytes != undefined) {
-                    this.setSigBytes(sigBytes);
-                }
-            },
-
-            getSigBytes: function () {
-                // Shortcuts
-                var sigBytes = this._sigBytes;
-
-                if (sigBytes != undefined) {
-                    return sigBytes;
-                } else {
-                    return this.words.length * 4;
-                }
-            },
-
-            setSigBytes: function (sigBytes) {
-                this._sigBytes = sigBytes;
-
-                // Shortcuts
-                var words = this.words;
-
-                // Clear excess bits (necessary for Base64)
-                words[sigBytes >>> 2] &= 0xFFFFFFFF << (32 - (sigBytes % 4) * 8);
-                words.length = Math.ceil(sigBytes / 4);
-            },
-
-            concat: function (wordArray) {
-                // Shortcuts
-                var thisWords = this.words;
-                var thatWords = wordArray.words;
-                var thisSigBytes = this.getSigBytes();
-                var thatSigBytes = wordArray.getSigBytes();
-
-                for (var i = 0; i < thatSigBytes; i++) {
-                    var bite = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF;
-                    thisWords[thisSigBytes >>> 2] |= bite << (24 - (thisSigBytes % 4) * 8);
-                    thisSigBytes++
-                }
-                this.setSigBytes(thisSigBytes);
-
-                return this;
             },
 
             clone: function () {
-                return new this.constructor(this.words.slice(0), this.getSigBytes());
-            },
-
-            _defaultEncoder: Hex,
-
-            toString: function (encoder) {
-                return (encoder || this._defaultEncoder).encode(this);
-            },
-
-            fromString: function (str, encoder) {
-                return (encoder || this._defaultEncoder).decode(str);
+                return this.super_.extend(this);
             }
-        });
+        };
 
         /* Encoding
         ------------------------------------------------------------ */
-        var enc = C.enc = {};
+        var C_enc = C.enc = {};
 
         /* Encoding / Hex
         --------------------------------------------- */
-        var Hex = enc.Hex = BaseObj.extend({
+        var Hex = C_enc.Hex = BaseObj.extend({
             encode: function (wordArray) {
                 // Shortcuts
                 var words = wordArray.words;
-                var sigBytes = wordArray.getSigBytes();
+                var sigBytes = wordArray.sigBytes;
 
                 var hexStr = [];
                 for (var i = 0; i < sigBytes; i++) {
-                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF;
+                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                     hexStr.push((bite >>> 4).toString(16));
-                    hexStr.push((bite & 0xF).toString(16));
+                    hexStr.push((bite & 0xf).toString(16));
                 }
 
                 return hexStr.join('');
@@ -164,21 +89,21 @@ if ( ! CryptoJS) {
                     words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
                 }
 
-                return new WordArray(words, hexStrLength / 2);
+                return WordArray.create(words, hexStrLength / 2);
             }
         });
 
         /* Encoding / ByteStr
         --------------------------------------------- */
-        var ByteStr = enc.ByteStr = BaseObj.extend({
+        var ByteStr = C_enc.ByteStr = BaseObj.extend({
             encode: function (wordArray) {
                 // Shortcuts
                 var words = wordArray.words;
-                var sigBytes = wordArray.getSigBytes();
+                var sigBytes = wordArray.sigBytes;
 
                 var byteStr = [];
                 for (var i = 0; i < sigBytes; i++) {
-                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xFF;
+                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                     byteStr.push(String.fromCharCode(bite));
                 }
 
@@ -194,13 +119,13 @@ if ( ! CryptoJS) {
                     words[i >>> 2] |= byteStr.charCodeAt(i) << (24 - (i % 4) * 8);
                 }
 
-                return new WordArray(words, byteStrLength);
+                return WordArray.create(words, byteStrLength);
             }
         });
 
         /* Encoding / Utf8Str
         --------------------------------------------- */
-        var Utf8Str = enc.Utf8Str = BaseObj.extend({
+        var Utf8Str = C_enc.Utf8Str = BaseObj.extend({
             encode: function (wordArray) {
                 return decodeURIComponent(escape(ByteStr.encode(wordArray)));
             },
@@ -209,5 +134,131 @@ if ( ! CryptoJS) {
                 return ByteStr.decode(unescape(encodeURIComponent(utf8Str)));
             }
         });
-    })();
+
+        /* Library
+        ------------------------------------------------------------ */
+        var C_lib = C.lib = {};
+
+        /* Library / WordArray
+        --------------------------------------------- */
+        var WordArray = C_lib.WordArray = BaseObj.extend({
+            init: function (words, sigBytes) {
+                words = words || [];
+
+                this.words = words;
+
+                if (sigBytes != undefined) {
+                    this.sigBytes = sigBytes;
+                } else {
+                    this.sigBytes = words.length * 4;
+                }
+            },
+
+            toString: function (encoder) {
+                return (encoder || this.encoder).encode(this);
+            },
+
+            fromString: function (str, encoder) {
+                return (encoder || this.encoder).decode(str);
+            },
+
+            encoder: Utf8Str,
+
+            concat: function (wordArray) {
+                // Shortcuts
+                var thisWords = this.words;
+                var thatWords = wordArray.words;
+
+                var thisSigBytes = this.sigBytes;
+                var thatSigBytes = wordArray.sigBytes;
+
+                for (var i = 0; i < thatSigBytes; i++) {
+                    var thatBite = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                    thisWords[thisSigBytes >>> 2] |= thatBite << (24 - (thisSigBytes % 4) * 8);
+                    thisSigBytes++;
+                }
+                this.sigBytes = thisSigBytes;
+
+                return this;
+            },
+
+            clamp: function () {
+                // Shortcuts
+                var words = this.words;
+                var sigBytes = this.sigBytes;
+
+                words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+                words.length = Math.ceil(sigBytes / 4);
+            },
+
+            clone: function () {
+                var clone = WordArray.super_.clone.call(this);
+                clone.words = this.words.slice(0);
+
+                return clone;
+            }
+        });
+
+        /* Library / CmdQueue
+        --------------------------------------------- */
+        var CmdQueue = C_lib.CmdQueue = BaseObj.extend({
+            init: function (async) {
+                this.queue = [];
+                this.index = 0;
+                this.async = async;
+                this.running = false;
+            },
+
+            execute: function (callback) {
+                // Shortcuts
+                var queue = this.queue;
+
+                // Add callback to queue
+                if (callback) {
+                    queue.push(
+                        cmdQueueCallbackDefaults.extend(callback)
+                    );
+                }
+
+                // Execute next callback
+                var nextCallback = queue[this.index];
+                if (nextCallback && ! this.running) {
+                    // Move next-callback pointer
+                    this.index += 1;
+
+                    if (this.async) {
+                        // Execute asyncronously
+                        this.running = true;
+
+                        var thisCmdQueue = this;
+                        setTimeout(function () {
+                            nextCallback.fn.apply(
+                                nextCallback.context,
+                                nextCallback.args
+                            );
+
+                            thisCmdQueue.running = false;
+                            thisCmdQueue.execute();
+                        }, 0);
+                    } else {
+                        // Execute syncronously
+                        return nextCallback.fn.apply(
+                            nextCallback.context,
+                            nextCallback.args
+                        );
+                    }
+                }
+            }
+        });
+
+        var cmdQueueCallbackDefaults = BaseObj.extend({
+            fn: function () {},
+            context: window,
+            args: []
+        });
+
+        /* Algorithms namespace
+        ------------------------------------------------------------ */
+        var C_algo = C.algo = {};
+    }());
 }

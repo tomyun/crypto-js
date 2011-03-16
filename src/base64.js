@@ -3,40 +3,50 @@
         encode: function (wordArray) {
             // Shortcuts
             var words = wordArray.words;
-            var sigBytes = wordArray.getSigBytes();
-            var map = this._map;
+            var sigBytes = wordArray.sigBytes;
+            var map = this.map;
+
+            // Clear excess bits
+            wordArray.clamp();
 
             var base64Str = [];
             for (var i = 0; i < sigBytes; i += 3) {
-                var bite1 = (words[(i    ) >>> 2] >>> (24 - ((i    ) % 4) * 8)) & 0xFF;
-                var bite2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xFF;
-                var bite3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xFF;
+                var bite1 = (words[(i    ) >>> 2] >>> (24 - ((i    ) % 4) * 8)) & 0xff;
+                var bite2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
+                var bite3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
 
                 var triplet = (bite1 << 16) | (bite2 << 8) | bite3;
 
                 for (var j = 0; (j < 4) && (i + j * 0.75 <= sigBytes); j++) {
-                    base64Str.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3F));
+                    base64Str.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
                 }
             }
 
-            this._addPadding(base64Str);
+            this.addPadding(base64Str);
 
             return base64Str.join('');
         },
 
-        _addPadding: function (base64Str) {
+        addPadding: function (base64Str) {
+            // Shortcuts
+            var map = this.map;
+
             while (base64Str.length % 4) {
-                base64Str.push(this._map.charAt(64));
+                base64Str.push(map.charAt(64));
             }
         },
 
         decode: function (base64Str) {
             // Shortcuts
-            var map = this._map;
+            var map = this.map;
 
             // Ignore padding
-            var paddingStart = base64Str.indexOf(map.charAt(64));
-            var base64StrLength = paddingStart != -1 ? paddingStart : base64Str.length;
+            var paddingStartPosition = base64Str.indexOf(map.charAt(64));
+            if (paddingStartPosition != -1) {
+                var base64StrLength = paddingStartPosition;
+            } else {
+                var base64StrLength = base64Str.length;
+            }
 
             var words = [];
             var bites = 0;
@@ -50,19 +60,19 @@
                 }
             }
 
-            return new C.lib.WordArray(words, bites);
+            return C.lib.WordArray.create(words, bites);
         },
 
-        _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+        map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
     });
 
-    var Base64UrlSafe = C.enc.Base64.UrlSafe = Base64.extend({
+    var Base64UrlSafe = Base64.UrlSafe = Base64.extend({
         // URL-safe alphabet
-        _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=',
+        map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=',
 
         // Skip padding
-        _addPadding: function () {
+        addPadding: function () {
             // Do nothing
         }
     });
-})(CryptoJS);
+}(CryptoJS));

@@ -1,21 +1,21 @@
 (function (C) {
-    var SHA1 = C.SHA1 = C.lib.Hasher.extend({
-        _doReset: function () {
+    var SHA1 = C.algo.SHA1 = C.lib.Hasher.extend({
+        doReset: function () {
             // Shortcuts
-            var H = this._hash.words;
+            var H = this.hash.words;
 
             // Initial values
             H[0] = 0x67452301;
-            H[1] = 0xEFCDAB89;
-            H[2] = 0x98BADCFE;
+            H[1] = 0xefcdab89;
+            H[2] = 0x98badcfe;
             H[3] = 0x10325476;
-            H[4] = 0xC3D2E1F0;
+            H[4] = 0xc3d2e1f0;
         },
 
-        _hashBlock: function (offset) {
+        doHashBlock: function (offset) {
             // Shortcuts
-            var m = this._message.words;
-            var H = this._hash.words;
+            var m = this.message.words;
+            var H = this.hash.words;
 
             var a = H[0];
             var b = H[1];
@@ -34,10 +34,10 @@
                 }
 
                 var t = ((a << 5) | (a >>> 27)) + e + (w[i] >>> 0);
-                if      (i < 20) t += ((b & c) | (~b & d)) + 0x5A827999;
-                else if (i < 40) t += (b ^ c ^ d) + 0x6ED9EBA1;
-                else if (i < 60) t += ((b & c) | (b & d) | (c & d)) - 0x70E44324;
-                else             t += (b ^ c ^ d) - 0x359D3E2A;
+                if      (i < 20) t += ((b & c) | (~b & d)) + 0x5a827999;
+                else if (i < 40) t += (b ^ c ^ d) + 0x6ed9eba1;
+                else if (i < 60) t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
+                else             t += (b ^ c ^ d) - 0x359d3e2a;
 
                 e = d;
                 d = c;
@@ -53,24 +53,26 @@
             H[4] = (H[4] + e) >>> 0;
         },
 
-        _doFinalize: function () {
+        doCompute: function () {
             // Shortcuts
-            var message = this._message;
+            var message = this.message;
             var m = message.words;
 
-            var nBitsTotal = this._length * 8;
-            var nBitsLeft = message.getSigBytes() * 8;
+            var nBitsTotal = this.length * 8;
+            var nBitsLeft = message.sigBytes * 8;
 
             // Add padding
             m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
             m[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            message.setSigBytes(m.length * 4);
+            message.sigBytes = m.length * 4;
 
             // Hash final blocks
-            this._hashBlocks();
+            this.hashBlocks();
         }
     });
 
-    // Static block size
-    SHA1.blockSize = 16;
-})(CryptoJS);
+    // Shortcut
+    C.SHA1 = function (message) {
+        return SHA1.create().compute(message);
+    };
+}(CryptoJS));
