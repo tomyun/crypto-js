@@ -81,6 +81,25 @@ var state = [[], [], [], []],
     nrounds,
     keyschedule;
 
+/**
+ * Ciphertext pseudo-class
+ */
+var Ciphertext = C.Ciphertext = function (ciphertext, iv) {
+	this.rawCiphertext = ciphertext;
+	this.iv = iv;
+};
+
+Ciphertext.prototype.toString = function () {
+	return util.bytesToBase64(this.iv.concat(this.rawCiphertext));
+};
+
+Ciphertext.fromString = function (ciphertext) {
+	ciphertext = util.base64ToBytes(ciphertext);
+	var iv = ciphertext.splice(0, AES._blocksize * 4);
+
+	return new Ciphertext(ciphertext, iv);
+};
+
 var AES = C.AES = {
 
 	/**
@@ -89,13 +108,15 @@ var AES = C.AES = {
 
 	encrypt: function (message, password, options) {
 
+		options = options || {};
+
 		var
 
 			// Convert to bytes
 			m = UTF8.stringToBytes(message),
 
 			// Generate random IV
-			iv = util.randomBytes(AES._blocksize * 4),
+			iv = options.iv || util.randomBytes(AES._blocksize * 4),
 
 			// Generate key
 			k = (
@@ -107,26 +128,28 @@ var AES = C.AES = {
 			),
 
 			// Determine mode
-			mode = options && options.mode || C.mode.OFB;
+			mode = options.mode || C.mode.OFB;
 
 		// Encrypt
 		AES._init(k);
 		mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return util.bytesToBase64(iv.concat(m));
+		return new Ciphertext(m, iv);
 
 	},
 
 	decrypt: function (ciphertext, password, options) {
 
+		// Convert String to Ciphertext object, else assume Ciphertext object already
+		if (typeof ciphertext == 'string') {
+			ciphertext = Ciphertext.fromString(ciphertext);
+		}
+
 		var
 
-			// Convert to bytes
-			c = util.base64ToBytes(ciphertext),
-
-			// Separate IV and message
-			iv = c.splice(0, AES._blocksize * 4),
+			c = ciphertext.rawCiphertext,
+			iv = ciphertext.iv,
 
 			// Generate key
 			k = (
