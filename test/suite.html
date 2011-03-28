@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>CryptoJS Test Suite</title>
 
         <!-- CryptoJS -->
@@ -12,7 +13,7 @@
         <script src="../src/sha256.js"></script>
         <script src="../src/hmac.js"></script>
         <script src="../src/pbkdf2.js"></script>
-        <script src="../src/marc4.js"></script>
+        <!--<script src="../src/marc4.js"></script>-->
 
         <!-- YUI -->
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
@@ -20,153 +21,250 @@
         <!-- Tests -->
         <script type="text/javascript">
             YUI().use('test', 'console', function (Y) {
-                var cjsTestSuite = new Y.Test.Suite('CryptoJS');
+                var cryptoJsTestSuite = new Y.Test.Suite('CryptoJS');
 
-                cjsTestSuite.add(new Y.Test.Case({
-                    name: 'BaseObj',
+                /* BaseObj
+                ------------------------------------------------------------ */
+                var baseObjTestSuite = new Y.Test.Suite('BaseObj');
+                cryptoJsTestSuite.add(baseObjTestSuite);
+
+                /* BaseObj / extend
+                --------------------------------------------- */
+                baseObjTestSuite.add(new Y.Test.Case({
+                    name: 'extend()',
 
                     setUp: function () {
                         this.data = {};
 
-                        // Parent type
-                        this.data.Parent = CryptoJS.oop.BaseObj.extend({
-                            shouldInherit: 'should_inherit',
-                            shouldOverride: 'should_override',
-                            init: function () {
-                                this.initExecuted = true;
-                            }
-                        });
+                        this.data.myObjOverrides = {
+                            abc: 'abc',
+                            toString: function () {}
+                        };
 
-                        // Child type
-                        this.data.Child = this.data.Parent.extend({
-                            shouldOverride: 'did_override'
-                        });
-
-                        // Child instance
-                        this.data.child = this.data.Child.create();
-
-                        // Child instance clone
-                        this.data.cloned = this.data.child.clone();
-
-                        // Differentiate child instance from clone
-                        this.data.child.afterCloned = true;
+                        this.data.myObj = CryptoJS.oop.BaseObj.extend(
+                            this.data.myObjOverrides
+                        );
                     },
 
-                    testCreate: function () {
-                        // Test inheritance
-                        Y.Assert.areEqual('should_inherit', this.data.child.shouldInherit);
-
-                        // Test super
-                        Y.Assert.areEqual(this.data.Child, this.data.child.super_);
-
-                        // Test init executed
-                        Y.Assert.isTrue(this.data.child.initExecuted);
+                    testBaseObjExtendInheritance: function () {
+                        Y.Assert.areEqual(CryptoJS.oop.BaseObj.extend, this.data.myObj.extend);
+                        Y.Assert.isFalse(this.data.myObj.hasOwnProperty('extend'));
                     },
 
-                    testExtend: function () {
-                        // Test inheritance
-                        Y.Assert.areEqual('should_inherit', this.data.Child.shouldInherit);
-
-                        // Test super
-                        Y.Assert.areEqual(this.data.Parent, this.data.Child.super_);
-
-                        // Test overrides
-                        Y.Assert.areEqual('did_override', this.data.Child.shouldOverride);
+                    testBaseObjExtendSuper: function () {
+                        Y.Assert.areEqual(CryptoJS.oop.BaseObj, this.data.myObj.super_);
                     },
 
-                    testClone: function () {
-                        // Test new object
-                        Y.Assert.areNotEqual(this.data.child, this.data.cloned);
+                    testBaseObjExtendOverrides: function () {
+                        Y.Assert.areEqual(this.data.myObjOverrides.abc, this.data.myObj.abc);
+                        Y.Assert.isTrue(this.data.myObj.hasOwnProperty('abc'));
 
-                        // Test clone has clonee's properties
-                        for (var k in this.data.child) {
-                            if (k != 'afterCloned') {
-                                Y.Assert.areEqual(this.data.child[k], this.data.cloned[k]);
-                            }
-                        }
-
-                        // Test changes to original don't affect clone
-                        Y.Assert.isUndefined(this.data.cloned.afterCloned);
+                        Y.Assert.areEqual(this.data.myObjOverrides.toString, this.data.myObj.toString);
+                        Y.Assert.isTrue(this.data.myObj.hasOwnProperty('toString'));
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* BaseObj / create
+                --------------------------------------------- */
+                baseObjTestSuite.add(new Y.Test.Case({
+                    name: 'create()',
+
+                    setUp: function () {
+                        this.data = {};
+
+                        this.data.MyObj = CryptoJS.oop.BaseObj.extend({
+                            init: function (myArg) {
+                                this.initFired = true;
+                                this.myArg = myArg;
+                            }
+                        });
+
+                        this.data.myObj = this.data.MyObj.create('myArg');
+                    },
+
+                    testBaseObjCreateInheritance: function () {
+                        // from MyObj
+                        Y.Assert.areEqual(this.data.MyObj.init, this.data.myObj.init);
+                        Y.Assert.isFalse(this.data.myObj.hasOwnProperty('init'));
+
+                        // from BaseObj
+                        Y.Assert.areEqual(CryptoJS.oop.BaseObj.extend, this.data.myObj.extend);
+                        Y.Assert.isFalse(this.data.myObj.hasOwnProperty('extend'));
+                    },
+
+                    testBaseObjCreateSuper: function () {
+                        Y.Assert.areEqual(this.data.MyObj, this.data.myObj.super_);
+                    },
+
+                    testBaseObjCreateInit: function () {
+                        Y.Assert.isTrue(this.data.myObj.initFired);
+                        Y.Assert.areEqual('myArg', this.data.myObj.myArg);
+                    }
+                }));
+
+                /* BaseObj / clone
+                --------------------------------------------- */
+                baseObjTestSuite.add(new Y.Test.Case({
+                    name: 'clone()',
+
+                    setUp: function () {
+                        this.data = {};
+
+                        this.data.myObj = CryptoJS.oop.BaseObj.extend({
+                            abc: 'abc'
+                        });
+
+                        this.data.myObjClone = this.data.myObj.clone();
+                    },
+
+                    testBaseObjCloneDistinct: function () {
+                        Y.Assert.areNotEqual(this.data.myObj, this.data.myObjClone);
+                    },
+
+                    testBaseObjCloneParent: function () {
+                        Y.Assert.areEqual(this.data.myObj.super_, this.data.myObjClone.super_);
+                    },
+
+                    testBaseObjCloneCopy: function () {
+                        Y.Assert.areEqual(this.data.myObj.abc, this.data.myObjClone.abc);
+                    }
+                }));
+
+                /* WordArray
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'WordArray',
 
-                    testInit: function () {
-                        // Test create()
-                        var w1 = CryptoJS.lib.WordArray.create();
-                        Y.Assert.areEqual([], w1.words.toString());
-                        Y.Assert.areEqual(0, w1.sigBytes);
+                    testWordArrayInit0: function () {
+                        var wordArray = CryptoJS.lib.WordArray.create();
 
-                        // Test create(words)
-                        var words = [0x12345678];
-                        var w2 = CryptoJS.lib.WordArray.create(words);
-                        Y.Assert.areEqual(words, w2.words);
-                        Y.Assert.areEqual(4, w2.sigBytes);
-
-                        // Test create(words, sigBytes)
-                        var words = [0x12345678];
-                        var w3 = CryptoJS.lib.WordArray.create(words, 2);
-                        Y.Assert.areEqual(words, w3.words);
-                        Y.Assert.areEqual(2, w3.sigBytes);
+                        Y.Assert.areEqual([], wordArray.words.toString());
+                        Y.Assert.areEqual(0, wordArray.sigBytes);
                     },
 
-                    testToString: function () {
+                    testWordArrayInit1: function () {
+                        var words = [0x12345678];
+                        var wordArray = CryptoJS.lib.WordArray.create(words);
+
+                        Y.Assert.areEqual(words, wordArray.words);
+                        Y.Assert.areEqual(4, wordArray.sigBytes);
+                    },
+
+                    testWordArrayInit2: function () {
+                        var words = [0x12345678];
+                        var sigBytes = 2;
+                        var wordArray = CryptoJS.lib.WordArray.create(words, sigBytes);
+
+                        Y.Assert.areEqual(words, wordArray.words);
+                        Y.Assert.areEqual(sigBytes, wordArray.sigBytes);
+                    },
+
+                    testWordArrayToString: function () {
                         Y.Assert.areEqual('𤭢', CryptoJS.lib.WordArray.create([0xf0a4ada2], 4).toString());
+                        Y.Assert.areEqual('f0a4ada2', CryptoJS.lib.WordArray.create([0xf0a4ada2], 4).toString(CryptoJS.enc.Hex));
                     },
 
-                    testFromString: function () {
+                    testWordArrayFromString: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xf0a4ada2], 4), CryptoJS.lib.WordArray.fromString('𤭢').toString());
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xf0a4ada2], 4), CryptoJS.lib.WordArray.fromString('f0a4ada2', CryptoJS.enc.Hex).toString());
                     },
 
-                    testConcat: function () {
-                        Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x2148656c, 0x6c6f2c20, 0x576f726c, 0x64210000], 26), CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13).concat(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13)).toString());
+                    testWordArrayDefaultEncoder: function () {
+                        var wordArray = CryptoJS.lib.WordArray.create([0xf0a4ada2], 4);
+                        wordArray.defaultEncoder = CryptoJS.enc.Hex;
+
+                        Y.Assert.areEqual('f0a4ada2', wordArray.toString());
                     },
 
-                    testClamp: function () {
-                        var wordArray = CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x2148656c, 0x6f2c2057], 13);
+                    testWordArrayConcat: function () {
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x61626361, 0x62630000], 6), CryptoJS.lib.WordArray.create([0x61626300], 3).concat(CryptoJS.lib.WordArray.create([0x61626300], 3)).toString());
+                    },
+
+                    testWordArrayClamp: function () {
+                        var wordArray = CryptoJS.lib.WordArray.create([0x61626361, 0x62630000], 3);
                         wordArray.clamp();
 
-                        Y.Assert.areEqual([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], wordArray.words.toString());
+                        Y.Assert.areEqual([0x61626300], wordArray.words.toString());
+                    },
+
+                    testWordArrayRandom: function () {
+                        Y.Assert.areNotEqual(CryptoJS.lib.WordArray.random(8), CryptoJS.lib.WordArray.random(8));
+                        Y.Assert.areEqual(6, CryptoJS.lib.WordArray.random(6).sigBytes);
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* CustomEvent
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'CustomEvent',
+
+                    testCustomEventSubscribe: function () {
+                        Y.Assert.fail();
+                    },
+
+                    testCustomEventFire: function () {
+                        Y.Assert.fail();
+                    }
+                }));
+
+                /* CmdQueue
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'CmdQueue',
+
+                    testCmdQueueSyncExecute: function () {
+                        Y.Assert.fail();
+                    },
+
+                    testCmdQueueAsyncExecute: function () {
+                        Y.Assert.fail();
+                    }
+                }));
+
+                /* Encoding
+                ------------------------------------------------------------ */
+
+                /* Encoding / Hex
+                --------------------------------------------- */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'Hex',
 
-                    testEncode: function () {
+                    testHexEncode: function () {
                         Y.Assert.areEqual('48656c6c6f2c20576f726c6421', CryptoJS.enc.Hex.encode(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13)));
                     },
 
-                    testDecode: function () {
+                    testHexDecode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13), CryptoJS.enc.Hex.decode('48656c6c6f2c20576f726c6421').toString());
-                    },
+                    }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* Encoding / ByteStr
+                --------------------------------------------- */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'ByteStr',
 
-                    testEncode: function () {
+                    testByteStrEncode: function () {
                         Y.Assert.areEqual('Hello, World!', CryptoJS.enc.ByteStr.encode(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13)));
                     },
 
-                    testDecode: function () {
+                    testByteStrDecode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13), CryptoJS.enc.ByteStr.decode('Hello, World!').toString());
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* Encoding / Utf8Str
+                --------------------------------------------- */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'Utf8Str',
 
-                    testEncode: function () {
+                    testUtf8StrEncode: function () {
                         Y.Assert.areEqual('$', CryptoJS.enc.Utf8Str.encode(CryptoJS.lib.WordArray.create([0x24000000], 1)));
                         Y.Assert.areEqual('¢', CryptoJS.enc.Utf8Str.encode(CryptoJS.lib.WordArray.create([0xc2a20000], 2)));
                         Y.Assert.areEqual('€', CryptoJS.enc.Utf8Str.encode(CryptoJS.lib.WordArray.create([0xe282ac00], 3)));
                         Y.Assert.areEqual('𤭢', CryptoJS.enc.Utf8Str.encode(CryptoJS.lib.WordArray.create([0xf0a4ada2], 4)));
                     },
 
-                    testDecode: function () {
+                    testUtf8StrDecode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x24000000], 1), CryptoJS.enc.Utf8Str.decode('$').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xc2a20000], 2), CryptoJS.enc.Utf8Str.decode('¢').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xe282ac00], 3), CryptoJS.enc.Utf8Str.decode('€').toString());
@@ -174,10 +272,12 @@
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* Encoding / Base64
+                --------------------------------------------- */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'Base64',
 
-                    testEncode: function () {
+                    testBase64Encode: function () {
                         Y.Assert.areEqual('', CryptoJS.enc.Base64.encode(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 0)));
                         Y.Assert.areEqual('Zg==', CryptoJS.enc.Base64.encode(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 1)));
                         Y.Assert.areEqual('Zm8=', CryptoJS.enc.Base64.encode(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 2)));
@@ -186,13 +286,14 @@
                         Y.Assert.areEqual('Zm9vYmE=', CryptoJS.enc.Base64.encode(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 5)));
                         Y.Assert.areEqual('Zm9vYmFy', CryptoJS.enc.Base64.encode(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 6)));
                         Y.Assert.areEqual('Pj4+Pz8/Pj4+Pz8/PS8r', CryptoJS.enc.Base64.encode(CryptoJS.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15)));
+                    },
 
-                        // Test URL safe
+                    testBase64UrlSafeEncode: function () {
                         Y.Assert.areEqual('Zg', CryptoJS.enc.Base64.UrlSafe.encode(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 1)));
                         Y.Assert.areEqual('Pj4-Pz8_Pj4-Pz8_PS8r', CryptoJS.enc.Base64.UrlSafe.encode(CryptoJS.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15)));
                     },
 
-                    testDecode: function () {
+                    testBase64Decode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 0), CryptoJS.enc.Base64.decode('').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 1), CryptoJS.enc.Base64.decode('Zg==').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 2), CryptoJS.enc.Base64.decode('Zm8=').toString());
@@ -201,34 +302,139 @@
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 5), CryptoJS.enc.Base64.decode('Zm9vYmE=').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 6), CryptoJS.enc.Base64.decode('Zm9vYmFy').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15), CryptoJS.enc.Base64.decode('Pj4+Pz8/Pj4+Pz8/PS8r').toString());
+                    },
 
-                        // Test URL safe
+                    testBase64UrlSafeDecode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 1), CryptoJS.enc.Base64.UrlSafe.decode('Zg').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15), CryptoJS.enc.Base64.UrlSafe.decode('Pj4-Pz8_Pj4-Pz8_PS8r').toString());
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* Hasher
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'Hasher',
+
+                    testHasherUpdate: function () {
+                        var md5 = CryptoJS.algo.MD5.create({ salt: null });
+                        var expectedHash = md5.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString();
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: null });
+                        md5.update('1234567890123456789012345678901234567890');
+                        md5.update('12345678901234567890');
+                        var actualHash = md5.compute('12345678901234567890').toString();
+
+                        Y.Assert.areEqual(expectedHash, actualHash);
+                    },
+
+                    testHasherCustomSalt: function () {
+                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: null });
+                        var expectedHash = 'salt_' + salt.toString(CryptoJS.enc.Hex) + '_' + md5.update(salt).compute('');
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: salt });
+                        var actualHash = md5.compute('').toString();
+
+                        Y.Assert.areEqual(actualHash, expectedHash);
+                    },
+
+                    testHasherRandomSalt: function () {
+                        Y.Assert.areNotEqual(
+                            CryptoJS.algo.MD5.create().options.salt.toString(CryptoJS.enc.Hex),
+                            CryptoJS.algo.MD5.create().options.salt.toString(CryptoJS.enc.Hex)
+                        );
+                    },
+
+                    testHasherBeforeComputeSalter: function () {
+                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+
+                        var beforeComputeSalter = function (salt) {
+                            this.beforeCompute.subscribe({
+                                fn: function (salt) {
+                                    this.update(salt);
+                                },
+                                context: this,
+                                args: [salt]
+                            });
+                        };
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: null });
+                        var expectedHash = 'salt_' + salt.toString(CryptoJS.enc.Hex) + '_' + md5.update('').compute(salt);
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: salt, salter: beforeComputeSalter });
+                        var actualHash = md5.compute('').toString();
+
+                        Y.Assert.areEqual(expectedHash, actualHash);
+                    },
+
+                    testHasherAfterComputeSalter: function () {
+                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+
+                        var afterComputeSalter = function (salt) {
+                            this.afterCompute.subscribe({
+                                fn: function (salt) {
+                                    var hasher = this.super_.create({ salt: null });
+                                    this.hash = hasher.update(salt).compute(this.hash);
+                                },
+                                context: this,
+                                args: [salt]
+                            });
+                        };
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: null });
+                        var intermediate = md5.compute('').rawHash;
+                        var expectedHash = 'salt_' + salt.toString(CryptoJS.enc.Hex) + '_' + md5.update(salt).compute(intermediate);
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: salt, salter: afterComputeSalter });
+                        var actualHash = md5.compute('').toString();
+
+                        Y.Assert.areEqual(expectedHash, actualHash);
+                    },
+
+                    testHasherHashObj: function () {
+                        var hashObj = CryptoJS.lib.Hash.extend({
+                            toString: function () {
+                                var hashStr = '{ hash: "' + this.rawHash + '"';
+
+                                if (this.salt) {
+                                    hashStr += ', salt: "' + this.salt + '"';
+                                }
+
+                                hashStr += ' }';
+
+                                return hashStr;
+                            }
+                        });
+                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+
+                        var md5 = CryptoJS.algo.MD5.create({ salt: salt });
+                        var hash = md5.compute('');
+                        var expectedHash = '{ hash: "' + hash.rawHash + '", salt: "' + hash.salt + '" }';
+
+                        var md5 = CryptoJS.algo.MD5.create({ hashObj: hashObj, salt: salt });
+                        var actualHash = md5.compute('').toString();
+
+                        Y.Assert.areEqual(expectedHash, actualHash);
+                    }
+                }));
+
+                /* MD5
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'MD5',
 
                     testMD5: function () {
-                        Y.Assert.areEqual('d41d8cd98f00b204e9800998ecf8427e', CryptoJS.MD5(''));
-                        Y.Assert.areEqual('0cc175b9c0f1b6a831c399e269772661', CryptoJS.MD5('a'));
-                        Y.Assert.areEqual('900150983cd24fb0d6963f7d28e17f72', CryptoJS.MD5('abc'));
-                        Y.Assert.areEqual('f96b697d7cb7938d525a2f31aaf161d0', CryptoJS.MD5('message digest'));
-                        Y.Assert.areEqual('c3fcd3d76192e4007dfb496cca67e13b', CryptoJS.MD5('abcdefghijklmnopqrstuvwxyz'));
-                        Y.Assert.areEqual('d174ab98d277d9f5a5611c2c9f419d9f', CryptoJS.MD5('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'));
-                        Y.Assert.areEqual('57edf4a22be3c955ac49da2e2107b67a', CryptoJS.MD5('12345678901234567890123456789012345678901234567890123456789012345678901234567890'));
+                        var md5 = CryptoJS.algo.MD5.create({ salt: null });
 
-                        // Test update
-                        var md5 = CryptoJS.algo.MD5.create();
-                        md5.update('1234567890123456789012345678901234567890');
-                        md5.update('12345678901234567890');
-                        var hash = md5.compute('12345678901234567890');
-                        Y.Assert.areEqual('57edf4a22be3c955ac49da2e2107b67a', hash);
+                        Y.Assert.areEqual('d41d8cd98f00b204e9800998ecf8427e', md5.compute(''));
+                        Y.Assert.areEqual('0cc175b9c0f1b6a831c399e269772661', md5.compute('a'));
+                        Y.Assert.areEqual('900150983cd24fb0d6963f7d28e17f72', md5.compute('abc'));
+                        Y.Assert.areEqual('f96b697d7cb7938d525a2f31aaf161d0', md5.compute('message digest'));
+                        Y.Assert.areEqual('c3fcd3d76192e4007dfb496cca67e13b', md5.compute('abcdefghijklmnopqrstuvwxyz'));
+                        Y.Assert.areEqual('d174ab98d277d9f5a5611c2c9f419d9f', md5.compute('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'));
+                        Y.Assert.areEqual('57edf4a22be3c955ac49da2e2107b67a', md5.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890'));
 
-                        // Test long string
-                        var md5 = CryptoJS.algo.MD5.create();
                         for (var i = 0; i < 100; i++) {
                             md5.update('12345678901234567890123456789012345678901234567890');
                         }
@@ -237,27 +443,22 @@
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* SHA1
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'SHA1',
 
                     testSHA1: function () {
-                        Y.Assert.areEqual('da39a3ee5e6b4b0d3255bfef95601890afd80709', CryptoJS.SHA1(''));
-                        Y.Assert.areEqual('86f7e437faa5a7fce15d1ddcb9eaeaea377667b8', CryptoJS.SHA1('a'));
-                        Y.Assert.areEqual('a9993e364706816aba3e25717850c26c9cd0d89d', CryptoJS.SHA1('abc'));
-                        Y.Assert.areEqual('c12252ceda8be8994d5fa0290a47231c1d16aae3', CryptoJS.SHA1('message digest'));
-                        Y.Assert.areEqual('32d10c7b8cf96570ca04ce37f2a19d84240d3a89', CryptoJS.SHA1('abcdefghijklmnopqrstuvwxyz'));
-                        Y.Assert.areEqual('761c457bf73b14d27e9e9265c46f4b4dda11f940', CryptoJS.SHA1('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'));
-                        Y.Assert.areEqual('50abf5706a150990a08b2c5ea40fa0e585554732', CryptoJS.SHA1('12345678901234567890123456789012345678901234567890123456789012345678901234567890'));
+                        var sha1 = CryptoJS.algo.SHA1.create({ salt: null });
 
-                        // Test update
-                        var sha1 = CryptoJS.algo.SHA1.create();
-                        sha1.update('1234567890123456789012345678901234567890');
-                        sha1.update('12345678901234567890');
-                        var hash = sha1.compute('12345678901234567890');
-                        Y.Assert.areEqual('50abf5706a150990a08b2c5ea40fa0e585554732', hash);
+                        Y.Assert.areEqual('da39a3ee5e6b4b0d3255bfef95601890afd80709', sha1.compute(''));
+                        Y.Assert.areEqual('86f7e437faa5a7fce15d1ddcb9eaeaea377667b8', sha1.compute('a'));
+                        Y.Assert.areEqual('a9993e364706816aba3e25717850c26c9cd0d89d', sha1.compute('abc'));
+                        Y.Assert.areEqual('c12252ceda8be8994d5fa0290a47231c1d16aae3', sha1.compute('message digest'));
+                        Y.Assert.areEqual('32d10c7b8cf96570ca04ce37f2a19d84240d3a89', sha1.compute('abcdefghijklmnopqrstuvwxyz'));
+                        Y.Assert.areEqual('761c457bf73b14d27e9e9265c46f4b4dda11f940', sha1.compute('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'));
+                        Y.Assert.areEqual('50abf5706a150990a08b2c5ea40fa0e585554732', sha1.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890'));
 
-                        // Test long string
-                        var sha1 = CryptoJS.algo.SHA1.create();
                         for (var i = 0; i < 100; i++) {
                             sha1.update('12345678901234567890123456789012345678901234567890');
                         }
@@ -266,27 +467,22 @@
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* SHA256
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'SHA256',
 
                     testSHA256: function () {
-                        Y.Assert.areEqual('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', CryptoJS.SHA256(''));
-                        Y.Assert.areEqual('ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb', CryptoJS.SHA256('a'));
-                        Y.Assert.areEqual('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', CryptoJS.SHA256('abc'));
-                        Y.Assert.areEqual('f7846f55cf23e14eebeab5b4e1550cad5b509e3348fbc4efa3a1413d393cb650', CryptoJS.SHA256('message digest'));
-                        Y.Assert.areEqual('71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73', CryptoJS.SHA256('abcdefghijklmnopqrstuvwxyz'));
-                        Y.Assert.areEqual('db4bfcbd4da0cd85a60c3c37d3fbd8805c77f15fc6b1fdfe614ee0a7c8fdb4c0', CryptoJS.SHA256('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'));
-                        Y.Assert.areEqual('f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e', CryptoJS.SHA256('12345678901234567890123456789012345678901234567890123456789012345678901234567890'));
+                        var sha256 = CryptoJS.algo.SHA256.create({ salt: null });
 
-                        // Test update
-                        var sha256 = CryptoJS.algo.SHA256.create();
-                        sha256.update('1234567890123456789012345678901234567890');
-                        sha256.update('12345678901234567890');
-                        var hash = sha256.compute('12345678901234567890');
-                        Y.Assert.areEqual('f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e', hash);
+                        Y.Assert.areEqual('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', sha256.compute(''));
+                        Y.Assert.areEqual('ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb', sha256.compute('a'));
+                        Y.Assert.areEqual('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', sha256.compute('abc'));
+                        Y.Assert.areEqual('f7846f55cf23e14eebeab5b4e1550cad5b509e3348fbc4efa3a1413d393cb650', sha256.compute('message digest'));
+                        Y.Assert.areEqual('71c480df93d6ae2f1efad1447c66c9525e316218cf51fc8d9ed832f2daf18b73', sha256.compute('abcdefghijklmnopqrstuvwxyz'));
+                        Y.Assert.areEqual('db4bfcbd4da0cd85a60c3c37d3fbd8805c77f15fc6b1fdfe614ee0a7c8fdb4c0', sha256.compute('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'));
+                        Y.Assert.areEqual('f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e', sha256.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890'));
 
-                        // Test long string
-                        var sha256 = CryptoJS.algo.SHA256.create();
                         for (var i = 0; i < 100; i++) {
                             sha256.update('12345678901234567890123456789012345678901234567890');
                         }
@@ -295,13 +491,15 @@
                     }
                 }));
 
-                cjsTestSuite.add(new Y.Test.Case({
+                /* HMAC
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'HMAC',
 
                     testHMAC: function () {
-                        Y.Assert.areEqual('9294727a3638bb1c13f48ef8158bfc9d', CryptoJS.HMAC(CryptoJS.algo.MD5, 'Hi There', '\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b'));
-                        Y.Assert.areEqual('750c783e6ab0b503eaa86e310a5db738', CryptoJS.HMAC(CryptoJS.algo.MD5, 'what do ya want for nothing?', 'Jefe'));
-                        Y.Assert.areEqual('56be34521d144c88dbb8c733f0e8b3f6', CryptoJS.HMAC(CryptoJS.algo.MD5, CryptoJS.enc.ByteStr.decode('\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD'), CryptoJS.enc.ByteStr.decode('\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA')));
+                        Y.Assert.areEqual('9294727a3638bb1c13f48ef8158bfc9d', CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, '\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b\x0b').compute('Hi There'));
+                        Y.Assert.areEqual('750c783e6ab0b503eaa86e310a5db738', CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, 'Jefe').compute('what do ya want for nothing?'));
+                        Y.Assert.areEqual('56be34521d144c88dbb8c733f0e8b3f6', CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, CryptoJS.enc.ByteStr.decode('\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA\xAA')).compute(CryptoJS.enc.ByteStr.decode('\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD\xDD')));
 
                         // Test update
                         var hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, CryptoJS.enc.ByteStr.decode('\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa\xaa'));
@@ -311,6 +509,15 @@
                         Y.Assert.areEqual('56be34521d144c88dbb8c733f0e8b3f6', hash);
                     }
                 }));
+
+                /*
+
+
+
+
+
+
+
 
                 cjsTestSuite.add(new Y.Test.Case({
                     name: 'PBKDF2',
@@ -333,8 +540,8 @@
                         Y.Assert.areEqual('6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52', CryptoJS.PBKDF2(CryptoJS.enc.ByteStr.decode('\xf0\x9d\x84\x9e'), 'EXAMPLE.COMpianist', { keySize: 256/32, iterations: 50 }));
                     }
                 }));
-
-                Y.Test.Runner.add(cjsTestSuite);
+*/
+                Y.Test.Runner.add(cryptoJsTestSuite);
 
                 new Y.Console({
                     style: 'block',
@@ -355,20 +562,17 @@
             });
         </script>
 
-        <!-- Console -->
         <style type="text/css">
             body.yui3-skin-sam .yui3-console-entry-meta,
             body.yui3-skin-sam .yui3-console-entry-content {
                 display: inline-block;
                 vertical-align: top;
             }
-
             body.yui3-skin-sam .yui3-console-entry-cat {
                 display: inline-block;
                 width: 35px;
                 text-align: center;
             }
-
             body.yui3-skin-sam .yui3-console-entry {
                 min-height: 0;
             }

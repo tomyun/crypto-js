@@ -51,6 +51,7 @@ if ( ! CryptoJS) {
             },
 
             init: function () {
+                // Stub
             },
 
             clone: function () {
@@ -143,9 +144,7 @@ if ( ! CryptoJS) {
         --------------------------------------------- */
         var WordArray = C_lib.WordArray = BaseObj.extend({
             init: function (words, sigBytes) {
-                words = words || [];
-
-                this.words = words;
+                words = this.words = words || [];
 
                 if (sigBytes != undefined) {
                     this.sigBytes = sigBytes;
@@ -154,15 +153,15 @@ if ( ! CryptoJS) {
                 }
             },
 
+            defaultEncoder: Utf8Str,
+
             toString: function (encoder) {
-                return (encoder || this.encoder).encode(this);
+                return (encoder || this.defaultEncoder).encode(this);
             },
 
             fromString: function (str, encoder) {
-                return (encoder || this.encoder).decode(str);
+                return (encoder || this.defaultEncoder).decode(str);
             },
-
-            encoder: Utf8Str,
 
             concat: function (wordArray) {
                 // Shortcuts
@@ -196,6 +195,49 @@ if ( ! CryptoJS) {
                 clone.words = this.words.slice(0);
 
                 return clone;
+            },
+
+            random: function (nBytes) {
+                var words = [];
+
+                var nWords = Math.ceil(nBytes / 4);
+                for (var i = 0; i < nWords; i++) {
+                    words.push(Math.floor(Math.random() * 0x100000000));
+                }
+
+                return WordArray.create(words, nBytes);
+            }
+        });
+
+        /* Library / CallbackDefaults
+        --------------------------------------------- */
+        var callbackDefaults = BaseObj.extend({
+            fn: function () {},
+            context: window,
+            args: []
+        });
+
+        /* Library / CustomEvent
+        --------------------------------------------- */
+        var CustomEvent = C_lib.CustomEvent = BaseObj.extend({
+            init: function () {
+                this.subscribers = [];
+            },
+
+            subscribe: function (callback) {
+                this.subscribers.push(callbackDefaults.extend(callback));
+            },
+
+            fire: function () {
+                // Shortcuts
+                var subscribers = this.subscribers;
+                var subscribersLength = subscribers.length;
+
+                // Execute callbacks
+                for (var i = 0; i < subscribersLength; i++) {
+                    var callback = subscribers[i];
+                    callback.fn.apply(callback.context, callback.args);
+                }
             }
         });
 
@@ -205,26 +247,31 @@ if ( ! CryptoJS) {
             init: function (async) {
                 this.queue = [];
                 this.index = 0;
-                this.async = async;
+                this.async = !! async;
                 this.running = false;
             },
 
             execute: function (callback) {
                 // Shortcuts
                 var queue = this.queue;
+                var index = this.index;
 
                 // Add callback to queue
                 if (callback) {
                     queue.push(
-                        cmdQueueCallbackDefaults.extend(callback)
+                        callbackDefaults.extend(callback)
                     );
                 }
 
                 // Execute next callback
-                var nextCallback = queue[this.index];
+                var nextCallback = queue[index];
+
                 if (nextCallback && ! this.running) {
-                    // Move next-callback pointer
-                    this.index += 1;
+                    // Free memory
+                    delete queue[index];
+
+                    // Move callback pointer
+                    this.index++;
 
                     if (this.async) {
                         // Execute asyncronously
@@ -232,11 +279,13 @@ if ( ! CryptoJS) {
 
                         var thisCmdQueue = this;
                         setTimeout(function () {
+                            // Sometime later, execute the callback
                             nextCallback.fn.apply(
                                 nextCallback.context,
                                 nextCallback.args
                             );
 
+                            // Then execute the next callback
                             thisCmdQueue.running = false;
                             thisCmdQueue.execute();
                         }, 0);
@@ -249,12 +298,6 @@ if ( ! CryptoJS) {
                     }
                 }
             }
-        });
-
-        var cmdQueueCallbackDefaults = BaseObj.extend({
-            fn: function () {},
-            context: window,
-            args: []
         });
 
         /* Algorithms namespace

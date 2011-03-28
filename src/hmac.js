@@ -2,7 +2,7 @@
     var HMAC = C.algo.HMAC = C.oop.BaseObj.extend({
         init: function (hasher, key) {
             // Init hasher
-            this.hasher = (hasher = hasher.create());
+            hasher = this.hasher = hasher.create({ salt: null });
 
             // Convert String to WordArray, else assume WordArray already
             if (typeof key == 'string') {
@@ -14,7 +14,7 @@
 
             // Allow arbitrary length keys
             if (key.words.length > blockSize) {
-                key = hasher.compute(key);
+                key = hasher.compute(key).rawHash;
             }
 
             // Copy key for inner and outer pads
@@ -52,6 +52,7 @@
         },
 
         compute: function (messageUpdate) {
+            // Final message update
             if (messageUpdate) {
                 this.update(messageUpdate);
             }
@@ -60,16 +61,11 @@
             var hasher = this.hasher;
 
             // Compute HMAC
-            var hmac = hasher.compute(this.oKey.clone().concat(hasher.compute()));
+            var hmac = hasher.compute(this.oKey.clone().concat(hasher.compute().rawHash)).rawHash;
 
             this.reset();
 
             return hmac;
         }
     });
-
-    // Shortcut
-    C.HMAC = function (hasher, message, key) {
-        return HMAC.create(hasher, key).compute(message);
-    };
 }(CryptoJS));

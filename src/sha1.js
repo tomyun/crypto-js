@@ -70,9 +70,4 @@
             this.hashBlocks();
         }
     });
-
-    // Shortcut
-    C.SHA1 = function (message) {
-        return SHA1.create().compute(message);
-    };
 }(CryptoJS));

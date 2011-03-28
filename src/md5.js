@@ -1,4 +1,26 @@
 (function (C) {
+    // Auxiliary functions
+    function FF(a, b, c, d, x, s, t) {
+        var n = a + ((b & c) | (~b & d)) + (x >>> 0) + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    function GG(a, b, c, d, x, s, t) {
+        var n = a + ((b & d) | (c & ~d)) + (x >>> 0) + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    function HH(a, b, c, d, x, s, t) {
+        var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    function II(a, b, c, d, x, s, t) {
+        var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+        return ((n << s) | (n >>> (32 - s))) + b;
+    }
+
+    // Public object
     var MD5 = C.algo.MD5 = C.lib.Hasher.extend({
         doReset: function () {
             // Shortcuts
@@ -133,30 +155,4 @@
                    (((H[3] << 24) | (H[3] >>>  8)) & 0xff00ff00);
         }
     });
-
-    // Auxiliary functions
-    function FF(a, b, c, d, x, s, t) {
-        var n = a + ((b & c) | (~b & d)) + (x >>> 0) + t;
-        return ((n << s) | (n >>> (32 - s))) + b;
-    }
-
-    function GG(a, b, c, d, x, s, t) {
-        var n = a + ((b & d) | (c & ~d)) + (x >>> 0) + t;
-        return ((n << s) | (n >>> (32 - s))) + b;
-    }
-
-    function HH(a, b, c, d, x, s, t) {
-        var n = a + (b ^ c ^ d) + (x >>> 0) + t;
-        return ((n << s) | (n >>> (32 - s))) + b;
-    }
-
-    function II(a, b, c, d, x, s, t) {
-        var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
-        return ((n << s) | (n >>> (32 - s))) + b;
-    }
-
-    // Shortcut
-    C.MD5 = function (message) {
-        return MD5.create().compute(message);
-    };
 }(CryptoJS));
