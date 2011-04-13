@@ -81,25 +81,6 @@ var state = [[], [], [], []],
     nrounds,
     keyschedule;
 
-/**
- * Ciphertext pseudo-class
- */
-var Ciphertext = C.Ciphertext = function (ciphertext, iv) {
-	this.rawCiphertext = ciphertext;
-	this.iv = iv;
-};
-
-Ciphertext.prototype.toString = function () {
-	return util.bytesToBase64(this.iv.concat(this.rawCiphertext));
-};
-
-Ciphertext.fromString = function (ciphertext) {
-	ciphertext = util.base64ToBytes(ciphertext);
-	var iv = ciphertext.splice(0, AES._blocksize * 4);
-
-	return new Ciphertext(ciphertext, iv);
-};
-
 var AES = C.AES = {
 
 	/**
@@ -135,21 +116,21 @@ var AES = C.AES = {
 		mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return new Ciphertext(m, iv);
+		return util.bytesToBase64(options.iv ? m : iv.concat(m));
 
 	},
 
 	decrypt: function (ciphertext, password, options) {
 
-		// Convert String to Ciphertext object, else assume Ciphertext object already
-		if (typeof ciphertext == 'string') {
-			ciphertext = Ciphertext.fromString(ciphertext);
-		}
+		options = options || {};
 
 		var
 
-			c = ciphertext.rawCiphertext,
-			iv = ciphertext.iv,
+			// Convert to bytes
+			c = util.base64ToBytes(ciphertext),
+
+			// Separate IV and message
+			iv = options.iv || c.splice(0, AES._blocksize * 4),
 
 			// Generate key
 			k = (
@@ -161,7 +142,7 @@ var AES = C.AES = {
 			),
 
 			// Determine mode
-			mode = options && options.mode || C.mode.OFB;
+			mode = options.mode || C.mode.OFB;
 
 		// Decrypt
 		AES._init(k);
