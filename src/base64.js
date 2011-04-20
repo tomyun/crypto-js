@@ -1,5 +1,7 @@
 (function (C) {
     var Base64 = C.enc.Base64 = C.oop.BaseObj.extend({
+        map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+
         encode: function (wordArray) {
             // Shortcuts
             var words = wordArray.words;
@@ -36,7 +38,7 @@
             }
         },
 
-        decode: function (base64Str) {
+        decode: function (base64Str, wordArray) {
             // Shortcuts
             var map = this.map;
 
@@ -60,10 +62,8 @@
                 }
             }
 
-            return C.lib.WordArray.create(words, bites);
-        },
-
-        map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+            return (wordArray || C.lib.WordArray).create(words, bites);
+        }
     });
 
     var Base64UrlSafe = Base64.UrlSafe = Base64.extend({

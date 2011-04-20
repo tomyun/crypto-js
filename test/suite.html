@@ -193,31 +193,54 @@
                     }
                 }));
 
-                /* CustomEvent
-                ------------------------------------------------------------ */
+                /* WordArray / Hex
+                --------------------------------------------- */
                 cryptoJsTestSuite.add(new Y.Test.Case({
-                    name: 'CustomEvent',
+                    name: 'WordArray.Hex',
 
-                    testCustomEventSubscribe: function () {
-                        Y.Assert.fail();
+                    testWordArrayHexToString: function () {
+                        Y.Assert.areEqual('f0a4ada2', CryptoJS.lib.WordArray.Hex.create([0xf0a4ada2], 4).toString());
+                        Y.Assert.areEqual('𤭢', CryptoJS.lib.WordArray.Hex.create([0xf0a4ada2], 4).toString(CryptoJS.enc.Utf8Str));
                     },
 
-                    testCustomEventFire: function () {
-                        Y.Assert.fail();
+                    testWordArrayHexFromString: function () {
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex.create([0xf0a4ada2], 4), CryptoJS.lib.WordArray.Hex.fromString('f0a4ada2').toString());
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex.create([0xf0a4ada2], 4), CryptoJS.lib.WordArray.Hex.fromString('𤭢', CryptoJS.enc.Utf8Str).toString());
+                    },
+
+                    testWordArrayRandom: function () {
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex, CryptoJS.lib.WordArray.Hex.random(8).super_);
                     }
                 }));
 
-                /* CmdQueue
+                /* Event
                 ------------------------------------------------------------ */
                 cryptoJsTestSuite.add(new Y.Test.Case({
-                    name: 'CmdQueue',
+                    name: 'Event',
 
-                    testCmdQueueSyncExecute: function () {
-                        Y.Assert.fail();
-                    },
+                    testEventSubscribeFire: function () {
+                        // Callback
+                        function callback(arg) {
+                            this.callbackFired = true;
+                            this.arg = arg;
+                        }
+                        var obj = {};
+                        var arg = 'abc';
 
-                    testCmdQueueAsyncExecute: function () {
-                        Y.Assert.fail();
+                        // Subscribe
+                        var myEvent = CryptoJS.lib.Event.create();
+                        myEvent.subscribe({
+                            fn: callback,
+                            context: obj,
+                            args: [arg]
+                        });
+
+                        // Fire
+                        myEvent.fire();
+
+                        // Test fired
+                        Y.Assert.isTrue(obj.callbackFired);
+                        Y.Assert.areEqual(arg, obj.arg)
                     }
                 }));
 
@@ -235,6 +258,7 @@
 
                     testHexDecode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13), CryptoJS.enc.Hex.decode('48656c6c6f2c20576f726c6421').toString());
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex, CryptoJS.enc.Hex.decode('', CryptoJS.lib.WordArray.Hex).super_);
                     }
                 }));
 
@@ -249,6 +273,7 @@
 
                     testByteStrDecode: function () {
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13), CryptoJS.enc.ByteStr.decode('Hello, World!').toString());
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex, CryptoJS.enc.ByteStr.decode('', CryptoJS.lib.WordArray.Hex).super_);
                     }
                 }));
 
@@ -269,6 +294,7 @@
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xc2a20000], 2), CryptoJS.enc.Utf8Str.decode('¢').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xe282ac00], 3), CryptoJS.enc.Utf8Str.decode('€').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0xf0a4ada2], 4), CryptoJS.enc.Utf8Str.decode('𤭢').toString());
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex, CryptoJS.enc.Utf8Str.decode('', CryptoJS.lib.WordArray.Hex).super_);
                     }
                 }));
 
@@ -302,6 +328,7 @@
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 5), CryptoJS.enc.Base64.decode('Zm9vYmE=').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x666f6f62, 0x61720000], 6), CryptoJS.enc.Base64.decode('Zm9vYmFy').toString());
                         Y.Assert.areEqual(CryptoJS.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15), CryptoJS.enc.Base64.decode('Pj4+Pz8/Pj4+Pz8/PS8r').toString());
+                        Y.Assert.areEqual(CryptoJS.lib.WordArray.Hex, CryptoJS.enc.Base64.decode('', CryptoJS.lib.WordArray.Hex).super_);
                     },
 
                     testBase64UrlSafeDecode: function () {
@@ -392,13 +419,13 @@
                         Y.Assert.areEqual(expectedHash, actualHash);
                     },
 
-                    testHasherHashObj: function () {
-                        var hashObj = CryptoJS.lib.Hash.extend({
+                    testHasherFormatter: function () {
+                        var myFormatter = CryptoJS.lib.HashFormatter.extend({
                             toString: function () {
                                 var hashStr = '{ hash: "' + this.rawHash + '"';
 
                                 if (this.salt) {
-                                    hashStr += ', salt: "' + this.salt + '"';
+                                    hashStr += ', salt: "' + this.salt.toString(CryptoJS.enc.Hex) + '"';
                                 }
 
                                 hashStr += ' }';
@@ -410,9 +437,9 @@
 
                         var md5 = CryptoJS.algo.MD5.create({ salt: salt });
                         var hash = md5.compute('');
-                        var expectedHash = '{ hash: "' + hash.rawHash + '", salt: "' + hash.salt + '" }';
+                        var expectedHash = '{ hash: "' + hash.rawHash + '", salt: "' + hash.salt.toString(CryptoJS.enc.Hex) + '" }';
 
-                        var md5 = CryptoJS.algo.MD5.create({ hashObj: hashObj, salt: salt });
+                        var md5 = CryptoJS.algo.MD5.create({ formatter: myFormatter, salt: salt });
                         var actualHash = md5.compute('').toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);
@@ -510,37 +537,32 @@
                     }
                 }));
 
-                /*
-
-
-
-
-
-
-
-
-                cjsTestSuite.add(new Y.Test.Case({
+                /* PBKDF2
+                ------------------------------------------------------------ */
+                cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'PBKDF2',
 
-                    testPbkdf2: function () {
-                        Y.Assert.areEqual('cdedb5281bb2f801565a1122b2563515', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32 }));
-                        Y.Assert.areEqual('cdedb5281bb2f801565a1122b2563515', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn'));
-                        Y.Assert.areEqual('cdedb5281bb2f801565a1122b25635150ad1f7a04bb9f3a333ecc0e2e1f70837', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32 }));
-                        Y.Assert.areEqual('01dbee7f4a9e243e988b62c73cda935d', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32, iterations: 2 }));
-                        Y.Assert.areEqual('01dbee7f4a9e243e988b62c73cda935da05378b93244ec8f48a99e61ad799d86', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 2 }));
-                        Y.Assert.areEqual('5c08eb61fdf71e4e4ec3cf6ba1f5512b', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32, iterations: 1200 }));
-                        Y.Assert.areEqual('5c08eb61fdf71e4e4ec3cf6ba1f5512ba7e52ddbc5e5142f708a31e2e62b1e13', CryptoJS.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 1200 }));
-                        Y.Assert.areEqual('d1daa78615f287e6a1c8b120d7062a49', CryptoJS.PBKDF2('password', CryptoJS.enc.ByteStr.decode('\x12\x34\x56\x78\x78\x56\x34\x12'), { keySize: 128/32, iterations: 5 }));
-                        Y.Assert.areEqual('d1daa78615f287e6a1c8b120d7062a493f98d203e6be49a6adf4fa574b6e64ee', CryptoJS.PBKDF2('password', CryptoJS.enc.ByteStr.decode('\x12\x34\x56\x78\x78\x56\x34\x12'), { keySize: 256/32, iterations: 5 }));
-                        Y.Assert.areEqual('139c30c0966bc32ba55fdbf212530ac9', CryptoJS.PBKDF2('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase equals block size', { keySize: 128/32, iterations: 1200 }));
-                        Y.Assert.areEqual('139c30c0966bc32ba55fdbf212530ac9c5ec59f1a452f5cc9ad940fea0598ed1', CryptoJS.PBKDF2('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase equals block size', { keySize: 256/32, iterations: 1200 }));
-                        Y.Assert.areEqual('9ccad6d468770cd51b10e6a68721be61', CryptoJS.PBKDF2('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase exceeds block size', { keySize: 128/32, iterations: 1200 }));
-                        Y.Assert.areEqual('9ccad6d468770cd51b10e6a68721be611a8b4d282601db3b36be9246915ec82a', CryptoJS.PBKDF2('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase exceeds block size', { keySize: 256/32, iterations: 1200 }));
-                        Y.Assert.areEqual('6b9cf26d45455a43a5b8bb276a403b39', CryptoJS.PBKDF2(CryptoJS.enc.ByteStr.decode('\xf0\x9d\x84\x9e'), 'EXAMPLE.COMpianist', { keySize: 128/32, iterations: 50 }));
-                        Y.Assert.areEqual('6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52', CryptoJS.PBKDF2(CryptoJS.enc.ByteStr.decode('\xf0\x9d\x84\x9e'), 'EXAMPLE.COMpianist', { keySize: 256/32, iterations: 50 }));
+                    testPBKDF2: function () {
+                        Y.Assert.areEqual('cdedb5281bb2f801565a1122b2563515', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32 }));
+                        Y.Assert.areEqual('cdedb5281bb2f801565a1122b2563515', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn'));
+                        Y.Assert.areEqual('cdedb5281bb2f801565a1122b25635150ad1f7a04bb9f3a333ecc0e2e1f70837', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32 }));
+                        Y.Assert.areEqual('01dbee7f4a9e243e988b62c73cda935d', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32, iterations: 2 }));
+                        Y.Assert.areEqual('01dbee7f4a9e243e988b62c73cda935da05378b93244ec8f48a99e61ad799d86', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 2 }));
+                        Y.Assert.areEqual('5c08eb61fdf71e4e4ec3cf6ba1f5512b', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32, iterations: 1200 }));
+                        Y.Assert.areEqual('5c08eb61fdf71e4e4ec3cf6ba1f5512ba7e52ddbc5e5142f708a31e2e62b1e13', CryptoJS.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 1200 }));
+                        Y.Assert.areEqual('d1daa78615f287e6a1c8b120d7062a49', CryptoJS.algo.PBKDF2.compute('password', CryptoJS.enc.ByteStr.decode('\x12\x34\x56\x78\x78\x56\x34\x12'), { keySize: 128/32, iterations: 5 }));
+                        Y.Assert.areEqual('d1daa78615f287e6a1c8b120d7062a493f98d203e6be49a6adf4fa574b6e64ee', CryptoJS.algo.PBKDF2.compute('password', CryptoJS.enc.ByteStr.decode('\x12\x34\x56\x78\x78\x56\x34\x12'), { keySize: 256/32, iterations: 5 }));
+                        Y.Assert.areEqual('139c30c0966bc32ba55fdbf212530ac9', CryptoJS.algo.PBKDF2.compute('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase equals block size', { keySize: 128/32, iterations: 1200 }));
+                        Y.Assert.areEqual('139c30c0966bc32ba55fdbf212530ac9c5ec59f1a452f5cc9ad940fea0598ed1', CryptoJS.algo.PBKDF2.compute('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase equals block size', { keySize: 256/32, iterations: 1200 }));
+                        Y.Assert.areEqual('9ccad6d468770cd51b10e6a68721be61', CryptoJS.algo.PBKDF2.compute('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase exceeds block size', { keySize: 128/32, iterations: 1200 }));
+                        Y.Assert.areEqual('9ccad6d468770cd51b10e6a68721be611a8b4d282601db3b36be9246915ec82a', CryptoJS.algo.PBKDF2.compute('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 'pass phrase exceeds block size', { keySize: 256/32, iterations: 1200 }));
+                        Y.Assert.areEqual('6b9cf26d45455a43a5b8bb276a403b39', CryptoJS.algo.PBKDF2.compute(CryptoJS.enc.ByteStr.decode('\xf0\x9d\x84\x9e'), 'EXAMPLE.COMpianist', { keySize: 128/32, iterations: 50 }));
+                        Y.Assert.areEqual('6b9cf26d45455a43a5b8bb276a403b39e7fe37a0c41e02c281ff3069e1e94f52', CryptoJS.algo.PBKDF2.compute(CryptoJS.enc.ByteStr.decode('\xf0\x9d\x84\x9e'), 'EXAMPLE.COMpianist', { keySize: 256/32, iterations: 50 }));
                     }
                 }));
-*/
+
+                /* Test runner
+                ------------------------------------------------------------ */
                 Y.Test.Runner.add(cryptoJsTestSuite);
 
                 new Y.Console({

@@ -81,7 +81,7 @@ if ( ! CryptoJS) {
                 return hexStr.join('');
             },
 
-            decode: function (hexStr) {
+            decode: function (hexStr, wordArray) {
                 // Shortcuts
                 var hexStrLength = hexStr.length;
 
@@ -90,7 +90,7 @@ if ( ! CryptoJS) {
                     words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
                 }
 
-                return WordArray.create(words, hexStrLength / 2);
+                return (wordArray || WordArray).create(words, hexStrLength / 2);
             }
         });
 
@@ -111,7 +111,7 @@ if ( ! CryptoJS) {
                 return byteStr.join('');
             },
 
-            decode: function (byteStr) {
+            decode: function (byteStr, wordArray) {
                 // Shortcuts
                 var byteStrLength = byteStr.length;
 
@@ -120,7 +120,7 @@ if ( ! CryptoJS) {
                     words[i >>> 2] |= byteStr.charCodeAt(i) << (24 - (i % 4) * 8);
                 }
 
-                return WordArray.create(words, byteStrLength);
+                return (wordArray || WordArray).create(words, byteStrLength);
             }
         });
 
@@ -131,8 +131,8 @@ if ( ! CryptoJS) {
                 return decodeURIComponent(escape(ByteStr.encode(wordArray)));
             },
 
-            decode: function (utf8Str) {
-                return ByteStr.decode(unescape(encodeURIComponent(utf8Str)));
+            decode: function (utf8Str, wordArray) {
+                return ByteStr.decode(unescape(encodeURIComponent(utf8Str)), wordArray);
             }
         });
 
@@ -160,7 +160,7 @@ if ( ! CryptoJS) {
             },
 
             fromString: function (str, encoder) {
-                return (encoder || this.defaultEncoder).decode(str);
+                return (encoder || this.defaultEncoder).decode(str, this);
             },
 
             concat: function (wordArray) {
@@ -205,27 +205,31 @@ if ( ! CryptoJS) {
                     words.push(Math.floor(Math.random() * 0x100000000));
                 }
 
-                return WordArray.create(words, nBytes);
+                return this.create(words, nBytes);
             }
+        });
+
+        var WordArray_Hex = WordArray.Hex = WordArray.extend({
+            defaultEncoder: Hex
         });
 
         /* Library / CallbackDefaults
         --------------------------------------------- */
-        var callbackDefaults = BaseObj.extend({
+        var CallbackDefaults = C_lib.CallbackDefaults = BaseObj.extend({
             fn: function () {},
             context: window,
             args: []
         });
 
-        /* Library / CustomEvent
+        /* Library / Event
         --------------------------------------------- */
-        var CustomEvent = C_lib.CustomEvent = BaseObj.extend({
+        var Event = C_lib.Event = BaseObj.extend({
             init: function () {
                 this.subscribers = [];
             },
 
             subscribe: function (callback) {
-                this.subscribers.push(callbackDefaults.extend(callback));
+                this.subscribers.push(CallbackDefaults.extend(callback));
             },
 
             fire: function () {
@@ -237,65 +241,6 @@ if ( ! CryptoJS) {
                 for (var i = 0; i < subscribersLength; i++) {
                     var callback = subscribers[i];
                     callback.fn.apply(callback.context, callback.args);
-                }
-            }
-        });
-
-        /* Library / CmdQueue
-        --------------------------------------------- */
-        var CmdQueue = C_lib.CmdQueue = BaseObj.extend({
-            init: function (async) {
-                this.queue = [];
-                this.index = 0;
-                this.async = !! async;
-                this.running = false;
-            },
-
-            execute: function (callback) {
-                // Shortcuts
-                var queue = this.queue;
-                var index = this.index;
-
-                // Add callback to queue
-                if (callback) {
-                    queue.push(
-                        callbackDefaults.extend(callback)
-                    );
-                }
-
-                // Execute next callback
-                var nextCallback = queue[index];
-
-                if (nextCallback && ! this.running) {
-                    // Free memory
-                    delete queue[index];
-
-                    // Move callback pointer
-                    this.index++;
-
-                    if (this.async) {
-                        // Execute asyncronously
-                        this.running = true;
-
-                        var thisCmdQueue = this;
-                        setTimeout(function () {
-                            // Sometime later, execute the callback
-                            nextCallback.fn.apply(
-                                nextCallback.context,
-                                nextCallback.args
-                            );
-
-                            // Then execute the next callback
-                            thisCmdQueue.running = false;
-                            thisCmdQueue.execute();
-                        }, 0);
-                    } else {
-                        // Execute syncronously
-                        return nextCallback.fn.apply(
-                            nextCallback.context,
-                            nextCallback.args
-                        );
-                    }
                 }
             }
         });

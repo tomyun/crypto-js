@@ -2,26 +2,25 @@
     // Shortcuts
     var C_algo = C.algo;
     var BaseObj = C.oop.BaseObj;
-    var Hash = C.lib.Hash;
-
-    // Option defaults
-    var optionDefaults = BaseObj.extend({
-        keySize: 4,
-        hasher: C.algo.SHA1,
-        iterations: 1
-    });
+    var WordArray_Hex = C.lib.WordArray.Hex;
 
     var PBKDF2 = C_algo.PBKDF2 = BaseObj.extend({
+        optionDefaults: BaseObj.extend({
+            keySize: 4,
+            hasher: C_algo.SHA1,
+            iterations: 1
+        }),
+
         compute: function (password, salt, options) {
             // Apply option defaults
-            options = optionDefaults.extend(options);
+            options = this.optionDefaults.extend(options);
 
             // Init HMAC
             var hmac = C_algo.HMAC.create(options.hasher, password);
 
             // Initial values
-            var derivedKey = Hash.create();
-            var blockIndex = Hash.create([1]);
+            var derivedKey = WordArray_Hex.create();
+            var blockIndex = WordArray_Hex.create([1]);
 
             // Shortcuts
             var derivedKeyWords = derivedKey.words;
@@ -59,7 +58,4 @@
             return derivedKey;
         }
     });
-
-    // Shortcut
-    C.PBKDF2 = PBKDF2.compute;
 }(CryptoJS));
