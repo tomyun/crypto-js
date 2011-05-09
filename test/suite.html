@@ -355,12 +355,12 @@
                     },
 
                     testHasherCustomSalt: function () {
-                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+                        var mySalt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
                         var md5 = CryptoJS.algo.MD5.create({ salt: null });
-                        var expectedHash = 'salt_' + salt.toString(CryptoJS.enc.Hex) + '_' + md5.update(salt).compute('');
+                        var expectedHash = 'salt_' + mySalt.toString(CryptoJS.enc.Hex) + '_' + md5.update(mySalt).compute('');
 
-                        var md5 = CryptoJS.algo.MD5.create({ salt: salt });
+                        var md5 = CryptoJS.algo.MD5.create({ salt: mySalt });
                         var actualHash = md5.compute('').toString();
 
                         Y.Assert.areEqual(actualHash, expectedHash);
@@ -368,13 +368,13 @@
 
                     testHasherRandomSalt: function () {
                         Y.Assert.areNotEqual(
-                            CryptoJS.algo.MD5.create().options.salt.toString(CryptoJS.enc.Hex),
-                            CryptoJS.algo.MD5.create().options.salt.toString(CryptoJS.enc.Hex)
+                            CryptoJS.algo.MD5.create().compute().salt.toString(CryptoJS.enc.Hex),
+                            CryptoJS.algo.MD5.create().compute().salt.toString(CryptoJS.enc.Hex)
                         );
                     },
 
                     testHasherBeforeComputeSalter: function () {
-                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+                        var mySalt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
                         var beforeComputeSalter = function (salt) {
                             this.beforeCompute.subscribe({
@@ -387,16 +387,16 @@
                         };
 
                         var md5 = CryptoJS.algo.MD5.create({ salt: null });
-                        var expectedHash = 'salt_' + salt.toString(CryptoJS.enc.Hex) + '_' + md5.update('').compute(salt);
+                        var expectedHash = 'salt_' + mySalt.toString(CryptoJS.enc.Hex) + '_' + md5.update('').compute(mySalt);
 
-                        var md5 = CryptoJS.algo.MD5.create({ salt: salt, salter: beforeComputeSalter });
+                        var md5 = CryptoJS.algo.MD5.create({ salt: mySalt, salter: beforeComputeSalter });
                         var actualHash = md5.compute('').toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);
                     },
 
                     testHasherAfterComputeSalter: function () {
-                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+                        var mySalt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
                         var afterComputeSalter = function (salt) {
                             this.afterCompute.subscribe({
@@ -411,18 +411,18 @@
 
                         var md5 = CryptoJS.algo.MD5.create({ salt: null });
                         var intermediate = md5.compute('').rawHash;
-                        var expectedHash = 'salt_' + salt.toString(CryptoJS.enc.Hex) + '_' + md5.update(salt).compute(intermediate);
+                        var expectedHash = 'salt_' + mySalt.toString(CryptoJS.enc.Hex) + '_' + md5.update(mySalt).compute(intermediate);
 
-                        var md5 = CryptoJS.algo.MD5.create({ salt: salt, salter: afterComputeSalter });
+                        var md5 = CryptoJS.algo.MD5.create({ salt: mySalt, salter: afterComputeSalter });
                         var actualHash = md5.compute('').toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);
                     },
 
-                    testHasherFormatter: function () {
-                        var myFormatter = CryptoJS.lib.HashFormatter.extend({
+                    testHasherCustomWrapper: function () {
+                        var myWrapper = CryptoJS.lib.Hash.extend({
                             toString: function () {
-                                var hashStr = '{ hash: "' + this.rawHash + '"';
+                                var hashStr = '{ hash: "' + this.rawHash.toString(CryptoJS.enc.Hex) + '"';
 
                                 if (this.salt) {
                                     hashStr += ', salt: "' + this.salt.toString(CryptoJS.enc.Hex) + '"';
@@ -433,13 +433,13 @@
                                 return hashStr;
                             }
                         });
-                        var salt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
+                        var mySalt = CryptoJS.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
-                        var md5 = CryptoJS.algo.MD5.create({ salt: salt });
+                        var md5 = CryptoJS.algo.MD5.create({ salt: mySalt });
                         var hash = md5.compute('');
-                        var expectedHash = '{ hash: "' + hash.rawHash + '", salt: "' + hash.salt.toString(CryptoJS.enc.Hex) + '" }';
+                        var expectedHash = '{ hash: "' + hash.rawHash.toString(CryptoJS.enc.Hex) + '", salt: "' + hash.salt.toString(CryptoJS.enc.Hex) + '" }';
 
-                        var md5 = CryptoJS.algo.MD5.create({ formatter: myFormatter, salt: salt });
+                        var md5 = CryptoJS.algo.MD5.create({ wrapper: myWrapper, salt: mySalt });
                         var actualHash = md5.compute('').toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);

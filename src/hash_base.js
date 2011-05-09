@@ -4,11 +4,12 @@
     var BaseObj = C.oop.BaseObj;
     var WordArray = C_lib.WordArray;
     var WordArray_Hex = WordArray.Hex;
+    var Hex = C.enc.Hex;
     var Event = C_lib.Event;
 
-    /* Hash
+    /* Hash wrapper
     ------------------------------------------------------------ */
-    var HashFormatter = C_lib.HashFormatter = BaseObj.extend({
+    var Hash = C_lib.Hash = BaseObj.extend({
         init: function (hash, salt) {
             this.rawHash = hash;
             this.salt = salt;
@@ -21,10 +22,10 @@
             var salt = this.salt;
 
             if (salt) {
-                hashStr += 'salt_' + salt.toString(C.enc.Hex) + '_';
+                hashStr += 'salt_' + salt.toString(Hex) + '_';
             }
 
-            return hashStr + this.rawHash;
+            return hashStr + this.rawHash.toString(Hex);
         },
 
         fromString: function (hashStr) {
@@ -48,8 +49,9 @@
     /* Hasher
     ------------------------------------------------------------ */
     var Hasher = C_lib.Hasher = BaseObj.extend({
-        optionDefaults: BaseObj.extend({
-            formatter: HashFormatter,
+        // Config defaults
+        cfg: BaseObj.extend({
+            wrapper: Hash,
 
             salter: function (salt) {
                 this.afterReset.subscribe({
@@ -62,9 +64,9 @@
             }
         }),
 
-        init: function (options) {
-            // Apply option defaults
-            options = this.options = this.optionDefaults.extend(options);
+        init: function (cfg) {
+            // Apply config defaults
+            cfg = this.cfg = this.cfg.extend(cfg);
 
             // Set up events
             this.afterReset = Event.create();
@@ -72,16 +74,16 @@
             this.afterCompute = Event.create();
 
             // Shortcuts
-            var salt = options.salt;
+            var salt = cfg.salt;
 
             // Use random salt if not defined
             if (salt === undefined) {
-                salt = options.salt = WordArray_Hex.random(8);
+                salt = cfg.salt = WordArray_Hex.random(8);
             }
 
             // Execute salter
             if (salt) {
-                options.salter.call(this, salt);
+                cfg.salter.call(this, salt);
             }
 
             this.reset();
@@ -153,10 +155,10 @@
             this.afterCompute.fire();
 
             // Shortcuts
-            var options = this.options;
+            var cfg = this.cfg;
 
             // Keep hash after reset
-            var hash = options.formatter.create(this.hash, options.salt);
+            var hash = cfg.wrapper.create(this.hash, cfg.salt);
 
             this.reset();
 
