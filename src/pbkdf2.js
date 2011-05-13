@@ -1,22 +1,22 @@
 (function (C) {
     // Shortcuts
-    var C_algo = C.algo;
     var BaseObj = C.oop.BaseObj;
     var WordArray_Hex = C.lib.WordArray.Hex;
 
-    var PBKDF2 = C_algo.PBKDF2 = BaseObj.extend({
-        optionDefaults: BaseObj.extend({
+    var PBKDF2 = C.PBKDF2 = BaseObj.extend({
+        // Config defaults
+        cfg: BaseObj.extend({
             keySize: 4,
-            hasher: C_algo.SHA1,
+            hasher: C.SHA1,
             iterations: 1
         }),
 
-        compute: function (password, salt, options) {
-            // Apply option defaults
-            options = this.optionDefaults.extend(options);
+        compute: function (password, salt, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg);
 
             // Init HMAC
-            var hmac = C_algo.HMAC.create(options.hasher, password);
+            var hmac = C.HMAC.create(cfg.hasher, password);
 
             // Initial values
             var derivedKey = WordArray_Hex.create();
@@ -25,8 +25,8 @@
             // Shortcuts
             var derivedKeyWords = derivedKey.words;
             var blockIndexWords = blockIndex.words;
-            var keySize = options.keySize;
-            var iterations = options.iterations;
+            var keySize = cfg.keySize;
+            var iterations = cfg.iterations;
 
             // Generate key
             while (derivedKeyWords.length < keySize) {

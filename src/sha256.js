@@ -20,7 +20,7 @@
     ];
 
     // Public object
-    var SHA256 = C.algo.SHA256 = C.lib.Hasher.extend({
+    var SHA256 = C.SHA256 = C.lib.Hasher.extend({
         doReset: function () {
             // Shortcuts
             var H = this.hash.words;

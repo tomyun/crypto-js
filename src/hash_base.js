@@ -54,12 +54,9 @@
             wrapper: Hash,
 
             salter: function (salt) {
-                this.afterReset.subscribe({
-                    fn: function (salt) {
-                        this.update(salt);
-                    },
-                    context: this,
-                    args: [salt]
+                var hasher = this;
+                hasher.afterReset.subscribe(function () {
+                    hasher.update(salt);
                 });
             }
         }),
@@ -141,6 +138,11 @@
         },
 
         compute: function (messageUpdate) {
+            // "Static" call
+            if ( ! this.hash) {
+                return this.create().compute(messageUpdate);
+            }
+
             // Final message update
             if (messageUpdate) {
                 this.update(messageUpdate);

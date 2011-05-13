@@ -1,5 +1,5 @@
 (function (C) {
-    var HMAC = C.algo.HMAC = C.oop.BaseObj.extend({
+    var HMAC = C.HMAC = C.oop.BaseObj.extend({
         init: function (hasher, key) {
             // Init hasher
             hasher = this.hasher = hasher.create({ salt: null });
@@ -51,7 +51,21 @@
             return this;
         },
 
-        compute: function (messageUpdate) {
+        compute: function () {
+            // Shortcuts
+            var args = arguments;
+
+            // "Static" call
+            if ( ! this.hasher) {
+                var hasher = args[0];
+                var message = args[1];
+                var key = args[2];
+
+                return this.create(hasher, key).compute(message);
+            }
+
+            var messageUpdate = args[0];
+
             // Final message update
             if (messageUpdate) {
                 this.update(messageUpdate);

@@ -1,5 +1,5 @@
 (function (C) {
-    var SHA1 = C.algo.SHA1 = C.lib.Hasher.extend({
+    var SHA1 = C.SHA1 = C.lib.Hasher.extend({
         doReset: function () {
             // Shortcuts
             var H = this.hash.words;

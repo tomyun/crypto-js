@@ -21,7 +21,7 @@
     }
 
     // Public object
-    var MD5 = C.algo.MD5 = C.lib.Hasher.extend({
+    var MD5 = C.MD5 = C.lib.Hasher.extend({
         doReset: function () {
             // Shortcuts
             var H = this.hash.words;
@@ -128,7 +128,6 @@
             // Shortcuts
             var message = this.message;
             var m = message.words;
-            var H = this.hash.words;
 
             var nBitsTotal = this.length * 8;
             var nBitsLeft = message.sigBytes * 8;
@@ -143,6 +142,9 @@
 
             // Hash final blocks
             this.hashBlocks();
+
+            // Shortcuts
+            var H = this.hash.words;
 
             // Swap endian
             H[0] = (((H[0] <<  8) | (H[0] >>> 24)) & 0x00ff00ff) |

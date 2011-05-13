@@ -81,7 +81,7 @@ if ( ! CryptoJS) {
                 return hexStr.join('');
             },
 
-            decode: function (hexStr, wordArray) {
+            decode: function (hexStr, wordArrayType) {
                 // Shortcuts
                 var hexStrLength = hexStr.length;
 
@@ -90,7 +90,7 @@ if ( ! CryptoJS) {
                     words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
                 }
 
-                return (wordArray || WordArray).create(words, hexStrLength / 2);
+                return (wordArrayType || WordArray).create(words, hexStrLength / 2);
             }
         });
 
@@ -111,7 +111,7 @@ if ( ! CryptoJS) {
                 return byteStr.join('');
             },
 
-            decode: function (byteStr, wordArray) {
+            decode: function (byteStr, wordArrayType) {
                 // Shortcuts
                 var byteStrLength = byteStr.length;
 
@@ -120,7 +120,7 @@ if ( ! CryptoJS) {
                     words[i >>> 2] |= byteStr.charCodeAt(i) << (24 - (i % 4) * 8);
                 }
 
-                return (wordArray || WordArray).create(words, byteStrLength);
+                return (wordArrayType || WordArray).create(words, byteStrLength);
             }
         });
 
@@ -131,8 +131,8 @@ if ( ! CryptoJS) {
                 return decodeURIComponent(escape(ByteStr.encode(wordArray)));
             },
 
-            decode: function (utf8Str, wordArray) {
-                return ByteStr.decode(unescape(encodeURIComponent(utf8Str)), wordArray);
+            decode: function (utf8Str, wordArrayType) {
+                return ByteStr.decode(unescape(encodeURIComponent(utf8Str)), wordArrayType);
             }
         });
 
@@ -146,7 +146,7 @@ if ( ! CryptoJS) {
             init: function (words, sigBytes) {
                 words = this.words = words || [];
 
-                if (sigBytes != undefined) {
+                if (sigBytes !== undefined) {
                     this.sigBytes = sigBytes;
                 } else {
                     this.sigBytes = words.length * 4;
@@ -213,14 +213,6 @@ if ( ! CryptoJS) {
             defaultEncoder: Hex
         });
 
-        /* Library / CallbackDefaults
-        --------------------------------------------- */
-        var CallbackDefaults = C_lib.CallbackDefaults = BaseObj.extend({
-            fn: function () {},
-            context: window,
-            args: []
-        });
-
         /* Library / Event
         --------------------------------------------- */
         var Event = C_lib.Event = BaseObj.extend({
@@ -229,7 +221,7 @@ if ( ! CryptoJS) {
             },
 
             subscribe: function (callback) {
-                this.subscribers.push(CallbackDefaults.extend(callback));
+                this.subscribers.push(callback);
             },
 
             fire: function () {
@@ -239,14 +231,9 @@ if ( ! CryptoJS) {
 
                 // Execute callbacks
                 for (var i = 0; i < subscribersLength; i++) {
-                    var callback = subscribers[i];
-                    callback.fn.apply(callback.context, callback.args);
+                    subscribers[i]();
                 }
             }
         });
-
-        /* Algorithms namespace
-        ------------------------------------------------------------ */
-        var C_algo = C.algo = {};
     }());
 }
