@@ -4,8 +4,7 @@
 var C = Crypto,
     util = C.util,
     charenc = C.charenc,
-    UTF8 = charenc.UTF8,
-    Binary = charenc.Binary;
+    UTF8 = charenc.UTF8;
 
 // Precomputed SBOX
 var SBOX = [ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
