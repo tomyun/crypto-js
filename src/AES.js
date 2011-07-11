@@ -92,8 +92,12 @@ var AES = C.AES = {
 
 		var
 
-			// Convert to bytes
-			m = UTF8.stringToBytes(message),
+			// Convert to bytes if message is a string
+			m = (
+				message.constructor == String ?
+				UTF8.stringToBytes(message) :
+				message
+			),
 
 			// Generate random IV
 			iv = options.iv || util.randomBytes(AES._blocksize * 4),
@@ -115,7 +119,8 @@ var AES = C.AES = {
 		mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return util.bytesToBase64(options.iv ? m : iv.concat(m));
+		m = options.iv ? m : iv.concat(m);
+		return (options && options.asBytes) ? m : util.bytesToBase64(m);
 
 	},
 
@@ -125,8 +130,12 @@ var AES = C.AES = {
 
 		var
 
-			// Convert to bytes
-			c = util.base64ToBytes(ciphertext),
+			// Convert to bytes if ciphertext is a string
+			c = (
+				ciphertext.constructor == String ?
+				util.base64ToBytes(ciphertext):
+				ciphertext
+			),
 
 			// Separate IV and message
 			iv = options.iv || c.splice(0, AES._blocksize * 4),
@@ -148,7 +157,7 @@ var AES = C.AES = {
 		mode.decrypt(AES, c, iv);
 
 		// Return plaintext
-		return UTF8.bytesToString(c);
+		return (options && options.asBytes) ? c : UTF8.bytesToString(c);
 
 	},
 
