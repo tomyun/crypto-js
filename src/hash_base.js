@@ -1,15 +1,12 @@
 (function (C, undefined) {
     // Shortcuts
     var C_lib = C.lib;
-    var BaseObj = C.oop.BaseObj;
-    var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
-    var Hex = C.enc.Hex;
+    var BaseObj = C_lib.BaseObj;
+    var WordArray_Hex = C_lib.WordArray.Hex
     var Event = C_lib.Event;
 
-    /* Hash wrapper
-    ------------------------------------------------------------ */
-    var Hash = C_lib.Hash = BaseObj.extend({
+    // Hash formatter
+    var HashFormatter = C_lib.HashFormatter = BaseObj.extend({
         init: function (hash, salt) {
             this.rawHash = hash;
             this.salt = salt;
@@ -18,45 +15,31 @@
         toString: function () {
             var hashStr = '';
 
-            // Shortcuts
-            var salt = this.salt;
-
-            if (salt) {
-                hashStr += 'salt_' + salt.toString(Hex) + '_';
+            if (this.salt) {
+                hashStr += 'salt:' + this.salt.toString(C.enc.Hex) + ':';
             }
 
-            return hashStr + this.rawHash.toString(Hex);
-        },
-
-        fromString: function (hashStr) {
-            var rawHashBeginIndex = 0;
-
-            // Get salt
-            if (hashStr.substr(0, 5) == 'salt_') {
-                var saltEndIndex = hashStr.indexOf('_', 5);
-                var salt = WordArray_Hex.fromString(hashStr.substring(5, saltEndIndex));
-
-                rawHashBeginIndex = saltEndIndex + 1;
-            }
-
-            // Get raw hash
-            var rawHash = WordArray_Hex.fromString(hashStr.substr(rawHashBeginIndex));
-
-            return this.create(rawHash, salt);
+            return hashStr + this.rawHash;
         }
     });
 
-    /* Hasher
-    ------------------------------------------------------------ */
+    // Hasher
     var Hasher = C_lib.Hasher = BaseObj.extend({
         // Config defaults
         cfg: BaseObj.extend({
-            wrapper: Hash,
+            formatter: HashFormatter,
 
-            salter: function (salt) {
+            salter: function () {
                 var hasher = this;
+
+                // Use random salt if not defined
+                if ( ! hasher.cfg.salt) {
+                    hasher.cfg.salt = WordArray_Hex.random(2);
+                }
+
+                // Add salt after reset, before any message updates
                 hasher.afterReset.subscribe(function () {
-                    hasher.update(salt);
+                    hasher.update(hasher.cfg.salt);
                 });
             }
         }),
@@ -66,28 +49,20 @@
             cfg = this.cfg = this.cfg.extend(cfg);
 
             // Set up events
-            this.afterReset = Event.create();
+            this.afterReset    = Event.create();
             this.beforeCompute = Event.create();
-            this.afterCompute = Event.create();
-
-            // Shortcuts
-            var salt = cfg.salt;
-
-            // Use random salt if not defined
-            if (salt === undefined) {
-                salt = cfg.salt = WordArray_Hex.random(8);
-            }
+            this.afterCompute  = Event.create();
 
             // Execute salter
-            if (salt) {
-                cfg.salter.call(this, salt);
+            if (cfg.salt !== null) {
+                cfg.salter.call(this);
             }
 
             this.reset();
         },
 
         reset: function () {
-            this.message = WordArray.create();
+            this.message = WordArray_Hex.create();
             this.length = 0;
             var hash = this.hash = WordArray_Hex.create();
 
@@ -101,9 +76,9 @@
         },
 
         update: function (messageUpdate) {
-            // Convert String to WordArray, else assume WordArray already
+            // Convert string to WordArray, else assume WordArray already
             if (typeof messageUpdate == 'string') {
-                messageUpdate = WordArray.fromString(messageUpdate);
+                messageUpdate = C.enc.Utf8.decode(messageUpdate);
             }
 
             this.message.concat(messageUpdate);
@@ -137,12 +112,15 @@
             }
         },
 
-        compute: function (messageUpdate) {
-            // "Static" call
-            if ( ! this.hash) {
-                return this.create().compute(messageUpdate);
+        compute: function () {
+            if (this.hash) {
+                return this.computeInstance.apply(this, arguments);
+            } else {
+                return this.computeStatic.apply(this, arguments);
             }
+        },
 
+        computeInstance: function (messageUpdate) {
             // Final message update
             if (messageUpdate) {
                 this.update(messageUpdate);
@@ -156,15 +134,19 @@
             // Notify subscribers
             this.afterCompute.fire();
 
-            // Shortcuts
+            // Shortcut
             var cfg = this.cfg;
 
-            // Keep hash after reset
-            var hash = cfg.wrapper.create(this.hash, cfg.salt);
+            // Create hash formatter
+            var hashFormatter = cfg.formatter.create(this.hash, cfg.salt);
 
             this.reset();
 
-            return hash;
+            return hashFormatter;
+        },
+
+        computeStatic: function (message, cfg) {
+            return this.create(cfg).compute(message);
         },
 
         // Default, because it's common

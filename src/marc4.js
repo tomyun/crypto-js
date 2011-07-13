@@ -1,58 +1,63 @@
-(function (C)
-{
-  var MARC4 = C["MARC4"] = C["extend"](C.typ.AbstractCipher,
-  {
-    doEncrypt: function (m, k, iv)
-    {
-      // State
-      var s = [];
-      for (var i = 0; i < 256; i++)
-      {
-        s[i] = i;
-      }
+(function (C) {
+    var ARC4 = C.ARC4 = C.lib.Cipher.extend({
+        doEncrypt: function () {
+            // Shortcuts
+            var m = this.message.words;
+            var key = this.key;
+            var k = key.words
+            var keySigBytes = key.sigBytes;
 
-      // Key setup
-      for (var i = 0, j = 0; i < 256; i++)
-      {
-        var kByte = i % k.getSigBytes();
+            // Sbox
+            var s = [];
+            for (var i = 0; i < 256; i++) {
+                s[i] = i;
+            }
 
-        j = (j + s[i] + ((k[kByte >>> 2] >>> (24 - (kByte % 4) * 8)) & 0xFF)) % 256;
+            // Key setup
+            for (var i = 0, j = 0; i < 256; i++) {
+                var kByteIndex = i % keySigBytes;
+                var kByte = (k[kByteIndex >>> 2] >>> (24 - (kByteIndex % 4) * 8)) & 0xff;
 
-        // Swap
-        var t = s[i];
-        s[i]  = s[j];
-        s[j]  = t;
-      }
+                j = (j + s[i] + kByte) % 256;
 
-      // Encryption
-      for (var i = -MARC4.drop, a = 0, b = 0; i < m.length; i++)
-      {
-        var keystream = 0;
-        for (var n = 0; n < 4; n++)
-        {
-          a = (a + 1) % 256;
-          b = (b + s[a]) % 256;
+                // Swap
+                var t = s[i];
+                s[i] = s[j];
+                s[j] = t;
+            }
 
-          // Swap
-          var t = s[a];
-          s[a]  = s[b];
-          s[b]  = t;
+            // Encryption
+            var i = 0, j = 0;
 
-          keystream |= s[(s[a] + s[b]) % 256] << (24 - n * 8);
-        }
+            var mLength = m.length;
+            for (var n = -this.drop; n < mLength; n++) {
+                // Accumulate 32 bits of keystream
+                var keystream = 0;
+                for (var q = 0; q < 4; q++) {
+                    i = (i + 1) % 256;
+                    j = (j + s[i]) % 256;
 
-        // Stop here if we're still dropping keystream
-        if (i < 0) continue;
+                    // Swap
+                    var t = s[i];
+                    s[i] = s[j];
+                    s[j] = t;
 
-        // Encrypt
-        m[i] ^= keystream;
-      }
-    },
+                    keystream |= s[(s[i] + s[j]) % 256] << (24 - q * 8);
+                }
 
-    drop: 384
-  });
+                // n will be negative when we're dropping keystream
+                if (n >= 0) {
+                    // Encrypt
+                    m[n] ^= keystream;
+                }
+            }
+        },
 
-  // Decryption is the same process as encryption
-  MARC4.doDecrypt = MARC4.doEncrypt;
+        drop: 0,
+        keySize: 8
+    });
 
-})(CryptoJS);
+    var MARC4 = C.MARC4 = ARC4.extend({
+        drop: 384
+    });
+}(CryptoJS));

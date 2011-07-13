@@ -1,15 +1,15 @@
 (function (C) {
-    var HMAC = C.HMAC = C.oop.BaseObj.extend({
+    var HMAC = C.HMAC = C.lib.BaseObj.extend({
         init: function (hasher, key) {
             // Init hasher
             hasher = this.hasher = hasher.create({ salt: null });
 
-            // Convert String to WordArray, else assume WordArray already
+            // Convert string to WordArray, else assume WordArray already
             if (typeof key == 'string') {
-                key = C.lib.WordArray.fromString(key);
+                key = C.enc.Utf8.decode(key);
             }
 
-            // Shortcuts
+            // Shortcut
             var blockSize = hasher.blockSize;
 
             // Allow arbitrary length keys
@@ -17,7 +17,7 @@
                 key = hasher.compute(key).rawHash;
             }
 
-            // Copy key for inner and outer pads
+            // Clone key for inner and outer pads
             var oKey = this.oKey = key.clone();
             var iKey = this.iKey = key.clone();
 
@@ -37,7 +37,7 @@
         },
 
         reset: function () {
-            // Shortcuts
+            // Shortcut
             var hasher = this.hasher;
 
             hasher.reset();
@@ -52,26 +52,20 @@
         },
 
         compute: function () {
-            // Shortcuts
-            var args = arguments;
-
-            // "Static" call
-            if ( ! this.hasher) {
-                var hasher = args[0];
-                var message = args[1];
-                var key = args[2];
-
-                return this.create(hasher, key).compute(message);
+            if (this.hasher) {
+                return this.computeInstance.apply(this, arguments);
+            } else {
+                return this.computeStatic.apply(this, arguments);
             }
+        },
 
-            var messageUpdate = args[0];
-
+        computeInstance: function (messageUpdate) {
             // Final message update
             if (messageUpdate) {
                 this.update(messageUpdate);
             }
 
-            // Shortcuts
+            // Shortcut
             var hasher = this.hasher;
 
             // Compute HMAC
@@ -80,6 +74,10 @@
             this.reset();
 
             return hmac;
+        },
+
+        computeStatic: function (hasher, message, key) {
+            return this.create(hasher, key).compute(message);
         }
     });
 }(CryptoJS));

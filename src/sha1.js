@@ -1,7 +1,7 @@
 (function (C) {
     var SHA1 = C.SHA1 = C.lib.Hasher.extend({
         doReset: function () {
-            // Shortcuts
+            // Shortcut
             var H = this.hash.words;
 
             // Initial values

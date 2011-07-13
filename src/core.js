@@ -1,239 +1,228 @@
-// Global namespace object
 var CryptoJS;
 
-// Don't overwrite
-if ( ! CryptoJS) {
-    // Private scope
-    (function (undefined) {
-        var C = CryptoJS = {};
+// Private scope
+(function (undefined) {
+    // Don't overwrite
+    if (CryptoJS) {
+        return;
+    }
 
-        /* OOP
-        ------------------------------------------------------------ */
-        var C_oop = C.oop = {};
+    // CryptoJS namespace
+    var C = CryptoJS = {};
 
-        /* OOP / BaseObj
-        --------------------------------------------- */
-        var BaseObj = C_oop.BaseObj = {
-            extend: function (overrides) {
-                // Spawn
-                function F() {}
-                F.prototype = this;
-                var subtype = new F();
+    // Library namespace
+    var C_lib = C.lib = {};
 
-                // Constructor is meaningless in this pattern
-                delete subtype.constructor;
+    // BaseObj
+    var BaseObj = C_lib.BaseObj = {
+        extend: function (overrides) {
+            // Spawn
+            function F() {}
+            F.prototype = this;
+            var subtype = new F();
 
-                // Augment
-                if (overrides) {
-                    for (var o in overrides) {
-                        if (overrides.hasOwnProperty(o)) {
-                            subtype[o] = overrides[o];
-                        }
-                    }
-
-                    // IE won't copy toString using the loop above
-                    if (overrides.hasOwnProperty('toString')) {
-                        subtype.toString = overrides.toString;
+            // Augment
+            if (overrides) {
+                for (var p in overrides) {
+                    if (overrides.hasOwnProperty(p)) {
+                        subtype[p] = overrides[p];
                     }
                 }
 
-                // Reference supertype
-                subtype.super_ = this;
-
-                return subtype;
-            },
-
-            create: function () {
-                var instance = this.extend();
-                instance.init.apply(instance, arguments);
-
-                return instance;
-            },
-
-            init: function () {
-                // Stub
-            },
-
-            clone: function () {
-                return this.super_.extend(this);
-            }
-        };
-
-        /* Encoding
-        ------------------------------------------------------------ */
-        var C_enc = C.enc = {};
-
-        /* Encoding / Hex
-        --------------------------------------------- */
-        var Hex = C_enc.Hex = BaseObj.extend({
-            encode: function (wordArray) {
-                // Shortcuts
-                var words = wordArray.words;
-                var sigBytes = wordArray.sigBytes;
-
-                var hexStr = [];
-                for (var i = 0; i < sigBytes; i++) {
-                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                    hexStr.push((bite >>> 4).toString(16));
-                    hexStr.push((bite & 0xf).toString(16));
-                }
-
-                return hexStr.join('');
-            },
-
-            decode: function (hexStr, wordArrayType) {
-                // Shortcuts
-                var hexStrLength = hexStr.length;
-
-                var words = [];
-                for (var i = 0; i < hexStrLength; i += 2) {
-                    words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
-                }
-
-                return (wordArrayType || WordArray).create(words, hexStrLength / 2);
-            }
-        });
-
-        /* Encoding / ByteStr
-        --------------------------------------------- */
-        var ByteStr = C_enc.ByteStr = BaseObj.extend({
-            encode: function (wordArray) {
-                // Shortcuts
-                var words = wordArray.words;
-                var sigBytes = wordArray.sigBytes;
-
-                var byteStr = [];
-                for (var i = 0; i < sigBytes; i++) {
-                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                    byteStr.push(String.fromCharCode(bite));
-                }
-
-                return byteStr.join('');
-            },
-
-            decode: function (byteStr, wordArrayType) {
-                // Shortcuts
-                var byteStrLength = byteStr.length;
-
-                var words = [];
-                for (var i = 0; i < byteStrLength; i++) {
-                    words[i >>> 2] |= byteStr.charCodeAt(i) << (24 - (i % 4) * 8);
-                }
-
-                return (wordArrayType || WordArray).create(words, byteStrLength);
-            }
-        });
-
-        /* Encoding / Utf8Str
-        --------------------------------------------- */
-        var Utf8Str = C_enc.Utf8Str = BaseObj.extend({
-            encode: function (wordArray) {
-                return decodeURIComponent(escape(ByteStr.encode(wordArray)));
-            },
-
-            decode: function (utf8Str, wordArrayType) {
-                return ByteStr.decode(unescape(encodeURIComponent(utf8Str)), wordArrayType);
-            }
-        });
-
-        /* Library
-        ------------------------------------------------------------ */
-        var C_lib = C.lib = {};
-
-        /* Library / WordArray
-        --------------------------------------------- */
-        var WordArray = C_lib.WordArray = BaseObj.extend({
-            init: function (words, sigBytes) {
-                words = this.words = words || [];
-
-                if (sigBytes !== undefined) {
-                    this.sigBytes = sigBytes;
-                } else {
-                    this.sigBytes = words.length * 4;
-                }
-            },
-
-            defaultEncoder: Utf8Str,
-
-            toString: function (encoder) {
-                return (encoder || this.defaultEncoder).encode(this);
-            },
-
-            fromString: function (str, encoder) {
-                return (encoder || this.defaultEncoder).decode(str, this);
-            },
-
-            concat: function (wordArray) {
-                // Shortcuts
-                var thisWords = this.words;
-                var thatWords = wordArray.words;
-
-                var thisSigBytes = this.sigBytes;
-                var thatSigBytes = wordArray.sigBytes;
-
-                for (var i = 0; i < thatSigBytes; i++) {
-                    var thatBite = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                    thisWords[thisSigBytes >>> 2] |= thatBite << (24 - (thisSigBytes % 4) * 8);
-                    thisSigBytes++;
-                }
-                this.sigBytes = thisSigBytes;
-
-                return this;
-            },
-
-            clamp: function () {
-                // Shortcuts
-                var words = this.words;
-                var sigBytes = this.sigBytes;
-
-                words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
-                words.length = Math.ceil(sigBytes / 4);
-            },
-
-            clone: function () {
-                var clone = WordArray.super_.clone.call(this);
-                clone.words = this.words.slice(0);
-
-                return clone;
-            },
-
-            random: function (nBytes) {
-                var words = [];
-
-                var nWords = Math.ceil(nBytes / 4);
-                for (var i = 0; i < nWords; i++) {
-                    words.push(Math.floor(Math.random() * 0x100000000));
-                }
-
-                return this.create(words, nBytes);
-            }
-        });
-
-        var WordArray_Hex = WordArray.Hex = WordArray.extend({
-            defaultEncoder: Hex
-        });
-
-        /* Library / Event
-        --------------------------------------------- */
-        var Event = C_lib.Event = BaseObj.extend({
-            init: function () {
-                this.subscribers = [];
-            },
-
-            subscribe: function (callback) {
-                this.subscribers.push(callback);
-            },
-
-            fire: function () {
-                // Shortcuts
-                var subscribers = this.subscribers;
-                var subscribersLength = subscribers.length;
-
-                // Execute callbacks
-                for (var i = 0; i < subscribersLength; i++) {
-                    subscribers[i]();
+                // IE won't copy toString using the loop above
+                if (overrides.hasOwnProperty('toString')) {
+                    subtype.toString = overrides.toString;
                 }
             }
-        });
-    }());
-}
+
+            // Reference supertype
+            subtype.$super = this;
+
+            return subtype;
+        },
+
+        create: function () {
+            var instance = this.extend();
+            instance.init.apply(instance, arguments);
+
+            return instance;
+        },
+
+        init: function () {
+            // Stub
+        },
+
+        clone: function () {
+            return this.$super.extend(this);
+        }
+    };
+
+    // Encoding namespace
+    var C_enc = C.enc = {};
+
+    // Hex
+    var Hex = C_enc.Hex = BaseObj.extend({
+        encode: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            var hexStr = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                hexStr.push((bite >>> 4).toString(16));
+                hexStr.push((bite & 0xf).toString(16));
+            }
+
+            return hexStr.join('');
+        },
+
+        decode: function (hexStr) {
+            // Shortcut
+            var hexStrLength = hexStr.length;
+
+            var words = [];
+            for (var i = 0; i < hexStrLength; i += 2) {
+                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
+            }
+
+            return WordArray_Hex.create(words, hexStrLength / 2);
+        }
+    });
+
+    // Latin-1
+    var Latin1 = C_enc.Latin1 = BaseObj.extend({
+        encode: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            var latin1Str = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                latin1Str.push(String.fromCharCode(bite));
+            }
+
+            return latin1Str.join('');
+        },
+
+        decode: function (latin1Str) {
+            // Shortcut
+            var latin1StrStrLength = latin1Str.length;
+
+            var words = [];
+            for (var i = 0; i < latin1StrStrLength; i++) {
+                words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
+            }
+
+            return WordArray_Latin1.create(words, latin1StrStrLength);
+        }
+    });
+
+    // Utf8
+    var Utf8 = C_enc.Utf8 = BaseObj.extend({
+        encode: function (wordArray) {
+            return decodeURIComponent(escape(Latin1.encode(wordArray)));
+        },
+
+        decode: function (utf8Str) {
+            return WordArray_Utf8.extend(Latin1.decode(unescape(encodeURIComponent(utf8Str))));
+        }
+    });
+
+    // WordArray
+    var WordArray = C_lib.WordArray = BaseObj.extend({
+        init: function (words, sigBytes) {
+            words = this.words = words || [];
+
+            if (sigBytes !== undefined) {
+                this.sigBytes = sigBytes;
+            } else {
+                this.sigBytes = words.length * 4;
+            }
+        },
+
+        toString: function (encoder) {
+            return (encoder || this.encoder).encode(this);
+        },
+
+        concat: function (wordArray) {
+            // Shortcuts
+            var thisWords = this.words;
+            var thatWords = wordArray.words;
+            var thisSigBytes = this.sigBytes;
+            var thatSigBytes = wordArray.sigBytes;
+
+            for (var i = 0; i < thatSigBytes; i++) {
+                var thatBite = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                thisWords[thisSigBytes >>> 2] |= thatBite << (24 - (thisSigBytes % 4) * 8);
+                thisSigBytes++;
+            }
+            this.sigBytes = thisSigBytes;
+
+            return this;
+        },
+
+        clamp: function () {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes;
+
+            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+            words.length = Math.ceil(sigBytes / 4);
+        },
+
+        clone: function () {
+            var clone = WordArray.$super.clone.call(this);
+            clone.words = this.words.slice(0);
+
+            return clone;
+        },
+
+        random: function (nWords) {
+            var words = [];
+            for ( ; nWords > 0; nWords--) {
+                words.push(Math.floor(Math.random() * 0x100000000));
+            }
+
+            return this.create(words);
+        }
+    });
+
+    // WordArray.Hex
+    var WordArray_Hex = WordArray.Hex = WordArray.extend({
+        encoder: Hex
+    });
+
+    // WordArray.Latin1
+    var WordArray_Latin1 = WordArray.Latin1 = WordArray.extend({
+        encoder: Latin1
+    });
+
+    // WordArray.Utf8
+    var WordArray_Utf8 = WordArray.Utf8 = WordArray.extend({
+        encoder: Utf8
+    });
+
+    // Event
+    var Event = C_lib.Event = BaseObj.extend({
+        init: function () {
+            this.subscribers = [];
+        },
+
+        subscribe: function (callback) {
+            this.subscribers.push(callback);
+        },
+
+        fire: function () {
+            // Shortcuts
+            var subscribers = this.subscribers;
+            var subscribersLength = subscribers.length;
+
+            // Execute callbacks
+            for (var i = 0; i < subscribersLength; i++) {
+                subscribers[i]();
+            }
+        }
+    });
+}());

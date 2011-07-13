@@ -4,7 +4,7 @@
     var BaseObj = C.oop.BaseObj;
     var Base64 = C.enc.Base64;
     var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
+    var WordArray_Base64 = WordArray.Base64;
 
     /* Ciphertext wrapper
     ------------------------------------------------------------ */
@@ -31,44 +31,56 @@
             return ciphertextStr + this.rawCiphertext.toString(Base64);
         },
 
-        fromString: function () {}
+        fromString: function (ciphertextStr) {
+            var rawCiphertextBeginIndex = 0;
+
+            // Get IV
+            if (ciphertextStr.substr(0, 3) == 'iv_') {
+                var ivEndIndex = ciphertextStr.indexOf('_', 3);
+                var iv = WordArray_Base64.fromString(ciphertextStr.substring(3, ivEndIndex));
+
+                rawCiphertextBeginIndex = ivEndIndex + 1;
+            }
+
+            // Get salt
+            if (ciphertextStr.substr(rawCiphertextBeginIndex, 5) == 'salt_') {
+                var saltEndIndex = ciphertextStr.indexOf('_', rawCiphertextBeginIndex + 5);
+                var salt = WordArray_Base64.fromString(ciphertextStr.substring(rawCiphertextBeginIndex + 5, saltEndIndex));
+
+                rawCiphertextBeginIndex = saltEndIndex + 1;
+            }
+
+            // Get raw ciphertext
+            var rawCiphertext = WordArray_Base64.fromString(ciphertextStr.substr(rawCiphertextBeginIndex));
+
+            return this.create(rawCiphertext, { iv: iv, salt: salt });
+        }
     });
 
     /* Cipher
     ------------------------------------------------------------ */
     var Cipher = C_lib.Cipher = BaseObj.extend({
-        // Config defaults
-        cfg: BaseObj.extend({}),
-
-        init: function (key, cfg) {
-            // Apply config defaults
-            cfg = this.cfg = this.cfg.extend(cfg);
-
-            // Convert String to key, else assume key already
-            if (typeof key == 'string') {
-                key = C.algo.PBKDF2.compute(key, (cfg.salt = WordArray_Hex.random(8)), { keySize: this.keySize });
+        encrypt: function (message, password, cfg) {
+            // Convert Strings to WordArrays, else assume WordArrays already
+            if (typeof message == 'string') {
+                message = WordArray.fromString(message);
             }
-            cfg.key = key;
-
-            this.doInit();
-        },
-
-        getIV: function () {
-            // Shortcut
-            var iv = this.cfg.iv;
-
-            // Use random IV if not defined
-            if (iv === undefined) {
-                iv = this.cfg.iv = WordArray_Hex.random(this.ivSize * 4);
+            if (typeof password == 'string') {
+                // Generate key
+                var salt = this.salt = WordArray_Base64.random(2);
+                password = C.PBKDF2(password, salt, { keySize: this.keySize });
             }
 
-            return iv;
+            this.message = message;
+            this.key = password;
+
+            this.doEncrypt();
+
+            return Ciphertext.create(message, { salt: salt })
         },
 
-        reset: function () {},
+        decrypt: function (ciphertext, password) {
 
-        update: function () {},
-
-        compute: function () {}
+        }
     });
 }(CryptoJS));

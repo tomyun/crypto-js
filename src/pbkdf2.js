@@ -1,7 +1,8 @@
 (function (C) {
     // Shortcuts
-    var BaseObj = C.oop.BaseObj;
-    var WordArray_Hex = C.lib.WordArray.Hex;
+    var C_lib = C.lib;
+    var BaseObj = C_lib.BaseObj;
+    var WordArray_Hex = C_lib.WordArray.Hex;
 
     var PBKDF2 = C.PBKDF2 = BaseObj.extend({
         // Config defaults
@@ -11,7 +12,24 @@
             iterations: 1
         }),
 
-        compute: function (password, salt, cfg) {
+        compute: function () {
+            // Shortcut
+            var args = arguments;
+
+            if (args.length == 1 || (args.length == 2 && typeof args[1] == 'object' && ! args[1].$super)) {
+                return this.compute2.apply(this, args);
+            } else {
+                return this.compute3.apply(this, args);
+            }
+        },
+
+        compute2: function (password, cfg) {
+            var salt = WordArray_Hex.random(2);
+
+            return this.compute3(password, salt, cfg);
+        },
+
+        compute3: function (password, salt, cfg) {
             // Apply config defaults
             cfg = this.cfg.extend(cfg);
 
@@ -41,7 +59,7 @@
                 for (var i = 1; i < iterations; i++) {
                     intermediate = hmac.compute(intermediate);
 
-                    // Shortcuts
+                    // Shortcut
                     var intermediateWords = intermediate.words;
 
                     // XOR block with intermediate
@@ -54,6 +72,9 @@
                 blockIndexWords[0]++;
             }
             derivedKey.sigBytes = keySize * 4;
+
+            // Salt might be random, so return it with the derived key
+            derivedKey.salt = salt;
 
             return derivedKey;
         }
