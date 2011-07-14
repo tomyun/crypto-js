@@ -16,16 +16,19 @@ Crypto.mode.Mode = function (mode, padding) {
 	} else {
 		this.name = mode.name + "/" + this.padding.name;
 	}
-    this.encrypt= function (cipher, m, iv) {
-    		this.padding.pad(cipher, m);
-            this.encryptBlock(cipher, m, iv);
-        };
-    this.decrypt= function (cipher, m, iv) {
-            this.decryptBlock(cipher, m, iv);
-            this.padding.unpad(m);
-        };
 };
 
+Crypto.mode.Mode.prototype = {
+	encrypt: function (cipher, m, iv) {
+		this.padding.pad(cipher, m);
+		this.encryptBlock(cipher, m, iv);
+	},
+
+	decrypt: function (cipher, m, iv) {
+		this.decryptBlock(cipher, m, iv);
+		this.padding.unpad(m);
+	}
+};
 
 /**
  * Electronic Code Book mode.
