@@ -94,7 +94,7 @@ var AES = C.AES = {
 		var mode = options.mode || C.mode.OFB;
 
 		// Allow mode to override options
-		if (mode.fixOptions) mode.fixOptions();
+		if (mode.fixOptions) mode.fixOptions(options);
 
 		var
 
@@ -135,7 +135,7 @@ var AES = C.AES = {
 		var mode = options.mode || C.mode.OFB;
 
 		// Allow mode to override options
-		if (mode.fixOptions) mode.fixOptions();
+		if (mode.fixOptions) mode.fixOptions(options);
 
 		var
 
