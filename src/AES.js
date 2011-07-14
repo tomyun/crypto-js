@@ -90,6 +90,12 @@ var AES = C.AES = {
 
 		options = options || {};
 
+		// Determine mode
+		var mode = options.mode || C.mode.OFB;
+
+		// Allow mode to override options
+		if (mode.fixOptions) mode.fixOptions();
+
 		var
 
 			// Convert to bytes if message is a string
@@ -109,10 +115,7 @@ var AES = C.AES = {
 				C.PBKDF2(password, iv, 32, { asBytes: true }) :
 				// else, assume byte array representing cryptographic key
 				password
-			),
-
-			// Determine mode
-			mode = options.mode || C.mode.OFB;
+			);
 
 		// Encrypt
 		AES._init(k);
@@ -128,13 +131,19 @@ var AES = C.AES = {
 
 		options = options || {};
 
+		// Determine mode
+		var mode = options.mode || C.mode.OFB;
+
+		// Allow mode to override options
+		if (mode.fixOptions) mode.fixOptions();
+
 		var
 
 			// Convert to bytes if ciphertext is a string
 			c = (
 				ciphertext.constructor == String ?
 				util.base64ToBytes(ciphertext):
-				ciphertext
+			    ciphertext
 			),
 
 			// Separate IV and message
@@ -147,10 +156,7 @@ var AES = C.AES = {
 				C.PBKDF2(password, iv, 32, { asBytes: true }) :
 				// else, assume byte array representing cryptographic key
 				password
-			),
-
-			// Determine mode
-			mode = options.mode || C.mode.OFB;
+			);
 
 		// Decrypt
 		AES._init(k);
