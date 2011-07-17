@@ -22,7 +22,11 @@ function profile(objectNames, run) {
 
 				// Register objects to profile
 				for (var i = 0; i < objectNames.length; i++)
-					YAHOO.tool.Profiler.registerObject(objectNames[i]);
+					if (YAHOO.lang.isFunction(objectNames[i])) {
+						YAHOO.tool.Profiler.registerConstructor(objectNames[i]);
+					} else {
+						YAHOO.tool.Profiler.registerObject(objectNames[i]);
+					}
 
 				// Run the application
 				run();
