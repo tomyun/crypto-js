@@ -2,10 +2,16 @@
  * Crypto-JS contribution from Simon Greatrix
  */
 
+(function(){
+
+// Shortcuts
+var C = Crypto,
+    C_mode = C.mode;
+
 /**
  * Combine a block mode with a padding scheme.
  */
-Crypto.mode.Mode = function (mode, padding) {
+var Mode = C_mode.Mode = function (mode, padding) {
 	this.encryptBlock = mode.encryptBlock;
 	this.decryptBlock = mode.decryptBlock;
 	this.fixOptions = mode.fixOptions;
@@ -18,7 +24,7 @@ Crypto.mode.Mode = function (mode, padding) {
 	}
 };
 
-Crypto.mode.Mode.prototype = {
+Mode.prototype = {
 	encrypt: function (cipher, m, iv) {
 		this.padding.pad(cipher, m);
 		this.encryptBlock(cipher, m, iv);
@@ -37,7 +43,7 @@ Crypto.mode.Mode.prototype = {
  * 
  * ECB does not require an initialization vector.
  */
-Crypto.mode.ECB = new Crypto.mode.Mode({
+C_mode.ECB = new Mode({
 	name: "ECB",
 	
 	defaultPadding : Crypto.pad.iso7816,
@@ -70,7 +76,7 @@ Crypto.mode.ECB = new Crypto.mode.Mode({
  * The first block is XORed with the IV. Subsequent blocks are XOR with the
  * previous cipher output.
  */
-Crypto.mode.CBC = new Crypto.mode.Mode({
+C_mode.CBC = new Mode({
 	name : "CBC",
 	
     defaultPadding : Crypto.pad.iso7816,
@@ -125,7 +131,7 @@ Crypto.mode.CBC = new Crypto.mode.Mode({
  * 
  * This is a stream cipher mode and does not require padding.
  */
-Crypto.mode.CFB = new Crypto.mode.Mode({
+C_mode.CFB = new Mode({
 	name: "CFB",
 	
 	defaultPadding : Crypto.pad.NoPadding,
@@ -171,9 +177,6 @@ Crypto.mode.CFB = new Crypto.mode.Mode({
  * 
  * This is a stream cipher mode and does not require padding.
  */
-(function(){
-
-	// Public API
 	Crypto.mode.OFB = new Crypto.mode.Mode({
 		name: "OFB",
 		defaultPadding: Crypto.pad.NoPadding,
