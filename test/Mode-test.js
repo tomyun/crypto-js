@@ -39,7 +39,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
         
         // iso10126 uses random bytes, so a precise match is impossible
         var skipPad = 0;
-        if( m.name.indexOf(Crypto.pad.iso10126.name) != -1 ) {
+        if( m._padding == Crypto.pad.iso10126 ) {
         	// skip last 16 bytes as they are random
         	skipPad = 16;
         }
@@ -64,7 +64,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
         
         // iso10126 uses random bytes, so a precise match is impossible
         var skipPad = 0;
-        if( m.name.indexOf(Crypto.pad.iso10126.name) != -1 ) {
+        if( m._padding == Crypto.pad.iso10126 ) {
         	// skip last 16 bytes as they are random
         	skipPad = 16;
         }
@@ -87,7 +87,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_ECB_Binary: function() {
         this._testBinary(
-                Crypto.mode.ECB,
+                new Crypto.mode.ECB,
                 Crypto.util.base64ToBytes(
                     "yUZlGPJOWQph4RRsOFmHR546qH39QmZeuq43K33BZi8UbFitayceKoRm"+
                     "97axGfeiQRYc/HlU9MrnEdN8cl4uRUy3MHJ805voCXoeQv9T/ZaxzXAd"+
@@ -102,7 +102,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_ECB_Text: function() {
         this._testText(
-                Crypto.mode.ECB,
+                new Crypto.mode.ECB,
                 Crypto.util.base64ToBytes(
                     "jvfZY1iDhmgOGK0buOrIusf3VMZo4y87nsDt8/FgQ7jl9M+q2ApiJLmU"+
                     "GWrni27AeMS8+ybGV4+bly2XDaOHaYv1VajdhqIIEv/BbRSFM51XbUiO"+
@@ -115,7 +115,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_CBC_Binary: function() {
         this._testBinary(
-                Crypto.mode.CBC,
+                new Crypto.mode.CBC,
                 Crypto.util.base64ToBytes(
                     "lXl5aPuWvwLPhN7QVoT5/mTUv2qX3uRHYsrxJMGTQKyaZdPpWDnjtVE4"+
                     "0lR7siBNhosWaI8EfzJPo2VFcUV6J8McVVKuLJJ8WqOcqum/vj11T+BW"+
@@ -131,7 +131,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_CBC_Text: function() {
         this._testText(
-                Crypto.mode.CBC,
+                new Crypto.mode.CBC,
                 Crypto.util.base64ToBytes(
                     "3v1DbHZux/qLXbOE/Nb72B4MJmn4zMQOhZdaG1V8tOZ0HeekF7Bcg0I0"+
                     "s8bdeodgvD8DagMv2/1KnIVN/dhZbCkumnEqTNWJU8G/cAA1R/qx5Qoy"+
@@ -145,7 +145,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_CFB_Binary: function() {
 		this._testBinary(
-				Crypto.mode.CFB,
+				new Crypto.mode.CFB,
 				Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M2zaTE+sg35rFR6Y3bhXMHcHJ6zZ+eEfWulxuGHE"+
                 "F+TbHNVfZ1ji5z/mAaJ6buO00lEpvSiyTuts0N8gOlX2a+zPSGrdQYr818UN"+
@@ -159,7 +159,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_CFB_Text: function() {
 		this._testText(
-				Crypto.mode.CFB,
+				new Crypto.mode.CFB,
 				Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41NaNH2/hyiMwonsFwnvYc9U2/SnfVfrDrMiirJFUq"+
                 "YFzW6h55BQzkNAgYjbkl8K2PJZXXBNSWAPT+EWtD5ICrLj8DyfPpke8Lw94g"+
@@ -173,7 +173,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_OFB_Binary: function() {		
 		this._testBinary(
-				Crypto.mode.OFB,
+				new Crypto.mode.OFB,
 				Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M93fLgEI6C29RMqDedSzsxdbtVl+Tz+1dRfpPEm+"+
                 "usOMd1BRVrr6oSTsxb+8pJd5/HKomxCEYVXAsBsvzcgXc+YKzLomwPXtUa+s"+
@@ -187,7 +187,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
 	test_OFB_Text: function() {
 		this._testText(
-				Crypto.mode.OFB,
+				new Crypto.mode.OFB,
 				Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41Nd+II+3wW9ZxiREZ5HMXD73eMcPux0nNRG6ScxTj"+
                 "8uimTmloE7PlstFIalpEZByvKpIKPLAr79BVaJBMraxjI+9TlecK6M/TRam3"+
@@ -200,7 +200,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 	
     test_ECB_iso7816_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.iso7816),
+            new Crypto.mode.ECB(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "yUZlGPJOWQph4RRsOFmHR546qH39QmZeuq43K33BZi8UbFitayceKoRm"+
                 "97axGfeiQRYc/HlU9MrnEdN8cl4uRUy3MHJ805voCXoeQv9T/ZaxzXAd"+
@@ -215,7 +215,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_iso7816_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.iso7816),
+            new Crypto.mode.ECB(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "jvfZY1iDhmgOGK0buOrIusf3VMZo4y87nsDt8/FgQ7jl9M+q2ApiJLmU"+
                 "GWrni27AeMS8+ybGV4+bly2XDaOHaYv1VajdhqIIEv/BbRSFM51XbUiO"+
@@ -229,7 +229,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_ansix923_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.ansix923),
+            new Crypto.mode.ECB(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "yUZlGPJOWQph4RRsOFmHR546qH39QmZeuq43K33BZi8UbFitayceKoRm"+
                 "97axGfeiQRYc/HlU9MrnEdN8cl4uRUy3MHJ805voCXoeQv9T/ZaxzXAd"+
@@ -244,7 +244,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_ansix923_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.ansix923),
+            new Crypto.mode.ECB(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "jvfZY1iDhmgOGK0buOrIusf3VMZo4y87nsDt8/FgQ7jl9M+q2ApiJLmU"+
                 "GWrni27AeMS8+ybGV4+bly2XDaOHaYv1VajdhqIIEv/BbRSFM51XbUiO"+
@@ -258,7 +258,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_iso10126_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.iso10126),
+            new Crypto.mode.ECB(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "yUZlGPJOWQph4RRsOFmHR546qH39QmZeuq43K33BZi8UbFitayceKoRm"+
                 "97axGfeiQRYc/HlU9MrnEdN8cl4uRUy3MHJ805voCXoeQv9T/ZaxzXAd"+
@@ -273,7 +273,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_iso10126_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.iso10126),
+            new Crypto.mode.ECB(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "jvfZY1iDhmgOGK0buOrIusf3VMZo4y87nsDt8/FgQ7jl9M+q2ApiJLmU"+
                 "GWrni27AeMS8+ybGV4+bly2XDaOHaYv1VajdhqIIEv/BbRSFM51XbUiO"+
@@ -287,7 +287,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_pkcs7_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.pkcs7),
+            new Crypto.mode.ECB(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "yUZlGPJOWQph4RRsOFmHR546qH39QmZeuq43K33BZi8UbFitayceKoRm"+
                 "97axGfeiQRYc/HlU9MrnEdN8cl4uRUy3MHJ805voCXoeQv9T/ZaxzXAd"+
@@ -302,7 +302,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_ECB_pkcs7_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.ECB, Crypto.pad.pkcs7),
+            new Crypto.mode.ECB(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "jvfZY1iDhmgOGK0buOrIusf3VMZo4y87nsDt8/FgQ7jl9M+q2ApiJLmU"+
                 "GWrni27AeMS8+ybGV4+bly2XDaOHaYv1VajdhqIIEv/BbRSFM51XbUiO"+
@@ -316,7 +316,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_iso7816_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.iso7816),
+            new Crypto.mode.CBC(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "lXl5aPuWvwLPhN7QVoT5/mTUv2qX3uRHYsrxJMGTQKyaZdPpWDnjtVE4"+
                 "0lR7siBNhosWaI8EfzJPo2VFcUV6J8McVVKuLJJ8WqOcqum/vj11T+BW"+
@@ -331,7 +331,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_iso7816_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.iso7816),
+            new Crypto.mode.CBC(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "3v1DbHZux/qLXbOE/Nb72B4MJmn4zMQOhZdaG1V8tOZ0HeekF7Bcg0I0"+
                 "s8bdeodgvD8DagMv2/1KnIVN/dhZbCkumnEqTNWJU8G/cAA1R/qx5Qoy"+
@@ -345,7 +345,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_ansix923_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.ansix923),
+            new Crypto.mode.CBC(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "lXl5aPuWvwLPhN7QVoT5/mTUv2qX3uRHYsrxJMGTQKyaZdPpWDnjtVE4"+
                 "0lR7siBNhosWaI8EfzJPo2VFcUV6J8McVVKuLJJ8WqOcqum/vj11T+BW"+
@@ -360,7 +360,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_ansix923_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.ansix923),
+            new Crypto.mode.CBC(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "3v1DbHZux/qLXbOE/Nb72B4MJmn4zMQOhZdaG1V8tOZ0HeekF7Bcg0I0"+
                 "s8bdeodgvD8DagMv2/1KnIVN/dhZbCkumnEqTNWJU8G/cAA1R/qx5Qoy"+
@@ -374,7 +374,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_iso10126_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.iso10126),
+            new Crypto.mode.CBC(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "lXl5aPuWvwLPhN7QVoT5/mTUv2qX3uRHYsrxJMGTQKyaZdPpWDnjtVE4"+
                 "0lR7siBNhosWaI8EfzJPo2VFcUV6J8McVVKuLJJ8WqOcqum/vj11T+BW"+
@@ -389,7 +389,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_iso10126_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.iso10126),
+            new Crypto.mode.CBC(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "3v1DbHZux/qLXbOE/Nb72B4MJmn4zMQOhZdaG1V8tOZ0HeekF7Bcg0I0"+
                 "s8bdeodgvD8DagMv2/1KnIVN/dhZbCkumnEqTNWJU8G/cAA1R/qx5Qoy"+
@@ -403,7 +403,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_pkcs7_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.pkcs7),
+            new Crypto.mode.CBC(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "lXl5aPuWvwLPhN7QVoT5/mTUv2qX3uRHYsrxJMGTQKyaZdPpWDnjtVE4"+
                 "0lR7siBNhosWaI8EfzJPo2VFcUV6J8McVVKuLJJ8WqOcqum/vj11T+BW"+
@@ -418,7 +418,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CBC_pkcs7_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CBC, Crypto.pad.pkcs7),
+            new Crypto.mode.CBC(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "3v1DbHZux/qLXbOE/Nb72B4MJmn4zMQOhZdaG1V8tOZ0HeekF7Bcg0I0"+
                 "s8bdeodgvD8DagMv2/1KnIVN/dhZbCkumnEqTNWJU8G/cAA1R/qx5Qoy"+
@@ -432,7 +432,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_iso7816_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.iso7816),
+            new Crypto.mode.CFB(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M2zaTE+sg35rFR6Y3bhXMHcHJ6zZ+eEfWulx"+
                 "uGHEF+TbHNVfZ1ji5z/mAaJ6buO00lEpvSiyTuts0N8gOlX2a+zPSGrd"+
@@ -447,7 +447,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_iso7816_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.iso7816),
+            new Crypto.mode.CFB(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41NaNH2/hyiMwonsFwnvYc9U2/SnfVfrDrMiir"+
                 "JFUqYFzW6h55BQzkNAgYjbkl8K2PJZXXBNSWAPT+EWtD5ICrLj8DyfPp"+
@@ -461,7 +461,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_ansix923_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.ansix923),
+            new Crypto.mode.CFB(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M2zaTE+sg35rFR6Y3bhXMHcHJ6zZ+eEfWulx"+
                 "uGHEF+TbHNVfZ1ji5z/mAaJ6buO00lEpvSiyTuts0N8gOlX2a+zPSGrd"+
@@ -476,7 +476,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_ansix923_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.ansix923),
+            new Crypto.mode.CFB(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41NaNH2/hyiMwonsFwnvYc9U2/SnfVfrDrMiir"+
                 "JFUqYFzW6h55BQzkNAgYjbkl8K2PJZXXBNSWAPT+EWtD5ICrLj8DyfPp"+
@@ -490,7 +490,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_iso10126_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.iso10126),
+            new Crypto.mode.CFB(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M2zaTE+sg35rFR6Y3bhXMHcHJ6zZ+eEfWulx"+
                 "uGHEF+TbHNVfZ1ji5z/mAaJ6buO00lEpvSiyTuts0N8gOlX2a+zPSGrd"+
@@ -505,7 +505,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_iso10126_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.iso10126),
+            new Crypto.mode.CFB(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41NaNH2/hyiMwonsFwnvYc9U2/SnfVfrDrMiir"+
                 "JFUqYFzW6h55BQzkNAgYjbkl8K2PJZXXBNSWAPT+EWtD5ICrLj8DyfPp"+
@@ -519,7 +519,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_pkcs7_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.pkcs7),
+            new Crypto.mode.CFB(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M2zaTE+sg35rFR6Y3bhXMHcHJ6zZ+eEfWulx"+
                 "uGHEF+TbHNVfZ1ji5z/mAaJ6buO00lEpvSiyTuts0N8gOlX2a+zPSGrd"+
@@ -534,7 +534,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_CFB_pkcs7_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.CFB, Crypto.pad.pkcs7),
+            new Crypto.mode.CFB(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41NaNH2/hyiMwonsFwnvYc9U2/SnfVfrDrMiir"+
                 "JFUqYFzW6h55BQzkNAgYjbkl8K2PJZXXBNSWAPT+EWtD5ICrLj8DyfPp"+
@@ -548,7 +548,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_iso7816_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.iso7816),
+            new Crypto.mode.OFB(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M93fLgEI6C29RMqDedSzsxdbtVl+Tz+1dRfp"+
                 "PEm+usOMd1BRVrr6oSTsxb+8pJd5/HKomxCEYVXAsBsvzcgXc+YKzLom"+
@@ -563,7 +563,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_iso7816_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.iso7816),
+            new Crypto.mode.OFB(Crypto.pad.iso7816),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41Nd+II+3wW9ZxiREZ5HMXD73eMcPux0nNRG6S"+
                 "cxTj8uimTmloE7PlstFIalpEZByvKpIKPLAr79BVaJBMraxjI+9TlecK"+
@@ -577,7 +577,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_ansix923_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.ansix923),
+            new Crypto.mode.OFB(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M93fLgEI6C29RMqDedSzsxdbtVl+Tz+1dRfp"+
                 "PEm+usOMd1BRVrr6oSTsxb+8pJd5/HKomxCEYVXAsBsvzcgXc+YKzLom"+
@@ -592,7 +592,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_ansix923_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.ansix923),
+            new Crypto.mode.OFB(Crypto.pad.ansix923),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41Nd+II+3wW9ZxiREZ5HMXD73eMcPux0nNRG6S"+
                 "cxTj8uimTmloE7PlstFIalpEZByvKpIKPLAr79BVaJBMraxjI+9TlecK"+
@@ -606,7 +606,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_iso10126_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.iso10126),
+            new Crypto.mode.OFB(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M93fLgEI6C29RMqDedSzsxdbtVl+Tz+1dRfp"+
                 "PEm+usOMd1BRVrr6oSTsxb+8pJd5/HKomxCEYVXAsBsvzcgXc+YKzLom"+
@@ -621,7 +621,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_iso10126_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.iso10126),
+            new Crypto.mode.OFB(Crypto.pad.iso10126),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41Nd+II+3wW9ZxiREZ5HMXD73eMcPux0nNRG6S"+
                 "cxTj8uimTmloE7PlstFIalpEZByvKpIKPLAr79BVaJBMraxjI+9TlecK"+
@@ -635,7 +635,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_pkcs7_binary : function() {
         this._testBinary(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.pkcs7),
+            new Crypto.mode.OFB(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "XNgcJFiRBwRjMtq9xuo7M93fLgEI6C29RMqDedSzsxdbtVl+Tz+1dRfp"+
                 "PEm+usOMd1BRVrr6oSTsxb+8pJd5/HKomxCEYVXAsBsvzcgXc+YKzLom"+
@@ -650,7 +650,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
     test_OFB_pkcs7_text : function() {
         this._testText(
-            new Crypto.mode.Mode(Crypto.mode.OFB, Crypto.pad.pkcs7),
+            new Crypto.mode.OFB(Crypto.pad.pkcs7),
             Crypto.util.base64ToBytes(
                 "ELBgVCmSREUoePHQ9t41Nd+II+3wW9ZxiREZ5HMXD73eMcPux0nNRG6S"+
                 "cxTj8uimTmloE7PlstFIalpEZByvKpIKPLAr79BVaJBMraxjI+9TlecK"+
