@@ -113,9 +113,6 @@ var util = Crypto.util = {
 
 };
 
-// Crypto mode namespace
-Crypto.mode = {};
-
 // Crypto character encodings
 var charenc = Crypto.charenc = {};
 

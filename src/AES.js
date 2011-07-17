@@ -4,8 +4,7 @@
 var C = Crypto,
     util = C.util,
     charenc = C.charenc,
-    UTF8 = charenc.UTF8,
-    Binary = charenc.Binary;
+    UTF8 = charenc.UTF8;
 
 // Precomputed SBOX
 var SBOX = [ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
@@ -91,10 +90,20 @@ var AES = C.AES = {
 
 		options = options || {};
 
+		// Determine mode
+		var mode = options.mode || new C.mode.OFB;
+
+		// Allow mode to override options
+		if (mode.fixOptions) mode.fixOptions(options);
+
 		var
 
-			// Convert to bytes
-			m = UTF8.stringToBytes(message),
+			// Convert to bytes if message is a string
+			m = (
+				message.constructor == String ?
+				UTF8.stringToBytes(message) :
+				message
+			),
 
 			// Generate random IV
 			iv = options.iv || util.randomBytes(AES._blocksize * 4),
@@ -106,17 +115,15 @@ var AES = C.AES = {
 				C.PBKDF2(password, iv, 32, { asBytes: true }) :
 				// else, assume byte array representing cryptographic key
 				password
-			),
-
-			// Determine mode
-			mode = options.mode || C.mode.OFB;
+			);
 
 		// Encrypt
 		AES._init(k);
 		mode.encrypt(AES, m, iv);
 
 		// Return ciphertext
-		return util.bytesToBase64(options.iv ? m : iv.concat(m));
+		m = options.iv ? m : iv.concat(m);
+		return (options && options.asBytes) ? m : util.bytesToBase64(m);
 
 	},
 
@@ -124,10 +131,20 @@ var AES = C.AES = {
 
 		options = options || {};
 
+		// Determine mode
+		var mode = options.mode || new C.mode.OFB;
+
+		// Allow mode to override options
+		if (mode.fixOptions) mode.fixOptions(options);
+
 		var
 
-			// Convert to bytes
-			c = util.base64ToBytes(ciphertext),
+			// Convert to bytes if ciphertext is a string
+			c = (
+				ciphertext.constructor == String ?
+				util.base64ToBytes(ciphertext):
+			    ciphertext
+			),
 
 			// Separate IV and message
 			iv = options.iv || c.splice(0, AES._blocksize * 4),
@@ -139,17 +156,14 @@ var AES = C.AES = {
 				C.PBKDF2(password, iv, 32, { asBytes: true }) :
 				// else, assume byte array representing cryptographic key
 				password
-			),
-
-			// Determine mode
-			mode = options.mode || C.mode.OFB;
+			);
 
 		// Decrypt
 		AES._init(k);
 		mode.decrypt(AES, c, iv);
 
 		// Return plaintext
-		return UTF8.bytesToString(c);
+		return (options && options.asBytes) ? c : UTF8.bytesToString(c);
 
 	},
 

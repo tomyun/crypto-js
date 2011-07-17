@@ -10,7 +10,7 @@
 <script type="text/javascript" src="../src/HMAC.js"></script>
 <script type="text/javascript" src="../src/SHA1.js"></script>
 <script type="text/javascript" src="../src/PBKDF2.js"></script>
-<script type="text/javascript" src="../src/OFB.js"></script>
+<script type="text/javascript" src="../src/BlockModes.js"></script>
 <script type="text/javascript" src="../src/AES.js"></script>
 
 <!-- Profiling -->
@@ -26,7 +26,7 @@ var key = [];
 for (var i = 0; i < 32; i++) key.push(String.fromCharCode(Math.floor(Math.random() * 256)));
 key = key.join("");
 
-profile(["Crypto.AES", "Crypto.mode.OFB", "Crypto.util", "Crypto"], function(){
+profile(["Crypto.AES", "Crypto.mode.OFB", "Crypto.pad.NoPadding", "Crypto.util", "Crypto"], function(){
 	Crypto.AES.decrypt(Crypto.AES.encrypt(data, key), key);
 });
 

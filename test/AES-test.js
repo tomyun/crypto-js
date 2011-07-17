@@ -13,8 +13,8 @@ TestSuite.add(new YAHOO.tool.TestCase({
 		Assert.areEqual([0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF].toString(), block.toString());
 
 		var key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key, { mode: Crypto.mode.CBC }), key, { mode: Crypto.mode.CBC }));
-		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key), key));
+		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data.slice(0), key, { mode: new Crypto.mode.CBC }), key, { mode: new Crypto.mode.CBC, asBytes: true }).toString());
+		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data.slice(0), key), key, { asBytes: true }).toString());
 
 	},
 
@@ -31,8 +31,8 @@ TestSuite.add(new YAHOO.tool.TestCase({
 		Assert.areEqual([0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF].toString(), block.toString());
 
 		var key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17";
-		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key, Crypto.mode.CBC), key, Crypto.mode.CBC));
-		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key), key));
+		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data.slice(0), key, { mode: new Crypto.mode.CBC }), key, { mode: new Crypto.mode.CBC, asBytes: true }).toString());
+		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data.slice(0), key), key, { asBytes: true }).toString());
 
 	},
 
@@ -50,8 +50,8 @@ TestSuite.add(new YAHOO.tool.TestCase({
 		Assert.areEqual([0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF].toString(), block.toString());
 
 		var key = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F";
-		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key, Crypto.mode.CBC), key, Crypto.mode.CBC));
-		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data, key), key));
+		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data.slice(0), key, { mode: new Crypto.mode.CBC }), key, { mode: new Crypto.mode.CBC, asBytes: true }).toString());
+		Assert.areEqual(data, Crypto.AES.decrypt(Crypto.AES.encrypt(data.slice(0), key), key, { asBytes: true }).toString());
 
 		Assert.areEqual('Сообщение', Crypto.AES.decrypt(Crypto.AES.encrypt('Сообщение', 'Пароль'), 'Пароль'));
 
