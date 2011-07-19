@@ -12,24 +12,7 @@
             iterations: 1
         }),
 
-        compute: function () {
-            // Shortcut
-            var args = arguments;
-
-            if (args.length == 1 || (args.length == 2 && typeof args[1] == 'object' && ! args[1].$super)) {
-                return this.compute2.apply(this, args);
-            } else {
-                return this.compute3.apply(this, args);
-            }
-        },
-
-        compute2: function (password, cfg) {
-            var salt = WordArray_Hex.random(2);
-
-            return this.compute3(password, salt, cfg);
-        },
-
-        compute3: function (password, salt, cfg) {
+        compute: function (password, salt, cfg) {
             // Apply config defaults
             cfg = this.cfg.extend(cfg);
 
@@ -72,9 +55,6 @@
                 blockIndexWords[0]++;
             }
             derivedKey.sigBytes = keySize * 4;
-
-            // Salt might be random, so return it with the derived key
-            derivedKey.salt = salt;
 
             return derivedKey;
         }
