@@ -72,7 +72,9 @@
 
         decode: function () {
             // "Cast" as WordArray.Base64.UrlSafe
-            return WordArray_Base64_UrlSafe.extend(Base64_UrlSafe.$super.decode.apply(this, arguments));
+            return WordArray_Base64_UrlSafe.extend(
+                Base64_UrlSafe.$super.decode.apply(this, arguments)
+            );
         },
 
         // URL-safe alphabet
