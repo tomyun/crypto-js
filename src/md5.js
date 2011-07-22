@@ -1,5 +1,10 @@
-(function (C) {
-    var MD5 = C.MD5 = C.lib.Hasher.extend({
+(function (C, undefined) {
+    // Hash base shortcuts
+    var C_hash = C.hash;
+    var Formatter = C_hash.Formatter;
+    var Base = C_hash.Base;
+
+    var MD5 = C.MD5 = Base.extend({
         doReset: function () {
             // Shortcut
             var H = this.hash.words;
@@ -125,14 +130,10 @@
             var H = this.hash.words;
 
             // Swap endian
-            H[0] = (((H[0] <<  8) | (H[0] >>> 24)) & 0x00ff00ff) |
-                   (((H[0] << 24) | (H[0] >>>  8)) & 0xff00ff00);
-            H[1] = (((H[1] <<  8) | (H[1] >>> 24)) & 0x00ff00ff) |
-                   (((H[1] << 24) | (H[1] >>>  8)) & 0xff00ff00);
-            H[2] = (((H[2] <<  8) | (H[2] >>> 24)) & 0x00ff00ff) |
-                   (((H[2] << 24) | (H[2] >>>  8)) & 0xff00ff00);
-            H[3] = (((H[3] <<  8) | (H[3] >>> 24)) & 0x00ff00ff) |
-                   (((H[3] << 24) | (H[3] >>>  8)) & 0xff00ff00);
+            H[0] = (((H[0] << 8) | (H[0] >>> 24)) & 0x00ff00ff) | (((H[0] << 24) | (H[0] >>> 8)) & 0xff00ff00);
+            H[1] = (((H[1] << 8) | (H[1] >>> 24)) & 0x00ff00ff) | (((H[1] << 24) | (H[1] >>> 8)) & 0xff00ff00);
+            H[2] = (((H[2] << 8) | (H[2] >>> 24)) & 0x00ff00ff) | (((H[2] << 24) | (H[2] >>> 8)) & 0xff00ff00);
+            H[3] = (((H[3] << 8) | (H[3] >>> 24)) & 0x00ff00ff) | (((H[3] << 24) | (H[3] >>> 8)) & 0xff00ff00);
         }
     });
 

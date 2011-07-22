@@ -1,20 +1,33 @@
-(function (C) {
-    var HMAC = C.HMAC = C.lib.BaseObj.extend({
+(function (C, undefined) {
+    // Core shortcuts
+    var C_lib = C.lib;
+    var BaseObj = C_lib.BaseObj;
+    var WordArray = C_lib.WordArray;
+    var WordArray_Hex = WordArray.Hex;
+    var WordArray_Latin1 = WordArray.Latin1;
+    var WordArray_Utf8 = WordArray.Utf8;
+    var Event = C_lib.Event;
+    var C_enc = C.enc;
+    var Hex = C_enc.Hex;
+    var Latin1 = C_enc.Latin1;
+    var Utf8 = C_enc.Utf8;
+
+    var HMAC = C.HMAC = BaseObj.extend({
         init: function (hasher, key) {
             // Init hasher
             hasher = this.hasher = hasher.create({ salt: null });
 
             // Convert string to WordArray, else assume WordArray already
             if (typeof key == 'string') {
-                key = C.enc.Utf8.decode(key);
+                key = Utf8.decode(key);
             }
 
             // Shortcut
-            var blockSize = hasher.blockSize;
+            var hasherBlockSize = hasher.blockSize;
 
             // Allow arbitrary length keys
-            if (key.words.length > blockSize) {
-                key = hasher.compute(key).rawHash;
+            if (key.words.length > hasherBlockSize) {
+                key = hasher.compute(key).rawData;
             }
 
             // Clone key for inner and outer pads
@@ -26,11 +39,11 @@
             var iKeyWords = iKey.words;
 
             // XOR keys with pad constants
-            for (var i = 0; i < blockSize; i++) {
+            for (var i = 0; i < hasherBlockSize; i++) {
                 oKeyWords[i] ^= 0x5c5c5c5c;
                 iKeyWords[i] ^= 0x36363636;
             }
-            oKey.sigBytes = iKey.sigBytes = blockSize * 4;
+            oKey.sigBytes = iKey.sigBytes = hasherBlockSize * 4;
 
             // Set initial values
             this.reset();
@@ -69,7 +82,7 @@
             var hasher = this.hasher;
 
             // Compute HMAC
-            var hmac = hasher.compute(this.oKey.clone().concat(hasher.compute().rawHash)).rawHash;
+            var hmac = hasher.compute(this.oKey.clone().concat(hasher.compute().rawData)).rawData;
 
             this.reset();
 

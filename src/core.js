@@ -160,6 +160,7 @@ var CryptoJS;
             }
             this.sigBytes = thisSigBytes;
 
+            // Chainable
             return this;
         },
 
@@ -181,7 +182,7 @@ var CryptoJS;
 
         random: function (nWords) {
             var words = [];
-            for ( ; nWords > 0; nWords--) {
+            for (; nWords > 0; nWords--) {
                 words.push(Math.floor(Math.random() * 0x100000000));
             }
 

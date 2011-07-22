@@ -1,86 +1,97 @@
 (function (C, undefined) {
-    // Shortcuts
+    // Core shortcuts
     var C_lib = C.lib;
-    var BaseObj = C.oop.BaseObj;
-    var Base64 = C.enc.Base64;
+    var BaseObj = C_lib.BaseObj;
     var WordArray = C_lib.WordArray;
+    var WordArray_Hex = WordArray.Hex;
+    var WordArray_Latin1 = WordArray.Latin1;
+    var WordArray_Utf8 = WordArray.Utf8;
+    var Event = C_lib.Event;
+    var C_enc = C.enc;
+    var Hex = C_enc.Hex;
+    var Latin1 = C_enc.Latin1;
+    var Utf8 = C_enc.Utf8;
+
+    // Base64 shortcuts
+    var Base64 = C_enc.Base64;
+    var Base64_UrlSafe = Base64.UrlSafe;
     var WordArray_Base64 = WordArray.Base64;
+    var WordArray_Base64_UrlSafe = WordArray_Base64.UrlSafe;
 
-    /* Ciphertext wrapper
-    ------------------------------------------------------------ */
-    var Ciphertext = C_lib.Ciphertext = BaseObj.extend({
-        init: function (ciphertext, optional) {
-            this.rawCiphertext = ciphertext;
+    // Cipher namespace
+    var C_cipher = C.cipher = {};
 
-            if (optional) {
-                this.iv = optional.iv;
-                this.salt = optional.salt;
-            }
-        },
-
-        toString: function () {
-            var ciphertextStr = '';
-
-            if (this.iv) {
-                ciphertextStr += 'iv_' + this.iv.toString(Base64) + '_';
-            }
-            if (this.salt) {
-                ciphertextStr += 'salt_' + this.salt.toString(Base64) + '_';
-            }
-
-            return ciphertextStr + this.rawCiphertext.toString(Base64);
-        },
-
-        fromString: function (ciphertextStr) {
-            var rawCiphertextBeginIndex = 0;
-
-            // Get IV
-            if (ciphertextStr.substr(0, 3) == 'iv_') {
-                var ivEndIndex = ciphertextStr.indexOf('_', 3);
-                var iv = WordArray_Base64.fromString(ciphertextStr.substring(3, ivEndIndex));
-
-                rawCiphertextBeginIndex = ivEndIndex + 1;
-            }
-
-            // Get salt
-            if (ciphertextStr.substr(rawCiphertextBeginIndex, 5) == 'salt_') {
-                var saltEndIndex = ciphertextStr.indexOf('_', rawCiphertextBeginIndex + 5);
-                var salt = WordArray_Base64.fromString(ciphertextStr.substring(rawCiphertextBeginIndex + 5, saltEndIndex));
-
-                rawCiphertextBeginIndex = saltEndIndex + 1;
-            }
-
-            // Get raw ciphertext
-            var rawCiphertext = WordArray_Base64.fromString(ciphertextStr.substr(rawCiphertextBeginIndex));
-
-            return this.create(rawCiphertext, { iv: iv, salt: salt });
-        }
+    // Formatter
+    var Formatter = C_cipher.Formatter = C_lib.Formatter.extend({
+        encoder: Base64
     });
 
-    /* Cipher
-    ------------------------------------------------------------ */
-    var Cipher = C_lib.Cipher = BaseObj.extend({
+    // Base
+    var Base = C_cipher.Base = BaseObj.extend({
+        // Config defaults
+        cfg: BaseObj.extend({
+            formatter: Formatter,
+            kdf: C.EvpKeyDerivation
+        }),
+
         encrypt: function (message, password, cfg) {
-            // Convert Strings to WordArrays, else assume WordArrays already
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg);
+
+            // Convert string to WordArray, else assume WordArray already
             if (typeof message == 'string') {
-                message = WordArray.fromString(message);
+                message = Utf8.decode(message);
             }
+
+            // Shortcuts
+            var keySize = this.keySize;
+            var ivSize = this.ivSize;
+
+            // Convert string to key, else assume key already
             if (typeof password == 'string') {
-                // Generate key
-                var salt = this.salt = WordArray_Base64.random(2);
-                password = C.PBKDF2(password, salt, { keySize: this.keySize });
+                // Generate salt
+                var salt = cfg.salt;
+                if (salt === undefined) {
+                    salt = WordArray_Hex.random(2);
+                }
+
+                // Derive key and IV
+                password = cfg.kdf.compute(password, salt, { keySize: keySize + ivSize });
+
+                // Separate key and IV
+                var iv = cfg.iv;
+                if (iv === undefined) {
+                    iv = password.clone();
+                    iv.words.splice(0, keySize);
+                    iv.sigBytes -= keySize * 4;
+                }
+                password.sigBytes = keySize * 4;
+            } else {
+                // If this cipher uses an IV but one hasn't been provided,
+                // then we've got a problem.
+                if (ivSize && ! cfg.iv) {
+                    throw new Error('If you specify the key, then you must also specify the IV.');
+                }
             }
 
-            this.message = message;
-            this.key = password;
+            this.doEncrypt(message, password, iv);
 
-            this.doEncrypt();
+            // Create formatter
+            var formatter = cfg.formatter.create(message, salt);
 
-            return Ciphertext.create(message, { salt: salt })
+            // Store extra data
+            formatter.key = password;
+            formatter.iv = iv;
+
+            return formatter;
         },
 
         decrypt: function (ciphertext, password) {
 
-        }
+        },
+
+        // Defaults, because they're common
+        keySize: 8,
+        ivSize: 4
     });
 }(CryptoJS));
