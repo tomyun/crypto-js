@@ -226,4 +226,198 @@ var CryptoJS;
             }
         }
     });
+
+    // Formatter
+    var Formatter = C_lib.Formatter = BaseObj.extend({
+        init: function (rawData, salt) {
+            this.rawData = rawData;
+            this.salt = salt;
+        },
+
+        toString: function (encoder) {
+            // Default encoder
+            encoder = encoder || this.encoder;
+
+            // Shortcuts
+            var rawData = this.rawData;
+            var salt = this.salt;
+
+            if (salt) {
+                // "Salted__" + salt + rawData
+                return WordArray.create([0x53616c74, 0x65645f5f]).
+                       concat(salt).concat(rawData).toString(encoder);
+            } else {
+                return rawData.toString(encoder);
+            }
+        },
+
+        fromString: function (dataStr, encoder) {
+            // Default encoder
+            encoder = encoder || this.encoder;
+
+            // Decode data string
+            var rawData = encoder.decode(dataStr);
+
+            // Shortcut
+            var rawDataWords = rawData.words;
+
+            // Test for salt
+            if (rawDataWords[0] == 0x53616c74 && rawDataWords[1] == 0x65645f5f) {
+                // Remove prefix
+                rawDataWords.splice(0, 2);
+                rawData.sigBytes -= 8;
+
+                // Separate salt from raw data
+                var salt = rawData.clone();
+                salt.sigBytes = 8;
+                salt.clamp();
+
+                rawDataWords.splice(0, 2);
+                rawData.sigBytes -= 8;
+            }
+
+            return this.create(rawData, salt);
+        }
+    });
+
+    // Hash namespace
+    var C_hash = C.hash = {};
+
+    // Formatter
+    var HashFormatter = C_hash.Formatter = Formatter.extend({
+        encoder: Hex
+    });
+
+    // Base
+    var HashBase = C_hash.Base = BaseObj.extend({
+        // Config defaults
+        cfg: BaseObj.extend({
+            formatter: HashFormatter,
+
+            salter: function () {
+                var hasher = this;
+
+                // Shortcut
+                var cfg = hasher.cfg;
+
+                // Use random salt if not defined
+                if ( ! cfg.salt) {
+                    cfg.salt = WordArray_Hex.random(2);
+                }
+
+                // Add salt after reset, before any message updates
+                hasher.afterReset.subscribe(function () {
+                    hasher.update(cfg.salt);
+                });
+            }
+        }),
+
+        init: function (cfg) {
+            // Apply config defaults
+            cfg = this.cfg = this.cfg.extend(cfg);
+
+            // Set up events
+            this.afterReset    = Event.create();
+            this.beforeCompute = Event.create();
+            this.afterCompute  = Event.create();
+
+            // Execute salter
+            if (cfg.salt !== null) {
+                cfg.salter.call(this);
+            }
+
+            this.reset();
+        },
+
+        reset: function () {
+            var hash = this.hash = WordArray_Hex.create();
+            this.message = WordArray_Hex.create();
+            this.length = 0;
+
+            this.doReset();
+
+            // Update sigBytes using length of hash
+            hash.sigBytes = hash.words.length * 4;
+
+            // Notify subscribers
+            this.afterReset.fire();
+        },
+
+        update: function (messageUpdate) {
+            // Convert string to WordArray, else assume WordArray already
+            if (typeof messageUpdate == 'string') {
+                messageUpdate = Utf8.decode(messageUpdate);
+            }
+
+            this.message.concat(messageUpdate);
+            this.length += messageUpdate.sigBytes;
+
+            this.hashBlocks();
+
+            // Chainable
+            return this;
+        },
+
+        hashBlocks: function () {
+            // Shortcuts
+            var message = this.message;
+            var sigBytes = message.sigBytes;
+            var blockSize = this.blockSize;
+
+            // Count blocks ready
+            var nBlocksReady = Math.floor(sigBytes / (blockSize * 4));
+
+            if (nBlocksReady) {
+                // Hash blocks
+                var nWordsReady = nBlocksReady * blockSize;
+                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+                    this.doHashBlock(offset);
+                }
+
+                // Remove processed words
+                message.words.splice(0, nWordsReady);
+                message.sigBytes = sigBytes - nWordsReady * 4;
+            }
+        },
+
+        compute: function () {
+            if (this.hash) {
+                return this.computeInstance.apply(this, arguments);
+            } else {
+                return this.computeStatic.apply(this, arguments);
+            }
+        },
+
+        computeInstance: function (messageUpdate) {
+            // Final message update
+            if (messageUpdate) {
+                this.update(messageUpdate);
+            }
+
+            // Notify subscribers
+            this.beforeCompute.fire();
+
+            this.doCompute();
+
+            // Notify subscribers
+            this.afterCompute.fire();
+
+            // Shortcut
+            var cfg = this.cfg;
+
+            // Create formatter
+            var formatter = cfg.formatter.create(this.hash, cfg.salt);
+
+            this.reset();
+
+            return formatter;
+        },
+
+        computeStatic: function (message, cfg) {
+            return this.create(cfg).compute(message);
+        },
+
+        // Default, because it's common
+        blockSize: 16
+    });
 }());
