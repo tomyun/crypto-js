@@ -7,19 +7,15 @@
     var WordArrayLatin1 = WordArray.Latin1;
     var WordArrayUtf8 = WordArray.Utf8;
     var Event = C_lib.Event;
-    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
     var Utf8 = C_enc.Utf8;
-
-    // Cipher base shortcuts
     var C_cipher = C.cipher;
-    var CipherFormatter = C_cipher.Formatter;
-    var CipherBase = C_cipher.Base;
+    var BaseCipher = C_cipher.Base;
 
-    var RC4 = C.RC4 = CipherBase.extend({
-        cfg: CipherBase.cfg.extend({
+    var RC4 = C.RC4 = BaseCipher.extend({
+        cfg: BaseCipher.cfg.extend({
             drop: 384
         }),
 
@@ -30,7 +26,6 @@
             var key = this.key;
             var k = key.words;
             var kSigBytes = key.sigBytes;
-            var cfg = this.cfg;
 
             // Sbox
             var s = [];
@@ -53,7 +48,7 @@
 
             // Encryption
             var i = 0, j = 0;
-            for (var n = - cfg.drop; n < mLength; n++) {
+            for (var n = - this.cfg.drop; n < mLength; n++) {
                 // Accumulate 32 bits of keystream
                 var keystream = 0;
                 for (var q = 0; q < 4; q++) {
@@ -74,9 +69,6 @@
                     m[n] ^= keystream;
                 }
             }
-        },
-
-        // RC4 doesn't use an IV
-        ivSize: null
+        }
     });
 }(CryptoJS));

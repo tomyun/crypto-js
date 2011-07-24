@@ -297,19 +297,19 @@
                     }
                 }));
 
-                // Hash formatter
+                // OpenSSL hash formatter
                 cryptoJsTestSuite.add(new Y.Test.Case({
-                    name: 'HashFormatter',
+                    name: 'OpenSSLHashFormatter',
 
-                    testHashFormatterToString: function () {
+                    testOpenSSLHashFormatterToString: function () {
                         var hash = C.MD5.compute('');
 
                         Y.Assert.areEqual(C.enc.Latin1.decode('Salted__').concat(hash.salt).concat(hash.rawData).toString(C.enc.Hex), hash.toString());
                     },
 
-                    testHashFormatterFromString: function () {
-                        var saltedHash   = C.hash.Formatter.fromString('53616c7465645f5f0123456789abcdef0123456789abcdef0123456789abcdef');
-                        var unsaltedHash = C.hash.Formatter.fromString('0123456789abcdef0123456789abcdef');
+                    testOpenSSLHashFormatterFromString: function () {
+                        var saltedHash   = C.hash.formatter.OpenSSLInspired.fromString('53616c7465645f5f0123456789abcdef0123456789abcdef0123456789abcdef');
+                        var unsaltedHash = C.hash.formatter.OpenSSLInspired.fromString('0123456789abcdef0123456789abcdef');
 
                         Y.Assert.areEqual('{words:[0x1234567,0x89abcdef,0x1234567,0x89abcdef],sigBytes:16}', saltedHash.rawData.stringify());
                         Y.Assert.areEqual('{words:[0x1234567,0x89abcdef],sigBytes:8}', saltedHash.salt.stringify());
@@ -319,11 +319,11 @@
                     }
                 }));
 
-                // Hash base
+                // Base hash
                 cryptoJsTestSuite.add(new Y.Test.Case({
-                    name: 'HashBase',
+                    name: 'BaseHash',
 
-                    testHashBaseUpdate: function () {
+                    testBaseHashUpdate: function () {
                         var expectedHash = C.MD5.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890', { salt: null }).toString();
 
                         var md5 = C.MD5.create({ salt: null });
@@ -334,22 +334,22 @@
                         Y.Assert.areEqual(expectedHash, actualHash);
                     },
 
-                    testHashBaseCustomSalt: function () {
+                    testBaseHashCustomSalt: function () {
                         var customSalt = C.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
-                        var rawHash = C.MD5.create({ salt: null }).update(customSalt).compute('').rawData;
+                        var rawHash = C.MD5.create({ salt: null }).update(customSalt).compute('abc').rawData;
                         var expectedHash = C.enc.Latin1.decode('Salted__').concat(customSalt).concat(rawHash).toString(C.enc.Hex);
 
-                        var actualHash = C.MD5.compute('', { salt: customSalt }).toString();
+                        var actualHash = C.MD5.compute('abc', { salt: customSalt }).toString();
 
                         Y.Assert.areEqual(actualHash, expectedHash);
                     },
 
-                    testHashBaseRandomSalt: function () {
+                    testBaseHashRandomSalt: function () {
                         Y.Assert.areNotEqual(C.MD5.compute().salt.stringify(), C.MD5.compute().salt.stringify());
                     },
 
-                    testHashBaseBeforeComputeSalter: function () {
+                    testBaseHashBeforeComputeSalter: function () {
                         var customSalt = C.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
                         var beforeComputeSalter = function () {
@@ -369,15 +369,15 @@
                             });
                         };
 
-                        var rawHash = C.MD5.create({ salt: null }).update('').compute(customSalt).rawData;
+                        var rawHash = C.MD5.create({ salt: null }).update('abc').compute(customSalt).rawData;
                         var expectedHash = C.enc.Latin1.decode('Salted__').concat(customSalt).concat(rawHash).toString(C.enc.Hex);
 
-                        var actualHash = C.MD5.compute('', { salt: customSalt, salter: beforeComputeSalter }).toString();
+                        var actualHash = C.MD5.compute('abc', { salt: customSalt, salter: beforeComputeSalter }).toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);
                     },
 
-                    testHashBaseAfterComputeSalter: function () {
+                    testBaseHashAfterComputeSalter: function () {
                         var customSalt = C.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
                         var afterComputeSalter = function () {
@@ -399,19 +399,24 @@
                         };
 
                         var md5 = C.MD5.create({ salt: null });
-                        var intermediate = md5.compute('').rawData;
+                        var intermediate = md5.compute('abc').rawData;
                         var rawHash = md5.update(customSalt).compute(intermediate).rawData
                         var expectedHash = C.enc.Latin1.decode('Salted__').concat(customSalt).concat(rawHash).toString(C.enc.Hex);
 
-                        var actualHash = C.MD5.compute('', { salt: customSalt, salter: afterComputeSalter }).toString();
+                        var actualHash = C.MD5.compute('abc', { salt: customSalt, salter: afterComputeSalter }).toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);
                     },
 
-                    testHashBaseCustomFormatter: function () {
+                    testBaseHashCustomFormatter: function () {
                         var customSalt = C.lib.WordArray.create([0x01234567, 0x89abcdef]);
 
-                        var customFormatter = C.hash.Formatter.extend({
+                        var customFormatter = C.lib.Base.extend({
+                            init: function (rawData, salt) {
+                                this.rawData = rawData;
+                                this.salt = salt;
+                            },
+
                             toString: function () {
                                 var hashStr = '{ hash: "' + this.rawData.toString(C.enc.Hex) + '"';
                                 if (this.salt) {
@@ -423,10 +428,10 @@
                             }
                         });
 
-                        var hash = C.MD5.compute('', { salt: customSalt });
+                        var hash = C.MD5.compute('abc', { salt: customSalt });
                         var expectedHash = '{ hash: "' + hash.rawData.toString(C.enc.Hex) + '", salt: "' + hash.salt.toString(C.enc.Hex) + '" }';
 
-                        var actualHash = C.MD5.compute('', { formatter: customFormatter, salt: customSalt }).toString();
+                        var actualHash = C.MD5.compute('abc', { formatter: customFormatter, salt: customSalt }).toString();
 
                         Y.Assert.areEqual(expectedHash, actualHash);
                     }

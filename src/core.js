@@ -227,8 +227,14 @@ var CryptoJS;
         }
     });
 
-    // Formatter
-    var Formatter = C_lib.Formatter = Base.extend({
+    // Hash namespace
+    var C_hash = C.hash = {};
+
+    // Hash formatter namespace
+    var C_hash_formatter = C_hash.formatter = {};
+
+    // OpenSSL-inspired hash formatter
+    var OpenSSLInspiredHashFormatter = C_hash_formatter.OpenSSLInspired = Base.extend({
         init: function (rawData, salt) {
             this.rawData = rawData;
             this.salt = salt;
@@ -277,39 +283,38 @@ var CryptoJS;
             }
 
             return this.create(rawData, salt);
-        }
-    });
+        },
 
-    // Hash namespace
-    var C_hash = C.hash = {};
-
-    // Hash formatter
-    var HashFormatter = C_hash.Formatter = Formatter.extend({
         encoder: Hex
     });
 
-    // Hash base
-    var HashBase = C_hash.Base = Base.extend({
+    // Hash salter namespace
+    var C_hash_salter = C_hash.salter = {};
+
+    // OpenSSL-inspired hash salter
+    var OpenSSLInspiredHashSalter = C_hash_salter.OpenSSLInspired = function () {
+        var hasher = this;
+
+        // Shortcut
+        var cfg = hasher.cfg;
+
+        // Use random salt if not defined
+        if ( ! cfg.salt) {
+            cfg.salt = WordArrayHex.random(2);
+        }
+
+        // Add salt after reset, before any message updates
+        hasher.afterReset.subscribe(function () {
+            hasher.update(cfg.salt);
+        });
+    };
+
+    // Base hash
+    var BaseHash = C_hash.Base = Base.extend({
         // Config defaults
         cfg: Base.extend({
-            formatter: HashFormatter,
-
-            salter: function () {
-                var hasher = this;
-
-                // Shortcut
-                var cfg = hasher.cfg;
-
-                // Use random salt if not defined
-                if ( ! cfg.salt) {
-                    cfg.salt = WordArrayHex.random(2);
-                }
-
-                // Add salt after reset, before any message updates
-                hasher.afterReset.subscribe(function () {
-                    hasher.update(cfg.salt);
-                });
-            }
+            formatter: OpenSSLInspiredHashFormatter,
+            salter: OpenSSLInspiredHashSalter
         }),
 
         init: function (cfg) {

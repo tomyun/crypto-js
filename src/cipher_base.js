@@ -9,7 +9,6 @@
     var WordArrayBase64 = WordArray.Base64;
     var WordArrayBase64UrlSafe = WordArrayBase64.UrlSafe;
     var Event = C_lib.Event;
-    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
@@ -20,44 +19,51 @@
     // Cipher namespace
     var C_cipher = C.cipher = {};
 
-    // Cipher formatter
-    var CipherFormatter = C_cipher.Formatter = Formatter.extend({
+    // Cipher formatter namespace
+    var C_cipher_formatter = C_cipher.formatter = {};
+
+    // OpenSSL cipher formatter
+    var OpenSSLCipherFormatter = C_cipher_formatter.OpenSSL = C.hash.formatter.OpenSSLInspired.extend({
         encoder: Base64
     });
 
-    // Cipher base
-    var CipherBase = C_cipher.Base = Base.extend({
+    // Cipher key derivation namespace
+    var C_cipher_kdf = C_cipher.kdf = {};
+
+    // OpenSSL cipher key derivation
+    var OpenSSLCipherKeyDerivation = C_cipher_kdf.OpenSSL = function (password) {
+        var cipher = this;
+
+        // Shortcuts
+        var cfg = cipher.cfg;
+        var keySize = cipher.keySize;
+        var ivSize = cipher.ivSize;
+
+        // Generate salt
+        if (cfg.salt === undefined) {
+            cfg.salt = WordArrayHex.random(2);
+        }
+
+        // Derive key and IV
+        var key = C.EvpKeyDerivation.compute(password, cfg.salt, { keySize: keySize + ivSize });
+
+        // Separate key and IV
+        if ( ! cfg.iv) {
+            var iv = cfg.iv = key.clone();
+            iv.words.splice(0, keySize);
+            iv.sigBytes -= keySize * 4;
+        }
+        key.sigBytes = keySize * 4;
+
+        this.key = key;
+    };
+
+    // Base cipher
+    var BaseCipher = C_cipher.Base = Base.extend({
         // Config defaults
         cfg: Base.extend({
-            formatter: CipherFormatter,
-
-            kdf: function (password) {
-                var cipher = this;
-
-                // Shortcuts
-                var cfg = cipher.cfg;
-                var keySize = cipher.keySize;
-                var ivSize = cipher.ivSize;
-
-                // Generate salt
-                var salt = cfg.salt;
-                if (salt === undefined) {
-                    salt = cfg.salt = WordArrayHex.random(2);
-                }
-
-                // Derive key and IV
-                password = C.EvpKeyDerivation.compute(password, salt, { keySize: keySize + ivSize });
-
-                // Separate key and IV
-                if ( ! cfg.iv) {
-                    var iv = cfg.iv = password.clone();
-                    iv.words.splice(0, keySize);
-                    iv.sigBytes -= keySize * 4;
-                }
-                password.sigBytes = keySize * 4;
-
-                this.key = password;
-            }
+            formatter: OpenSSLCipherFormatter,
+            kdf: OpenSSLCipherKeyDerivation
         }),
 
         encrypt: function (message, password, cfg) {
@@ -68,6 +74,7 @@
             if (typeof message == 'string') {
                 message = Utf8.decode(message);
             }
+
             this.message = message;
 
             // Shortcuts

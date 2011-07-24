@@ -7,7 +7,6 @@
     var WordArrayLatin1 = WordArray.Latin1;
     var WordArrayUtf8 = WordArray.Utf8;
     var Event = C_lib.Event;
-    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
