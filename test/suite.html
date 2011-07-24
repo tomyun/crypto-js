@@ -14,7 +14,7 @@
         <script src="../src/pbkdf2.js"></script>
         <script src="../src/evp-key-derivation.js"></script>
         <script src="../src/cipher_base.js"></script>
-        <script src="../src/marc4.js"></script>
+        <script src="../src/rc4.js"></script>
 
         <!-- YUI -->
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
@@ -38,12 +38,12 @@
                 // CryptoJS test suite
                 var cryptoJsTestSuite = new Y.Test.Suite('CryptoJS');
 
-                // BaseObj test suite
-                var baseObjTestSuite = new Y.Test.Suite('BaseObj');
-                cryptoJsTestSuite.add(baseObjTestSuite);
+                // Base test suite
+                var baseTestSuite = new Y.Test.Suite('Base');
+                cryptoJsTestSuite.add(baseTestSuite);
 
-                // BaseObj.extend test case
-                baseObjTestSuite.add(new Y.Test.Case({
+                // Base.extend test case
+                baseTestSuite.add(new Y.Test.Case({
                     name: 'extend()',
 
                     setUp: function () {
@@ -54,19 +54,19 @@
                             toString: function () {}
                         };
 
-                        this.data.myObj = C.lib.BaseObj.extend(this.data.myObjOverrides);
+                        this.data.myObj = C.lib.Base.extend(this.data.myObjOverrides);
                     },
 
-                    testBaseObjExtendInheritance: function () {
-                        Y.Assert.areEqual(C.lib.BaseObj.extend, this.data.myObj.extend);
+                    testBaseExtendInheritance: function () {
+                        Y.Assert.areEqual(C.lib.Base.extend, this.data.myObj.extend);
                         Y.Assert.isFalse(this.data.myObj.hasOwnProperty('extend'));
                     },
 
-                    testBaseObjExtendSuper: function () {
-                        Y.Assert.areEqual(C.lib.BaseObj, this.data.myObj.$super);
+                    testBaseExtendSuper: function () {
+                        Y.Assert.areEqual(C.lib.Base, this.data.myObj.$super);
                     },
 
-                    testBaseObjExtendOverrides: function () {
+                    testBaseExtendOverrides: function () {
                         // abc
                         Y.Assert.areEqual(this.data.myObjOverrides.abc, this.data.myObj.abc);
                         Y.Assert.isTrue(this.data.myObj.hasOwnProperty('abc'));
@@ -77,14 +77,14 @@
                     }
                 }));
 
-                // BaseObj.create test case
-                baseObjTestSuite.add(new Y.Test.Case({
+                // Base.create test case
+                baseTestSuite.add(new Y.Test.Case({
                     name: 'create()',
 
                     setUp: function () {
                         this.data = {};
 
-                        this.data.MyObj = C.lib.BaseObj.extend({
+                        this.data.MyObj = C.lib.Base.extend({
                             init: function (myArg) {
                                 this.initFired = true;
                                 this.myArg = myArg;
@@ -94,49 +94,49 @@
                         this.data.myObj = this.data.MyObj.create('myArg');
                     },
 
-                    testBaseObjCreateInheritance: function () {
+                    testBaseCreateInheritance: function () {
                         // from MyObj
                         Y.Assert.areEqual(this.data.MyObj.init, this.data.myObj.init);
                         Y.Assert.isFalse(this.data.myObj.hasOwnProperty('init'));
 
-                        // from BaseObj
-                        Y.Assert.areEqual(C.lib.BaseObj.extend, this.data.myObj.extend);
+                        // from Base
+                        Y.Assert.areEqual(C.lib.Base.extend, this.data.myObj.extend);
                         Y.Assert.isFalse(this.data.myObj.hasOwnProperty('extend'));
                     },
 
-                    testBaseObjCreateSuper: function () {
+                    testBaseCreateSuper: function () {
                         Y.Assert.areEqual(this.data.MyObj, this.data.myObj.$super);
                     },
 
-                    testBaseObjCreateInit: function () {
+                    testBaseCreateInit: function () {
                         Y.Assert.isTrue(this.data.myObj.initFired);
                         Y.Assert.areEqual('myArg', this.data.myObj.myArg);
                     }
                 }));
 
-                // BaseObj.clone test case
-                baseObjTestSuite.add(new Y.Test.Case({
+                // Base.clone test case
+                baseTestSuite.add(new Y.Test.Case({
                     name: 'clone()',
 
                     setUp: function () {
                         this.data = {};
 
-                        this.data.myObj = C.lib.BaseObj.extend({
+                        this.data.myObj = C.lib.Base.extend({
                             abc: 'abc'
                         });
 
                         this.data.myObjClone = this.data.myObj.clone();
                     },
 
-                    testBaseObjCloneDistinct: function () {
+                    testBaseCloneDistinct: function () {
                         Y.Assert.areNotEqual(this.data.myObj, this.data.myObjClone);
                     },
 
-                    testBaseObjCloneCopy: function () {
+                    testBaseCloneCopy: function () {
                         Y.Assert.areEqual(this.data.myObj.abc, this.data.myObjClone.abc);
                     },
 
-                    testBaseObjCloneIndependent: function () {
+                    testBaseCloneIndependent: function () {
                         this.data.myObj.abc = 'xyz';
 
                         Y.Assert.areNotEqual(this.data.myObj.abc, this.data.myObjClone.abc);
@@ -576,17 +576,19 @@
                     testRC4Vectors: function () {
                         Y.Assert.areEqual(
                             '7494c2e7104b0879',
-                            C.ARC4.encrypt(
+                            C.RC4.encrypt(
                                 C.lib.WordArray.create([0x00000000, 0x00000000]), // message
-                                C.lib.WordArray.create([0x01234567, 0x89abcdef])  // key
+                                C.lib.WordArray.create([0x01234567, 0x89abcdef]), // key
+                                { drop: 0 }
                             ).rawData.toString(C.enc.Hex)
                         );
 
                         Y.Assert.areEqual(
                             'f13829c9de',
-                            C.ARC4.encrypt(
+                            C.RC4.encrypt(
                                 C.lib.WordArray.create([0xdcee4cf9, 0x2c000000], 5), // message
-                                C.lib.WordArray.create([0x618a63d2, 0xfb000000], 5)  // key
+                                C.lib.WordArray.create([0x618a63d2, 0xfb000000], 5), // key
+                                { drop: 0 }
                             ).rawData.toString(C.enc.Hex)
                         );
                     }

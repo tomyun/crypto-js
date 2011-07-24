@@ -1,18 +1,19 @@
 (function (C, undefined) {
-    // Core shortcuts
+    // Shortcuts
     var C_lib = C.lib;
-    var BaseObj = C_lib.BaseObj;
+    var Base = C_lib.Base;
     var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
-    var WordArray_Latin1 = WordArray.Latin1;
-    var WordArray_Utf8 = WordArray.Utf8;
+    var WordArrayHex = WordArray.Hex;
+    var WordArrayLatin1 = WordArray.Latin1;
+    var WordArrayUtf8 = WordArray.Utf8;
     var Event = C_lib.Event;
+    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
     var Utf8 = C_enc.Utf8;
 
-    var Base64 = C_enc.Base64 = BaseObj.extend({
+    var Base64 = C_enc.Base64 = Base.extend({
         encode: function (wordArray) {
             // Clear excess bits
             wordArray.clamp();
@@ -67,23 +68,23 @@
                 }
             }
 
-            return WordArray_Base64.create(words, nBytes);
+            return WordArrayBase64.create(words, nBytes);
         },
 
         map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
     });
 
-    var Base64_UrlSafe = Base64.UrlSafe = Base64.extend({
+    var Base64UrlSafe = Base64.UrlSafe = Base64.extend({
         // Skip padding
         pad: function () {
             // Do nothing
         },
 
         decode: function () {
+            var wordArray = Base64UrlSafe.$super.decode.apply(this, arguments);
+
             // "Cast" as WordArray.Base64.UrlSafe
-            return WordArray_Base64_UrlSafe.extend(
-                Base64_UrlSafe.$super.decode.apply(this, arguments)
-            );
+            return WordArrayBase64UrlSafe.extend(wordArray);
         },
 
         // URL-safe alphabet
@@ -91,12 +92,12 @@
     });
 
     // WordArray.Base64
-    var WordArray_Base64 = WordArray.Base64 = WordArray.extend({
+    var WordArrayBase64 = WordArray.Base64 = WordArray.extend({
         encoder: Base64
     });
 
     // WordArray.Base64.UrlSafe
-    var WordArray_Base64_UrlSafe = WordArray_Base64.UrlSafe = WordArray.extend({
-        encoder: Base64_UrlSafe
+    var WordArrayBase64UrlSafe = WordArrayBase64.UrlSafe = WordArray.extend({
+        encoder: Base64UrlSafe
     });
 }(CryptoJS));

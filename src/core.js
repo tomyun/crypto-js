@@ -13,8 +13,8 @@ var CryptoJS;
     // Library namespace
     var C_lib = C.lib = {};
 
-    // BaseObj
-    var BaseObj = C_lib.BaseObj = {
+    // Base
+    var Base = C_lib.Base = {
         extend: function (overrides) {
             // Spawn
             function F() {}
@@ -61,7 +61,7 @@ var CryptoJS;
     var C_enc = C.enc = {};
 
     // Hex
-    var Hex = C_enc.Hex = BaseObj.extend({
+    var Hex = C_enc.Hex = Base.extend({
         encode: function (wordArray) {
             // Shortcuts
             var words = wordArray.words;
@@ -86,12 +86,12 @@ var CryptoJS;
                 words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
             }
 
-            return WordArray_Hex.create(words, hexStrLength / 2);
+            return WordArrayHex.create(words, hexStrLength / 2);
         }
     });
 
     // Latin-1
-    var Latin1 = C_enc.Latin1 = BaseObj.extend({
+    var Latin1 = C_enc.Latin1 = Base.extend({
         encode: function (wordArray) {
             // Shortcuts
             var words = wordArray.words;
@@ -115,23 +115,23 @@ var CryptoJS;
                 words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
             }
 
-            return WordArray_Latin1.create(words, latin1StrStrLength);
+            return WordArrayLatin1.create(words, latin1StrStrLength);
         }
     });
 
     // Utf8
-    var Utf8 = C_enc.Utf8 = BaseObj.extend({
+    var Utf8 = C_enc.Utf8 = Base.extend({
         encode: function (wordArray) {
             return decodeURIComponent(escape(Latin1.encode(wordArray)));
         },
 
         decode: function (utf8Str) {
-            return WordArray_Utf8.extend(Latin1.decode(unescape(encodeURIComponent(utf8Str))));
+            return WordArrayUtf8.extend(Latin1.decode(unescape(encodeURIComponent(utf8Str))));
         }
     });
 
     // WordArray
-    var WordArray = C_lib.WordArray = BaseObj.extend({
+    var WordArray = C_lib.WordArray = Base.extend({
         init: function (words, sigBytes) {
             words = this.words = words || [];
 
@@ -191,22 +191,22 @@ var CryptoJS;
     });
 
     // WordArray.Hex
-    var WordArray_Hex = WordArray.Hex = WordArray.extend({
+    var WordArrayHex = WordArray.Hex = WordArray.extend({
         encoder: Hex
     });
 
     // WordArray.Latin1
-    var WordArray_Latin1 = WordArray.Latin1 = WordArray.extend({
+    var WordArrayLatin1 = WordArray.Latin1 = WordArray.extend({
         encoder: Latin1
     });
 
     // WordArray.Utf8
-    var WordArray_Utf8 = WordArray.Utf8 = WordArray.extend({
+    var WordArrayUtf8 = WordArray.Utf8 = WordArray.extend({
         encoder: Utf8
     });
 
     // Event
-    var Event = C_lib.Event = BaseObj.extend({
+    var Event = C_lib.Event = Base.extend({
         init: function () {
             this.subscribers = [];
         },
@@ -228,7 +228,7 @@ var CryptoJS;
     });
 
     // Formatter
-    var Formatter = C_lib.Formatter = BaseObj.extend({
+    var Formatter = C_lib.Formatter = Base.extend({
         init: function (rawData, salt) {
             this.rawData = rawData;
             this.salt = salt;
@@ -283,15 +283,15 @@ var CryptoJS;
     // Hash namespace
     var C_hash = C.hash = {};
 
-    // Formatter
+    // Hash formatter
     var HashFormatter = C_hash.Formatter = Formatter.extend({
         encoder: Hex
     });
 
-    // Base
-    var HashBase = C_hash.Base = BaseObj.extend({
+    // Hash base
+    var HashBase = C_hash.Base = Base.extend({
         // Config defaults
-        cfg: BaseObj.extend({
+        cfg: Base.extend({
             formatter: HashFormatter,
 
             salter: function () {
@@ -302,7 +302,7 @@ var CryptoJS;
 
                 // Use random salt if not defined
                 if ( ! cfg.salt) {
-                    cfg.salt = WordArray_Hex.random(2);
+                    cfg.salt = WordArrayHex.random(2);
                 }
 
                 // Add salt after reset, before any message updates
@@ -330,8 +330,8 @@ var CryptoJS;
         },
 
         reset: function () {
-            var hash = this.hash = WordArray_Hex.create();
-            this.message = WordArray_Hex.create();
+            var hash = this.hash = WordArrayHex.create();
+            this.message = WordArrayHex.create();
             this.length = 0;
 
             this.doReset();

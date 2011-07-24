@@ -2,22 +2,23 @@
 // www.openssl.org/docs/crypto/EVP_BytesToKey.html
 
 (function (C, undefined) {
-    // Core shortcuts
+    // Shortcuts
     var C_lib = C.lib;
-    var BaseObj = C_lib.BaseObj;
+    var Base = C_lib.Base;
     var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
-    var WordArray_Latin1 = WordArray.Latin1;
-    var WordArray_Utf8 = WordArray.Utf8;
+    var WordArrayHex = WordArray.Hex;
+    var WordArrayLatin1 = WordArray.Latin1;
+    var WordArrayUtf8 = WordArray.Utf8;
     var Event = C_lib.Event;
+    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
     var Utf8 = C_enc.Utf8;
 
-    var EvpKeyDerivation = C.EvpKeyDerivation = BaseObj.extend({
+    var EvpKeyDerivation = C.EvpKeyDerivation = Base.extend({
         // Config defaults
-        cfg: BaseObj.extend({
+        cfg: Base.extend({
             keySize: 4,
             hasher: C.MD5,
             iterations: 1
@@ -31,7 +32,7 @@
             var hasher = cfg.hasher.create({ salt: null });
 
             // Initial values
-            var derivedKey = WordArray_Hex.create();
+            var derivedKey = WordArrayHex.create();
 
             // Shortcuts
             var derivedKeyWords = derivedKey.words;

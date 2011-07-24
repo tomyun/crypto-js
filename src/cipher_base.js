@@ -1,47 +1,74 @@
 (function (C, undefined) {
-    // Core shortcuts
+    // Shortcuts
     var C_lib = C.lib;
-    var BaseObj = C_lib.BaseObj;
+    var Base = C_lib.Base;
     var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
-    var WordArray_Latin1 = WordArray.Latin1;
-    var WordArray_Utf8 = WordArray.Utf8;
+    var WordArrayHex = WordArray.Hex;
+    var WordArrayLatin1 = WordArray.Latin1;
+    var WordArrayUtf8 = WordArray.Utf8;
+    var WordArrayBase64 = WordArray.Base64;
+    var WordArrayBase64UrlSafe = WordArrayBase64.UrlSafe;
     var Event = C_lib.Event;
+    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
     var Utf8 = C_enc.Utf8;
-
-    // Base64 shortcuts
     var Base64 = C_enc.Base64;
-    var Base64_UrlSafe = Base64.UrlSafe;
-    var WordArray_Base64 = WordArray.Base64;
-    var WordArray_Base64_UrlSafe = WordArray_Base64.UrlSafe;
+    var Base64UrlSafe = Base64.UrlSafe;
 
     // Cipher namespace
     var C_cipher = C.cipher = {};
 
-    // Formatter
-    var Formatter = C_cipher.Formatter = C_lib.Formatter.extend({
+    // Cipher formatter
+    var CipherFormatter = C_cipher.Formatter = Formatter.extend({
         encoder: Base64
     });
 
-    // Base
-    var Base = C_cipher.Base = BaseObj.extend({
+    // Cipher base
+    var CipherBase = C_cipher.Base = Base.extend({
         // Config defaults
-        cfg: BaseObj.extend({
-            formatter: Formatter,
-            kdf: C.EvpKeyDerivation
+        cfg: Base.extend({
+            formatter: CipherFormatter,
+
+            kdf: function (password) {
+                var cipher = this;
+
+                // Shortcuts
+                var cfg = cipher.cfg;
+                var keySize = cipher.keySize;
+                var ivSize = cipher.ivSize;
+
+                // Generate salt
+                var salt = cfg.salt;
+                if (salt === undefined) {
+                    salt = cfg.salt = WordArrayHex.random(2);
+                }
+
+                // Derive key and IV
+                password = C.EvpKeyDerivation.compute(password, salt, { keySize: keySize + ivSize });
+
+                // Separate key and IV
+                if ( ! cfg.iv) {
+                    var iv = cfg.iv = password.clone();
+                    iv.words.splice(0, keySize);
+                    iv.sigBytes -= keySize * 4;
+                }
+                password.sigBytes = keySize * 4;
+
+                this.key = password;
+            }
         }),
 
         encrypt: function (message, password, cfg) {
             // Apply config defaults
-            cfg = this.cfg.extend(cfg);
+            cfg = this.cfg = this.cfg.extend(cfg);
 
             // Convert string to WordArray, else assume WordArray already
             if (typeof message == 'string') {
                 message = Utf8.decode(message);
             }
+            this.message = message;
 
             // Shortcuts
             var keySize = this.keySize;
@@ -49,39 +76,19 @@
 
             // Convert string to key, else assume key already
             if (typeof password == 'string') {
-                // Generate salt
-                var salt = cfg.salt;
-                if (salt === undefined) {
-                    salt = WordArray_Hex.random(2);
-                }
-
-                // Derive key and IV
-                password = cfg.kdf.compute(password, salt, { keySize: keySize + ivSize });
-
-                // Separate key and IV
-                var iv = cfg.iv;
-                if (iv === undefined) {
-                    iv = password.clone();
-                    iv.words.splice(0, keySize);
-                    iv.sigBytes -= keySize * 4;
-                }
-                password.sigBytes = keySize * 4;
+                cfg.kdf.call(this);
             } else {
-                // If this cipher uses an IV but one hasn't been provided,
-                // then we've got a problem.
-                if (ivSize && ! cfg.iv) {
-                    throw new Error('If you specify the key, then you must also specify the IV.');
-                }
+                this.key = password;
             }
 
-            this.doEncrypt(message, password, iv);
+            this.doEncrypt();
 
             // Create formatter
-            var formatter = cfg.formatter.create(message, salt);
+            var formatter = cfg.formatter.create(message, cfg.salt);
 
             // Store extra data
-            formatter.key = password;
-            formatter.iv = iv;
+            formatter.key = this.key;
+            formatter.iv = cfg.iv;
 
             return formatter;
         },

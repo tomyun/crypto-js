@@ -1,18 +1,19 @@
 (function (C, undefined) {
-    // Core shortcuts
+    // Shortcuts
     var C_lib = C.lib;
-    var BaseObj = C_lib.BaseObj;
+    var Base = C_lib.Base;
     var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
-    var WordArray_Latin1 = WordArray.Latin1;
-    var WordArray_Utf8 = WordArray.Utf8;
+    var WordArrayHex = WordArray.Hex;
+    var WordArrayLatin1 = WordArray.Latin1;
+    var WordArrayUtf8 = WordArray.Utf8;
     var Event = C_lib.Event;
+    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
     var Utf8 = C_enc.Utf8;
 
-    var HMAC = C.HMAC = BaseObj.extend({
+    var HMAC = C.HMAC = Base.extend({
         init: function (hasher, key) {
             // Init hasher
             hasher = this.hasher = hasher.create({ salt: null });

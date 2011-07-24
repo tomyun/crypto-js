@@ -1,10 +1,10 @@
 (function (C, undefined) {
-    // Hash base shortcuts
+    // Shortcuts
     var C_hash = C.hash;
-    var Formatter = C_hash.Formatter;
-    var Base = C_hash.Base;
+    var HashFormatter = C_hash.Formatter;
+    var HashBase = C_hash.Base;
 
-    var SHA256 = C.SHA256 = Base.extend({
+    var SHA256 = C.SHA256 = HashBase.extend({
         doReset: function () {
             // Shortcut
             var H = this.hash.words;

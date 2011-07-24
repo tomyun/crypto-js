@@ -1,12 +1,13 @@
 (function (C, undefined) {
-    // Core shortcuts
+    // Shortcuts
     var C_lib = C.lib;
-    var BaseObj = C_lib.BaseObj;
+    var Base = C_lib.Base;
     var WordArray = C_lib.WordArray;
-    var WordArray_Hex = WordArray.Hex;
-    var WordArray_Latin1 = WordArray.Latin1;
-    var WordArray_Utf8 = WordArray.Utf8;
+    var WordArrayHex = WordArray.Hex;
+    var WordArrayLatin1 = WordArray.Latin1;
+    var WordArrayUtf8 = WordArray.Utf8;
     var Event = C_lib.Event;
+    var Formatter = C_lib.Formatter;
     var C_enc = C.enc;
     var Hex = C_enc.Hex;
     var Latin1 = C_enc.Latin1;
@@ -14,16 +15,22 @@
 
     // Cipher base shortcuts
     var C_cipher = C.cipher;
-    var Formatter = C_cipher.Formatter;
-    var Base = C_cipher.Base;
+    var CipherFormatter = C_cipher.Formatter;
+    var CipherBase = C_cipher.Base;
 
-    var ARC4 = C.ARC4 = Base.extend({
-        doEncrypt: function (message, key) {
+    var RC4 = C.RC4 = CipherBase.extend({
+        cfg: CipherBase.cfg.extend({
+            drop: 384
+        }),
+
+        doEncrypt: function () {
             // Shortcuts
-            var m = message.words;
+            var m = this.message.words;
             var mLength = m.length;
-            var k = key.words
-            var keySigBytes = key.sigBytes;
+            var key = this.key;
+            var k = key.words;
+            var kSigBytes = key.sigBytes;
+            var cfg = this.cfg;
 
             // Sbox
             var s = [];
@@ -33,10 +40,10 @@
 
             // Key setup
             for (var i = 0, j = 0; i < 256; i++) {
-                var keyByteIndex = i % keySigBytes;
-                var keyByte = (k[keyByteIndex >>> 2] >>> (24 - (keyByteIndex % 4) * 8)) & 0xff;
+                var kByteIndex = i % kSigBytes;
+                var kByte = (k[kByteIndex >>> 2] >>> (24 - (kByteIndex % 4) * 8)) & 0xff;
 
-                j = (j + s[i] + keyByte) % 256;
+                j = (j + s[i] + kByte) % 256;
 
                 // Swap
                 var t = s[i];
@@ -46,7 +53,7 @@
 
             // Encryption
             var i = 0, j = 0;
-            for (var n = -this.drop; n < mLength; n++) {
+            for (var n = - cfg.drop; n < mLength; n++) {
                 // Accumulate 32 bits of keystream
                 var keystream = 0;
                 for (var q = 0; q < 4; q++) {
@@ -69,13 +76,7 @@
             }
         },
 
-        drop: 0,
-
-        keySize: 8,
-        ivSize: 0
-    });
-
-    var MARC4 = C.MARC4 = ARC4.extend({
-        drop: 384
+        // RC4 doesn't use an IV
+        ivSize: null
     });
 }(CryptoJS));
