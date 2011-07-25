@@ -85,6 +85,9 @@
             if (typeof password == 'string') {
                 cfg.kdf.call(this);
             } else {
+                if (ivSize && ! cfg.iv) {
+                    throw new Error('Missing IV.');
+                }
                 this.key = password;
             }
 

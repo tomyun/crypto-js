@@ -69,6 +69,8 @@
                     m[n] ^= keystream;
                 }
             }
-        }
+        },
+
+        ivSize: null
     });
 }(CryptoJS));

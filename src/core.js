@@ -249,6 +249,10 @@ var CryptoJS;
             var salt = this.salt;
 
             if (salt) {
+                if (salt.sigBytes != 8) {
+                    throw new Error('Salt must be 64 bits.');
+                }
+
                 // "Salted__" + salt + rawData
                 return WordArray.create([0x53616c74, 0x65645f5f]).
                        concat(salt).concat(rawData).toString(encoder);
@@ -412,6 +416,9 @@ var CryptoJS;
 
             // Create formatter
             var formatter = cfg.formatter.create(this.hash, cfg.salt);
+
+            // Store extra data
+            formatter.hasher = this.$super;
 
             this.reset();
 
