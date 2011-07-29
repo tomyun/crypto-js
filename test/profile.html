@@ -5,43 +5,54 @@
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
-        <script src="../src/base64.js"></script>
-        <script src="../src/hash_base.js"></script>
+        <script src="../src/enc/base64.js"></script>
         <script src="../src/md5.js"></script>
         <script src="../src/sha1.js"></script>
         <script src="../src/sha256.js"></script>
         <script src="../src/hmac.js"></script>
         <script src="../src/pbkdf2.js"></script>
+        <script src="../src/evp-key-derivation.js"></script>
+        <script src="../src/cipher/base.js"></script>
+        <script src="../src/rc4.js"></script>
 
         <!-- YUI -->
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
 
         <!-- Profiler -->
         <script type="text/javascript">
-            YUI().use('profiler', 'console', 'console-filters', function (Y) {
+            YUI().use('profiler', 'console', 'console-filters', 'substitute', function (Y) {
+                // Shortcut
+                var C = CryptoJS;
+
                 // Register objects
-                Y.Profiler.registerObject('CryptoJS.oop.BaseObj');
-                Y.Profiler.registerObject('CryptoJS.enc.Hex');
-                Y.Profiler.registerObject('CryptoJS.enc.ByteStr');
-                Y.Profiler.registerObject('CryptoJS.enc.Utf8Str');
-                Y.Profiler.registerObject('CryptoJS.enc.Base64');
-                Y.Profiler.registerObject('CryptoJS.enc.Base64.UrlSafe');
+                Y.Profiler.registerObject('CryptoJS.lib.Base');
                 Y.Profiler.registerObject('CryptoJS.lib.WordArray');
-                Y.Profiler.registerObject('CryptoJS.lib.CmdChain');
-                Y.Profiler.registerObject('CryptoJS.lib.Hash');
-                Y.Profiler.registerObject('CryptoJS.lib.Hasher');
-                Y.Profiler.registerObject('CryptoJS.algo.MD5');
-                Y.Profiler.registerObject('CryptoJS.algo.SHA1');
-                Y.Profiler.registerObject('CryptoJS.algo.SHA256');
-                Y.Profiler.registerObject('CryptoJS.algo.HMAC');
-                Y.Profiler.registerObject('CryptoJS.algo.PBKDF2');
+                Y.Profiler.registerObject('CryptoJS.lib.Event');
+                Y.Profiler.registerObject('CryptoJS.lib.Formatter');
+
+                Y.Profiler.registerObject('CryptoJS.enc.Hex');
+                Y.Profiler.registerObject('CryptoJS.enc.Latin1');
+                Y.Profiler.registerObject('CryptoJS.enc.Utf8');
+                Y.Profiler.registerObject('CryptoJS.enc.Base64');
+
+                Y.Profiler.registerObject('CryptoJS.hash.formatter.OpenSSLish');
+                Y.Profiler.registerObject('CryptoJS.hash.salter.OpenSSLish');
+                Y.Profiler.registerObject('CryptoJS.hash.Base');
+
+                Y.Profiler.registerObject('CryptoJS.MD5');
+                Y.Profiler.registerObject('CryptoJS.SHA1');
+                Y.Profiler.registerObject('CryptoJS.SHA256');
+                Y.Profiler.registerObject('CryptoJS.HMAC');
+                Y.Profiler.registerObject('CryptoJS.PBKDF2');
+                Y.Profiler.registerObject('CryptoJS.EvpKeyDerivation');
+                Y.Profiler.registerObject('CryptoJS.RC4');
 
                 // Code to profile
                 var profilees = [
                     {
                         name: 'MD5',
                         fn: function () {
-                            var md5 = CryptoJS.algo.MD5.create();
+                            var md5 = C.MD5.create();
                             for (var i = 0; i < 100; i++) {
                                 md5.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -51,7 +62,7 @@
                     {
                         name: 'SHA1',
                         fn: function () {
-                            var sha1 = CryptoJS.algo.SHA1.create();
+                            var sha1 = C.SHA1.create();
                             for (var i = 0; i < 100; i++) {
                                 sha1.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -61,7 +72,7 @@
                     {
                         name: 'SHA256',
                         fn: function () {
-                            var sha256 = CryptoJS.algo.SHA256.create();
+                            var sha256 = C.SHA256.create();
                             for (var i = 0; i < 100; i++) {
                                 sha256.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -71,7 +82,7 @@
                     {
                         name: 'HMAC',
                         fn: function () {
-                            var hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, 'Hi There');
+                            var hmac = C.HMAC.create(C.MD5, 'Hi There');
                             for (var i = 0; i < 100; i++) {
                                 hmac.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -81,7 +92,23 @@
                     {
                         name: 'PBKDF2',
                         fn: function () {
-                            CryptoJS.algo.PBKDF2.compute("password", "ATHENA.MIT.EDUraeburn", { keySize: 256/32, iterations: 10 });
+                            C.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
+                        }
+                    },
+                    {
+                        name: 'EvpKeyDerivation',
+                        fn: function () {
+                            C.EvpKeyDerivation.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
+                        }
+                    },
+                    {
+                        name: 'RC4',
+                        fn: function () {
+                            var data = '';
+                            for (var i = 0; i < 100; i++) {
+                                data += '12345678901234567890123456789012345678901234567890';
+                            }
+                            C.RC4.encrypt(data, 'password').toString();
                         }
                     }
                 ];
@@ -98,28 +125,30 @@
                         // Skip reports with 0 calls
                         if ( ! report.calls) return false;
 
-                        // Create 'total' entry
+                        // Create "total" entry
                         report.total = 0;
                         for (var i = 0; i < report.points.length; i++) {
                             report.total += report.points[i];
                         }
 
+                        // Round "avg" entry
+                        report.avg = Number(report.avg.toFixed(4));
+
                         return true;
                     });
 
+                    // Add name to reports
+                    for (var name in reports) {
+                        reports[name].name = name;
+                    }
+
                     // Sort reports by total time
                     var orderedReports = [];
-                    for (var f in reports) {
-                        orderedReports.push({
-                            name: f,
-                            report: reports[f]
-                        });
+                    for (var name in reports) {
+                        orderedReports.push(reports[name]);
                     }
                     orderedReports.sort(function (a, b) {
-                        return (
-                            (b.report.total - a.report.total) ||
-                            (b.report.calls - a.report.calls)
-                        );
+                        return ((b.total - a.total) || (b.calls - a.calls));
                     });
 
                     // Create console
@@ -149,7 +178,7 @@
                     }
                     yconsole.filter.showSource(profilee.name);
 
-                    // Keep each yconsole in closure
+                    // Collapse doesn't seem to work reliably unless we do it after DOM ready
                     (function (yconsole) {
                         Y.on('domready', function () {
                             yconsole.collapse();
@@ -158,21 +187,17 @@
 
                     // Log reports
                     for (var j = 0; j < orderedReports.length; j++) {
-                        var name = orderedReports[j].name;
-                        var report = orderedReports[j].report;
+                        var report = orderedReports[j];
 
-                        Y.log(
-                            '[' + report.total + 'ms] ' + name + '(): ' +
-                            'Called ' + report.calls + ' times. ' +
-                            'Avg: '   + (Math.round(report.avg * 10000) / 10000) + 'ms, ' +
-                            'Min: '   + report.min   + 'ms, ' +
-                            'Max: '   + report.max   + 'ms',
-                            null,
-                            profilee.name
-                        );
+                        var template =
+                            '[{total}ms] {name}(): Called {calls} times. ' +
+                            'Avg: {avg}ms, Min: {min}ms, Max: {max}ms';
+                        var message = Y.substitute(template, report);
+
+                        Y.log(message, 'time', profilee.name);
                     }
 
-                    // Clear report data
+                    // Clean slate for next profilee
                     Y.Profiler.clear();
                 }
             });

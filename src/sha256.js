@@ -1,5 +1,10 @@
-(function (C, undefined) {
-    var SHA256 = C.SHA256 = C.hash.Base.extend({
+(function () {
+    // Shortcuts
+    var C = CryptoJS;
+    var C_hash = C.hash;
+    var C_hash_Base = C_hash.Base;
+
+    var C_SHA256 = C.SHA256 = C_hash_Base.extend({
         doReset: function () {
             // Shortcut
             var H = this.hash.words;
@@ -30,7 +35,6 @@
             var h = H[7];
 
             var w = [];
-
             for (var i = 0; i < 64; i++) {
                 if (i < 16) {
                     w[i] = m[i + offset] >>> 0;
@@ -119,4 +123,4 @@
         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
         0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
     ];
-}(CryptoJS));
+}());

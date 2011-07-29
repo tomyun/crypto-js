@@ -1,20 +1,15 @@
 (function (C, undefined) {
     // Shortcuts
+    var C = CryptoJS;
     var C_lib = C.lib;
-    var Base = C_lib.Base;
-    var WordArray = C_lib.WordArray;
-    var WordArrayHex = WordArray.Hex;
-    var WordArrayLatin1 = WordArray.Latin1;
-    var WordArrayUtf8 = WordArray.Utf8;
-    var WordArrayBase64 = WordArray.Base64;
-    var WordArrayBase64UrlSafe = WordArrayBase64.UrlSafe;
-    var Event = C_lib.Event;
+    var C_lib_Base = C_lib.Base;
     var C_enc = C.enc;
-    var Hex = C_enc.Hex;
-    var Latin1 = C_enc.Latin1;
-    var Utf8 = C_enc.Utf8;
-    var Base64 = C_enc.Base64;
-    var Base64UrlSafe = Base64.UrlSafe;
+    var C_enc_Hex = C_enc.Hex;
+    var C_enc_Utf8 = C_enc.Utf8;
+    var C_enc_Base64 = C_enc.Base64;
+    var C_hash = C.hash;
+    var C_hash_formatter = C_hash.formatter;
+    var C_hash_formatter_OpenSSLish = C_hash_formatter.OpenSSLish;
 
     // Cipher namespace
     var C_cipher = C.cipher = {};
@@ -23,47 +18,45 @@
     var C_cipher_formatter = C_cipher.formatter = {};
 
     // OpenSSL cipher formatter
-    var OpenSSLCipherFormatter = C_cipher_formatter.OpenSSL = C.hash.formatter.OpenSSLInspired.extend({
-        encoder: Base64
+    var C_cipher_formatter_OpenSSL = C_cipher_formatter.OpenSSL = C_hash_formatter_OpenSSLish.extend({
+        encoder: C_enc_Base64
     });
 
     // Cipher key derivation namespace
     var C_cipher_kdf = C_cipher.kdf = {};
 
     // OpenSSL cipher key derivation
-    var OpenSSLCipherKeyDerivation = C_cipher_kdf.OpenSSL = function (password) {
-        var cipher = this;
+    var C_cipher_kdf_OpenSSL = C_cipher_kdf.OpenSSL = {
+        execute: function (cipher, password) {
+            // Shortcuts
+            var cfg = cipher.cfg;
+            var keySize = cipher.keySize;
+            var ivSize = cipher.ivSize;
 
-        // Shortcuts
-        var cfg = cipher.cfg;
-        var keySize = cipher.keySize;
-        var ivSize = cipher.ivSize;
+            // Generate salt
+            if (cfg.salt === undefined) {
+                cfg.salt = C_enc_Hex.random(2);
+            }
 
-        // Generate salt
-        if (cfg.salt === undefined) {
-            cfg.salt = WordArrayHex.random(2);
+            // Derive key and IV
+            var key = C.EvpKeyDerivation.compute(password, cfg.salt, { keySize: keySize + ivSize });
+
+            // Separate key and IV
+            if ( ! cfg.iv) {
+                cfg.iv = key.$super.create(key.words.slice(keySize));
+            }
+            key.sigBytes = keySize * 4;
+
+            cipher.key = key;
         }
-
-        // Derive key and IV
-        var key = C.EvpKeyDerivation.compute(password, cfg.salt, { keySize: keySize + ivSize });
-
-        // Separate key and IV
-        if ( ! cfg.iv) {
-            var iv = cfg.iv = key.clone();
-            iv.words.splice(0, keySize);
-            iv.sigBytes -= keySize * 4;
-        }
-        key.sigBytes = keySize * 4;
-
-        this.key = key;
     };
 
     // Base cipher
-    var BaseCipher = C_cipher.Base = Base.extend({
+    var C_cipher_Base = C_cipher.Base = C_lib_Base.extend({
         // Config defaults
-        cfg: Base.extend({
-            formatter: OpenSSLCipherFormatter,
-            kdf: OpenSSLCipherKeyDerivation
+        cfg: C_lib_Base.extend({
+            formatter: C_cipher_formatter_OpenSSL,
+            kdf: C_cipher_kdf_OpenSSL
         }),
 
         encrypt: function (message, password, cfg) {
@@ -72,22 +65,19 @@
 
             // Convert string to WordArray, else assume WordArray already
             if (typeof message == 'string') {
-                message = Utf8.decode(message);
+                message = C_enc_Utf8.fromString(message);
             }
 
             this.message = message;
 
-            // Shortcuts
-            var keySize = this.keySize;
-            var ivSize = this.ivSize;
-
             // Convert string to key, else assume key already
             if (typeof password == 'string') {
-                cfg.kdf.call(this);
+                cfg.kdf.execute(this, password);
             } else {
-                if (ivSize && ! cfg.iv) {
-                    throw new Error('Missing IV.');
+                if (this.ivSize && ! cfg.iv) {
+                    throw new Error('Missing IV');
                 }
+
                 this.key = password;
             }
 

@@ -1,26 +1,19 @@
-(function (C, undefined) {
+(function () {
     // Shortcuts
+    var C = CryptoJS;
     var C_lib = C.lib;
-    var Base = C_lib.Base;
-    var WordArray = C_lib.WordArray;
-    var WordArrayHex = WordArray.Hex;
-    var WordArrayLatin1 = WordArray.Latin1;
-    var WordArrayUtf8 = WordArray.Utf8;
-    var Event = C_lib.Event;
+    var C_lib_WordArray = C_lib.WordArray;
     var C_enc = C.enc;
-    var Hex = C_enc.Hex;
-    var Latin1 = C_enc.Latin1;
-    var Utf8 = C_enc.Utf8;
 
-    var Base64 = C_enc.Base64 = Base.extend({
-        encode: function (wordArray) {
-            // Clear excess bits
-            wordArray.clamp();
-
+    var C_enc_Base64 = C_enc.Base64 = C_lib_WordArray.extend({
+        doToString: function () {
             // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes;
+            var words = this.words;
+            var sigBytes = this.sigBytes;
             var map = this.map;
+
+            // Clear excess bits
+            this.clamp();
 
             var base64Str = [];
             for (var i = 0; i < sigBytes; i += 3) {
@@ -34,18 +27,16 @@
                     base64Str.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
                 }
             }
-            this.pad(base64Str);
+
+            // Add padding
+            while (base64Str.length % 4) {
+                base64Str.push(map.charAt(64));
+            }
 
             return base64Str.join('');
         },
 
-        pad: function (base64Str) {
-            while (base64Str.length % 4) {
-                base64Str.push(this.map.charAt(64));
-            }
-        },
-
-        decode: function (base64Str) {
+        fromString: function (base64Str) {
             // Shortcut
             var map = this.map;
 
@@ -67,36 +58,9 @@
                 }
             }
 
-            return WordArrayBase64.create(words, nBytes);
+            return this.create(words, nBytes);
         },
 
         map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
     });
-
-    var Base64UrlSafe = Base64.UrlSafe = Base64.extend({
-        // Skip padding
-        pad: function () {
-            // Do nothing
-        },
-
-        decode: function () {
-            var wordArray = Base64UrlSafe.$super.decode.apply(this, arguments);
-
-            // "Cast" as WordArray.Base64.UrlSafe
-            return WordArrayBase64UrlSafe.extend(wordArray);
-        },
-
-        // URL-safe alphabet
-        map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_='
-    });
-
-    // WordArray.Base64
-    var WordArrayBase64 = WordArray.Base64 = WordArray.extend({
-        encoder: Base64
-    });
-
-    // WordArray.Base64.UrlSafe
-    var WordArrayBase64UrlSafe = WordArrayBase64.UrlSafe = WordArray.extend({
-        encoder: Base64UrlSafe
-    });
-}(CryptoJS));
+}());

@@ -1,23 +1,17 @@
 // This implementation was written to conform with EVP_BytesToKey.
 // www.openssl.org/docs/crypto/EVP_BytesToKey.html
 
-(function (C, undefined) {
+(function () {
     // Shortcuts
+    var C = CryptoJS;
     var C_lib = C.lib;
-    var Base = C_lib.Base;
-    var WordArray = C_lib.WordArray;
-    var WordArrayHex = WordArray.Hex;
-    var WordArrayLatin1 = WordArray.Latin1;
-    var WordArrayUtf8 = WordArray.Utf8;
-    var Event = C_lib.Event;
+    var C_lib_Base = C_lib.Base;
     var C_enc = C.enc;
-    var Hex = C_enc.Hex;
-    var Latin1 = C_enc.Latin1;
-    var Utf8 = C_enc.Utf8;
+    var C_enc_Hex = C_enc.Hex;
 
-    var EvpKeyDerivation = C.EvpKeyDerivation = Base.extend({
+    var C_EvpKeyDerivation = C.EvpKeyDerivation = C_lib_Base.extend({
         // Config defaults
-        cfg: Base.extend({
+        cfg: C_lib_Base.extend({
             keySize: 4,
             hasher: C.MD5,
             iterations: 1
@@ -31,7 +25,7 @@
             var hasher = cfg.hasher.create({ salt: null });
 
             // Initial values
-            var derivedKey = WordArrayHex.create();
+            var derivedKey = C_enc_Hex.create();
 
             // Shortcuts
             var derivedKeyWords = derivedKey.words;
@@ -57,4 +51,4 @@
             return derivedKey;
         }
     });
-}(CryptoJS));
+}());

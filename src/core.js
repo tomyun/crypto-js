@@ -1,11 +1,9 @@
 var CryptoJS;
 
 // Private scope
-(function (undefined) {
+(function () {
     // Don't overwrite
-    if (CryptoJS) {
-        return;
-    }
+    if (CryptoJS) return;
 
     // CryptoJS namespace
     var C = CryptoJS = {};
@@ -14,12 +12,11 @@ var CryptoJS;
     var C_lib = C.lib = {};
 
     // Base
-    var Base = C_lib.Base = {
+    var C_lib_Base = C_lib.Base = {
         extend: function (overrides) {
             // Spawn
-            function F() {}
-            F.prototype = this;
-            var subtype = new F();
+            C_lib_Base_F.prototype = this;
+            var subtype = new C_lib_Base_F();
 
             // Augment
             if (overrides) {
@@ -54,84 +51,17 @@ var CryptoJS;
 
         clone: function () {
             return this.$super.extend(this);
+        },
+
+        cast: function (o) {
+            return this.extend(o);
         }
     };
 
-    // Encoding namespace
-    var C_enc = C.enc = {};
-
-    // Hex
-    var Hex = C_enc.Hex = Base.extend({
-        encode: function (wordArray) {
-            // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes;
-
-            var hexStr = [];
-            for (var i = 0; i < sigBytes; i++) {
-                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                hexStr.push((bite >>> 4).toString(16));
-                hexStr.push((bite & 0xf).toString(16));
-            }
-
-            return hexStr.join('');
-        },
-
-        decode: function (hexStr) {
-            // Shortcut
-            var hexStrLength = hexStr.length;
-
-            var words = [];
-            for (var i = 0; i < hexStrLength; i += 2) {
-                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
-            }
-
-            return WordArrayHex.create(words, hexStrLength / 2);
-        }
-    });
-
-    // Latin-1
-    var Latin1 = C_enc.Latin1 = Base.extend({
-        encode: function (wordArray) {
-            // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes;
-
-            var latin1Str = [];
-            for (var i = 0; i < sigBytes; i++) {
-                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                latin1Str.push(String.fromCharCode(bite));
-            }
-
-            return latin1Str.join('');
-        },
-
-        decode: function (latin1Str) {
-            // Shortcut
-            var latin1StrStrLength = latin1Str.length;
-
-            var words = [];
-            for (var i = 0; i < latin1StrStrLength; i++) {
-                words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
-            }
-
-            return WordArrayLatin1.create(words, latin1StrStrLength);
-        }
-    });
-
-    // Utf8
-    var Utf8 = C_enc.Utf8 = Base.extend({
-        encode: function (wordArray) {
-            return decodeURIComponent(escape(Latin1.encode(wordArray)));
-        },
-
-        decode: function (utf8Str) {
-            return WordArrayUtf8.extend(Latin1.decode(unescape(encodeURIComponent(utf8Str))));
-        }
-    });
+    function C_lib_Base_F() {}
 
     // WordArray
-    var WordArray = C_lib.WordArray = Base.extend({
+    var C_lib_WordArray = C_lib.WordArray = C_lib_Base.extend({
         init: function (words, sigBytes) {
             words = this.words = words || [];
 
@@ -143,7 +73,7 @@ var CryptoJS;
         },
 
         toString: function (encoder) {
-            return (encoder || this.encoder).encode(this);
+            return ((encoder && encoder.cast(this)) || this).doToString();
         },
 
         concat: function (wordArray) {
@@ -154,8 +84,8 @@ var CryptoJS;
             var thatSigBytes = wordArray.sigBytes;
 
             for (var i = 0; i < thatSigBytes; i++) {
-                var thatBite = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                thisWords[thisSigBytes >>> 2] |= thatBite << (24 - (thisSigBytes % 4) * 8);
+                var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                thisWords[thisSigBytes >>> 2] |= thatByte << (24 - (thisSigBytes % 4) * 8);
                 thisSigBytes++;
             }
             this.sigBytes = thisSigBytes;
@@ -174,7 +104,7 @@ var CryptoJS;
         },
 
         clone: function () {
-            var clone = WordArray.$super.clone.call(this);
+            var clone = C_lib_WordArray.$super.clone.call(this);
             clone.words = this.words.slice(0);
 
             return clone;
@@ -190,40 +120,105 @@ var CryptoJS;
         }
     });
 
-    // WordArray.Hex
-    var WordArrayHex = WordArray.Hex = WordArray.extend({
-        encoder: Hex
+    // Encoding namespace
+    var C_enc = C.enc = {};
+
+    // Hex encoder
+    var C_enc_Hex = C_enc.Hex = C_lib_WordArray.extend({
+        doToString: function () {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes;
+
+            var hexStr = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                hexStr.push((bite >>> 4).toString(16));
+                hexStr.push((bite & 0xf).toString(16));
+            }
+
+            return hexStr.join('');
+        },
+
+        fromString: function (hexStr) {
+            // Shortcut
+            var hexStrLength = hexStr.length;
+
+            var words = [];
+            for (var i = 0; i < hexStrLength; i += 2) {
+                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
+            }
+
+            return this.create(words, hexStrLength / 2);
+        }
     });
 
-    // WordArray.Latin1
-    var WordArrayLatin1 = WordArray.Latin1 = WordArray.extend({
-        encoder: Latin1
+    // Latin1 encoder
+    var C_enc_Latin1 = C_enc.Latin1 = C_lib_WordArray.extend({
+        doToString: function () {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes;
+
+            var latin1Str = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                latin1Str.push(String.fromCharCode(bite));
+            }
+
+            return latin1Str.join('');
+        },
+
+        fromString: function (latin1Str) {
+            // Shortcut
+            var latin1StrStrLength = latin1Str.length;
+
+            var words = [];
+            for (var i = 0; i < latin1StrStrLength; i++) {
+                words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
+            }
+
+            return this.create(words, latin1StrStrLength);
+        }
     });
 
-    // WordArray.Utf8
-    var WordArrayUtf8 = WordArray.Utf8 = WordArray.extend({
-        encoder: Utf8
+    // Utf8 encoder
+    var C_enc_Utf8 = C_enc.Utf8 = C_lib_WordArray.extend({
+        doToString: function () {
+            return decodeURIComponent(escape(this.toString(C_enc_Latin1)));
+        },
+
+        fromString: function (utf8Str) {
+            return C_enc_Utf8.cast(C_enc_Latin1.fromString(unescape(encodeURIComponent(utf8Str))));
+        }
     });
 
     // Event
-    var Event = C_lib.Event = Base.extend({
+    var C_lib_Event = C_lib.Event = C_lib_Base.extend({
         init: function () {
-            this.subscribers = [];
+            this._callbacks = [];
         },
 
         subscribe: function (callback) {
-            this.subscribers.push(callback);
+            this._callbacks.push(callback);
         },
 
         fire: function () {
             // Shortcuts
-            var subscribers = this.subscribers;
-            var subscribersLength = subscribers.length;
+            var callbacks = this._callbacks;
+            var callbacksLength = callbacks.length;
 
-            // Execute callbacks
-            for (var i = 0; i < subscribersLength; i++) {
-                subscribers[i]();
+            for (var i = 0; i < callbacksLength; i++) {
+                callbacks[i]();
             }
+        }
+    });
+
+    // Formatter
+    var C_lib_Formatter = C_lib.Formatter = C_lib_Base.extend({
+        init: function (rawData, salt) {
+            this.rawData = rawData;
+            this.salt = salt;
         }
     });
 
@@ -233,13 +228,8 @@ var CryptoJS;
     // Hash formatter namespace
     var C_hash_formatter = C_hash.formatter = {};
 
-    // OpenSSL-inspired hash formatter
-    var OpenSSLInspiredHashFormatter = C_hash_formatter.OpenSSLInspired = Base.extend({
-        init: function (rawData, salt) {
-            this.rawData = rawData;
-            this.salt = salt;
-        },
-
+    // OpenSSL-ish hash formatter
+    var C_hash_formatter_OpenSSLish = C_hash_formatter.OpenSSLish = C_lib_Formatter.extend({
         toString: function (encoder) {
             // Default encoder
             encoder = encoder || this.encoder;
@@ -249,12 +239,13 @@ var CryptoJS;
             var salt = this.salt;
 
             if (salt) {
+                // Ensure correct size
                 if (salt.sigBytes != 8) {
-                    throw new Error('Salt must be 64 bits.');
+                    throw new Error('Salt must be 64 bits');
                 }
 
                 // "Salted__" + salt + rawData
-                return WordArray.create([0x53616c74, 0x65645f5f]).
+                return C_enc_Hex.create([0x53616c74, 0x65645f5f]).
                        concat(salt).concat(rawData).toString(encoder);
             } else {
                 return rawData.toString(encoder);
@@ -266,59 +257,55 @@ var CryptoJS;
             encoder = encoder || this.encoder;
 
             // Decode data string
-            var rawData = encoder.decode(dataStr);
+            var rawData = encoder.fromString(dataStr);
 
             // Shortcut
             var rawDataWords = rawData.words;
 
             // Test for salt
             if (rawDataWords[0] == 0x53616c74 && rawDataWords[1] == 0x65645f5f) {
-                // Remove prefix
-                rawDataWords.splice(0, 2);
-                rawData.sigBytes -= 8;
+                // Extract salt
+                var salt = rawData.$super.create(rawDataWords.slice(2, 4));
 
-                // Separate salt from raw data
-                var salt = rawData.clone();
-                salt.sigBytes = 8;
-                salt.clamp();
-
-                rawDataWords.splice(0, 2);
-                rawData.sigBytes -= 8;
+                // Remove salt from raw data
+                rawDataWords.splice(0, 4);
+                rawData.sigBytes -= 16;
             }
 
             return this.create(rawData, salt);
         },
 
-        encoder: Hex
+        encoder: C_enc_Hex
     });
 
     // Hash salter namespace
     var C_hash_salter = C_hash.salter = {};
 
-    // OpenSSL-inspired hash salter
-    var OpenSSLInspiredHashSalter = C_hash_salter.OpenSSLInspired = function () {
-        var hasher = this;
+    // OpenSSL-ish hash salter
+    var C_hash_salter_OpenSSLish = C_hash_salter.OpenSSLish = {
+        execute: function (hasher) {
+            // Shortcuts
+            var cfg = hasher.cfg;
+            var salt = cfg.salt;
 
-        // Shortcut
-        var cfg = hasher.cfg;
+            // Use random salt if not defined
+            if ( ! salt) {
+                salt = cfg.salt = C_enc_Hex.random(2);
+            }
 
-        // Use random salt if not defined
-        if ( ! cfg.salt) {
-            cfg.salt = WordArrayHex.random(2);
+            // Add salt after reset, before any message updates
+            hasher.afterReset.subscribe(function () {
+                hasher.update(salt);
+            });
         }
-
-        // Add salt after reset, before any message updates
-        hasher.afterReset.subscribe(function () {
-            hasher.update(cfg.salt);
-        });
     };
 
     // Base hash
-    var BaseHash = C_hash.Base = Base.extend({
+    var C_hash_Base = C_hash.Base = C_lib_Base.extend({
         // Config defaults
-        cfg: Base.extend({
-            formatter: OpenSSLInspiredHashFormatter,
-            salter: OpenSSLInspiredHashSalter
+        cfg: C_lib_Base.extend({
+            formatter: C_hash_formatter_OpenSSLish,
+            salter: C_hash_salter_OpenSSLish
         }),
 
         init: function (cfg) {
@@ -326,21 +313,21 @@ var CryptoJS;
             cfg = this.cfg = this.cfg.extend(cfg);
 
             // Set up events
-            this.afterReset    = Event.create();
-            this.beforeCompute = Event.create();
-            this.afterCompute  = Event.create();
+            this.afterReset    = C_lib_Event.create();
+            this.beforeCompute = C_lib_Event.create();
+            this.afterCompute  = C_lib_Event.create();
 
             // Execute salter
             if (cfg.salt !== null) {
-                cfg.salter.call(this);
+                cfg.salter.execute(this);
             }
 
             this.reset();
         },
 
         reset: function () {
-            var hash = this.hash = WordArrayHex.create();
-            this.message = WordArrayHex.create();
+            var hash = this.hash = C_enc_Hex.create();
+            this.message = C_enc_Hex.create();
             this.length = 0;
 
             this.doReset();
@@ -355,7 +342,7 @@ var CryptoJS;
         update: function (messageUpdate) {
             // Convert string to WordArray, else assume WordArray already
             if (typeof messageUpdate == 'string') {
-                messageUpdate = Utf8.decode(messageUpdate);
+                messageUpdate = C_enc_Utf8.fromString(messageUpdate);
             }
 
             this.message.concat(messageUpdate);
@@ -390,46 +377,46 @@ var CryptoJS;
         },
 
         compute: function () {
-            if (this.hash) {
-                return this.computeInstance.apply(this, arguments);
-            } else {
-                return this.computeStatic.apply(this, arguments);
-            }
-        },
-
-        computeInstance: function (messageUpdate) {
-            // Final message update
-            if (messageUpdate) {
-                this.update(messageUpdate);
-            }
-
-            // Notify subscribers
-            this.beforeCompute.fire();
-
-            this.doCompute();
-
-            // Notify subscribers
-            this.afterCompute.fire();
-
-            // Shortcut
-            var cfg = this.cfg;
-
-            // Create formatter
-            var formatter = cfg.formatter.create(this.hash, cfg.salt);
-
-            // Store extra data
-            formatter.hasher = this.$super;
-
-            this.reset();
-
-            return formatter;
-        },
-
-        computeStatic: function (message, cfg) {
-            return this.create(cfg).compute(message);
+            return (
+                this.hash ?
+                    C_hash_Base_computeInstance :
+                    C_hash_Base_computeStatic
+            ).apply(this, arguments);
         },
 
         // Default, because it's common
         blockSize: 16
     });
+
+    function C_hash_Base_computeInstance(messageUpdate) {
+        // Final message update
+        if (messageUpdate) {
+            this.update(messageUpdate);
+        }
+
+        // Notify subscribers
+        this.beforeCompute.fire();
+
+        this.doCompute();
+
+        // Notify subscribers
+        this.afterCompute.fire();
+
+        // Shortcut
+        var cfg = this.cfg;
+
+        // Create formatter
+        var formatter = cfg.formatter.create(this.hash, cfg.salt);
+
+        // Store extra data
+        formatter.hasher = this.$super;
+
+        this.reset();
+
+        return formatter;
+    }
+
+    function C_hash_Base_computeStatic(message, cfg) {
+        return this.create(cfg).compute(message);
+    }
 }());

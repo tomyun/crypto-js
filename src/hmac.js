@@ -1,25 +1,19 @@
-(function (C, undefined) {
+(function () {
     // Shortcuts
+    var C = CryptoJS;
     var C_lib = C.lib;
-    var Base = C_lib.Base;
-    var WordArray = C_lib.WordArray;
-    var WordArrayHex = WordArray.Hex;
-    var WordArrayLatin1 = WordArray.Latin1;
-    var WordArrayUtf8 = WordArray.Utf8;
-    var Event = C_lib.Event;
+    var C_lib_Base = C_lib.Base;
     var C_enc = C.enc;
-    var Hex = C_enc.Hex;
-    var Latin1 = C_enc.Latin1;
-    var Utf8 = C_enc.Utf8;
+    var C_enc_Utf8 = C_enc.Utf8;
 
-    var HMAC = C.HMAC = Base.extend({
+    var C_HMAC = C.HMAC = C_lib_Base.extend({
         init: function (hasher, key) {
             // Init hasher
             hasher = this.hasher = hasher.create({ salt: null });
 
             // Convert string to WordArray, else assume WordArray already
             if (typeof key == 'string') {
-                key = Utf8.decode(key);
+                key = C_enc_Utf8.fromString(key);
             }
 
             // Shortcut
@@ -65,32 +59,28 @@
         },
 
         compute: function () {
-            if (this.hasher) {
-                return this.computeInstance.apply(this, arguments);
-            } else {
-                return this.computeStatic.apply(this, arguments);
-            }
-        },
-
-        computeInstance: function (messageUpdate) {
-            // Final message update
-            if (messageUpdate) {
-                this.update(messageUpdate);
-            }
-
-            // Shortcut
-            var hasher = this.hasher;
-
-            // Compute HMAC
-            var hmac = hasher.compute(this.oKey.clone().concat(hasher.compute().rawData)).rawData;
-
-            this.reset();
-
-            return hmac;
-        },
-
-        computeStatic: function (hasher, message, key) {
-            return this.create(hasher, key).compute(message);
+            return (this.hasher ? computeInstance : computeStatic).apply(this, arguments);
         }
     });
-}(CryptoJS));
+
+    function computeInstance(messageUpdate) {
+        // Final message update
+        if (messageUpdate) {
+            this.update(messageUpdate);
+        }
+
+        // Shortcut
+        var hasher = this.hasher;
+
+        // Compute HMAC
+        var hmac = hasher.compute(this.oKey.clone().concat(hasher.compute().rawData)).rawData;
+
+        this.reset();
+
+        return hmac;
+    }
+
+    function computeStatic(hasher, message, key) {
+        return this.create(hasher, key).compute(message);
+    }
+}());

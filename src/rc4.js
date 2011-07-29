@@ -1,21 +1,11 @@
-(function (C, undefined) {
+(function () {
     // Shortcuts
-    var C_lib = C.lib;
-    var Base = C_lib.Base;
-    var WordArray = C_lib.WordArray;
-    var WordArrayHex = WordArray.Hex;
-    var WordArrayLatin1 = WordArray.Latin1;
-    var WordArrayUtf8 = WordArray.Utf8;
-    var Event = C_lib.Event;
-    var C_enc = C.enc;
-    var Hex = C_enc.Hex;
-    var Latin1 = C_enc.Latin1;
-    var Utf8 = C_enc.Utf8;
+    var C = CryptoJS;
     var C_cipher = C.cipher;
-    var BaseCipher = C_cipher.Base;
+    var C_cipher_Base = C_cipher.Base;
 
-    var RC4 = C.RC4 = BaseCipher.extend({
-        cfg: BaseCipher.cfg.extend({
+    var C_RC4 = C.RC4 = C_cipher_Base.extend({
+        cfg: C_cipher_Base.cfg.extend({
             drop: 384
         }),
 
@@ -73,4 +63,4 @@
 
         ivSize: null
     });
-}(CryptoJS));
+}());
