@@ -322,4 +322,54 @@ OFB_prototype._doEncrypt = function (cipher, m, iv) {
 };
 OFB_prototype._doDecrypt = OFB_prototype._doEncrypt;
 
+/**
+ * Counter
+ * @author Gergely Risko
+ *
+ * After every block the last 4 bytes of the IV is increased by one
+ * with carry and that IV is used for the next block.
+ *
+ * This is a stream cipher mode and does not require padding.
+ */
+var CTR = C_mode.CTR = function () {
+    // Call parent constructor
+    Mode.apply(this, arguments);
+};
+
+// Inherit from Mode
+var CTR_prototype = CTR.prototype = new Mode;
+
+// Override padding
+CTR_prototype._padding = C_pad.NoPadding;
+
+CTR_prototype._doEncrypt = function (cipher, m, iv) {
+    var blockSizeInBytes = cipher._blocksize * 4;
+
+    for (var i = 0; i < m.length;) {
+        // do not lose iv
+        var keystream = iv.slice(0);
+
+        // Generate keystream for next block
+        cipher._encryptblock(keystream, 0);
+
+        // XOR keystream with block
+        for (var j = 0; i < m.length && j < blockSizeInBytes; j++, i++) {
+            m[i] ^= keystream[j];
+        }
+
+        // Increase IV
+        if(++(iv[blockSizeInBytes-1]) == 256) {
+            iv[blockSizeInBytes-1] = 0;
+            if(++(iv[blockSizeInBytes-2]) == 256) {
+                iv[blockSizeInBytes-2] = 0;
+                if(++(iv[blockSizeInBytes-3]) == 256) {
+                    iv[blockSizeInBytes-3] = 0;
+                    ++(iv[blockSizeInBytes-4]);
+                }
+            }
+        }
+    }
+};
+CTR_prototype._doDecrypt = CTR_prototype._doEncrypt;
+
 })(Crypto);
