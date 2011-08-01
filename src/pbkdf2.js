@@ -5,12 +5,14 @@
     var C_lib_Base = C_lib.Base;
     var C_enc = C.enc;
     var C_enc_Hex = C_enc.Hex;
+    var C_SHA1 = C.SHA1;
+    var C_HMAC = C.HMAC;
 
     var C_PBKDF2 = C.PBKDF2 = C_lib_Base.extend({
         // Config defaults
         cfg: C_lib_Base.extend({
             keySize: 4,
-            hasher: C.SHA1,
+            hasher: C_SHA1,
             iterations: 1
         }),
 
@@ -19,7 +21,7 @@
             cfg = this.cfg.extend(cfg);
 
             // Init HMAC
-            var hmac = C.HMAC.create(cfg.hasher, password);
+            var hmac = C_HMAC.create(cfg.hasher, password);
 
             // Initial values
             var derivedKey = C_enc_Hex.create();

@@ -29,7 +29,11 @@
                 var C = CryptoJS;
 
                 // Augment WordArray with "stringify" for testing
-                C.lib.WordArray.stringify = function () {
+                C.lib.WordArray.stringify = function (options) {
+                    if (options && options.clamp) {
+                        this.clamp();
+                    }
+
                     var formattedWords = [];
                     for (var i = 0; i < this.words.length; i++) {
                         formattedWords[i] = '0x' + (this.words[i] >>> 0).toString(16);
@@ -206,7 +210,14 @@
                     },
 
                     testConcat: function () {
-                        Y.Assert.areEqual('{words:[0x61626361,0x62630000],sigBytes:6}', C.lib.WordArray.create([0x61626300], 3).concat(C.lib.WordArray.create([0x61626300], 3)).stringify());
+                        Y.Assert.areEqual(
+                            // Expected
+                            '{words:[0x61626361,0x62630000],sigBytes:6}',
+                            // Actual
+                            C.lib.WordArray.create([0x61626300], 3).concat(
+                                C.lib.WordArray.create([0x61626300], 3)
+                            ).stringify()
+                        );
                     },
 
                     testClamp: function () {
@@ -227,11 +238,21 @@
                     name: 'enc.Hex',
 
                     testToString: function () {
-                        Y.Assert.areEqual('48656c6c6f2c20576f726c6421', C.enc.Hex.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13).toString());
+                        Y.Assert.areEqual(
+                            // Expected
+                            '48656c6c6f2c20576f726c6421',
+                            // Actual
+                            C.enc.Hex.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13).toString()
+                        );
                     },
 
                     testFromString: function () {
-                        Y.Assert.areEqual('{words:[0x48656c6c,0x6f2c2057,0x6f726c64,0x21000000],sigBytes:13}', C.enc.Hex.fromString('48656c6c6f2c20576f726c6421').stringify());
+                        Y.Assert.areEqual(
+                            // Expected
+                            '{words:[0x48656c6c,0x6f2c2057,0x6f726c64,0x21000000],sigBytes:13}',
+                            // Actual
+                            C.enc.Hex.fromString('48656c6c6f2c20576f726c6421').stringify()
+                        );
                     }
                 }));
 
@@ -240,11 +261,21 @@
                     name: 'enc.Latin1',
 
                     testToString: function () {
-                        Y.Assert.areEqual('Hello, World!', C.enc.Latin1.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13).toString());
+                        Y.Assert.areEqual(
+                            // Expected
+                            'Hello, World!',
+                            // Actual
+                            C.enc.Latin1.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13).toString()
+                        );
                     },
 
                     testFromString: function () {
-                        Y.Assert.areEqual('{words:[0x48656c6c,0x6f2c2057,0x6f726c64,0x21000000],sigBytes:13}', C.enc.Latin1.fromString('Hello, World!').stringify());
+                        Y.Assert.areEqual(
+                            // Expected
+                            '{words:[0x48656c6c,0x6f2c2057,0x6f726c64,0x21000000],sigBytes:13}',
+                            // Actual
+                            C.enc.Latin1.fromString('Hello, World!').stringify()
+                        );
                     }
                 }));
 
@@ -376,7 +407,10 @@
                     },
 
                     testRandomSalt: function () {
-                        Y.Assert.areNotEqual(C.MD5.compute().salt.stringify(), C.MD5.compute().salt.stringify());
+                        Y.Assert.areNotEqual(
+                            C.MD5.compute().salt.stringify(),
+                            C.MD5.compute().salt.stringify()
+                        );
                     },
 
                     testBeforeComputeSalter: function () {
@@ -602,7 +636,13 @@
                     name: 'EvpKeyDerivation',
 
                     testVectors: function () {
-                        Y.Assert.areEqual('fdbdf3419fff98bdb0241390f62a9db35f4aba29d77566377997314ebfc709f20b5ca7b1081f94b1ac12e3c8ba87d05a', C.EvpKeyDerivation.compute('password', 'saltsalt', { keySize: (256+128)/32 }));
+                        Y.Assert.areEqual(
+                            // Expected
+                            'fdbdf3419fff98bdb0241390f62a9db35f4aba29d77566377997314ebfc709f20b5ca7b1081f94b1ac12e3c8ba87d05a',
+                            // Actual
+                            C.EvpKeyDerivation.compute('password', 'saltsalt', { keySize: (256+128)/32 })
+                        );
+
                         // There are no official test vectors that I could find, and the EVP
                         // implementation is short on comments. Someone should use the C code to
                         // generate more test vectors. The iteration count in particular needs to be
@@ -623,9 +663,64 @@
                 cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'RC4',
 
-                    testVectors: function () {
-                        Y.Assert.areEqual('7494c2e7104b0879', C.RC4.encrypt(C.lib.WordArray.create([0x00000000, 0x00000000]), C.lib.WordArray.create([0x01234567, 0x89abcdef]), { drop: 0 }).rawData.toString(C.enc.Hex));
-                        Y.Assert.areEqual('f13829c9de', C.RC4.encrypt(C.lib.WordArray.create([0xdcee4cf9, 0x2c000000], 5), C.lib.WordArray.create([0x618a63d2, 0xfb000000], 5), { drop: 0 }).rawData.toString(C.enc.Hex));
+                    testEncrypt: function () {
+                        Y.Assert.areEqual(
+                            // Expected
+                            '7494c2e7104b0879',
+                            // Actual
+                            C.RC4.encrypt(
+                                // Message
+                                C.lib.WordArray.create([0x00000000, 0x00000000]),
+                                // Key
+                                C.lib.WordArray.create([0x01234567, 0x89abcdef]),
+                                // Config
+                                { drop: 0 }
+                            ).rawData.toString(C.enc.Hex)
+                        );
+
+                        Y.Assert.areEqual(
+                            // Expected
+                            'f13829c9de',
+                            // Actual
+                            C.RC4.encrypt(
+                                // Message
+                                C.lib.WordArray.create([0xdcee4cf9, 0x2c000000], 5),
+                                // Key
+                                C.lib.WordArray.create([0x618a63d2, 0xfb000000], 5),
+                                // Config
+                                { drop: 0 }
+                            ).rawData.toString(C.enc.Hex)
+                        );
+                    },
+
+                    testDecrypt: function () {
+                        Y.Assert.areEqual(
+                            // Expected
+                            C.lib.WordArray.create([0x00000000, 0x00000000]).stringify(),
+                            // Actual
+                            C.RC4.decrypt(
+                                // Ciphertext
+                                C.cipher.formatter.OpenSSL.create(C.lib.WordArray.create([0x7494c2e7, 0x104b0879])),
+                                // Key
+                                C.lib.WordArray.create([0x01234567, 0x89abcdef]),
+                                // Config
+                                { drop: 0 }
+                            ).stringify()
+                        );
+
+                        Y.Assert.areEqual(
+                            // Expected
+                            C.lib.WordArray.create([0xdcee4cf9, 0x2c000000], 5).stringify(),
+                            // Actual
+                            C.RC4.decrypt(
+                                // Ciphertext
+                                C.cipher.formatter.OpenSSL.create(C.lib.WordArray.create([0xf13829c9, 0xde000000], 5)),
+                                // Key
+                                C.lib.WordArray.create([0x618a63d2, 0xfb000000], 5),
+                                // Config
+                                { drop: 0 }
+                            ).stringify({ clamp: true })
+                        );
                     }
                 }));
 

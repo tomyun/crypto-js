@@ -245,7 +245,7 @@ var CryptoJS;
                 }
 
                 // "Salted__" + salt + rawData
-                return C_enc_Hex.create([0x53616c74, 0x65645f5f]).
+                return C_lib_WordArray.create([0x53616c74, 0x65645f5f]).
                        concat(salt).concat(rawData).toString(encoder);
             } else {
                 return rawData.toString(encoder);
@@ -327,7 +327,8 @@ var CryptoJS;
 
         reset: function () {
             var hash = this.hash = C_enc_Hex.create();
-            this.message = C_enc_Hex.create();
+
+            this.message = C_lib_WordArray.create();
             this.length = 0;
 
             this.doReset();

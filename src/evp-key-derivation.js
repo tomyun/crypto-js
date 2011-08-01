@@ -8,12 +8,13 @@
     var C_lib_Base = C_lib.Base;
     var C_enc = C.enc;
     var C_enc_Hex = C_enc.Hex;
+    var C_MD5 = C.MD5;
 
     var C_EvpKeyDerivation = C.EvpKeyDerivation = C_lib_Base.extend({
         // Config defaults
         cfg: C_lib_Base.extend({
             keySize: 4,
-            hasher: C.MD5,
+            hasher: C_MD5,
             iterations: 1
         }),
 

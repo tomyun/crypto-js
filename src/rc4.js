@@ -11,7 +11,7 @@
 
         doEncrypt: function () {
             // Shortcuts
-            var m = this.message.words;
+            var m = this.data.words;
             var mLength = m.length;
             var key = this.key;
             var k = key.words;
@@ -63,4 +63,6 @@
 
         ivSize: null
     });
+
+    C_RC4.doDecrypt = C_RC4.doEncrypt;
 }());

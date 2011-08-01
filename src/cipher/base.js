@@ -1,4 +1,4 @@
-(function (C, undefined) {
+(function () {
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -10,6 +10,7 @@
     var C_hash = C.hash;
     var C_hash_formatter = C_hash.formatter;
     var C_hash_formatter_OpenSSLish = C_hash_formatter.OpenSSLish;
+    var C_EvpKeyDerivation = C.EvpKeyDerivation;
 
     // Cipher namespace
     var C_cipher = C.cipher = {};
@@ -33,13 +34,13 @@
             var keySize = cipher.keySize;
             var ivSize = cipher.ivSize;
 
-            // Generate salt
+            // Use random salt if not defined
             if (cfg.salt === undefined) {
                 cfg.salt = C_enc_Hex.random(2);
             }
 
             // Derive key and IV
-            var key = C.EvpKeyDerivation.compute(password, cfg.salt, { keySize: keySize + ivSize });
+            var key = C_EvpKeyDerivation.compute(password, cfg.salt, { keySize: keySize + ivSize });
 
             // Separate key and IV
             if ( ! cfg.iv) {
@@ -68,18 +69,9 @@
                 message = C_enc_Utf8.fromString(message);
             }
 
-            this.message = message;
+            this.data = message;
 
-            // Convert string to key, else assume key already
-            if (typeof password == 'string') {
-                cfg.kdf.execute(this, password);
-            } else {
-                if (this.ivSize && ! cfg.iv) {
-                    throw new Error('Missing IV');
-                }
-
-                this.key = password;
-            }
+            generateKey.call(this, password);
 
             this.doEncrypt();
 
@@ -93,12 +85,43 @@
             return formatter;
         },
 
-        decrypt: function (ciphertext, password) {
+        decrypt: function (ciphertext, password, cfg) {
+            // Apply config defaults
+            cfg = this.cfg = this.cfg.extend(cfg);
 
+            // Convert string to cipher formatter, else assume cipher formatter already
+            if (typeof ciphertext == 'string') {
+                ciphertext = cfg.formatter.fromString(ciphertext);
+            }
+
+            this.data = ciphertext.rawData;
+            cfg.salt = ciphertext.salt;
+
+            generateKey.call(this, password);
+
+            this.doDecrypt();
+
+            return this.data;
         },
 
         // Defaults, because they're common
         keySize: 8,
         ivSize: 4
     });
-}(CryptoJS));
+
+    function generateKey(password) {
+        // Shortcut
+        var cfg = this.cfg;
+
+        // Convert string to key, else assume key already
+        if (typeof password == 'string') {
+            cfg.kdf.execute(this, password);
+        } else {
+            if (this.ivSize && ! cfg.iv) {
+                throw new Error('Missing IV');
+            }
+
+            this.key = password;
+        }
+    }
+}());
