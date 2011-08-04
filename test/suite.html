@@ -6,18 +6,16 @@
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
-        <script src="../src/enc/base64.js"></script>
+        <script src="../src/base64.js"></script>
         <script src="../src/md5.js"></script>
         <script src="../src/sha1.js"></script>
         <script src="../src/sha256.js"></script>
+        <script src="../src/modcrypt.js"></script>
         <script src="../src/hmac.js"></script>
         <script src="../src/pbkdf2.js"></script>
         <script src="../src/evp-key-derivation.js"></script>
-        <script src="../src/cipher/base.js"></script>
+        <script src="../src/cipher_base.js"></script>
         <script src="../src/rc4.js"></script>
-        <!--
-        <script src="../src/hash/formatter/BsdCryptInspired.js"></script>
-        -->
 
         <!-- YUI -->
         <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
@@ -175,6 +173,34 @@
                     }
                 }));
 
+                // isA
+                libBaseTestSuite.add(new Y.Test.Case({
+                    name: 'isA',
+
+                    setUp: function () {
+                        this.data = {};
+
+                        this.data.Obj1 = C.lib.Base.extend();
+                        this.data.Obj2 = C.lib.Base.extend();
+
+                        this.data.obj1 = this.data.Obj1.create();
+                        this.data.obj2 = this.data.Obj2.create();
+                    },
+
+                    testIsA: function () {
+                        Y.Assert.isTrue(this.data.obj1.isA(this.data.Obj1));
+                        Y.Assert.isTrue(this.data.obj1.isA(C.lib.Base));
+
+                        Y.Assert.isTrue(this.data.obj2.isA(this.data.Obj2));
+                        Y.Assert.isTrue(this.data.obj2.isA(C.lib.Base));
+                    },
+
+                    testNotIsA: function () {
+                        Y.Assert.isFalse( !! this.data.obj2.isA(this.data.Obj1));
+                        Y.Assert.isFalse( !! this.data.obj1.isA(this.data.Obj2));
+                    }
+                }));
+
                 // WordArray lib
                 cryptoJsTestSuite.add(new Y.Test.Case({
                     name: 'lib.WordArray',
@@ -228,8 +254,8 @@
                     },
 
                     testRandom: function () {
-                        Y.Assert.areNotEqual(C.lib.WordArray.random(2).stringify(), C.lib.WordArray.random(2).stringify());
-                        Y.Assert.areEqual(8, C.lib.WordArray.random(2).sigBytes);
+                        Y.Assert.areNotEqual(C.lib.WordArray.random(8).stringify(), C.lib.WordArray.random(8).stringify());
+                        Y.Assert.areEqual(8, C.lib.WordArray.random(8).sigBytes);
                     }
                 }));
 
@@ -348,22 +374,22 @@
                     }
                 }));
 
-                // OpenSSLish hash formatter
+                // OpenSSL hash formatter
                 cryptoJsTestSuite.add(new Y.Test.Case({
-                    name: 'hash.formatter.OpenSSLish',
+                    name: 'hash.formatter.OpenSSL',
 
                     testToString: function () {
                         var rawData = C.enc.Hex.create([0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210]);
                         var salt = C.enc.Hex.create([0xfedcba98, 0x76543210]);
-                        var formatter = C.hash.formatter.OpenSSLish.create(rawData, salt);
+                        var formatter = C.hash.formatter.OpenSSL.create(rawData, salt);
 
                         Y.Assert.areEqual('53616c7465645f5ffedcba98765432100123456789abcdeffedcba9876543210', formatter.toString());
                         Y.Assert.areEqual('U2FsdGVkX1/+3LqYdlQyEAEjRWeJq83v/ty6mHZUMhA=', formatter.toString(C.enc.Base64));
                     },
 
                     testFromString: function () {
-                        var saltedHash   = C.hash.formatter.OpenSSLish.fromString('53616c7465645f5f0123456789abcdef0123456789abcdef0123456789abcdef');
-                        var unsaltedHash = C.hash.formatter.OpenSSLish.fromString('0123456789abcdef0123456789abcdef');
+                        var saltedHash   = C.hash.formatter.OpenSSL.fromString('53616c7465645f5f0123456789abcdef0123456789abcdef0123456789abcdef');
+                        var unsaltedHash = C.hash.formatter.OpenSSL.fromString('0123456789abcdef0123456789abcdef');
 
                         Y.Assert.areEqual('{words:[0x1234567,0x89abcdef,0x1234567,0x89abcdef],sigBytes:16}', saltedHash.rawData.stringify());
                         Y.Assert.areEqual('{words:[0x1234567,0x89abcdef],sigBytes:8}', saltedHash.salt.stringify());
@@ -567,6 +593,90 @@
                         var hash = sha256.compute();
 
                         Y.Assert.areEqual('f8146961d9b73d8da49ccd526fca65439cdd5b402f76971556d5f52fd129843e', hash);
+                    }
+                }));
+
+                // Crypt encoder
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'enc.Crypt',
+
+                    testToString: function () {
+                        Y.Assert.areEqual('', C.enc.Crypt.create([0x666f6f62, 0x61720000], 0).toString());
+                        Y.Assert.areEqual('NU', C.enc.Crypt.create([0x666f6f62, 0x61720000], 1).toString());
+                        Y.Assert.areEqual('Naw', C.enc.Crypt.create([0x666f6f62, 0x61720000], 2).toString());
+                        Y.Assert.areEqual('Naxj', C.enc.Crypt.create([0x666f6f62, 0x61720000], 3).toString());
+                        Y.Assert.areEqual('NaxjMU', C.enc.Crypt.create([0x666f6f62, 0x61720000], 4).toString());
+                        Y.Assert.areEqual('NaxjMa2', C.enc.Crypt.create([0x666f6f62, 0x61720000], 5).toString());
+                        Y.Assert.areEqual('NaxjMa3m', C.enc.Crypt.create([0x666f6f62, 0x61720000], 6).toString());
+                        Y.Assert.areEqual('DXsyDnwzDXsyDnwzDGwf', C.enc.Crypt.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15).toString());
+                    },
+
+                    testFromString: function () {
+                        Y.Assert.areEqual('{words:[],sigBytes:0}', C.enc.Crypt.fromString('').stringify());
+                        Y.Assert.areEqual('{words:[0x66000000],sigBytes:1}', C.enc.Crypt.fromString('NU').stringify());
+                        Y.Assert.areEqual('{words:[0x666f0000],sigBytes:2}', C.enc.Crypt.fromString('Naw').stringify());
+                        Y.Assert.areEqual('{words:[0x666f6f00],sigBytes:3}', C.enc.Crypt.fromString('Naxj').stringify());
+                        Y.Assert.areEqual('{words:[0x666f6f62],sigBytes:4}', C.enc.Crypt.fromString('NaxjMU').stringify());
+                        Y.Assert.areEqual('{words:[0x666f6f62,0x61000000],sigBytes:5}', C.enc.Crypt.fromString('NaxjMa2').stringify());
+                        Y.Assert.areEqual('{words:[0x666f6f62,0x61720000],sigBytes:6}', C.enc.Crypt.fromString('NaxjMa3m').stringify());
+                        Y.Assert.areEqual('{words:[0x3e3e3e3f,0x3f3f3e3e,0x3e3f3f3f,0x3d2f2b00],sigBytes:15}', C.enc.Crypt.fromString('DXsyDnwzDXsyDnwzDGwf').stringify());
+                    }
+                }));
+
+                // ModCrypt hash salter
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'hash.salter.ModCrypt',
+
+                    testSomething: function () {
+                        // Need to make test cases
+                        Y.Assert.fail();
+                    }
+                }));
+
+                // ModCrypt hash formatter
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'hash.formatter.ModCrypt',
+
+                    testToString: function () {
+                        var rawData = C.enc.Hex.create([0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210]);
+                        var salt = C.enc.Hex.create([0xfedcba98, 0x76543210]);
+                        var formatter = C.hash.formatter.ModCrypt.create(rawData, salt);
+
+                        formatter.hasher = C.MD5;
+                        Y.Assert.areEqual('$1$zhmua5NIAV.$.GB3NsafnSzyr9eMRZEm2.', formatter.toString());
+
+                        formatter.hasher = C.SHA1;
+                        Y.Assert.areEqual('$sha1$zhmua5NIAV.$.GB3NsafnSzyr9eMRZEm2.', formatter.toString());
+
+                        formatter.hasher = C.SHA256;
+                        Y.Assert.areEqual('$5$zhmua5NIAV.$.GB3NsafnSzyr9eMRZEm2.', formatter.toString());
+                    },
+
+                    testFromString: function () {
+                        var hash = C.hash.formatter.ModCrypt.fromString('$1$zhmua5NIAV.$.GB3NsafnSzyr9eMRZEm2.');
+                        Y.Assert.areEqual('{words:[0x1234567,0x89abcdef,0xfedcba98,0x76543210],sigBytes:16}', hash.rawData.stringify());
+                        Y.Assert.areEqual('{words:[0xfedcba98,0x76543210],sigBytes:8}', hash.salt.stringify());
+                        Y.Assert.areEqual(C.MD5, hash.hasher);
+
+                        var hash = C.hash.formatter.ModCrypt.fromString('$sha1$zhmua5NIAV.$.GB3NsafnSzyr9eMRZEm2.');
+                        Y.Assert.areEqual('{words:[0x1234567,0x89abcdef,0xfedcba98,0x76543210],sigBytes:16}', hash.rawData.stringify());
+                        Y.Assert.areEqual('{words:[0xfedcba98,0x76543210],sigBytes:8}', hash.salt.stringify());
+                        Y.Assert.areEqual(C.SHA1, hash.hasher);
+
+                        var hash = C.hash.formatter.ModCrypt.fromString('$5$zhmua5NIAV.$.GB3NsafnSzyr9eMRZEm2.');
+                        Y.Assert.areEqual('{words:[0x1234567,0x89abcdef,0xfedcba98,0x76543210],sigBytes:16}', hash.rawData.stringify());
+                        Y.Assert.areEqual('{words:[0xfedcba98,0x76543210],sigBytes:8}', hash.salt.stringify());
+                        Y.Assert.areEqual(C.SHA256, hash.hasher);
+                    }
+                }));
+
+                // ModCrypt
+                cryptoJsTestSuite.add(new Y.Test.Case({
+                    name: 'ModCrypt',
+
+                    testSomething: function () {
+                        // Need to make test cases
+                        Y.Assert.fail();
                     }
                 }));
 

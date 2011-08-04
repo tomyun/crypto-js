@@ -5,14 +5,15 @@
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
-        <script src="../src/enc/base64.js"></script>
+        <script src="../src/base64.js"></script>
         <script src="../src/md5.js"></script>
         <script src="../src/sha1.js"></script>
         <script src="../src/sha256.js"></script>
+        <script src="../src/modcrypt.js"></script>
         <script src="../src/hmac.js"></script>
         <script src="../src/pbkdf2.js"></script>
         <script src="../src/evp-key-derivation.js"></script>
-        <script src="../src/cipher/base.js"></script>
+        <script src="../src/cipher_base.js"></script>
         <script src="../src/rc4.js"></script>
 
         <!-- YUI -->
@@ -34,8 +35,9 @@
                 Y.Profiler.registerObject('CryptoJS.enc.Latin1');
                 Y.Profiler.registerObject('CryptoJS.enc.Utf8');
                 Y.Profiler.registerObject('CryptoJS.enc.Base64');
+                Y.Profiler.registerObject('CryptoJS.enc.Crypt');
 
-                Y.Profiler.registerObject('CryptoJS.hash.formatter.OpenSSLish');
+                Y.Profiler.registerObject('CryptoJS.hash.formatter.OpenSSL');
                 Y.Profiler.registerObject('CryptoJS.hash.salter.OpenSSLish');
                 Y.Profiler.registerObject('CryptoJS.hash.Base');
 
@@ -113,7 +115,7 @@
                             for (var i = 0; i < 100; i++) {
                                 data += '12345678901234567890123456789012345678901234567890';
                             }
-                            C.RC4.encrypt(data, 'password').toString();
+                            C.RC4.decrypt(C.RC4.encrypt(data, 'password').toString(), 'password');
                         }
                     }
                 ];

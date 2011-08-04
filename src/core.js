@@ -1,12 +1,7 @@
-var CryptoJS;
-
-// Private scope
-(function () {
-    // Don't overwrite
-    if (CryptoJS) return;
-
+// Module pattern
+var CryptoJS = CryptoJS || (function () {
     // CryptoJS namespace
-    var C = CryptoJS = {};
+    var C = {};
 
     // Library namespace
     var C_lib = C.lib = {};
@@ -49,12 +44,22 @@ var CryptoJS;
             // Stub
         },
 
-        clone: function () {
-            return this.$super.extend(this);
+        isA: function (objectType) {
+            var o = this;
+
+            do {
+                if (o == objectType) {
+                    return true;
+                }
+            } while (o = o.$super);
         },
 
         cast: function (o) {
             return this.extend(o);
+        },
+
+        clone: function () {
+            return this.$super.extend(this);
         }
     };
 
@@ -110,13 +115,13 @@ var CryptoJS;
             return clone;
         },
 
-        random: function (nWords) {
+        random: function (nBytes) {
             var words = [];
-            for (; nWords > 0; nWords--) {
+            for (var i = 0; i < nBytes; i += 4) {
                 words.push(Math.floor(Math.random() * 0x100000000));
             }
 
-            return this.create(words);
+            return this.create(words, nBytes);
         }
     });
 
@@ -214,7 +219,7 @@ var CryptoJS;
         }
     });
 
-    // Formatter
+    // Base formatter
     var C_lib_Formatter = C_lib.Formatter = C_lib_Base.extend({
         init: function (rawData, salt) {
             this.rawData = rawData;
@@ -228,8 +233,8 @@ var CryptoJS;
     // Hash formatter namespace
     var C_hash_formatter = C_hash.formatter = {};
 
-    // OpenSSL-ish hash formatter
-    var C_hash_formatter_OpenSSLish = C_hash_formatter.OpenSSLish = C_lib_Formatter.extend({
+    // OpenSSL hash formatter
+    var C_hash_formatter_OpenSSL = C_hash_formatter.OpenSSL = C_lib_Formatter.extend({
         toString: function (encoder) {
             // Default encoder
             encoder = encoder || this.encoder;
@@ -290,7 +295,7 @@ var CryptoJS;
 
             // Use random salt if not defined
             if ( ! salt) {
-                salt = cfg.salt = C_enc_Hex.random(2);
+                salt = cfg.salt = C_enc_Hex.random(8);
             }
 
             // Add salt after reset, before any message updates
@@ -304,7 +309,7 @@ var CryptoJS;
     var C_hash_Base = C_hash.Base = C_lib_Base.extend({
         // Config defaults
         cfg: C_lib_Base.extend({
-            formatter: C_hash_formatter_OpenSSLish,
+            formatter: C_hash_formatter_OpenSSL,
             salter: C_hash_salter_OpenSSLish
         }),
 
@@ -420,4 +425,7 @@ var CryptoJS;
     function C_hash_Base_computeStatic(message, cfg) {
         return this.create(cfg).compute(message);
     }
+
+    // Module pattern
+    return C;
 }());

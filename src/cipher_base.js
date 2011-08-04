@@ -9,7 +9,7 @@
     var C_enc_Base64 = C_enc.Base64;
     var C_hash = C.hash;
     var C_hash_formatter = C_hash.formatter;
-    var C_hash_formatter_OpenSSLish = C_hash_formatter.OpenSSLish;
+    var C_hash_formatter_OpenSSL = C_hash_formatter.OpenSSL;
     var C_EvpKeyDerivation = C.EvpKeyDerivation;
 
     // Cipher namespace
@@ -19,7 +19,7 @@
     var C_cipher_formatter = C_cipher.formatter = {};
 
     // OpenSSL cipher formatter
-    var C_cipher_formatter_OpenSSL = C_cipher_formatter.OpenSSL = C_hash_formatter_OpenSSLish.extend({
+    var C_cipher_formatter_OpenSSL = C_cipher_formatter.OpenSSL = C_hash_formatter_OpenSSL.extend({
         encoder: C_enc_Base64
     });
 

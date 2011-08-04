@@ -37,15 +37,17 @@
         },
 
         fromString: function (base64Str) {
-            // Shortcut
+            // Shortcuts
             var map = this.map;
+            var base64StrLength = base64Str.length;
 
             // Ignore padding
-            var paddingStartIndex = base64Str.indexOf(map.charAt(64));
-            if (paddingStartIndex != -1) {
-                var base64StrLength = paddingStartIndex;
-            } else {
-                var base64StrLength = base64Str.length;
+            var paddingChar = map.charAt(64);
+            if (paddingChar) {
+                var paddingStartIndex = base64Str.indexOf(paddingChar);
+                if (paddingStartIndex != -1) {
+                    base64StrLength = paddingStartIndex;
+                }
             }
 
             var words = [], nBytes = 0;
