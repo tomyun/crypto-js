@@ -126,6 +126,8 @@ TestSuite.add(new YAHOO.tool.TestCase({
             Assert.areEqual(inp.toString(), out.toString(),
                     "DES E(D(x) failed: " + inp.toString() + " became "
                             + out.toString());
+
+            Assert.areEqual(inp.toString(), Crypto.DES.decrypt(Crypto.DES.encrypt(inp.slice(0), key), key, { asBytes: true }).toString());
         }
     }
 

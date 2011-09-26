@@ -894,7 +894,7 @@
     /**
      * DES cipher
      */
-    C.DES = {
+    var DES = C.DES = {
         _blockSize : 2,
 
         _keyschedule : null,
@@ -910,7 +910,7 @@
             options = options || {};
 
             // Determine mode
-            var mode = options.mode || C.mode.OFB;
+            var mode = options.mode || new C.mode.OFB;
 
             // Allow mode to override options
             if (mode.fixOptions)
@@ -952,11 +952,11 @@
             this._state.finalPerm(message, offset);
         },
 
-        decrypt : function(message, password, options) {
+        decrypt : function(ciphertext, password, options) {
             options = options || {};
 
             // Determine mode
-            var mode = options.mode || C.mode.OFB;
+            var mode = options.mode || new C.mode.OFB;
 
             // Allow mode to override options
             if (mode.fixOptions)
