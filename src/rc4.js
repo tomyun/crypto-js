@@ -2,20 +2,30 @@
     // Shortcuts
     var C = CryptoJS;
     var C_cipher = C.cipher;
-    var C_cipher_Base = C_cipher.Base;
+    var C_cipher_Stream = C_cipher.Stream;
 
-    var C_RC4 = C.RC4 = C_cipher_Base.extend({
-        cfg: C_cipher_Base.cfg.extend({
-            drop: 384
+    /**
+     * @property {number} keySize RC4's key size. Default 8
+     * @property {number} ivSize RC4's IV size. Default 0
+     */
+    C.RC4 = C_cipher_Stream.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {number} drop The number of keystream words to drop. Default 192
+         */
+        _cfg: C_cipher_Stream._cfg.extend({
+            drop: 192
         }),
 
-        doEncrypt: function () {
+        _doEncrypt: function () {
             // Shortcuts
-            var m = this.data.words;
-            var mLength = m.length;
-            var key = this.key;
-            var k = key.words;
-            var kSigBytes = key.sigBytes;
+            var cfg = this._cfg;
+            var dataWords = this._data.words;
+            var dataWordsLength = dataWords.length;
+            var key = this._key;
+            var keyWords = key.words;
+            var keySigBytes = key.sigBytes;
 
             // Sbox
             var s = [];
@@ -25,10 +35,10 @@
 
             // Key setup
             for (var i = 0, j = 0; i < 256; i++) {
-                var kByteIndex = i % kSigBytes;
-                var kByte = (k[kByteIndex >>> 2] >>> (24 - (kByteIndex % 4) * 8)) & 0xff;
+                var keyByteIndex = i % keySigBytes;
+                var keyByte = (keyWords[keyByteIndex >>> 2] >>> (24 - (keyByteIndex % 4) * 8)) & 0xff;
 
-                j = (j + s[i] + kByte) % 256;
+                j = (j + s[i] + keyByte) % 256;
 
                 // Swap
                 var t = s[i];
@@ -36,9 +46,9 @@
                 s[j] = t;
             }
 
-            // Encryption
+            // Encrypt
             var i = 0, j = 0;
-            for (var n = - this.cfg.drop; n < mLength; n++) {
+            for (var n = -cfg.drop; n < dataWordsLength; n++) {
                 // Accumulate 32 bits of keystream
                 var keystream = 0;
                 for (var q = 0; q < 4; q++) {
@@ -53,16 +63,16 @@
                     keystream |= s[(s[i] + s[j]) % 256] << (24 - q * 8);
                 }
 
-                // n will be negative until we're done dropping keystream
+                // "n" will be negative until we're done dropping keystream
                 if (n >= 0) {
                     // Encrypt
-                    m[n] ^= keystream;
+                    dataWords[n] ^= keystream;
                 }
             }
         },
 
-        ivSize: null
-    });
+        keySize: 8,
 
-    C_RC4.doDecrypt = C_RC4.doEncrypt;
+        ivSize: 0
+    });
 }());

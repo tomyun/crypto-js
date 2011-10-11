@@ -4,10 +4,10 @@
     var C_hash = C.hash;
     var C_hash_Base = C_hash.Base;
 
-    var C_MD5 = C.MD5 = C_hash_Base.extend({
-        doReset: function () {
+    C.MD5 = C_hash_Base.extend({
+        _doReset: function () {
             // Shortcut
-            var H = this.hash.words;
+            var H = this._hash.words;
 
             // Initial values
             H[0] = 0x67452301;
@@ -16,10 +16,10 @@
             H[3] = 0x10325476;
         },
 
-        doHashBlock: function (offset) {
+        _doHashBlock: function (offset) {
             // Shortcuts
-            var m = this.message.words;
-            var H = this.hash.words;
+            var m = this._message.words;
+            var H = this._hash.words;
 
             // Swap endian
             for (var i = 0; i < 16; i++) {
@@ -130,42 +130,39 @@
             H[3] = (H[3] + d) >>> 0;
         },
 
-        doCompute: function () {
+        _doCompute: function () {
             // Shortcuts
-            var message = this.message;
-            var m = message.words;
+            var message = this._message;
+            var messageWords = message.words;
 
-            var nBitsTotal = this.length * 8;
+            var nBitsTotal = this._length * 8;
             var nBitsLeft = message.sigBytes * 8;
 
             // Add padding
-            m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            m[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+            messageWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            messageWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
                 (((nBitsTotal <<  8) | (nBitsTotal >>> 24)) & 0x00ff00ff) |
                 (((nBitsTotal << 24) | (nBitsTotal >>>  8)) & 0xff00ff00)
             );
-            message.sigBytes = (m.length + 1) * 4;
+            message.sigBytes = (messageWords.length + 1) * 4;
 
             // Hash final blocks
-            this.hashBlocks();
+            this._hashBlocks();
 
-            // Shortcuts
-            var H = this.hash.words;
-
-            var H_0 = H[0];
-            var H_1 = H[1];
-            var H_2 = H[2];
-            var H_3 = H[3];
+            // Shortcut
+            var H = this._hash.words;
 
             // Swap endian
-            H[0] = (((H_0 << 8) | (H_0 >>> 24)) & 0x00ff00ff) | (((H_0 << 24) | (H_0 >>> 8)) & 0xff00ff00);
-            H[1] = (((H_1 << 8) | (H_1 >>> 24)) & 0x00ff00ff) | (((H_1 << 24) | (H_1 >>> 8)) & 0xff00ff00);
-            H[2] = (((H_2 << 8) | (H_2 >>> 24)) & 0x00ff00ff) | (((H_2 << 24) | (H_2 >>> 8)) & 0xff00ff00);
-            H[3] = (((H_3 << 8) | (H_3 >>> 24)) & 0x00ff00ff) | (((H_3 << 24) | (H_3 >>> 8)) & 0xff00ff00);
+            for (var i = 0; i < 4; i++) {
+                // Shortcut
+                var H_i = H[i];
+
+                H[i] = (((H_i <<  8) | (H_i >>> 24)) & 0x00ff00ff) |
+                       (((H_i << 24) | (H_i >>>  8)) & 0xff00ff00);
+            }
         }
     });
 
-    // Auxiliary functions
     function FF(a, b, c, d, x, s, t) {
         var n = a + ((b & c) | (~b & d)) + (x >>> 0) + t;
         return ((n << s) | (n >>> (32 - s))) + b;

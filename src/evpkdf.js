@@ -4,25 +4,28 @@
     var C_lib = C.lib;
     var C_lib_Base = C_lib.Base;
     var C_lib_WordArray = C_lib.WordArray;
-    var C_SHA1 = C.SHA1;
-    var C_HMAC = C.HMAC;
+    var C_MD5 = C.MD5;
 
-    C.PBKDF2 = C_lib_Base.extend({
+    /**
+     * This key derivation function is meant to conform with EVP_BytesToKey.
+     * www.openssl.org/docs/crypto/EVP_BytesToKey.html
+     */
+    C.EvpKDF = C_lib_Base.extend({
         /**
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4
-         * @property {CryptoJS.hash.Base} hasher The hash function to use. Default: CryptoJS.SHA1
+         * @property {CryptoJS.hash.Base} hasher The hash function to use. Default: CryptoJS.MD5
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         _cfg: C_lib_Base.extend({
             keySize: 4,
-            hasher: C_SHA1,
+            hasher: C_MD5,
             iterations: 1
         }),
 
         /**
-         * Computes the Password-Based Key Derivation Function 2.
+         * Computes a derived key from a password.
          *
          * @param {CryptoJS.lib.WordArray|UTF-8 string} password The password.
          * @param {CryptoJS.lib.WordArray|UTF-8 string} salt A salt.
@@ -36,43 +39,30 @@
             // Apply config defaults
             cfg = this._cfg.extend(cfg);
 
-            // Init HMAC
-            var hmac = C_HMAC.create(cfg.hasher, password);
+            // Init hasher
+            var hasher = cfg.hasher.create();
 
             // Initial values
             var derivedKey = C_lib_WordArray.create();
-            var blockIndex = C_lib_WordArray.create([1]);
 
             // Shortcuts
             var derivedKeyWords = derivedKey.words;
-            var blockIndexWords = blockIndex.words;
             var keySize = cfg.keySize;
             var iterations = cfg.iterations;
 
             // Generate key
             while (derivedKeyWords.length < keySize) {
-                var block = hmac.update(salt).compute(blockIndex);
-
-                // Shortcuts
-                var blockWords = block.words;
-                var blockWordsLength = blockWords.length;
+                if (block) {
+                    hasher.update(block);
+                }
+                var block = hasher.update(password).compute(salt);
 
                 // Iterations
-                var intermediate = block;
                 for (var i = 1; i < iterations; i++) {
-                    intermediate = hmac.compute(intermediate);
-
-                    // Shortcut
-                    var intermediateWords = intermediate.words;
-
-                    // XOR intermediate with block
-                    for (var j = 0; j < blockWordsLength; j++) {
-                        blockWords[j] ^= intermediateWords[j];
-                    }
+                    block = hasher.compute(block);
                 }
 
                 derivedKey.concat(block);
-                blockIndexWords[0]++;
             }
             derivedKey.sigBytes = keySize * 4;
 

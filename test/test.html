@@ -1,0 +1,86 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>CryptoJS Test Suite</title>
+
+        <!-- CryptoJS -->
+        <script src="../src/core.js"></script>
+        <script src="../src/base64.js"></script>
+        <script src="../src/md5.js"></script>
+        <script src="../src/sha1.js"></script>
+        <script src="../src/sha256.js"></script>
+        <script src="../src/hmac.js"></script>
+        <script src="../src/pbkdf2.js"></script>
+        <script src="../src/evpkdf.js"></script>
+        <script src="../src/cipher_base.js"></script>
+        <script src="../src/rc4.js"></script>
+        <script src="../src/rabbit.js"></script>
+
+        <!-- YUI -->
+        <script src="http://yui.yahooapis.com/3.4.0/build/yui/yui-min.js"></script>
+
+        <!-- Tests -->
+        <script type="text/javascript" src="lib-base-test.js"></script>
+        <script type="text/javascript" src="lib-wordarray-test.js"></script>
+        <script type="text/javascript" src="enc-hex-test.js"></script>
+        <script type="text/javascript" src="enc-latin1-test.js"></script>
+        <script type="text/javascript" src="enc-utf8-test.js"></script>
+        <script type="text/javascript" src="enc-base64-test.js"></script>
+        <script type="text/javascript" src="hash-base-test.js"></script>
+        <script type="text/javascript" src="md5-test.js"></script>
+        <script type="text/javascript" src="sha1-test.js"></script>
+        <script type="text/javascript" src="sha256-test.js"></script>
+        <script type="text/javascript" src="hmac-test.js"></script>
+        <script type="text/javascript" src="pbkdf2-test.js"></script>
+        <script type="text/javascript" src="evpkdf-test.js"></script>
+        <script type="text/javascript" src="cipher-ciphertext-test.js"></script>
+        <script type="text/javascript" src="cipher-format-openssl-test.js"></script>
+        <script type="text/javascript" src="cipher-kdf-openssl-test.js"></script>
+        <script type="text/javascript" src="cipher-base-test.js"></script>
+        <script type="text/javascript" src="rc4-test.js"></script>
+        <script type="text/javascript" src="rabbit-test.js"></script>
+
+        <!-- Test runner -->
+        <script type="text/javascript">
+            YUI().use('test', 'console', function (Y) {
+                Y.use('*', function (Y) {
+                    new Y.Console({
+                        style: 'block',
+                        width: '600px',
+                        height: '600px',
+                        entryTemplate:
+                          '<div class="{entry_class} {cat_class} {src_class}">' +
+                          '    <p class="{entry_meta_class}">' +
+                          '        <span class="{entry_cat_class}">{category}</span>' +
+                          '    </p>' +
+                          '    <pre class="{entry_content_class}">{message}</pre>' +
+                          '</div>',
+                        newestOnTop: false,
+                        render: true
+                    });
+
+                    Y.Test.Runner.run();
+                });
+            });
+        </script>
+
+        <style type="text/css">
+            body.yui3-skin-sam .yui3-console-entry-meta,
+            body.yui3-skin-sam .yui3-console-entry-content {
+                display: inline-block;
+                vertical-align: top;
+            }
+            body.yui3-skin-sam .yui3-console-entry-cat {
+                display: inline-block;
+                width: 35px;
+                text-align: center;
+            }
+            body.yui3-skin-sam .yui3-console-entry {
+                min-height: 0;
+            }
+        </style>
+    </head>
+    <body class="yui3-skin-sam">
+    </body>
+</html>

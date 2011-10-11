@@ -2,19 +2,30 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
+    var C_lib_Base = C_lib.Base;
     var C_lib_WordArray = C_lib.WordArray;
     var C_enc = C.enc;
 
-    var C_enc_Base64 = C_enc.Base64 = C_lib_WordArray.extend({
-        doToString: function () {
+    C_enc.Base64 = C_lib_Base.extend({
+        /**
+         * Converts the passed word array to a base-64 string.
+         *
+         * @param {CryptoJS.lib.WordArray} wordArray The word array.
+         *
+         * @return {Base-64 string} The base-64 string.
+         *
+         * @static
+         */
+        toString: function (wordArray) {
             // Shortcuts
-            var words = this.words;
-            var sigBytes = this.sigBytes;
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
             var map = this.map;
 
             // Clear excess bits
-            this.clamp();
+            wordArray.clamp();
 
+            // Convert
             var base64Str = [];
             for (var i = 0; i < sigBytes; i += 3) {
                 var byte1 = (words[(i    ) >>> 2] >>> (24 - ((i    ) % 4) * 8)) & 0xff;
@@ -29,17 +40,29 @@
             }
 
             // Add padding
-            while (base64Str.length % 4) {
-                base64Str.push(map.charAt(64));
+            var paddingChar = map.charAt(64);
+            if (paddingChar) {
+                while (base64Str.length % 4) {
+                    base64Str.push(paddingChar);
+                }
             }
 
             return base64Str.join('');
         },
 
+        /**
+         * Converts the passed base-64 string to a word array.
+         *
+         * @param {Base-64 string} base64Str The base-64 string.
+         *
+         * @return {CryptoJS.lib.WordArray} The word array.
+         *
+         * @static
+         */
         fromString: function (base64Str) {
             // Shortcuts
-            var map = this.map;
             var base64StrLength = base64Str.length;
+            var map = this.map;
 
             // Ignore padding
             var paddingChar = map.charAt(64);
@@ -50,6 +73,7 @@
                 }
             }
 
+            // Convert
             var words = [], nBytes = 0;
             for (var i = 0; i < base64StrLength; i++) {
                 if (i % 4) {
@@ -60,7 +84,7 @@
                 }
             }
 
-            return this.create(words, nBytes);
+            return C_lib_WordArray.create(words, nBytes);
         },
 
         map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='

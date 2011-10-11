@@ -4,10 +4,10 @@
     var C_hash = C.hash;
     var C_hash_Base = C_hash.Base;
 
-    var C_SHA1 = C.SHA1 = C_hash_Base.extend({
-        doReset: function () {
+    C.SHA1 = C_hash_Base.extend({
+        _doReset: function () {
             // Shortcut
-            var H = this.hash.words;
+            var H = this._hash.words;
 
             // Initial values
             H[0] = 0x67452301;
@@ -17,10 +17,10 @@
             H[4] = 0xc3d2e1f0;
         },
 
-        doHashBlock: function (offset) {
+        _doHashBlock: function (offset) {
             // Shortcuts
-            var m = this.message.words;
-            var H = this.hash.words;
+            var m = this._message.words;
+            var H = this._hash.words;
 
             var a = H[0];
             var b = H[1];
@@ -57,21 +57,21 @@
             H[4] = (H[4] + e) >>> 0;
         },
 
-        doCompute: function () {
+        _doCompute: function () {
             // Shortcuts
-            var message = this.message;
-            var m = message.words;
+            var message = this._message;
+            var messageWords = message.words;
 
-            var nBitsTotal = this.length * 8;
+            var nBitsTotal = this._length * 8;
             var nBitsLeft = message.sigBytes * 8;
 
             // Add padding
-            m[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            m[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            message.sigBytes = m.length * 4;
+            messageWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            messageWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+            message.sigBytes = messageWords.length * 4;
 
             // Hash final blocks
-            this.hashBlocks();
+            this._hashBlocks();
         }
     });
 }());
