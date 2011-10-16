@@ -5,44 +5,35 @@ YUI.add('hmac-test', function (Y) {
         name: 'HMAC',
 
         testVector1: function () {
-            var expected = '9294727a3638bb1c13f48ef8158bfc9d';
+            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
+            var actual = C.HMAC.compute(C.MD5, 'Hi There', key);
 
-            var message = 'Hi There';
-            var key = C.lib.WordArray.create([0x0b0b0b0b, 0x0b0b0b0b, 0x0b0b0b0b, 0x0b0b0b0b]);
-            var actual = C.HMAC.compute(C.MD5, message, key);
-
-            Y.Assert.areEqual(expected, actual);
+            Y.Assert.areEqual('9294727a3638bb1c13f48ef8158bfc9d', actual);
         },
 
         testVector2: function () {
-            var expected = '750c783e6ab0b503eaa86e310a5db738';
+            var actual = C.HMAC.compute(C.MD5, 'what do ya want for nothing?', 'Jefe');
 
-            var message = 'what do ya want for nothing?';
-            var key = 'Jefe';
-            var actual = C.HMAC.compute(C.MD5, message, key);
-
-            Y.Assert.areEqual(expected, actual);
+            Y.Assert.areEqual('750c783e6ab0b503eaa86e310a5db738', actual);
         },
 
         testVector3: function () {
-            var expected = '56be34521d144c88dbb8c733f0e8b3f6';
-
-            var message = C.lib.WordArray.create([0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddd0000], 50);
-            var key = C.lib.WordArray.create([0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa]);
+            var message = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
+            var key = C.enc.Hex.fromString('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
             var actual = C.HMAC.compute(C.MD5, message, key);
 
-            Y.Assert.areEqual(expected, actual);
+            Y.Assert.areEqual('56be34521d144c88dbb8c733f0e8b3f6', actual);
         },
 
         testUpdate: function () {
-            var key = C.lib.WordArray.create([0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa]);
+            var key = C.enc.Hex.fromString('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 
-            var message = C.lib.WordArray.create([0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddd0000], 50);
+            var message = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
             var expected = C.HMAC.compute(C.MD5, message, key).toString();
 
-            var messagePart1 = C.lib.WordArray.create([0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddddddd]);
-            var messagePart2 = C.lib.WordArray.create([0xdddddddd, 0xdddddddd, 0xdddddddd, 0xdddd0000], 14);
-            var messagePart3 = C.lib.WordArray.create([0xdddddddd, 0xdddddddd, 0xdddddddd]);
+            var messagePart1 = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddddddd');
+            var messagePart2 = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddd');
+            var messagePart3 = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddd');
             var hmac = C.HMAC.create(C.MD5, key);
             hmac.update(messagePart1);
             hmac.update(messagePart2);

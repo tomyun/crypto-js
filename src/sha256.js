@@ -1,10 +1,10 @@
 (function () {
     // Shortcuts
     var C = CryptoJS;
-    var C_hash = C.hash;
-    var C_hash_Base = C_hash.Base;
+    var C_lib = C.lib;
+    var C_lib_Hash = C_lib.Hash;
 
-    C.SHA256 = C_hash_Base.extend({
+    C.SHA256 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
             var H = this._hash.words;

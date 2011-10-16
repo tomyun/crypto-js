@@ -1,20 +1,21 @@
 (function () {
     // Shortcuts
     var C = CryptoJS;
-    var C_cipher = C.cipher;
-    var C_cipher_Stream = C_cipher.Stream;
+    var C_lib = C.lib;
+    var C_lib_Cipher = C_lib.Cipher;
+    var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
 
     /**
      * @property {number} keySize RC4's key size. Default 8
      * @property {number} ivSize RC4's IV size. Default 0
      */
-    C.RC4 = C_cipher_Stream.extend({
+    C.RC4 = C_lib_Cipher_Stream.extend({
         /**
          * Configuration options.
          *
          * @property {number} drop The number of keystream words to drop. Default 192
          */
-        _cfg: C_cipher_Stream._cfg.extend({
+        _cfg: C_lib_Cipher_Stream._cfg.extend({
             drop: 192
         }),
 

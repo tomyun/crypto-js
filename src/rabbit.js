@@ -1,14 +1,15 @@
 (function () {
     // Shortcuts
     var C = CryptoJS;
-    var C_cipher = C.cipher;
-    var C_cipher_Stream = C_cipher.Stream;
+    var C_lib = C.lib;
+    var C_lib_Cipher = C_lib.Cipher;
+    var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
 
     /**
      * @property {number} keySize Rabbit's key size. Default 4
      * @property {number} ivSize Rabbit's IV size. Default 2
      */
-    C.Rabbit = C_cipher_Stream.extend({
+    C.Rabbit = C_lib_Cipher_Stream.extend({
         _doEncrypt: function () {
             // Shortcuts
             var dataWords = this._data.words;

@@ -15,7 +15,7 @@
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4
-         * @property {CryptoJS.hash.Base} hasher The hash function to use. Default: CryptoJS.MD5
+         * @property {CryptoJS.lib.Hash} hasher The hash function to use. Default: CryptoJS.MD5
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         _cfg: C_lib_Base.extend({

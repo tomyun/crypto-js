@@ -6,11 +6,7 @@ YUI.add('evpkdf-test', function (Y) {
 
         testVector: function () {
             var expected = 'fdbdf3419fff98bdb0241390f62a9db35f4aba29d77566377997314ebfc709f20b5ca7b1081f94b1ac12e3c8ba87d05a';
-
-            var password = 'password';
-            var salt = 'saltsalt';
-            var cfg = { keySize: (256+128)/32 };
-            var actual = C.EvpKDF.compute(password, salt, cfg);
+            var actual = C.EvpKDF.compute('password', 'saltsalt', { keySize: (256+128)/32 });
 
             Y.Assert.areEqual(expected, actual);
         },

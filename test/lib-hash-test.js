@@ -1,8 +1,8 @@
-YUI.add('hash-base-test', function (Y) {
+YUI.add('lib-hash-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'hash.Base',
+        name: 'lib.Hash',
 
         testUpdate: function () {
             var expected = C.MD5.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString();

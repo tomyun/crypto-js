@@ -10,7 +10,7 @@
         /**
          * Initializes a newly created HMAC.
          *
-         * @param {CryptoJS.hash.Base} hasher The hash function to use.
+         * @param {CryptoJS.lib.Hash} hasher The hash function to use.
          * @param {CryptoJS.lib.WordArray|UTF-8 string} key The secret key.
          */
         init: function (hasher, key) {
@@ -85,7 +85,7 @@
          *
          * If called statically, creates a new HMAC instance and completes the entire computation.
          *
-         *   @param {CryptoJS.hash.Base} hasher The hash function to use.
+         *   @param {CryptoJS.lib.Hash} hasher The hash function to use.
          *   @param {CryptoJS.lib.WordArray|UTF-8 string} message The message to HMAC.
          *   @param {CryptoJS.lib.WordArray|UTF-8 string} key The secret key.
          *
