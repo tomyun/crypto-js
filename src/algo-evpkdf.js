@@ -4,23 +4,24 @@
     var C_lib = C.lib;
     var C_lib_Base = C_lib.Base;
     var C_lib_WordArray = C_lib.WordArray;
-    var C_MD5 = C.MD5;
+    var C_algo = C.algo;
+    var C_algo_MD5 = C_algo.MD5;
 
     /**
      * This key derivation function is meant to conform with EVP_BytesToKey.
      * www.openssl.org/docs/crypto/EVP_BytesToKey.html
      */
-    C.EvpKDF = C_lib_Base.extend({
+    var C_algo_EvpKDF = C_algo.EvpKDF = C_lib_Base.extend({
         /**
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4
-         * @property {CryptoJS.lib.Hash} hasher The hash function to use. Default: CryptoJS.MD5
+         * @property {CryptoJS.lib.Hash} hasher The hash algorithm to use. Default: CryptoJS.algo.MD5
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         _cfg: C_lib_Base.extend({
             keySize: 4,
-            hasher: C_MD5,
+            hasher: C_algo_MD5,
             iterations: 1
         }),
 
@@ -69,4 +70,11 @@
             return derivedKey;
         }
     });
+
+    /**
+     * EvpKDF helper.
+     */
+    C.EvpKDF = function (password, salt, cfg) {
+        return C_algo_EvpKDF.compute(password, salt, cfg);
+    };
 }());

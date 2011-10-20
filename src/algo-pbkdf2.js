@@ -4,20 +4,21 @@
     var C_lib = C.lib;
     var C_lib_Base = C_lib.Base;
     var C_lib_WordArray = C_lib.WordArray;
-    var C_SHA1 = C.SHA1;
-    var C_HMAC = C.HMAC;
+    var C_algo = C.algo;
+    var C_algo_SHA1 = C_algo.SHA1;
+    var C_algo_HMAC = C_algo.HMAC;
 
-    C.PBKDF2 = C_lib_Base.extend({
+    var C_algo_PBKDF2 = C_algo.PBKDF2 = C_lib_Base.extend({
         /**
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4
-         * @property {CryptoJS.lib.Hash} hasher The hash function to use. Default: CryptoJS.SHA1
+         * @property {CryptoJS.lib.Hash} hasher The hash algorithm to use. Default: CryptoJS.algo.SHA1
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         _cfg: C_lib_Base.extend({
             keySize: 4,
-            hasher: C_SHA1,
+            hasher: C_algo_SHA1,
             iterations: 1
         }),
 
@@ -37,7 +38,7 @@
             cfg = this._cfg.extend(cfg);
 
             // Init HMAC
-            var hmac = C_HMAC.create(cfg.hasher, password);
+            var hmac = C_algo_HMAC.create(cfg.hasher, password);
 
             // Initial values
             var derivedKey = C_lib_WordArray.create();
@@ -79,4 +80,11 @@
             return derivedKey;
         }
     });
+
+    /**
+     * PBKDF2 helper.
+     */
+    C.PBKDF2 = function (password, salt, cfg) {
+        return C_algo_PBKDF2.compute(password, salt, cfg);
+    };
 }());

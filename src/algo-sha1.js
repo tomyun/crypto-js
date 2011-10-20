@@ -3,8 +3,9 @@
     var C = CryptoJS;
     var C_lib = C.lib;
     var C_lib_Hash = C_lib.Hash;
+    var C_algo = C.algo;
 
-    C.SHA1 = C_lib_Hash.extend({
+    var C_algo_SHA1 = C_algo.SHA1 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
             var H = this._hash.words;
@@ -74,4 +75,11 @@
             this._hashBlocks();
         }
     });
+
+    /**
+     * SHA1 helper.
+     */
+    C.SHA1 = function (message) {
+        return C_algo_SHA1.create().compute(message);
+    };
 }());

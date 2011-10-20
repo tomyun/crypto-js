@@ -6,7 +6,7 @@
     var C_lib_WordArray = C_lib.WordArray;
     var C_enc = C.enc;
 
-    C_enc.Base64 = C_lib_Base.extend({
+    C_enc.Base64 = {
         /**
          * Converts the passed word array to a base-64 string.
          *
@@ -88,5 +88,5 @@
         },
 
         map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
-    });
+    };
 }());

@@ -4,12 +4,13 @@
     var C_lib = C.lib;
     var C_lib_Cipher = C_lib.Cipher;
     var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
+    var C_algo = C.algo;
 
     /**
      * @property {number} keySize RC4's key size. Default 8
      * @property {number} ivSize RC4's IV size. Default 0
      */
-    C.RC4 = C_lib_Cipher_Stream.extend({
+    var C_algo_RC4 = C_algo.RC4 = C_lib_Cipher_Stream.extend({
         /**
          * Configuration options.
          *
@@ -19,12 +20,10 @@
             drop: 192
         }),
 
-        _doEncrypt: function () {
+        _doEncrypt: function (data, key, cfg) {
             // Shortcuts
-            var cfg = this._cfg;
-            var dataWords = this._data.words;
+            var dataWords = data.words;
             var dataWordsLength = dataWords.length;
-            var key = this._key;
             var keyWords = key.words;
             var keySigBytes = key.sigBytes;
 
@@ -47,12 +46,12 @@
                 s[j] = t;
             }
 
-            // Encrypt
+            // Encrypt each word
             var i = 0, j = 0;
-            for (var n = -cfg.drop; n < dataWordsLength; n++) {
-                // Accumulate 32 bits of keystream
+            for (var offset = -cfg.drop; offset < dataWordsLength; offset++) {
+                // Accumulate 32-bits of keystream
                 var keystream = 0;
-                for (var q = 0; q < 4; q++) {
+                for (var n = 0; n < 4; n++) {
                     i = (i + 1) % 256;
                     j = (j + s[i]) % 256;
 
@@ -61,14 +60,16 @@
                     s[i] = s[j];
                     s[j] = t;
 
-                    keystream |= s[(s[i] + s[j]) % 256] << (24 - q * 8);
+                    keystream |= s[(s[i] + s[j]) % 256] << (24 - n * 8);
                 }
 
-                // "n" will be negative until we're done dropping keystream
-                if (n >= 0) {
-                    // Encrypt
-                    dataWords[n] ^= keystream;
+                // "offset" will be negative until we're done dropping keystream
+                if (offset < 0) {
+                    continue;
                 }
+
+                // Encrypt
+                dataWords[offset] ^= keystream;
             }
         },
 

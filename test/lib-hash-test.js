@@ -5,9 +5,10 @@ YUI.add('lib-hash-test', function (Y) {
         name: 'lib.Hash',
 
         testUpdate: function () {
-            var expected = C.MD5.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString();
+            var md5 = C.algo.MD5.create();
 
-            var md5 = C.MD5.create();
+            var expected = md5.compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString();
+
             md5.update('1234567890123456789012345678901234567890');
             md5.update('12345678901234567890');
             var actual = md5.compute('12345678901234567890');
@@ -20,7 +21,7 @@ YUI.add('lib-hash-test', function (Y) {
 
             var expected = message.toString();
 
-            C.MD5.compute(message);
+            C.algo.MD5.create().compute(message);
 
             Y.Assert.areEqual(expected, message);
         }

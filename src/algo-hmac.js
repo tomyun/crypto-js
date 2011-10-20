@@ -5,12 +5,13 @@
     var C_lib_Base = C_lib.Base;
     var C_enc = C.enc;
     var C_enc_Utf8 = C_enc.Utf8;
+    var C_algo = C.algo;
 
-    C.HMAC = C_lib_Base.extend({
+    var C_algo_HMAC = C_algo.HMAC = C_lib_Base.extend({
         /**
          * Initializes a newly created HMAC.
          *
-         * @param {CryptoJS.lib.Hash} hasher The hash function to use.
+         * @param {CryptoJS.lib.Hash} hasher The hash algorithm to use.
          * @param {CryptoJS.lib.WordArray|UTF-8 string} key The secret key.
          */
         init: function (hasher, key) {
@@ -66,7 +67,7 @@
          *
          * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate The message to append.
          *
-         * @return {CryptoJS.HMAC} This HMAC.
+         * @return {CryptoJS.HMAC} This HMAC instance.
          */
         update: function (messageUpdate) {
             this._hasher.update(messageUpdate);
@@ -76,44 +77,48 @@
         },
 
         /**
-         * If called on an HMAC instance, completes the HMAC computation.
-         * After compute is called, this HMAC is reset to its initial state.
+         * Completes the HMAC computation, then resets this HMAC to its initial state.
          *
-         *   @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
+         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
          *
-         *   @return {CryptoJS.lib.WordArray} The HMAC.
-         *
-         * If called statically, creates a new HMAC instance and completes the entire computation.
-         *
-         *   @param {CryptoJS.lib.Hash} hasher The hash function to use.
-         *   @param {CryptoJS.lib.WordArray|UTF-8 string} message The message to HMAC.
-         *   @param {CryptoJS.lib.WordArray|UTF-8 string} key The secret key.
-         *
-         *   @return {CryptoJS.lib.WordArray} The HMAC.
+         * @return {CryptoJS.lib.WordArray} The HMAC.
          */
-        compute: function () {
-            return (this._hasher ? computeInstance : computeStatic).apply(this, arguments);
+        compute: function (messageUpdate) {
+            // Final message update
+            if (messageUpdate) {
+                this.update(messageUpdate);
+            }
+
+            // Shortcut
+            var hasher = this._hasher;
+
+            // Compute HMAC
+            var hmac = hasher.compute(this._oKey.clone().concat(hasher.compute()));
+
+            this.reset();
+
+            return hmac;
         }
     });
 
-    function computeInstance(messageUpdate) {
-        // Final message update
-        if (messageUpdate) {
-            this.update(messageUpdate);
-        }
+    /**
+     * HMAC_MD5 helper.
+     */
+    C.HMAC_MD5 = function (message, key) {
+        return C_algo_HMAC.create(C_algo.MD5, key).compute(message);
+    };
 
-        // Shortcut
-        var hasher = this._hasher;
+    /**
+     * HMAC_SHA1 helper.
+     */
+    C.HMAC_SHA1 = function (message, key) {
+        return C_algo_HMAC.create(C_algo.SHA1, key).compute(message);
+    };
 
-        // Compute HMAC
-        var hmac = hasher.compute(this._oKey.clone().concat(hasher.compute()));
-
-        this.reset();
-
-        return hmac;
-    }
-
-    function computeStatic(hasher, message, key) {
-        return this.create(hasher, key).compute(message);
-    }
+    /**
+     * HMAC_SHA256 helper.
+     */
+    C.HMAC_SHA256 = function (message, key) {
+        return C_algo_HMAC.create(C_algo.SHA256, key).compute(message);
+    };
 }());

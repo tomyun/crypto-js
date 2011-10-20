@@ -3,8 +3,9 @@
     var C = CryptoJS;
     var C_lib = C.lib;
     var C_lib_Hash = C_lib.Hash;
+    var C_algo = C.algo;
 
-    C.SHA256 = C_lib_Hash.extend({
+    var C_algo_SHA256 = C_algo.SHA256 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
             var H = this._hash.words;
@@ -123,4 +124,11 @@
         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
         0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
     ];
+
+    /**
+     * SHA256 helper.
+     */
+    C.SHA256 = function (message) {
+        return C_algo_SHA256.create().compute(message);
+    };
 }());

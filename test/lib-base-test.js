@@ -14,14 +14,19 @@ YUI.add('lib-base-test', function (Y) {
                 },
 
                 toString: function () {
-                },
+                }
+            };
 
-                abc: 'abc'
+            this.data.mixins = {
+                mixedMethod: function () {
+                }
             };
 
             this.data.Obj = C.lib.Base.extend(this.data.overrides);
 
-            this.data.obj = this.data.Obj.create('abc');
+            this.data.Obj.mixIn(this.data.mixins);
+
+            this.data.obj = this.data.Obj.create('arg_value');
 
             this.data.objClone = this.data.obj.clone();
 
@@ -36,26 +41,27 @@ YUI.add('lib-base-test', function (Y) {
             Y.Assert.areEqual(C.lib.Base, this.data.Obj.$super);
         },
 
-        testExtendOverrides: function () {
-            // init
+        testExtendOverrideInit: function () {
             Y.Assert.areEqual(this.data.overrides.init, this.data.Obj.init);
             Y.Assert.isTrue(this.data.Obj.hasOwnProperty('init'));
-
-            // toString
-            Y.Assert.areEqual(this.data.overrides.toString, this.data.Obj.toString);
-            Y.Assert.isTrue(this.data.Obj.hasOwnProperty('toString'));
-
-            // abc
-            Y.Assert.areEqual(this.data.overrides.abc, this.data.Obj.abc);
-            Y.Assert.isTrue(this.data.Obj.hasOwnProperty('abc'));
         },
 
-        testCreateInheritance: function () {
-            // from Obj
+        testExtendOverrideToString: function () {
+            Y.Assert.areEqual(this.data.overrides.toString, this.data.Obj.toString);
+            Y.Assert.isTrue(this.data.Obj.hasOwnProperty('toString'));
+        },
+
+        testMixIn: function () {
+            Y.Assert.areEqual(this.data.mixins.mixedMethod, this.data.Obj.mixedMethod);
+            Y.Assert.isTrue(this.data.Obj.hasOwnProperty('mixedMethod'));
+        },
+
+        testCreateInheritanceFromObj: function () {
             Y.Assert.areEqual(this.data.Obj.init, this.data.obj.init);
             Y.Assert.isFalse(this.data.obj.hasOwnProperty('init'));
+        },
 
-            // from Base
+        testCreateInheritanceFromBase: function () {
             Y.Assert.areEqual(C.lib.Base.extend, this.data.obj.extend);
             Y.Assert.isFalse(this.data.obj.hasOwnProperty('extend'));
         },
@@ -66,7 +72,7 @@ YUI.add('lib-base-test', function (Y) {
 
         testCreateInit: function () {
             Y.Assert.isTrue(this.data.obj.initFired);
-            Y.Assert.areEqual('abc', this.data.obj.arg);
+            Y.Assert.areEqual('arg_value', this.data.obj.arg);
         },
 
         testCloneDistinct: function () {
@@ -78,7 +84,7 @@ YUI.add('lib-base-test', function (Y) {
         },
 
         testCloneIndependent: function () {
-            this.data.obj.arg = 'xyz';
+            this.data.obj.arg = 'new_value';
 
             Y.Assert.areNotEqual(this.data.obj.arg, this.data.objClone.arg);
         }

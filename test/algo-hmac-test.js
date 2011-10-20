@@ -1,18 +1,18 @@
-YUI.add('hmac-test', function (Y) {
+YUI.add('algo-hmac-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'HMAC',
+        name: 'algo.HMAC',
 
         testVector1: function () {
             var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var actual = C.HMAC.compute(C.MD5, 'Hi There', key);
+            var actual = C.algo.HMAC.create(C.algo.MD5, key).compute('Hi There');
 
             Y.Assert.areEqual('9294727a3638bb1c13f48ef8158bfc9d', actual);
         },
 
         testVector2: function () {
-            var actual = C.HMAC.compute(C.MD5, 'what do ya want for nothing?', 'Jefe');
+            var actual = C.algo.HMAC.create(C.algo.MD5, 'Jefe').compute('what do ya want for nothing?');
 
             Y.Assert.areEqual('750c783e6ab0b503eaa86e310a5db738', actual);
         },
@@ -20,7 +20,7 @@ YUI.add('hmac-test', function (Y) {
         testVector3: function () {
             var message = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
             var key = C.enc.Hex.fromString('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-            var actual = C.HMAC.compute(C.MD5, message, key);
+            var actual = C.algo.HMAC.create(C.algo.MD5, key).compute(message);
 
             Y.Assert.areEqual('56be34521d144c88dbb8c733f0e8b3f6', actual);
         },
@@ -29,15 +29,24 @@ YUI.add('hmac-test', function (Y) {
             var key = C.enc.Hex.fromString('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 
             var message = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd');
-            var expected = C.HMAC.compute(C.MD5, message, key).toString();
+            var expected = C.algo.HMAC.create(C.algo.MD5, key).compute(message).toString();
 
             var messagePart1 = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddddddd');
             var messagePart2 = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddd');
             var messagePart3 = C.enc.Hex.fromString('dddddddddddddddddddddddddddddddd');
-            var hmac = C.HMAC.create(C.MD5, key);
+            var hmac = C.algo.HMAC.create(C.algo.MD5, key);
             hmac.update(messagePart1);
             hmac.update(messagePart2);
             var actual = hmac.compute(messagePart3);
+
+            Y.Assert.areEqual(expected, actual);
+        },
+
+        testRepeatCompute: function () {
+            var hmac = C.algo.HMAC.create(C.algo.MD5, 'Jefe');
+
+            var expected = hmac.compute('what do ya want for nothing?').toString();
+            var actual = hmac.compute('what do ya want for nothing?');
 
             Y.Assert.areEqual(expected, actual);
         },
@@ -49,10 +58,37 @@ YUI.add('hmac-test', function (Y) {
             var expectedMessage = message.toString();
             var expectedKey = key.toString();
 
-            C.HMAC.compute(C.MD5, message, key);
+            C.algo.HMAC.create(C.algo.MD5, key).compute(message);
 
             Y.Assert.areEqual(expectedMessage, message);
             Y.Assert.areEqual(expectedKey, key);
+        },
+
+        testHelperMD5: function () {
+            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
+            var message = 'Hi There';
+
+            var expected = C.algo.HMAC.create(C.algo.MD5, key).compute(message).toString();
+
+            Y.Assert.areEqual(expected, C.HMAC_MD5(message, key));
+        },
+
+        testHelperSHA1: function () {
+            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
+            var message = 'Hi There';
+
+            var expected = C.algo.HMAC.create(C.algo.SHA1, key).compute(message).toString();
+
+            Y.Assert.areEqual(expected, C.HMAC_SHA1(message, key));
+        },
+
+        testHelperSHA256: function () {
+            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
+            var message = 'Hi There';
+
+            var expected = C.algo.HMAC.create(C.algo.SHA256, key).compute(message).toString();
+
+            Y.Assert.areEqual(expected, C.HMAC_SHA256(message, key));
         }
     }));
 }, '$Rev$');

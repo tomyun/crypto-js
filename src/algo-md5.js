@@ -3,8 +3,9 @@
     var C = CryptoJS;
     var C_lib = C.lib;
     var C_lib_Hash = C_lib.Hash;
+    var C_algo = C.algo;
 
-    C.MD5 = C_lib_Hash.extend({
+    var C_algo_MD5 = C_algo.MD5 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
             var H = this._hash.words;
@@ -182,4 +183,11 @@
         var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
         return ((n << s) | (n >>> (32 - s))) + b;
     }
+
+    /**
+     * MD5 helper.
+     */
+    C.MD5 = function (message) {
+        return C_algo_MD5.create().compute(message);
+    };
 }());

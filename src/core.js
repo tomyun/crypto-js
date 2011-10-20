@@ -211,103 +211,88 @@ var CryptoJS = CryptoJS || (function () {
      *
      * @property {number} blockSize The number of 32-bit words this hash operates on. Default: 16
      */
-    var C_lib_Hash = C_lib.Hash = (function () {
-        var Hash = C_lib_Base.extend({
-            /**
-             * Initializes a newly created hash.
-             */
-            init: function () {
-                this.reset();
-            },
+    var C_lib_Hash = C_lib.Hash = C_lib_Base.extend({
+        /**
+         * Initializes a newly created hash.
+         */
+        init: function () {
+            this.reset();
+        },
 
-            /**
-             * Resets this hash to its initial state.
-             */
-            reset: function () {
-                // Initial values
-                var hash = this._hash = C_lib_WordArray.create();
-                this._message = C_lib_WordArray.create();
-                this._length = 0;
+        /**
+         * Resets this hash to its initial state.
+         */
+        reset: function () {
+            // Initial values
+            var hash = this._hash = C_lib_WordArray.create();
+            this._message = C_lib_WordArray.create();
+            this._length = 0;
 
-                // Perform hash-specific reset logic
-                this._doReset();
+            // Perform hash-specific reset logic
+            this._doReset();
 
-                // Update sigBytes using length of hash
-                hash.sigBytes = hash.words.length * 4;
-            },
+            // Update sigBytes using length of hash
+            hash.sigBytes = hash.words.length * 4;
+        },
 
-            /**
-             * Updates this hash using the passed message.
-             *
-             * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate The message to append.
-             *
-             * @return {CryptoJS.lib.Hash} This hasher.
-             */
-            update: function (messageUpdate) {
-                // Convert string to WordArray, else assume WordArray already
-                if (typeof messageUpdate == 'string') {
-                    messageUpdate = C_enc_Utf8.fromString(messageUpdate);
+        /**
+         * Updates this hash using the passed message.
+         *
+         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate The message to append.
+         *
+         * @return {CryptoJS.lib.Hash} This hash instance.
+         */
+        update: function (messageUpdate) {
+            // Convert string to WordArray, else assume WordArray already
+            if (typeof messageUpdate == 'string') {
+                messageUpdate = C_enc_Utf8.fromString(messageUpdate);
+            }
+
+            // Append
+            this._message.concat(messageUpdate);
+            this._length += messageUpdate.sigBytes;
+
+            // Update the hash
+            this._hashBlocks();
+
+            // Chainable
+            return this;
+        },
+
+        /**
+         * Updates the hash.
+         */
+        _hashBlocks: function () {
+            // Shortcuts
+            var message = this._message;
+            var sigBytes = message.sigBytes;
+            var blockSize = this.blockSize;
+
+            // Count blocks ready
+            var nBlocksReady = Math.floor(sigBytes / (blockSize * 4));
+
+            if (nBlocksReady) {
+                // Hash blocks
+                var nWordsReady = nBlocksReady * blockSize;
+                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+                    // Perform hash-specific logic
+                    this._doHashBlock(offset);
                 }
 
-                // Append
-                this._message.concat(messageUpdate);
-                this._length += messageUpdate.sigBytes;
+                // Remove processed words
+                message.words.splice(0, nWordsReady);
+                message.sigBytes = sigBytes - nWordsReady * 4;
+            }
+        },
 
-                // Update the hash
-                this._hashBlocks();
-
-                // Chainable
-                return this;
-            },
-
-            /**
-             * Updates the hash.
-             */
-            _hashBlocks: function () {
-                // Shortcuts
-                var message = this._message;
-                var sigBytes = message.sigBytes;
-                var blockSize = this.blockSize;
-
-                // Count blocks ready
-                var nBlocksReady = Math.floor(sigBytes / (blockSize * 4));
-
-                if (nBlocksReady) {
-                    // Hash blocks
-                    var nWordsReady = nBlocksReady * blockSize;
-                    for (var offset = 0; offset < nWordsReady; offset += blockSize) {
-                        // Perform hash-specific logic
-                        this._doHashBlock(offset);
-                    }
-
-                    // Remove processed words
-                    message.words.splice(0, nWordsReady);
-                    message.sigBytes = sigBytes - nWordsReady * 4;
-                }
-            },
-
-            /**
-             * If called on a hash instance, completes the hash computation.
-             * After compute is called, this hash is reset to its initial state.
-             *
-             *   @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
-             *
-             *   @return {CryptoJS.lib.WordArray} The hash.
-             *
-             * If called statically, creates a new hash instance and completes the entire computation.
-             *
-             *   @param {CryptoJS.lib.WordArray|UTF-8 string} message The message to hash.
-             *
-             *   @return {CryptoJS.lib.WordArray} The hash.
-             */
-            compute: function () {
-                return (this._hash ? computeInstance : computeStatic).apply(this, arguments);
-            },
-
-            blockSize: 16
-        });
-
-        function computeInstance(messageUpdate) {
+        /**
+         * Completes the hash computation, then resets this hash to its initial state.
+         *
+         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
+         *
+         * @return {CryptoJS.lib.WordArray} The hash.
+         */
+        compute: function (messageUpdate) {
             // Final message update
             if (messageUpdate) {
                 this.update(messageUpdate);
@@ -322,14 +307,10 @@ var CryptoJS = CryptoJS || (function () {
             this.reset();
 
             return hash;
-        }
+        },
 
-        function computeStatic(message) {
-            return this.create().compute(message);
-        }
-
-        return Hash;
-    }());
+        blockSize: 16
+    });
 
     /**
      * Encoding namespace.
@@ -339,7 +320,7 @@ var CryptoJS = CryptoJS || (function () {
     /**
      * Hex encoding strategy.
      */
-    var C_enc_Hex = C_enc.Hex = C_lib_Base.extend({
+    var C_enc_Hex = C_enc.Hex = {
         /**
          * Converts the passed word array to a hex string.
          *
@@ -386,12 +367,12 @@ var CryptoJS = CryptoJS || (function () {
 
             return C_lib_WordArray.create(words, hexStrLength / 2);
         }
-    });
+    };
 
     /**
      * Latin-1 encoding strategy.
      */
-    var C_enc_Latin1 = C_enc.Latin1 = C_lib_Base.extend({
+    var C_enc_Latin1 = C_enc.Latin1 = {
         /**
          * Converts the passed word array to a Latin-1 string.
          *
@@ -437,12 +418,12 @@ var CryptoJS = CryptoJS || (function () {
 
             return C_lib_WordArray.create(words, latin1StrStrLength);
         }
-    });
+    };
 
     /**
      * UTF-8 encoding strategy.
      */
-    var C_enc_Utf8 = C_enc.Utf8 = C_lib_Base.extend({
+    var C_enc_Utf8 = C_enc.Utf8 = {
         /**
          * Converts the passed word array to a UTF-8 string.
          *
@@ -468,10 +449,15 @@ var CryptoJS = CryptoJS || (function () {
         fromString: function (utf8Str) {
             return C_enc_Latin1.fromString(unescape(encodeURIComponent(utf8Str)));
         }
-    });
+    };
 
     // Set WordArray default encoder
     C_lib_WordArray.encoder = C_enc_Hex;
+
+    /**
+     * Algorithm namespace.
+     */
+    var C_algo = C.algo = {};
 
     return C;
 }());
