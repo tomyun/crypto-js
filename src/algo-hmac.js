@@ -7,6 +7,9 @@
     var C_enc_Utf8 = C_enc.Utf8;
     var C_algo = C.algo;
 
+    /**
+     * Hashed message authentication code algorithm.
+     */
     var C_algo_HMAC = C_algo.HMAC = C_lib_Base.extend({
         /**
          * Initializes a newly created HMAC.
@@ -24,7 +27,7 @@
             }
 
             // Shortcuts
-            var hasherBlockSize = hasher.blockSize;
+            var hasherBlockSize = hasher._blockSize;
             var hasherBlockSizeBytes = hasherBlockSize * 4;
 
             // Allow arbitrary length keys
@@ -101,23 +104,17 @@
         }
     });
 
-    /**
-     * HMAC_MD5 helper.
-     */
+    // HMAC MD5 helper
     C.HMAC_MD5 = function (message, key) {
         return C_algo_HMAC.create(C_algo.MD5, key).compute(message);
     };
 
-    /**
-     * HMAC_SHA1 helper.
-     */
+    // HMAC SHA1 helper
     C.HMAC_SHA1 = function (message, key) {
         return C_algo_HMAC.create(C_algo.SHA1, key).compute(message);
     };
 
-    /**
-     * HMAC_SHA256 helper.
-     */
+    // HMAC SHA256 helper
     C.HMAC_SHA256 = function (message, key) {
         return C_algo_HMAC.create(C_algo.SHA256, key).compute(message);
     };

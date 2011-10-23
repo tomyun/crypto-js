@@ -2,10 +2,12 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Base = C_lib.Base;
     var C_lib_WordArray = C_lib.WordArray;
     var C_enc = C.enc;
 
+    /**
+     * Base-64 encoding strategy.
+     */
     C_enc.Base64 = {
         /**
          * Converts the passed word array to a base-64 string.

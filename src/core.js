@@ -64,7 +64,7 @@ var CryptoJS = CryptoJS || (function () {
 
             /**
              * Extends this object and runs the init method.
-             * Any arguments to create() will be passed to init().
+             * Arguments to create() will be passed to init().
              *
              * @return {Object} The new object.
              *
@@ -181,7 +181,7 @@ var CryptoJS = CryptoJS || (function () {
          * @return {CryptoJS.lib.WordArray} The clone.
          */
         clone: function () {
-            var clone = C_lib_WordArray.$super.clone.call(this);
+            var clone = C_lib_Base.clone.call(this);
             clone.words = this.words.slice(0);
 
             return clone;
@@ -209,7 +209,7 @@ var CryptoJS = CryptoJS || (function () {
     /**
      * Base hash template.
      *
-     * @property {number} blockSize The number of 32-bit words this hash operates on. Default: 16
+     * @property {number} _blockSize The number of 32-bit words this hash operates on. Default: 16
      */
     var C_lib_Hash = C_lib.Hash = C_lib_Base.extend({
         /**
@@ -266,7 +266,7 @@ var CryptoJS = CryptoJS || (function () {
             // Shortcuts
             var message = this._message;
             var sigBytes = message.sigBytes;
-            var blockSize = this.blockSize;
+            var blockSize = this._blockSize;
 
             // Count blocks ready
             var nBlocksReady = Math.floor(sigBytes / (blockSize * 4));
@@ -309,7 +309,7 @@ var CryptoJS = CryptoJS || (function () {
             return hash;
         },
 
-        blockSize: 16
+        _blockSize: 16
     });
 
     /**

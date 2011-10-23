@@ -5,6 +5,7 @@
     var C_lib_Hash = C_lib.Hash;
     var C_algo = C.algo;
 
+    // Algorithm
     var C_algo_SHA1 = C_algo.SHA1 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
@@ -76,9 +77,7 @@
         }
     });
 
-    /**
-     * SHA1 helper.
-     */
+    // Helper
     C.SHA1 = function (message) {
         return C_algo_SHA1.create().compute(message);
     };

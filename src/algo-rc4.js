@@ -5,10 +5,10 @@
     var C_lib_Cipher = C_lib.Cipher;
     var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
     var C_algo = C.algo;
+    var C_algo_PBE = C_algo.PBE;
 
     /**
-     * @property {number} keySize RC4's key size. Default 8
-     * @property {number} ivSize RC4's IV size. Default 0
+     * RC4 algorithm.
      */
     var C_algo_RC4 = C_algo.RC4 = C_lib_Cipher_Stream.extend({
         /**
@@ -63,7 +63,7 @@
                     keystream |= s[(s[i] + s[j]) % 256] << (24 - n * 8);
                 }
 
-                // "offset" will be negative until we're done dropping keystream
+                // offset will be negative until we're done dropping keystream
                 if (offset < 0) {
                     continue;
                 }
@@ -73,8 +73,19 @@
             }
         },
 
-        keySize: 8,
+        _keySize: 8,
 
-        ivSize: 0
+        _ivSize: 0
     });
+
+    // Helper
+    C.RC4 = {
+        encrypt: function (message, password, cfg) {
+            return C_algo_PBE.encrypt(C_algo_RC4, message, password, cfg);
+        },
+
+        decrypt: function (ciphertext, password, cfg) {
+            return C_algo_PBE.decrypt(C_algo_RC4, ciphertext, password, cfg);
+        }
+    };
 }());

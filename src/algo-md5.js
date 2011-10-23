@@ -5,6 +5,7 @@
     var C_lib_Hash = C_lib.Hash;
     var C_algo = C.algo;
 
+    // Algorithm
     var C_algo_MD5 = C_algo.MD5 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
@@ -184,9 +185,7 @@
         return ((n << s) | (n >>> (32 - s))) + b;
     }
 
-    /**
-     * MD5 helper.
-     */
+    // Helper
     C.MD5 = function (message) {
         return C_algo_MD5.create().compute(message);
     };

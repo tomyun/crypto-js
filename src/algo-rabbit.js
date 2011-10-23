@@ -15,14 +15,17 @@
     var s = [];
 
     /**
-     * @property {number} ivSize Rabbit's IV size. Default 2
+     * Rabbit algorithm.
      */
     var C_algo_Rabbit = C_algo.Rabbit = C_lib_Cipher_Stream.extend({
         _doEncrypt: function (data, key, cfg) {
+            // Shortcut
+            var iv = cfg.iv;
+
             // Init
             keySetup(key.words);
-            if (cfg.iv) {
-                ivSetup(cfg.iv.words);
+            if (iv) {
+                ivSetup(iv.words);
             }
 
             // Shortcuts
@@ -51,7 +54,7 @@
             }
         },
 
-        ivSize: 2
+        _ivSize: 2
     });
 
     function keySetup(k) {
@@ -156,9 +159,7 @@
         x[7] = g[7] + ((g[6] <<  8) | (g[6] >>> 24)) + g[5];
     }
 
-    /**
-     * Rabbit helper.
-     */
+    // Helper
     C.Rabbit = {
         encrypt: function (message, password, cfg) {
             return C_algo_PBE.encrypt(C_algo_Rabbit, message, password, cfg);

@@ -8,7 +8,10 @@
     var C_algo_SHA1 = C_algo.SHA1;
     var C_algo_HMAC = C_algo.HMAC;
 
-    var C_algo_PBKDF2 = C_algo.PBKDF2 = C_lib_Base.extend({
+    /**
+     * Password-Based Key Derivation Function 2 algorithm.
+     */
+    var C_algo_PBKDF2 = C_algo.PBKDF2 = {
         /**
          * Configuration options.
          *
@@ -79,11 +82,9 @@
 
             return derivedKey;
         }
-    });
+    };
 
-    /**
-     * PBKDF2 helper.
-     */
+    // Helper
     C.PBKDF2 = function (password, salt, cfg) {
         return C_algo_PBKDF2.compute(password, salt, cfg);
     };

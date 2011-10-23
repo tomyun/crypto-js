@@ -11,7 +11,7 @@
      * This key derivation function is meant to conform with EVP_BytesToKey.
      * www.openssl.org/docs/crypto/EVP_BytesToKey.html
      */
-    var C_algo_EvpKDF = C_algo.EvpKDF = C_lib_Base.extend({
+    var C_algo_EvpKDF = C_algo.EvpKDF = {
         /**
          * Configuration options.
          *
@@ -26,7 +26,7 @@
         }),
 
         /**
-         * Computes a derived key from a password.
+         * Derives a key from a password.
          *
          * @param {CryptoJS.lib.WordArray|UTF-8 string} password The password.
          * @param {CryptoJS.lib.WordArray|UTF-8 string} salt A salt.
@@ -69,11 +69,9 @@
 
             return derivedKey;
         }
-    });
+    };
 
-    /**
-     * EvpKDF helper.
-     */
+    // Helper
     C.EvpKDF = function (password, salt, cfg) {
         return C_algo_EvpKDF.compute(password, salt, cfg);
     };
