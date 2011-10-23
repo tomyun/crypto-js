@@ -182,7 +182,7 @@ CryptoJS.lib.Cipher || (function () {
                 // Encrypt each block
                 for (var offset = 0; offset < messageWordsLength; offset += cipherBlockSize) {
                     xorBlock(messageWords, ivWords, offset, cipherBlockSize);
-                    cipher._encryptBlock(message, offset);
+                    cipher._encryptBlock(messageWords, offset);
                 }
             },
 
@@ -203,7 +203,7 @@ CryptoJS.lib.Cipher || (function () {
 
                 // Decrypt each block
                 for (var offset = ciphertextWords.length - cipherBlockSize; offset >= 0; offset -= cipherBlockSize) {
-                    cipher._decryptBlock(ciphertext, offset);
+                    cipher._decryptBlock(ciphertextWords, offset);
                     xorBlock(ciphertextWords, ivWords, offset, cipherBlockSize);
                 }
             }
