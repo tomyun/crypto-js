@@ -5,8 +5,9 @@
     var C_lib_Cipher = C_lib.Cipher;
     var C_lib_Cipher_Block = C_lib_Cipher.Block;
     var C_algo = C.algo;
+    var C_algo_PBE = C_algo.PBE;
 
-    // Mulitplication in GF(2^8) lookup tables
+    // Multiplication in GF(2^8) lookup tables
     var SBOX = [];
     var INVSBOX = [];
     var MULT2 = [];

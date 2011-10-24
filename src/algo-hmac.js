@@ -66,7 +66,7 @@
         },
 
         /**
-         * Updates this HMAC using the passed message.
+         * Updates this HMAC with a message.
          *
          * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate The message to append.
          *
@@ -80,7 +80,7 @@
         },
 
         /**
-         * Completes the HMAC computation, then resets this HMAC to its initial state.
+         * Completes this HMAC computation, then resets this HMAC to its initial state.
          *
          * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
          *
@@ -103,19 +103,4 @@
             return hmac;
         }
     });
-
-    // HMAC MD5 helper
-    C.HMAC_MD5 = function (message, key) {
-        return C_algo_HMAC.create(C_algo.MD5, key).compute(message);
-    };
-
-    // HMAC SHA1 helper
-    C.HMAC_SHA1 = function (message, key) {
-        return C_algo_HMAC.create(C_algo.SHA1, key).compute(message);
-    };
-
-    // HMAC SHA256 helper
-    C.HMAC_SHA256 = function (message, key) {
-        return C_algo_HMAC.create(C_algo.SHA256, key).compute(message);
-    };
 }());

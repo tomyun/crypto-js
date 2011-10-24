@@ -62,33 +62,6 @@ YUI.add('algo-hmac-test', function (Y) {
 
             Y.Assert.areEqual(expectedMessage, message);
             Y.Assert.areEqual(expectedKey, key);
-        },
-
-        testHelperMD5: function () {
-            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var message = 'Hi There';
-
-            var expected = C.algo.HMAC.create(C.algo.MD5, key).compute(message).toString();
-
-            Y.Assert.areEqual(expected, C.HMAC_MD5(message, key));
-        },
-
-        testHelperSHA1: function () {
-            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var message = 'Hi There';
-
-            var expected = C.algo.HMAC.create(C.algo.SHA1, key).compute(message).toString();
-
-            Y.Assert.areEqual(expected, C.HMAC_SHA1(message, key));
-        },
-
-        testHelperSHA256: function () {
-            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var message = 'Hi There';
-
-            var expected = C.algo.HMAC.create(C.algo.SHA256, key).compute(message).toString();
-
-            Y.Assert.areEqual(expected, C.HMAC_SHA256(message, key));
         }
     }));
 }, '$Rev$');

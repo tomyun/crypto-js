@@ -52,6 +52,15 @@ YUI.add('algo-sha1-test', function (Y) {
 
         testHelper: function () {
             Y.Assert.areEqual(C.algo.SHA1.create().compute('').toString(), C.SHA1(''));
+        },
+
+        testHmacHelper: function () {
+            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
+            var message = 'Hi There';
+
+            var expected = C.algo.HMAC.create(C.algo.SHA1, key).compute(message).toString();
+
+            Y.Assert.areEqual(expected, C.HMAC_SHA1(message, key));
         }
     }));
 }, '$Rev$');

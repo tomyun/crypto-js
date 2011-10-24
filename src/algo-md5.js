@@ -185,8 +185,11 @@
         return ((n << s) | (n >>> (32 - s))) + b;
     }
 
-    // Helper
+    // Helpers
     C.MD5 = function (message) {
         return C_algo_MD5.create().compute(message);
+    };
+    C.HMAC_MD5 = function (message, key) {
+        return C_algo.HMAC.create(C_algo_MD5, key).compute(message);
     };
 }());

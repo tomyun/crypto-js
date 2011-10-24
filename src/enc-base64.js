@@ -10,7 +10,7 @@
      */
     C_enc.Base64 = {
         /**
-         * Converts the passed word array to a base-64 string.
+         * Converts a word array to a base-64 string.
          *
          * @param {CryptoJS.lib.WordArray} wordArray The word array.
          *
@@ -53,7 +53,7 @@
         },
 
         /**
-         * Converts the passed base-64 string to a word array.
+         * Converts a base-64 string to a word array.
          *
          * @param {Base-64 string} base64Str The base-64 string.
          *

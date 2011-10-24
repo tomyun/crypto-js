@@ -5,33 +5,29 @@ YUI.add('cipher-mode-cbc-test', function (Y) {
         name: 'cipher.mode.CBC',
 
         testVector: function () {
-            var Cipher = C.algo.Null.extend({
-                _cfg: C.algo.Null._cfg.extend({
-                    padding: C.pad.NoPadding,
-                    mode: C.mode.CBC
-                }),
-
-                _keySize: 2,
-
-                _ivSize: 2,
-
-                _blockSize: 2
-            });
-
-            var message = C.lib.WordArray.create([0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210]);
-            var key = C.lib.WordArray.create([0x00000000, 0x00000000]);
-            var iv = C.lib.WordArray.create([0x45670123, 0xcdef89ab]);
+            var message = C.lib.WordArray.create([
+                0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210,
+                0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210
+            ]);
+            var iv = C.lib.WordArray.create([0x45670123, 0xcdef89ab, 0x45670123, 0xcdef89ab]);
 
             var expected = C.lib.WordArray.create([
+                // First block xored with IV
                 0x01234567 ^ 0x45670123,
                 0x89abcdef ^ 0xcdef89ab,
-                0xfedcba98 ^ (0x01234567 ^ 0x45670123),
-                0x76543210 ^ (0x89abcdef ^ 0xcdef89ab)
+                0xfedcba98 ^ 0x45670123,
+                0x76543210 ^ 0xcdef89ab,
+
+                // Subsequent blocks xored with previous block
+                0x01234567 ^ (0x01234567 ^ 0x45670123),
+                0x89abcdef ^ (0x89abcdef ^ 0xcdef89ab),
+                0xfedcba98 ^ (0xfedcba98 ^ 0x45670123),
+                0x76543210 ^ (0x76543210 ^ 0xcdef89ab)
             ]).toString();
 
-            var ciphertext = Cipher.encrypt(message, key, { iv: iv });
+            var actual = C.algo.Null.encrypt(message, null, { iv: iv, padding: C.pad.NoPadding, mode: C.mode.CBC });
 
-            Y.Assert.areEqual(expected, ciphertext);
+            Y.Assert.areEqual(expected, actual);
         }
     }));
 }, '$Rev$');

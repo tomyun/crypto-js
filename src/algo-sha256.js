@@ -77,13 +77,8 @@
                 var ch  = (e & f) ^ (~e & g);
                 var maj = (a & b) ^ (a & c) ^ (b & c);
 
-                var sigma0 = ((a << 30) | (a >>>  2)) ^
-                             ((a << 19) | (a >>> 13)) ^
-                             ((a << 10) | (a >>> 22));
-
-                var sigma1 = ((e << 26) | (e >>>  6)) ^
-                             ((e << 21) | (e >>> 11)) ^
-                             ((e <<  7) | (e >>> 25));
+                var sigma0 = ((a << 30) | (a >>>  2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
+                var sigma1 = ((e << 26) | (e >>>  6)) ^ ((e << 21) | (e >>> 11)) ^ ((e <<  7) | (e >>> 25));
 
                 var t1 = (h + sigma1 + ch + K[i] + w[i]) >>> 0;
                 var t2 = sigma0 + maj;
@@ -126,8 +121,11 @@
         }
     });
 
-    // Helper
+    // Helpers
     C.SHA256 = function (message) {
         return C_algo_SHA256.create().compute(message);
+    };
+    C.HMAC_SHA256 = function (message, key) {
+        return C_algo.HMAC.create(C_algo_SHA256, key).compute(message);
     };
 }());

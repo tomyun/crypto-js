@@ -53,6 +53,15 @@ YUI.add('algo-rabbit-test', function (Y) {
             var actual = C.algo.Rabbit.encrypt(message, key, { iv: iv });
 
             Y.Assert.areEqual('4d1051a123afb670bf8d8505c8d85a44', actual);
+        },
+
+        testHelper: function () {
+            var message = 'Hi There';
+            var password = 'Jefe';
+
+            var expected = C.algo.PBE.encrypt(C.algo.Rabbit, message, password).toString();
+
+            // Y.Assert.areEqual(expected, C.Rabbit.encrypt(message, password));
         }
     }));
 }, '$Rev$');

@@ -56,6 +56,15 @@ YUI.add('algo-aes-test', function (Y) {
             var actual = C.algo.AES.decrypt(ciphertext, key, { padding: C.pad.NoPadding, mode: C.mode.ECB });
 
             Y.Assert.areEqual('00112233445566778899aabbccddeeff', actual);
+        },
+
+        testHelper: function () {
+            var message = 'Hi There';
+            var password = 'Jefe';
+
+            var expected = C.algo.PBE.encrypt(C.algo.AES, message, password).toString();
+
+            // Y.Assert.areEqual(expected, C.AES.encrypt(message, password));
         }
     }));
 }, '$Rev$');

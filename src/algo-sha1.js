@@ -77,8 +77,11 @@
         }
     });
 
-    // Helper
+    // Helpers
     C.SHA1 = function (message) {
         return C_algo_SHA1.create().compute(message);
+    };
+    C.HMAC_SHA1 = function (message, key) {
+        return C_algo.HMAC.create(C_algo_SHA1, key).compute(message);
     };
 }());

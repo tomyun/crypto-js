@@ -31,6 +31,15 @@ YUI.add('algo-rc4-test', function (Y) {
             var actual = C.algo.RC4.encrypt(message, key, { drop: 2 });
 
             Y.Assert.areEqual(expected, actual);
+        },
+
+        testHelper: function () {
+            var message = 'Hi There';
+            var password = 'Jefe';
+
+            var expected = C.algo.PBE.encrypt(C.algo.RC4, message, password).toString();
+
+            // Y.Assert.areEqual(expected, C.RC4.encrypt(message, password));
         }
     }));
 }, '$Rev$');

@@ -50,6 +50,15 @@ YUI.add('algo-md5-test', function (Y) {
 
         testHelper: function () {
             Y.Assert.areEqual(C.algo.MD5.create().compute('').toString(), C.MD5(''));
+        },
+
+        testHmacHelper: function () {
+            var key = C.enc.Hex.fromString('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
+            var message = 'Hi There';
+
+            var expected = C.algo.HMAC.create(C.algo.MD5, key).compute(message).toString();
+
+            Y.Assert.areEqual(expected, C.HMAC_MD5(message, key));
         }
     }));
 }, '$Rev$');
