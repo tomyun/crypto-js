@@ -96,7 +96,7 @@ CryptoJS.lib.Cipher || (function () {
     /**
      * PKCS #5/7 padding strategy.
      */
-    var C_pad_PKCS5 = C_pad.PKCS5 = {
+    var C_pad_PKCS7 = C_pad.PKCS7 = {
         /**
          * Pads data using the algorithm defined in PCKS #5/7.
          *
@@ -224,11 +224,11 @@ CryptoJS.lib.Cipher || (function () {
         /**
          * Configuration options.
          *
-         * @property {CryptoJS.pad.*} padding The padding strategy to use. Default: CryptoJS.pad.PKCS5
+         * @property {CryptoJS.pad.*} padding The padding strategy to use. Default: CryptoJS.pad.PKCS7
          * @property {CryptoJS.mode.*} mode The block mode to use. Default: CryptoJS.mode.CBC
          */
         _cfg: C_lib_Cipher._cfg.extend({
-            padding: C_pad_PKCS5,
+            padding: C_pad_PKCS7,
             mode: C_mode_CBC
         }),
 
