@@ -373,22 +373,23 @@ CryptoJS.lib.Cipher || (function () {
          *
          * @param {UTF-8 string} password The password to derive from.
          * @param {CryptoJS.lib.Cipher} cipher The cipher to generate a key for.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} salt
-         *   (Optional) A salt to use. If omitted, a salt will be generated randomly.
+         * @param {CryptoJS.lib.WordArray|UTF-8 string} cipherParams
+         *   (Optional) A cipher params object with a salt to use. If omitted, a salt will be generated randomly.
          *
          * @return {CryptoJS.lib.CipherParams} A cipher params object with the key, IV, and salt.
          *
          * @static
          */
-        execute: function (password, cipher, salt) {
+        execute: function (password, cipher, cipherParams) {
+            // Shortcuts
+            var cipherKeySize = cipher._keySize;
+            var cipherIvSize = cipher._ivSize;
+            var salt = cipherParams && cipherParams.salt;
+
             // Generate random salt
             if ( ! salt) {
                 salt = C_lib_WordArray.random(8);
             }
-
-            // Shortcuts
-            var cipherKeySize = cipher._keySize;
-            var cipherIvSize = cipher._ivSize;
 
             // Derive key and IV
             var key = C_algo_EvpKDF.compute(password, salt, { keySize: cipherKeySize + cipherIvSize });
@@ -470,7 +471,7 @@ CryptoJS.lib.Cipher || (function () {
             }
 
             // Derive key
-            var cipherParams = cfg.kdf.execute(password, cipher, ciphertext.salt);
+            var cipherParams = cfg.kdf.execute(password, cipher, ciphertext);
 
             // Decrypt
             var plaintext = cipher.decrypt(ciphertext.rawCiphertext, cipherParams.key, { iv: cipherParams.iv });
