@@ -4,7 +4,7 @@ YUI.add('algo-aes-test', function (Y) {
     Y.Test.Runner.add(new Y.Test.Case({
         name: 'algo.AES',
 
-        testEncryptBlockWith128BitKey: function () {
+        testEncryptKeySize128: function () {
             var message = C.lib.WordArray.create([0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff]);
             var key = C.lib.WordArray.create([0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f]);
 
@@ -13,7 +13,7 @@ YUI.add('algo-aes-test', function (Y) {
             Y.Assert.areEqual('69c4e0d86a7b0430d8cdb78070b4c55a', actual);
         },
 
-        testEncryptBlockWith192BitKey: function () {
+        testEncryptKeySize192: function () {
             var message = C.lib.WordArray.create([0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff]);
             var key = C.lib.WordArray.create([0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617]);
 
@@ -22,7 +22,7 @@ YUI.add('algo-aes-test', function (Y) {
             Y.Assert.areEqual('dda97ca4864cdfe06eaf70a0ec0d7191', actual);
         },
 
-        testEncryptBlockWith256BitKey: function () {
+        testEncryptKeySize256: function () {
             var message = C.lib.WordArray.create([0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff]);
             var key = C.lib.WordArray.create([0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191A1B, 0x1C1D1E1F]);
 
@@ -31,7 +31,7 @@ YUI.add('algo-aes-test', function (Y) {
             Y.Assert.areEqual('8ea2b7ca516745bfeafc49904b496089', actual);
         },
 
-        testDecryptBlockWith128BitKey: function () {
+        testDecryptKeySize128: function () {
             var ciphertext = '69c4e0d86a7b0430d8cdb78070b4c55a';
             var key = C.lib.WordArray.create([0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f]);
 
@@ -40,7 +40,7 @@ YUI.add('algo-aes-test', function (Y) {
             Y.Assert.areEqual('00112233445566778899aabbccddeeff', actual);
         },
 
-        testDecryptBlockWith192BitKey: function () {
+        testDecryptKeySize192: function () {
             var ciphertext = 'dda97ca4864cdfe06eaf70a0ec0d7191';
             var key = C.lib.WordArray.create([0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617]);
 
@@ -49,7 +49,7 @@ YUI.add('algo-aes-test', function (Y) {
             Y.Assert.areEqual('00112233445566778899aabbccddeeff', actual);
         },
 
-        testDecryptBlockWith256BitKey: function () {
+        testDecryptKeySize256: function () {
             var ciphertext = '8ea2b7ca516745bfeafc49904b496089';
             var key = C.lib.WordArray.create([0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f, 0x10111213, 0x14151617, 0x18191A1B, 0x1C1D1E1F]);
 
