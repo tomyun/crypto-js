@@ -203,8 +203,9 @@
             data[offset + 1] = t1;
             data[offset + 2] = t2;
             data[offset + 3] = t3;
+        },
 
-        }
+        _keySize: 8
     });
 
     function computeKeySchedule(k) {
