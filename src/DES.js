@@ -895,7 +895,7 @@
      * DES cipher
      */
     var DES = C.DES = {
-        _blockSize : 2,
+        _blocksize : 2,
 
         _keyschedule : null,
 
@@ -944,7 +944,7 @@
             return (options && options.asBytes) ? m : util.bytesToBase64(m);
         },
 
-        _encryptBlock : function(message, offset) {
+        _encryptblock : function(message, offset) {
             this._state.initialPerm(message, offset);
             for ( var i = 0; i <= 15; i++) {
                 this._state.round(this._keyschedule.getKey(i));
@@ -989,7 +989,7 @@
             return (options && options.asBytes) ? c : UTF8.bytesToString(c);
         },
 
-        _decryptBlock : function(message, offset) {
+        _decryptblock : function(message, offset) {
             this._state.initialPerm(message, offset);
             for ( var i = 15; i >= 0; i--) {
                 this._state.round(this._keyschedule.getKey(i));
