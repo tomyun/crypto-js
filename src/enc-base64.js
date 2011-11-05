@@ -78,7 +78,7 @@
             // Convert
             var words = [], nBytes = 0;
             for (var i = 0; i < base64StrLength; i++) {
-                if (i % 4) {
+                if (i % 4 != 0) {
                     var bits1 = map.indexOf(base64Str.charAt(i - 1)) <<  (    (i % 4) * 2);
                     var bits2 = map.indexOf(base64Str.charAt(i    )) >>> (6 - (i % 4) * 2);
                     words[nBytes >>> 2] |= (bits1 | bits2) << (24 - (nBytes % 4) * 8);
