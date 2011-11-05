@@ -63,7 +63,7 @@
             var w = [];
             for (var i = 0; i < 64; i++) {
                 if (i < 16) {
-                    w[i] = m[i + offset] >>> 0;
+                    w[i] = m[offset + i] >>> 0;
                 } else {
                     var gamma0x = w[i - 15];
                     var gamma0  = ((gamma0x << 25) | (gamma0x >>>  7)) ^
