@@ -33,7 +33,7 @@
             var w = [];
             for (var i = 0; i < 80; i++) {
                 if (i < 16) {
-                    w[i] = m[i + offset];
+                    w[i] = m[offset + i];
                 } else {
                     var n = w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16];
                     w[i] = (n << 1) | (n >>> 31);
