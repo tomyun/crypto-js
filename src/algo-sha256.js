@@ -40,7 +40,9 @@
         }
     }());
 
-    // Algorithm
+    /**
+     * SHA-256 hash algorithm.
+     */
     var C_algo_SHA256 = C_algo.SHA256 = C_lib_Hash.extend({
         _doReset: function () {
             this._hash.words = H.slice(0);

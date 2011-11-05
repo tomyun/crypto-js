@@ -5,7 +5,9 @@
     var C_lib_Hash = C_lib.Hash;
     var C_algo = C.algo;
 
-    // Algorithm
+    /**
+     * MD5 hash algorithm.
+     */
     var C_algo_MD5 = C_algo.MD5 = C_lib_Hash.extend({
         _doReset: function () {
             // Shortcut
