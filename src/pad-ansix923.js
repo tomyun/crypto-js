@@ -1,3 +1,6 @@
+/**
+ * ANSI X.923 padding strategy.
+ */
 CryptoJS.pad.AnsiX923 = {
     pad: function (data, blockSize) {
         // Shortcuts

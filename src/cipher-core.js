@@ -164,7 +164,7 @@ CryptoJS.lib.Cipher || (function () {
             encrypt: function (message, cipher, iv) {
                 // Shortcuts
                 var messageWords = message.words;
-                var messageWordsLength = messageWords.length;
+                var messageWordsLength = message.sigBytes / 4;
                 var cipherBlockSize = cipher._blockSize;
                 var ivWords = iv.words;
 
@@ -187,11 +187,12 @@ CryptoJS.lib.Cipher || (function () {
             decrypt: function (ciphertext, cipher, iv) {
                 // Shortcuts
                 var ciphertextWords = ciphertext.words;
+                var ciphertextWordsLength = ciphertext.sigBytes / 4;
                 var cipherBlockSize = cipher._blockSize;
                 var ivWords = iv.words;
 
                 // Decrypt each block
-                for (var offset = ciphertextWords.length - cipherBlockSize; offset >= 0; offset -= cipherBlockSize) {
+                for (var offset = ciphertextWordsLength - cipherBlockSize; offset >= 0; offset -= cipherBlockSize) {
                     cipher._decryptBlock(ciphertextWords, offset);
                     xorBlock(ciphertextWords, ivWords, offset, cipherBlockSize);
                 }
@@ -373,7 +374,7 @@ CryptoJS.lib.Cipher || (function () {
          *
          * @param {UTF-8 string} password The password to derive from.
          * @param {CryptoJS.lib.Cipher} cipher The cipher to generate a key for.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} cipherParams
+         * @param {CryptoJS.lib.CipherParams} cipherParams
          *   (Optional) A cipher params object with a salt to use. If omitted, a salt will be generated randomly.
          *
          * @return {CryptoJS.lib.CipherParams} A cipher params object with the key, IV, and salt.
@@ -426,7 +427,7 @@ CryptoJS.lib.Cipher || (function () {
          *
          * @param {CryptoJS.lib.Cipher} cipher The cipher algorithm to use.
          * @param {CryptoJS.lib.WordArray|UTF-8 string} message The message to encrypt.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} password The password to derive from.
+         * @param {UTF-8 string} password The password to derive from.
          * @param {Object} cfg (Optional) The configuration options to use for this operation.
          *
          * @return {CryptoJS.lib.CipherParams} A cipher params object.
@@ -454,7 +455,7 @@ CryptoJS.lib.Cipher || (function () {
          *
          * @param {CryptoJS.lib.Cipher} cipher The cipher algorithm to use.
          * @param {CryptoJS.lib.CipherParams|formatted cipher params string} ciphertext The ciphertext to decrypt.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} password The password to derive from.
+         * @param {UTF-8 string} password The password to derive from.
          * @param {Object} cfg (Optional) The configuration options to use for this operation.
          *
          * @return {CryptoJS.lib.WordArray} The decrypted plaintext.

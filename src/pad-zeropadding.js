@@ -1,3 +1,6 @@
+/**
+ * Zero padding strategy.
+ */
 CryptoJS.pad.ZeroPadding = {
     pad: function (data, blockSize) {
         // Shortcut
