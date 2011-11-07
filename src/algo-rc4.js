@@ -23,7 +23,7 @@
         _doEncrypt: function (data, key, cfg) {
             // Shortcuts
             var dataWords = data.words;
-            var dataWordsLength = dataWords.length;
+            var dataWordsLength = data.sigBytes / 4;
             var keyWords = key.words;
             var keySigBytes = key.sigBytes;
 
@@ -63,7 +63,7 @@
                     keystream |= s[(s[i] + s[j]) % 256] << (24 - n * 8);
                 }
 
-                // offset will be negative until we're done dropping keystream
+                // Offset will be negative until we're done dropping keystream
                 if (offset < 0) {
                     continue;
                 }
