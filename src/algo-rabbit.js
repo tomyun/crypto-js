@@ -30,7 +30,7 @@
 
             // Shortcuts
             var dataWords = data.words;
-            var dataWordsLength = dataWords.length;
+            var dataWordsLength = data.sigBytes / 4;
 
             // Encrypt each block
             for (var offset = 0; offset < dataWordsLength; offset += 4) {
