@@ -59,12 +59,29 @@ YUI.add('algo-aes-test', function (Y) {
         },
 
         testHelper: function () {
+            // Save original random method
+            var random_ = C.lib.WordArray.random;
+
+            // Replace random method with one that returns a predictable value
+            C.lib.WordArray.random = function (nBytes) {
+                var words = [];
+                for (var i = 0; i < nBytes; i += 4) {
+                    words.push([0x11223344]);
+                }
+
+                return this.create(words, nBytes);
+            };
+
+            // Expected
             var message = 'Hi There';
             var password = 'Jefe';
-
             var expected = C.algo.PBE.encrypt(C.algo.AES, message, password).toString();
 
-            // Y.Assert.areEqual(expected, C.AES.encrypt(message, password));
+            // Test
+            Y.Assert.areEqual(expected, C.AES.encrypt(message, password));
+
+            // Restore random method
+            C.lib.WordArray.random = random_;
         }
     }));
 }, '$Rev$');
