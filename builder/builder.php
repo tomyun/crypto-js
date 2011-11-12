@@ -1,38 +1,37 @@
 <?php
 
 $copyrightInfo = '/*!
- * Crypto-JS vX.X.X
+ * CryptoJS v3.0 beta 1
  * http://code.google.com/p/crypto-js/
- * Copyright (c) 2009, Jeff Mott. All rights reserved.
+ * (c) 2009-2011 by Jeff Mott. All rights reserved.
  * http://code.google.com/p/crypto-js/wiki/License
  */
 ';
 
 $files = array(
-    'core', 'base64',
-    'hash_base',
-    'md5', 'sha1', 'sha256',
-    'hmac',
-    'pbkdf2',
-    'cipher_base',
-    'marc4', 'rabbit', 'aes',
-    'cbc', 'ofb'
+    'core', 'enc-base64',
+    'algo-md5', 'algo-sha1', 'algo-sha256',
+    'algo-hmac', 'algo-pbkdf2', 'algo-evpkdf',
+    'cipher-core', 'algo-rc4', 'algo-rabbit', 'algo-aes',
+    'pad-ansix923', 'pad-iso10126', 'pad-iso97971', 'pad-zeropadding', 'pad-nopadding',
+    'mode-cfb', 'mode-ctr', 'mode-ecb', 'mode-ofb'
 );
 
 $rollups = array(
-    array('core', 'hash_base', 'md5'),
-    array('core', 'hash_base', 'sha1'),
-    array('core', 'hash_base', 'sha256'),
+    array('core', 'algo-md5'),
+    array('core', 'algo-sha1'),
+    array('core', 'algo-sha256'),
 
-    array('core', 'hash_base', 'md5', 'hmac'),
-    array('core', 'hash_base', 'sha1', 'hmac'),
-    array('core', 'hash_base', 'sha256', 'hmac'),
+    array('core', 'algo-md5', 'algo-hmac'),
+    array('core', 'algo-sha1', 'algo-hmac'),
+    array('core', 'algo-sha256', 'algo-hmac'),
 
-    array('core', 'hash_base', 'sha1', 'hmac', 'pbkdf2'),
+    array('core', 'algo-sha1', 'algo-hmac', 'algo-pbkdf2'),
+    array('core', 'algo-md5', 'algo-evpkdf'),
 
-    array('core', 'base64', 'hash_base', 'sha1', 'hmac', 'pbkdf2', 'cipher_base', 'marc4'),
-    array('core', 'base64', 'hash_base', 'sha1', 'hmac', 'pbkdf2', 'cipher_base', 'rabbit'),
-    array('core', 'base64', 'hash_base', 'sha1', 'hmac', 'pbkdf2', 'cipher_base', 'aes', 'ofb')
+    array('core', 'enc-base64', 'algo-md5', 'algo-evpkdf', 'cipher-core', 'algo-rc4'),
+    array('core', 'enc-base64', 'algo-md5', 'algo-evpkdf', 'cipher-core', 'algo-rabbit'),
+    array('core', 'enc-base64', 'algo-md5', 'algo-evpkdf', 'cipher-core', 'algo-aes')
 );
 
 foreach ($files as $file) {
@@ -65,7 +64,7 @@ function compress($jsContents)
     $process = proc_open($cmd, $descriptors, $pipes);
 
     if ($process === false) {
-        die();
+        die('proc_open failed');
     }
 
     fwrite($pipes[0], $jsContents);
@@ -80,7 +79,7 @@ function compress($jsContents)
     $exitStatus = proc_close($process);
 
     if ($errors or $exitStatus != 0) {
-        die();
+        die('errors or exit status failed');
     }
 
     return $compressed;
