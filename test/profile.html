@@ -65,7 +65,7 @@
                         name: 'MD5',
                         fn: function () {
                             var md5 = C.algo.MD5.create();
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 500; i++) {
                                 md5.update('12345678901234567890123456789012345678901234567890');
                             }
                             var hash = md5.compute().toString();
@@ -75,7 +75,7 @@
                         name: 'SHA1',
                         fn: function () {
                             var sha1 = C.algo.SHA1.create();
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 500; i++) {
                                 sha1.update('12345678901234567890123456789012345678901234567890');
                             }
                             var hash = sha1.compute().toString();
@@ -85,7 +85,7 @@
                         name: 'SHA256',
                         fn: function () {
                             var sha256 = C.algo.SHA256.create();
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 500; i++) {
                                 sha256.update('12345678901234567890123456789012345678901234567890');
                             }
                             var hash = sha256.compute().toString();
@@ -95,7 +95,7 @@
                         name: 'HMAC',
                         fn: function () {
                             var hmac = C.algo.HMAC.create(C.algo.MD5, 'Hi There');
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 500; i++) {
                                 hmac.update('12345678901234567890123456789012345678901234567890');
                             }
                             var hash = hmac.compute().toString();
@@ -104,20 +104,20 @@
                     {
                         name: 'PBKDF2',
                         fn: function () {
-                            C.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
+                            C.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 20 });
                         }
                     },
                     {
                         name: 'EvpKDF',
                         fn: function () {
-                            C.algo.EvpKDF.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
+                            C.algo.EvpKDF.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 20 });
                         }
                     },
                     {
                         name: 'RC4',
                         fn: function () {
                             var data = '';
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 1000; i++) {
                                 data += '12345678901234567890123456789012345678901234567890';
                             }
                             var encrypted = C.RC4.encrypt(data, 'password').toString();
@@ -128,7 +128,7 @@
                         name: 'Rabbit',
                         fn: function () {
                             var data = '';
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 1000; i++) {
                                 data += '12345678901234567890123456789012345678901234567890';
                             }
                             var encrypted = C.Rabbit.encrypt(data, 'password').toString();
@@ -139,7 +139,7 @@
                         name: 'AES',
                         fn: function () {
                             var data = '';
-                            for (var i = 0; i < 100; i++) {
+                            for (var i = 0; i < 1000; i++) {
                                 data += '12345678901234567890123456789012345678901234567890';
                             }
                             var encrypted = C.AES.encrypt(data, 'password').toString();
