@@ -5,19 +5,20 @@
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
-        <script src="../src/base64.js"></script>
-        <script src="../src/md5.js"></script>
-        <script src="../src/sha1.js"></script>
-        <script src="../src/sha256.js"></script>
-        <script src="../src/modcrypt.js"></script>
-        <script src="../src/hmac.js"></script>
-        <script src="../src/pbkdf2.js"></script>
-        <script src="../src/evp-key-derivation.js"></script>
-        <script src="../src/cipher_base.js"></script>
-        <script src="../src/rc4.js"></script>
+        <script src="../src/enc-base64.js"></script>
+        <script src="../src/algo-md5.js"></script>
+        <script src="../src/algo-sha1.js"></script>
+        <script src="../src/algo-sha256.js"></script>
+        <script src="../src/algo-hmac.js"></script>
+        <script src="../src/algo-pbkdf2.js"></script>
+        <script src="../src/algo-evpkdf.js"></script>
+        <script src="../src/cipher-core.js"></script>
+        <script src="../src/algo-rc4.js"></script>
+        <script src="../src/algo-rabbit.js"></script>
+        <script src="../src/algo-aes.js"></script>
 
         <!-- YUI -->
-        <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
+        <script src="http://yui.yahooapis.com/3.4.0/build/yui/yui-min.js"></script>
 
         <!-- Profiler -->
         <script type="text/javascript">
@@ -28,38 +29,42 @@
                 // Register objects
                 Y.Profiler.registerObject('CryptoJS.lib.Base');
                 Y.Profiler.registerObject('CryptoJS.lib.WordArray');
-                Y.Profiler.registerObject('CryptoJS.lib.Event');
-                Y.Profiler.registerObject('CryptoJS.lib.Formatter');
+                Y.Profiler.registerObject('CryptoJS.lib.Hash');
 
                 Y.Profiler.registerObject('CryptoJS.enc.Hex');
                 Y.Profiler.registerObject('CryptoJS.enc.Latin1');
                 Y.Profiler.registerObject('CryptoJS.enc.Utf8');
                 Y.Profiler.registerObject('CryptoJS.enc.Base64');
-                Y.Profiler.registerObject('CryptoJS.enc.Crypt');
 
-                Y.Profiler.registerObject('CryptoJS.hash.formatter.OpenSSL');
-                Y.Profiler.registerObject('CryptoJS.hash.salter.OpenSSLish');
-                Y.Profiler.registerObject('CryptoJS.hash.Base');
+                Y.Profiler.registerObject('CryptoJS.algo.MD5');
+                Y.Profiler.registerObject('CryptoJS.algo.SHA1');
+                Y.Profiler.registerObject('CryptoJS.algo.SHA256');
+                Y.Profiler.registerObject('CryptoJS.algo.HMAC');
+                Y.Profiler.registerObject('CryptoJS.algo.PBKDF2');
+                Y.Profiler.registerObject('CryptoJS.algo.EvpKDF');
 
-                Y.Profiler.registerObject('CryptoJS.MD5');
-                Y.Profiler.registerObject('CryptoJS.SHA1');
-                Y.Profiler.registerObject('CryptoJS.SHA256');
-                Y.Profiler.registerObject('CryptoJS.HMAC');
-                Y.Profiler.registerObject('CryptoJS.PBKDF2');
-                Y.Profiler.registerObject('CryptoJS.EvpKeyDerivation');
+                Y.Profiler.registerObject('CryptoJS.lib.Cipher');
+                Y.Profiler.registerObject('CryptoJS.lib.Cipher.Block');
+                Y.Profiler.registerObject('CryptoJS.lib.Cipher.Stream');
+                Y.Profiler.registerObject('CryptoJS.lib.CipherParams');
 
-                Y.Profiler.registerObject('CryptoJS.cipher.formatter.OpenSSL');
-                Y.Profiler.registerObject('CryptoJS.cipher.kdf.OpenSSL');
-                Y.Profiler.registerObject('CryptoJS.cipher.Base');
+                Y.Profiler.registerObject('CryptoJS.pad.PKCS7');
+                Y.Profiler.registerObject('CryptoJS.mode.CBC');
 
-                Y.Profiler.registerObject('CryptoJS.RC4');
+                Y.Profiler.registerObject('CryptoJS.format.OpenSSL');
+                Y.Profiler.registerObject('CryptoJS.kdf.OpenSSL');
+                Y.Profiler.registerObject('CryptoJS.algo.PBE');
+
+                Y.Profiler.registerObject('CryptoJS.algo.RC4');
+                Y.Profiler.registerObject('CryptoJS.algo.Rabbit');
+                Y.Profiler.registerObject('CryptoJS.algo.AES');
 
                 // Code to profile
                 var profilees = [
                     {
                         name: 'MD5',
                         fn: function () {
-                            var md5 = C.MD5.create();
+                            var md5 = C.algo.MD5.create();
                             for (var i = 0; i < 100; i++) {
                                 md5.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -69,7 +74,7 @@
                     {
                         name: 'SHA1',
                         fn: function () {
-                            var sha1 = C.SHA1.create();
+                            var sha1 = C.algo.SHA1.create();
                             for (var i = 0; i < 100; i++) {
                                 sha1.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -79,7 +84,7 @@
                     {
                         name: 'SHA256',
                         fn: function () {
-                            var sha256 = C.SHA256.create();
+                            var sha256 = C.algo.SHA256.create();
                             for (var i = 0; i < 100; i++) {
                                 sha256.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -89,7 +94,7 @@
                     {
                         name: 'HMAC',
                         fn: function () {
-                            var hmac = C.HMAC.create(C.MD5, 'Hi There');
+                            var hmac = C.algo.HMAC.create(C.algo.MD5, 'Hi There');
                             for (var i = 0; i < 100; i++) {
                                 hmac.update('12345678901234567890123456789012345678901234567890');
                             }
@@ -99,13 +104,13 @@
                     {
                         name: 'PBKDF2',
                         fn: function () {
-                            C.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
+                            C.algo.PBKDF2.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
                         }
                     },
                     {
-                        name: 'EvpKeyDerivation',
+                        name: 'EvpKDF',
                         fn: function () {
-                            C.EvpKeyDerivation.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
+                            C.algo.EvpKDF.compute('password', 'ATHENA.MIT.EDUraeburn', { keySize: 256/32, iterations: 10 });
                         }
                     },
                     {
@@ -115,7 +120,30 @@
                             for (var i = 0; i < 100; i++) {
                                 data += '12345678901234567890123456789012345678901234567890';
                             }
-                            C.RC4.decrypt(C.RC4.encrypt(data, 'password').toString(), 'password');
+                            var encrypted = C.RC4.encrypt(data, 'password').toString();
+                            var decrypted = C.RC4.decrypt(encrypted, 'password');
+                        }
+                    },
+                    {
+                        name: 'Rabbit',
+                        fn: function () {
+                            var data = '';
+                            for (var i = 0; i < 100; i++) {
+                                data += '12345678901234567890123456789012345678901234567890';
+                            }
+                            var encrypted = C.Rabbit.encrypt(data, 'password').toString();
+                            var decrypted = C.Rabbit.decrypt(encrypted, 'password');
+                        }
+                    },
+                    {
+                        name: 'AES',
+                        fn: function () {
+                            var data = '';
+                            for (var i = 0; i < 100; i++) {
+                                data += '12345678901234567890123456789012345678901234567890';
+                            }
+                            var encrypted = C.AES.encrypt(data, 'password').toString();
+                            var decrypted = C.AES.decrypt(encrypted, 'password');
                         }
                     }
                 ];
@@ -130,7 +158,9 @@
                     // Get the information
                     var reports = Y.Profiler.getFullReport(function (report) {
                         // Skip reports with 0 calls
-                        if ( ! report.calls) return false;
+                        if ( ! report.calls) {
+                            return false;
+                        }
 
                         // Create "total" entry
                         report.total = 0;
