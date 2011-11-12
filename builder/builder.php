@@ -10,28 +10,28 @@ $copyrightInfo = '/*!
 
 $files = array(
     'core', 'enc-base64',
-    'algo-md5', 'algo-sha1', 'algo-sha256',
-    'algo-hmac', 'algo-pbkdf2', 'algo-evpkdf',
-    'cipher-core', 'algo-rc4', 'algo-rabbit', 'algo-aes',
+    'md5', 'sha1', 'sha256',
+    'hmac', 'pbkdf2', 'evpkdf',
+    'cipher-core', 'rc4', 'rabbit', 'aes',
     'pad-ansix923', 'pad-iso10126', 'pad-iso97971', 'pad-zeropadding', 'pad-nopadding',
     'mode-cfb', 'mode-ctr', 'mode-ecb', 'mode-ofb'
 );
 
 $rollups = array(
-    array('core', 'algo-md5'),
-    array('core', 'algo-sha1'),
-    array('core', 'algo-sha256'),
+    array('core', 'md5'),
+    array('core', 'sha1'),
+    array('core', 'sha256'),
 
-    array('core', 'algo-md5', 'algo-hmac'),
-    array('core', 'algo-sha1', 'algo-hmac'),
-    array('core', 'algo-sha256', 'algo-hmac'),
+    array('core', 'md5', 'hmac'),
+    array('core', 'sha1', 'hmac'),
+    array('core', 'sha256', 'hmac'),
 
-    array('core', 'algo-sha1', 'algo-hmac', 'algo-pbkdf2'),
-    array('core', 'algo-md5', 'algo-evpkdf'),
+    array('core', 'sha1', 'hmac', 'pbkdf2'),
+    array('core', 'md5', 'evpkdf'),
 
-    array('core', 'enc-base64', 'algo-md5', 'algo-evpkdf', 'cipher-core', 'algo-rc4'),
-    array('core', 'enc-base64', 'algo-md5', 'algo-evpkdf', 'cipher-core', 'algo-rabbit'),
-    array('core', 'enc-base64', 'algo-md5', 'algo-evpkdf', 'cipher-core', 'algo-aes')
+    array('core', 'enc-base64', 'md5', 'evpkdf', 'cipher-core', 'rc4'),
+    array('core', 'enc-base64', 'md5', 'evpkdf', 'cipher-core', 'rabbit'),
+    array('core', 'enc-base64', 'md5', 'evpkdf', 'cipher-core', 'aes')
 );
 
 foreach ($files as $file) {
