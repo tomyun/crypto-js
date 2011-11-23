@@ -109,7 +109,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
             var inp = Crypto.util.base64ToBytes(data[i + 1]);
             var out = Crypto.util.base64ToBytes(data[i + 2]);
             Crypto.DES._init(key);
-            Crypto.DES._encryptBlock(inp, 0);
+            Crypto.DES._encryptblock(inp, 0);
             Assert.areEqual(inp.toString(), out.toString());
         }
     },
@@ -121,8 +121,8 @@ TestSuite.add(new YAHOO.tool.TestCase({
 
             Crypto.DES._init(key);
             var out = inp.slice(0);
-            Crypto.DES._encryptBlock(out, 0);
-            Crypto.DES._decryptBlock(out, 0);
+            Crypto.DES._encryptblock(out, 0);
+            Crypto.DES._decryptblock(out, 0);
             Assert.areEqual(inp.toString(), out.toString(),
                     "DES E(D(x) failed: " + inp.toString() + " became "
                             + out.toString());
