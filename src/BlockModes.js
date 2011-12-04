@@ -344,10 +344,11 @@ CTR_prototype._padding = C_pad.NoPadding;
 
 CTR_prototype._doEncrypt = function (cipher, m, iv) {
     var blockSizeInBytes = cipher._blocksize * 4;
+    var counter = iv.slice(0);
 
     for (var i = 0; i < m.length;) {
         // do not lose iv
-        var keystream = iv.slice(0);
+        var keystream = counter.slice(0);
 
         // Generate keystream for next block
         cipher._encryptblock(keystream, 0);
@@ -357,14 +358,14 @@ CTR_prototype._doEncrypt = function (cipher, m, iv) {
             m[i] ^= keystream[j];
         }
 
-        // Increase IV
-        if(++(iv[blockSizeInBytes-1]) == 256) {
-            iv[blockSizeInBytes-1] = 0;
-            if(++(iv[blockSizeInBytes-2]) == 256) {
-                iv[blockSizeInBytes-2] = 0;
-                if(++(iv[blockSizeInBytes-3]) == 256) {
-                    iv[blockSizeInBytes-3] = 0;
-                    ++(iv[blockSizeInBytes-4]);
+        // Increase counter
+        if(++(counter[blockSizeInBytes-1]) == 256) {
+            counter[blockSizeInBytes-1] = 0;
+            if(++(counter[blockSizeInBytes-2]) == 256) {
+                counter[blockSizeInBytes-2] = 0;
+                if(++(counter[blockSizeInBytes-3]) == 256) {
+                    counter[blockSizeInBytes-3] = 0;
+                    ++(counter[blockSizeInBytes-4]);
                 }
             }
         }
