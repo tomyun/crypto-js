@@ -40,7 +40,7 @@ function profile(objectNames, run) {
 				for (var func in report) {
 					report[func].total = report[func].points[0];
 					for (var i = 1; i < report[func].points.length; i++)
-						report[func].total += report[func].points[i]
+						report[func].total += report[func].points[i];
 				}
 
 				// Change report to an array of reports
