@@ -22,16 +22,16 @@
         }
 
         function getFractionalBits(n) {
-            return ((n - (n >>> 0)) * 0x100000000) >>> 0;
+            return ((n - (n | 0)) * 0x100000000) | 0;
         }
 
         var nPrime = 0, n = 2;
         while (nPrime < 64) {
             if (isPrime(n)) {
+                K[nPrime] = getFractionalBits(Math.pow(n, 1/3));
                 if (nPrime < 8) {
                     H[nPrime] = getFractionalBits(Math.pow(n, 1/2));
                 }
-                K[nPrime] = getFractionalBits(Math.pow(n, 1/3));
 
                 nPrime++;
             }
@@ -65,7 +65,7 @@
             var w = [];
             for (var i = 0; i < 64; i++) {
                 if (i < 16) {
-                    w[i] = m[offset + i] >>> 0;
+                    w[i] = m[offset + i] | 0;
                 } else {
                     var gamma0x = w[i - 15];
                     var gamma0  = ((gamma0x << 25) | (gamma0x >>>  7)) ^
@@ -86,27 +86,27 @@
                 var sigma0 = ((a << 30) | (a >>>  2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
                 var sigma1 = ((e << 26) | (e >>>  6)) ^ ((e << 21) | (e >>> 11)) ^ ((e <<  7) | (e >>> 25));
 
-                var t1 = (h + sigma1 + ch + K[i] + w[i]) >>> 0;
+                var t1 = h + sigma1 + ch + K[i] + w[i];
                 var t2 = sigma0 + maj;
 
                 h = g;
                 g = f;
                 f = e;
-                e = d + t1;
+                e = (d + t1) | 0;
                 d = c;
                 c = b;
                 b = a;
-                a = t1 + t2;
+                a = (t1 + t2) | 0;
             }
 
-            H[0] = (H[0] + a) >>> 0;
-            H[1] = (H[1] + b) >>> 0;
-            H[2] = (H[2] + c) >>> 0;
-            H[3] = (H[3] + d) >>> 0;
-            H[4] = (H[4] + e) >>> 0;
-            H[5] = (H[5] + f) >>> 0;
-            H[6] = (H[6] + g) >>> 0;
-            H[7] = (H[7] + h) >>> 0;
+            H[0] = (H[0] + a) | 0;
+            H[1] = (H[1] + b) | 0;
+            H[2] = (H[2] + c) | 0;
+            H[3] = (H[3] + d) | 0;
+            H[4] = (H[4] + e) | 0;
+            H[5] = (H[5] + f) | 0;
+            H[6] = (H[6] + g) | 0;
+            H[7] = (H[7] + h) | 0;
         },
 
         _doCompute: function () {
@@ -128,10 +128,6 @@
     });
 
     // Helpers
-    C.SHA256 = function (message) {
-        return C_algo_SHA256.create().compute(message);
-    };
-    C.HMAC_SHA256 = function (message, key) {
-        return C_algo.HMAC.create(C_algo_SHA256, key).compute(message);
-    };
+    C.SHA256 = C_lib_Hash._createHelper(C_algo_SHA256);
+    C.HMAC_SHA256 = C_lib_Hash._createHmacHelper(C_algo_SHA256);
 }());

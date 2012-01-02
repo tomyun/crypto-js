@@ -5,7 +5,6 @@
     var C_lib_Cipher = C_lib.Cipher;
     var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
     var C_algo = C.algo;
-    var C_algo_PBE = C_algo.PBE;
 
     // Private static inner state
     var x = [];
@@ -15,7 +14,7 @@
     var s = [];
 
     /**
-     * Rabbit algorithm.
+     * Rabbit stream cipher algorithm.
      */
     var C_algo_Rabbit = C_algo.Rabbit = C_lib_Cipher_Stream.extend({
         _doEncrypt: function (data, key, cfg) {
@@ -54,7 +53,7 @@
             }
         },
 
-        _ivSize: 2
+        _ivSize: 64/32
     });
 
     function keySetup(k) {
@@ -122,19 +121,19 @@
         }
 
         // Calculate new counter values
-        c[0] = (c[0] + 0x4d34d34d + b) >>> 0;
-        c[1] = (c[1] + 0xd34d34d3 + ((c[0] >>> 0) < (c_[0] >>> 0) ? 1 : 0)) >>> 0;
-        c[2] = (c[2] + 0x34d34d34 + ((c[1] >>> 0) < (c_[1] >>> 0) ? 1 : 0)) >>> 0;
-        c[3] = (c[3] + 0x4d34d34d + ((c[2] >>> 0) < (c_[2] >>> 0) ? 1 : 0)) >>> 0;
-        c[4] = (c[4] + 0xd34d34d3 + ((c[3] >>> 0) < (c_[3] >>> 0) ? 1 : 0)) >>> 0;
-        c[5] = (c[5] + 0x34d34d34 + ((c[4] >>> 0) < (c_[4] >>> 0) ? 1 : 0)) >>> 0;
-        c[6] = (c[6] + 0x4d34d34d + ((c[5] >>> 0) < (c_[5] >>> 0) ? 1 : 0)) >>> 0;
-        c[7] = (c[7] + 0xd34d34d3 + ((c[6] >>> 0) < (c_[6] >>> 0) ? 1 : 0)) >>> 0;
+        c[0] = (c[0] + 0x4d34d34d + b) | 0;
+        c[1] = (c[1] + 0xd34d34d3 + ((c[0] >>> 0) < (c_[0] >>> 0) ? 1 : 0)) | 0;
+        c[2] = (c[2] + 0x34d34d34 + ((c[1] >>> 0) < (c_[1] >>> 0) ? 1 : 0)) | 0;
+        c[3] = (c[3] + 0x4d34d34d + ((c[2] >>> 0) < (c_[2] >>> 0) ? 1 : 0)) | 0;
+        c[4] = (c[4] + 0xd34d34d3 + ((c[3] >>> 0) < (c_[3] >>> 0) ? 1 : 0)) | 0;
+        c[5] = (c[5] + 0x34d34d34 + ((c[4] >>> 0) < (c_[4] >>> 0) ? 1 : 0)) | 0;
+        c[6] = (c[6] + 0x4d34d34d + ((c[5] >>> 0) < (c_[5] >>> 0) ? 1 : 0)) | 0;
+        c[7] = (c[7] + 0xd34d34d3 + ((c[6] >>> 0) < (c_[6] >>> 0) ? 1 : 0)) | 0;
         b = (c[7] >>> 0) < (c_[7] >>> 0) ? 1 : 0;
 
         // Calculate the g-values
         for (var i = 0; i < 8; i++) {
-            var gx = (x[i] + c[i]) >>> 0;
+            var gx = (x[i] + c[i]) | 0;
 
             // Construct high and low argument for squaring
             var ga = gx & 0x0000ffff;
@@ -142,7 +141,7 @@
 
             // Calculate high and low result of squaring
             var gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb;
-            var gl = (((gx & 0xffff0000) * gx) >>> 0) + (((gx & 0x0000ffff) * gx) >>> 0) >>> 0;
+            var gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
 
             // High XOR low
             g[i] = gh ^ gl;
@@ -160,13 +159,5 @@
     }
 
     // Helper
-    C.Rabbit = {
-        encrypt: function (message, password, cfg) {
-            return C_algo_PBE.encrypt(C_algo_Rabbit, message, password, cfg);
-        },
-
-        decrypt: function (ciphertext, password, cfg) {
-            return C_algo_PBE.decrypt(C_algo_Rabbit, ciphertext, password, cfg);
-        }
-    };
+    C.Rabbit = C_lib_Cipher._createHelper(C_algo_Rabbit);
 }());

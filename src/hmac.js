@@ -8,7 +8,7 @@
     var C_algo = C.algo;
 
     /**
-     * Hashed message authentication code algorithm.
+     * HMAC algorithm.
      */
     var C_algo_HMAC = C_algo.HMAC = C_lib_Base.extend({
         /**

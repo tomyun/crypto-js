@@ -209,7 +209,7 @@ var CryptoJS = CryptoJS || (function () {
     /**
      * Base hash template.
      *
-     * @property {number} _blockSize The number of 32-bit words this hash operates on. Default: 16
+     * @property {number} _blockSize The number of 32-bit words this hash operates on. Default: 16 (512 bits)
      */
     var C_lib_Hash = C_lib.Hash = C_lib_Base.extend({
         /**
@@ -309,7 +309,37 @@ var CryptoJS = CryptoJS || (function () {
             return hash;
         },
 
-        _blockSize: 16
+        _blockSize: 512/32,
+
+        /**
+         * Creates a shortcut function to a hash algorithm's object interface.
+         *
+         * @param {CryptoJS.lib.Hash} hasher The hash algorithm to create a helper for.
+         *
+         * @return {Function} The shortcut function.
+         *
+         * @static
+         */
+        _createHelper: function (hasher) {
+            return function (message) {
+                return hasher.create().compute(message);
+            };
+        },
+
+        /**
+         * Creates a shortcut function to the HMAC algorithm's object interface.
+         *
+         * @param {CryptoJS.lib.Hash} hasher The hash algorithm to use with this helper.
+         *
+         * @return {Function} The shortcut function.
+         *
+         * @static
+         */
+        _createHmacHelper: function (hasher) {
+            return function (message, key) {
+                return C_algo.HMAC.create(hasher, key).compute(message);
+            };
+        }
     });
 
     /**
@@ -370,15 +400,15 @@ var CryptoJS = CryptoJS || (function () {
     };
 
     /**
-     * Latin-1 encoding strategy.
+     * Latin1 encoding strategy.
      */
     var C_enc_Latin1 = C_enc.Latin1 = {
         /**
-         * Converts a word array to a Latin-1 string.
+         * Converts a word array to a Latin1 string.
          *
          * @param {CryptoJS.lib.WordArray} wordArray The word array.
          *
-         * @return {Latin-1 string} The Latin-1 string.
+         * @return {Latin1 string} The Latin1 string.
          *
          * @static
          */
@@ -398,9 +428,9 @@ var CryptoJS = CryptoJS || (function () {
         },
 
         /**
-         * Converts a Latin-1 string to a word array.
+         * Converts a Latin1 string to a word array.
          *
-         * @param {Latin-1 string} latin1Str The Latin-1 string.
+         * @param {Latin1 string} latin1Str The Latin1 string.
          *
          * @return {CryptoJS.lib.WordArray} The word array.
          *
@@ -408,15 +438,15 @@ var CryptoJS = CryptoJS || (function () {
          */
         fromString: function (latin1Str) {
             // Shortcut
-            var latin1StrStrLength = latin1Str.length;
+            var latin1StrLength = latin1Str.length;
 
             // Convert
             var words = [];
-            for (var i = 0; i < latin1StrStrLength; i++) {
+            for (var i = 0; i < latin1StrLength; i++) {
                 words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
             }
 
-            return C_lib_WordArray.create(words, latin1StrStrLength);
+            return C_lib_WordArray.create(words, latin1StrLength);
         }
     };
 

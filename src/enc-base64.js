@@ -6,15 +6,15 @@
     var C_enc = C.enc;
 
     /**
-     * Base-64 encoding strategy.
+     * Base64 encoding strategy.
      */
     C_enc.Base64 = {
         /**
-         * Converts a word array to a base-64 string.
+         * Converts a word array to a Base64 string.
          *
          * @param {CryptoJS.lib.WordArray} wordArray The word array.
          *
-         * @return {Base-64 string} The base-64 string.
+         * @return {Base64 string} The Base64 string.
          *
          * @static
          */
@@ -53,9 +53,9 @@
         },
 
         /**
-         * Converts a base-64 string to a word array.
+         * Converts a Base64 string to a word array.
          *
-         * @param {Base-64 string} base64Str The base-64 string.
+         * @param {Base64 string} Base64Str The Base64 string.
          *
          * @return {CryptoJS.lib.WordArray} The word array.
          *

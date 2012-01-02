@@ -5,7 +5,6 @@
     var C_lib_Cipher = C_lib.Cipher;
     var C_lib_Cipher_Block = C_lib_Cipher.Block;
     var C_algo = C.algo;
-    var C_algo_PBE = C_algo.PBE;
 
     // Multiplication in GF(2^8) lookup tables
     var SBOX = [];
@@ -79,7 +78,9 @@
     var keyLength;
     var nRounds;
 
-    // Algorithm
+    /**
+     * AES block cipher algorithm.
+     */
     var C_algo_AES = C_algo.AES = C_lib_Cipher_Block.extend({
         _init: function (key) {
             keyLength = key.sigBytes / 4;
@@ -205,43 +206,36 @@
             data[offset + 3] = t3;
         },
 
-        _keySize: 8
+        _keySize: 256/32
     });
 
     function computeKeySchedule(k) {
-        for (var ksRow = 0; ksRow < keyLength; ksRow++) {
-            keySchedule[ksRow] = k[ksRow];
-        }
+        var ksRows = (nRounds + 1) * 4;
+        for (var ksRow = 0; ksRow < ksRows; ksRow++) {
+            if (ksRow < keyLength) {
+                keySchedule[ksRow] = k[ksRow];
+            } else {
+                var t = keySchedule[ksRow - 1];
 
-        for (var ksRow = keyLength, end = (nRounds + 1) * 4; ksRow < end; ksRow++) {
-            var t = keySchedule[ksRow - 1];
+                if (ksRow % keyLength == 0) {
+                    // Rot word
+                    t = (t << 8) | (t >>> 24);
 
-            if (ksRow % keyLength == 0) {
-                // Rot word
-                t = (t << 8) | (t >>> 24);
+                    // Sub word
+                    t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
 
-                // Sub word
-                t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+                    // Mix Rcon
+                    t ^= RCON[ksRow / keyLength];
+                } else if (keyLength > 6 && ksRow % keyLength == 4) {
+                    // Sub word
+                    t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+                }
 
-                // Mix Rcon
-                t ^= RCON[ksRow / keyLength];
-            } else if (keyLength > 6 && ksRow % keyLength == 4) {
-                // Sub word
-                t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+                keySchedule[ksRow] = keySchedule[ksRow - keyLength] ^ t;
             }
-
-            keySchedule[ksRow] = keySchedule[ksRow - keyLength] ^ t;
         }
     }
 
     // Helper
-    C.AES = {
-        encrypt: function (message, password, cfg) {
-            return C_algo_PBE.encrypt(C_algo_AES, message, password, cfg);
-        },
-
-        decrypt: function (ciphertext, password, cfg) {
-            return C_algo_PBE.decrypt(C_algo_AES, ciphertext, password, cfg);
-        }
-    };
+    C.AES = C_lib_Cipher._createHelper(C_algo_AES);
 }());

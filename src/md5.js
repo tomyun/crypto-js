@@ -128,10 +128,10 @@
             c = II(c, d, a, b, m_offset_2,  15, 0x2ad7d2bb);
             b = II(b, c, d, a, m_offset_9,  21, 0xeb86d391);
 
-            H[0] = (H[0] + a) >>> 0;
-            H[1] = (H[1] + b) >>> 0;
-            H[2] = (H[2] + c) >>> 0;
-            H[3] = (H[3] + d) >>> 0;
+            H[0] = (H[0] + a) | 0;
+            H[1] = (H[1] + b) | 0;
+            H[2] = (H[2] + c) | 0;
+            H[3] = (H[3] + d) | 0;
         },
 
         _doCompute: function () {
@@ -168,30 +168,26 @@
     });
 
     function FF(a, b, c, d, x, s, t) {
-        var n = a + ((b & c) | (~b & d)) + (x >>> 0) + t;
+        var n = a + ((b & c) | (~b & d)) + x + t;
         return ((n << s) | (n >>> (32 - s))) + b;
     }
 
     function GG(a, b, c, d, x, s, t) {
-        var n = a + ((b & d) | (c & ~d)) + (x >>> 0) + t;
+        var n = a + ((b & d) | (c & ~d)) + x + t;
         return ((n << s) | (n >>> (32 - s))) + b;
     }
 
     function HH(a, b, c, d, x, s, t) {
-        var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+        var n = a + (b ^ c ^ d) + x + t;
         return ((n << s) | (n >>> (32 - s))) + b;
     }
 
     function II(a, b, c, d, x, s, t) {
-        var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+        var n = a + (c ^ (b | ~d)) + x + t;
         return ((n << s) | (n >>> (32 - s))) + b;
     }
 
     // Helpers
-    C.MD5 = function (message) {
-        return C_algo_MD5.create().compute(message);
-    };
-    C.HMAC_MD5 = function (message, key) {
-        return C_algo.HMAC.create(C_algo_MD5, key).compute(message);
-    };
+    C.MD5 = C_lib_Hash._createHelper(C_algo_MD5);
+    C.HMAC_MD5 = C_lib_Hash._createHmacHelper(C_algo_MD5);
 }());

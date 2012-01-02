@@ -5,10 +5,9 @@
     var C_lib_Cipher = C_lib.Cipher;
     var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
     var C_algo = C.algo;
-    var C_algo_PBE = C_algo.PBE;
 
     /**
-     * RC4 algorithm.
+     * RC4 stream cipher algorithm.
      */
     var C_algo_RC4 = C_algo.RC4 = C_lib_Cipher_Stream.extend({
         /**
@@ -73,19 +72,11 @@
             }
         },
 
-        _keySize: 8,
+        _keySize: 256/32,
 
         _ivSize: 0
     });
 
     // Helper
-    C.RC4 = {
-        encrypt: function (message, password, cfg) {
-            return C_algo_PBE.encrypt(C_algo_RC4, message, password, cfg);
-        },
-
-        decrypt: function (ciphertext, password, cfg) {
-            return C_algo_PBE.decrypt(C_algo_RC4, ciphertext, password, cfg);
-        }
-    };
+    C.RC4 = C_lib_Cipher._createHelper(C_algo_RC4);
 }());

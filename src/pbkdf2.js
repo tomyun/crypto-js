@@ -15,12 +15,12 @@
         /**
          * Configuration options.
          *
-         * @property {number} keySize The key size in words to generate. Default: 4
+         * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
          * @property {CryptoJS.lib.Hash} hasher The hash algorithm to use. Default: CryptoJS.algo.SHA1
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         _cfg: C_lib_Base.extend({
-            keySize: 4,
+            keySize: 128/32,
             hasher: C_algo_SHA1,
             iterations: 1
         }),

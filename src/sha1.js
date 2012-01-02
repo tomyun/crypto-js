@@ -35,13 +35,13 @@
             var w = [];
             for (var i = 0; i < 80; i++) {
                 if (i < 16) {
-                    w[i] = m[offset + i];
+                    w[i] = m[offset + i] | 0;
                 } else {
                     var n = w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16];
                     w[i] = (n << 1) | (n >>> 31);
                 }
 
-                var t = ((a << 5) | (a >>> 27)) + e + (w[i] >>> 0);
+                var t = ((a << 5) | (a >>> 27)) + e + w[i];
                 if      (i < 20) t += ((b & c) | (~b & d)) + 0x5a827999;
                 else if (i < 40) t += (b ^ c ^ d) + 0x6ed9eba1;
                 else if (i < 60) t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
@@ -54,11 +54,11 @@
                 a = t;
             }
 
-            H[0] = (H[0] + a) >>> 0;
-            H[1] = (H[1] + b) >>> 0;
-            H[2] = (H[2] + c) >>> 0;
-            H[3] = (H[3] + d) >>> 0;
-            H[4] = (H[4] + e) >>> 0;
+            H[0] = (H[0] + a) | 0;
+            H[1] = (H[1] + b) | 0;
+            H[2] = (H[2] + c) | 0;
+            H[3] = (H[3] + d) | 0;
+            H[4] = (H[4] + e) | 0;
         },
 
         _doCompute: function () {
@@ -80,10 +80,6 @@
     });
 
     // Helpers
-    C.SHA1 = function (message) {
-        return C_algo_SHA1.create().compute(message);
-    };
-    C.HMAC_SHA1 = function (message, key) {
-        return C_algo.HMAC.create(C_algo_SHA1, key).compute(message);
-    };
+    C.SHA1 = C_lib_Hash._createHelper(C_algo_SHA1);
+    C.HMAC_SHA1 = C_lib_Hash._createHmacHelper(C_algo_SHA1);
 }());

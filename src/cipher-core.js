@@ -13,8 +13,8 @@ CryptoJS.lib.Cipher || (function () {
     /**
      * Base cipher template.
      *
-     * @property {number} _keySize This cipher's key size. Default: 4
-     * @property {number} _ivSize This cipher's IV size. Default: 4
+     * @property {number} _keySize This cipher's key size. Default: 4 (128 bits)
+     * @property {number} _ivSize This cipher's IV size. Default: 4 (128 bits)
      */
     var C_lib_Cipher = C_lib.Cipher = C_lib_Base.extend({
         /**
@@ -83,9 +83,39 @@ CryptoJS.lib.Cipher || (function () {
             return ciphertext;
         },
 
-        _keySize: 4,
+        _keySize: 128/32,
 
-        _ivSize: 4
+        _ivSize: 128/32,
+
+        /**
+         * Creates object with static encrypt and decrypt functions that intelligently branch between password-based
+         * encryption and low-level algorithm usage.
+         *
+         * @param {CryptoJS.lib.Cipher} cipher The cipher algorithm to create a helper for.
+         *
+         * @return {Object} An object with static encrypt and decrypt methods.
+         *
+         * @static
+         */
+        _createHelper: function (cipher) {
+            return {
+                encrypt: function (message, password, cfg) {
+                    if (typeof password == 'string') {
+                        return C_algo_PBE.encrypt(cipher, message, password, cfg);
+                    } else {
+                        return cipher.encrypt(message, password, cfg);
+                    }
+                },
+
+                decrypt: function (ciphertext, password, cfg) {
+                    if (typeof password == 'string') {
+                        return C_algo_PBE.decrypt(cipher, ciphertext, password, cfg);
+                    } else {
+                        return cipher.decrypt(ciphertext, password, cfg);
+                    }
+                }
+            };
+        }
     });
 
     /**
@@ -219,7 +249,7 @@ CryptoJS.lib.Cipher || (function () {
     /**
      * Base block cipher template.
      *
-     * @property {number} _blockSize The number of 32-bit words this cipher operates on. Default: 4
+     * @property {number} _blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
      */
     C_lib_Cipher_Block = C_lib_Cipher.Block = C_lib_Cipher.extend({
         /**
@@ -251,7 +281,7 @@ CryptoJS.lib.Cipher || (function () {
             cfg.padding.unpad(ciphertext);
         },
 
-        _blockSize: 4
+        _blockSize: 128/32
     });
 
     /**
@@ -312,7 +342,7 @@ CryptoJS.lib.Cipher || (function () {
          *
          * @param {CryptoJS.lib.CipherParams} cipherParams The cipher params object.
          *
-         * @return {Base-64 string} The OpenSSL-compatible string.
+         * @return {Base64 string} The OpenSSL-compatible string.
          *
          * @static
          */
@@ -334,7 +364,7 @@ CryptoJS.lib.Cipher || (function () {
         /**
          * Converts an OpenSSL-compatible string to a cipher params object.
          *
-         * @param {Base-64 string} openSSLStr The OpenSSL-compatible string.
+         * @param {Base64 string} openSSLStr The OpenSSL-compatible string.
          *
          * @return {CryptoJS.lib.CipherParams} The cipher params object.
          *
