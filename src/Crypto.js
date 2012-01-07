@@ -46,7 +46,7 @@ var util = Crypto.util = {
 	// Convert a byte array to big-endian 32-bit words
 	bytesToWords: function (bytes) {
 		for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
-			words[b >>> 5] |= bytes[i] << (24 - b % 32);
+			words[b >>> 5] |= (bytes[i] & 0xFF) << (24 - b % 32);
 		return words;
 	},
 
