@@ -15,7 +15,7 @@
          * Initializes a newly created HMAC.
          *
          * @param {CryptoJS.lib.Hash} hasher The hash algorithm to use.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} key The secret key.
+         * @param {CryptoJS.lib.WordArray|string} key The secret key.
          */
         init: function (hasher, key) {
             // Init hasher
@@ -68,9 +68,9 @@
         /**
          * Updates this HMAC with a message.
          *
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate The message to append.
+         * @param {CryptoJS.lib.WordArray|string} messageUpdate The message to append.
          *
-         * @return {CryptoJS.HMAC} This HMAC instance.
+         * @return {CryptoJS.algo.HMAC} This HMAC instance.
          */
         update: function (messageUpdate) {
             this._hasher.update(messageUpdate);
@@ -82,7 +82,7 @@
         /**
          * Completes this HMAC computation, then resets this HMAC to its initial state.
          *
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
+         * @param {CryptoJS.lib.WordArray|string} messageUpdate (Optional) A final message update.
          *
          * @return {CryptoJS.lib.WordArray} The HMAC.
          */

@@ -13,6 +13,7 @@ YUI.add('mode-cbc-test', function (Y) {
             var iv = C.lib.WordArray.create([0x45670123, 0xcdef89ab, 0x45670123, 0xcdef89ab]);
 
             var expected = message.clone();
+
             C.algo.AES._init(key);
 
             // First block XORed with IV, then encrypted
@@ -29,7 +30,7 @@ YUI.add('mode-cbc-test', function (Y) {
 
             var actual = C.algo.AES.encrypt(message, key, { iv: iv, padding: C.pad.NoPadding, mode: C.mode.CBC });
 
-            Y.Assert.areEqual(expected.toString(), actual);
+            Y.Assert.areEqual(expected.toString(), actual.rawCiphertext);
         },
 
         testDecrypt: function () {

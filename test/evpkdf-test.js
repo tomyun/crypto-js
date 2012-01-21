@@ -6,7 +6,7 @@ YUI.add('algo-evpkdf-test', function (Y) {
 
         testVector: function () {
             var expected = 'fdbdf3419fff98bdb0241390f62a9db35f4aba29d77566377997314ebfc709f20b5ca7b1081f94b1ac12e3c8ba87d05a';
-            var actual = C.algo.EvpKDF.compute('password', 'saltsalt', { keySize: (256+128)/32 });
+            var actual = C.EvpKDF('password', 'saltsalt', { keySize: (256+128)/32 });
 
             Y.Assert.areEqual(expected, actual);
         },
@@ -22,7 +22,7 @@ YUI.add('algo-evpkdf-test', function (Y) {
             var expectedPassword = password.toString();
             var expectedSalt = salt.toString();
 
-            C.algo.EvpKDF.compute(password, salt);
+            C.EvpKDF(password, salt);
 
             Y.Assert.areEqual(expectedPassword, password);
             Y.Assert.areEqual(expectedSalt, salt);

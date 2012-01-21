@@ -55,6 +55,7 @@
             var m_offset_14 = m[offset + 14];
             var m_offset_15 = m[offset + 15];
 
+            // Rounds
             var a = H[0];
             var b = H[1];
             var c = H[2];

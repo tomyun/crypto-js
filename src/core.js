@@ -85,6 +85,27 @@ var CryptoJS = CryptoJS || (function () {
             },
 
             /**
+             * Tests if this object is a descendant of the passed type.
+             *
+             * @param {CryptoJS.lib.Base} type The potential ancestor.
+             *
+             * @return {boolean}
+             */
+            isA: function (type) {
+                var o = this;
+
+                while (o) {
+                    if (o == type) {
+                        return true;
+                    } else {
+                        o = o.$super;
+                    }
+                }
+
+                return false;
+            },
+
+            /**
              * Creates a copy of this object.
              *
              * @return {Object} The clone.
@@ -101,9 +122,9 @@ var CryptoJS = CryptoJS || (function () {
      * @property {Array} words The array of 32-bit words.
      * @property {number} sigBytes The number of significant bytes in this word array.
      * @property {CryptoJS.enc.*} encoder
-     *   The default encoding strategy to use to convert this word array to a string. Default: CryptoJS.enc.Hex
+     *   The default encoding strategy to convert this word array to a string. Default: CryptoJS.enc.Hex
      */
-    // Technical note: The default encoder can only be set after the encoders are defined,
+    // Technical note: The default encoder can be set only after the encoders have been defined,
     // therefore that assignment appears farther down in this file.
     var C_lib_WordArray = C_lib.WordArray = C_lib_Base.extend({
         /**
@@ -213,7 +234,7 @@ var CryptoJS = CryptoJS || (function () {
      */
     var C_lib_Hash = C_lib.Hash = C_lib_Base.extend({
         /**
-         * Initializes a newly created hash.
+         * Initializes a newly created hasher.
          */
         init: function () {
             this.reset();
@@ -238,7 +259,7 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Updates this hash with a message.
          *
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate The message to append.
+         * @param {CryptoJS.lib.WordArray|string} messageUpdate The message to append.
          *
          * @return {CryptoJS.lib.Hash} This hash instance.
          */
@@ -288,7 +309,7 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Completes this hash computation, then resets this hash to its initial state.
          *
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} messageUpdate (Optional) A final message update.
+         * @param {CryptoJS.lib.WordArray|string} messageUpdate (Optional) A final message update.
          *
          * @return {CryptoJS.lib.WordArray} The hash.
          */
@@ -356,7 +377,7 @@ var CryptoJS = CryptoJS || (function () {
          *
          * @param {CryptoJS.lib.WordArray} wordArray The word array.
          *
-         * @return {Hex string} The hex string.
+         * @return {string} The hex string.
          *
          * @static
          */
@@ -379,7 +400,7 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Converts a hex string to a word array.
          *
-         * @param {Hex string} hexStr The hex string.
+         * @param {string} hexStr The hex string.
          *
          * @return {CryptoJS.lib.WordArray} The word array.
          *
@@ -408,7 +429,7 @@ var CryptoJS = CryptoJS || (function () {
          *
          * @param {CryptoJS.lib.WordArray} wordArray The word array.
          *
-         * @return {Latin1 string} The Latin1 string.
+         * @return {string} The Latin1 string.
          *
          * @static
          */
@@ -430,7 +451,7 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Converts a Latin1 string to a word array.
          *
-         * @param {Latin1 string} latin1Str The Latin1 string.
+         * @param {string} latin1Str The Latin1 string.
          *
          * @return {CryptoJS.lib.WordArray} The word array.
          *
@@ -459,7 +480,7 @@ var CryptoJS = CryptoJS || (function () {
          *
          * @param {CryptoJS.lib.WordArray} wordArray The word array.
          *
-         * @return {UTF-8 string} The UTF-8 string.
+         * @return {string} The UTF-8 string.
          *
          * @static
          */
@@ -470,7 +491,7 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Converts a UTF-8 string to a word array.
          *
-         * @param {UTF-8 string} utf8Str The UTF-8 string.
+         * @param {string} utf8Str The UTF-8 string.
          *
          * @return {CryptoJS.lib.WordArray} The word array.
          *

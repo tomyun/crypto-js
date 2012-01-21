@@ -1,3 +1,6 @@
+/**
+ * Cipher core components.
+ */
 CryptoJS.lib.Cipher || (function () {
     // Shortcuts
     var C = CryptoJS;
@@ -11,6 +14,102 @@ CryptoJS.lib.Cipher || (function () {
     var C_algo_EvpKDF = C_algo.EvpKDF;
 
     /**
+     * A collection of cipher parameters.
+     *
+     * @property {CryptoJS.lib.WordArray} rawCiphertext The raw ciphertext.
+     * @property {CryptoJS.lib.WordArray} key The key to this ciphertext.
+     * @property {CryptoJS.lib.WordArray} iv The IV used in the ciphering operation.
+     * @property {CryptoJS.lib.WordArray} salt The salt used with a key derivation function.
+     * @property {CryptoJS.lib.Format} formatter
+     *   The default formatting strategy to convert this cipher params object to a string.
+     */
+    var C_lib_CipherParams = C_lib.CipherParams = C_lib_Base.extend({
+        /**
+         * Initializes a newly created cipher params object.
+         *
+         * @param {Object} cipherParams Cipher parameters such as key, IV, salt, and rawCiphertext.
+         */
+        init: function (cipherParams) {
+            this.mixIn(cipherParams);
+        },
+
+        /**
+         * Converts this cipher params object to a string.
+         *
+         * Any arguments beyond the optional formatter will be passed to the formatter.
+         *
+         * @param {CryptoJS.lib.Format} formatter (Optional) The formatting strategy to use.
+         *
+         * @return {string} The stringified cipher params.
+         *
+         * @throws Error If neither the formatter nor the default formatter is set.
+         */
+        toString: function (arg0) {
+            // Make array
+            var args = Array.prototype.slice.call(arguments, 0);
+
+            // Get formatter from arguments or from this cipher params object
+            if (arg0 && arg0.isA && arg0.isA(C_lib_Formatter)) {
+                var formatter = args.shift();
+            } else {
+                var formatter = this.formatter;
+            }
+
+            // This cipher params object will always be the first argument
+            args.unshift(this);
+
+            return formatter.toString.apply(formatter, args);
+        }
+    });
+
+    /**
+     * Base formatter.
+     */
+    var C_lib_Formatter = C_lib.Formatter = C_lib_Base.extend();
+
+    /**
+     * Format namespace.
+     */
+    var C_format = C.format = {};
+
+    /**
+     * Raw ciphertext formatting strategy.
+     */
+    var C_format_RawCiphertext = C_format.RawCiphertext = C_lib_Formatter.extend({
+        /**
+         * Converts the raw ciphertext of a cipher params object to a string.
+         *
+         * @param {CryptoJS.lib.CipherParams} cipherParams The cipher params object.
+         * @param {CryptoJS.lib.Encoder} encoder (Optional) The encoding strategy to use.
+         *
+         * @return {string} The stringified cipher params object.
+         *
+         * @static
+         */
+        toString: function (cipherParams, encoder) {
+            return cipherParams.rawCiphertext.toString(encoder);
+        },
+
+        /**
+         * Converts a raw ciphertext string to a cipher params object.
+         *
+         * @param {string} rawCiphertext The raw ciphertext string.
+         * @param {CryptoJS.enc.*} encoder (Optional) The encoding strategy to use.
+         *
+         * @return {CryptoJS.lib.CipherParams} The cipher params object.
+         *
+         * @static
+         */
+        fromString: function (rawCiphertext, encoder) {
+            rawCiphertext = (encoder || C_lib_WordArray.encoder).fromString(rawCiphertext);
+
+            return C_lib_CipherParams.create({
+                rawCiphertext: rawCiphertext
+            });
+        }
+    });
+
+    /**
      * Base cipher template.
      *
      * @property {number} _keySize This cipher's key size. Default: 4 (128 bits)
@@ -21,17 +120,22 @@ CryptoJS.lib.Cipher || (function () {
          * Configuration options.
          *
          * @property {CryptoJS.lib.WordArray} iv The IV to use for this operation.
+         * @property {CryptoJS.lib.Formatter} format
+         *   The default formatting strategy to convert cipher params to and from a string.
+         *   Default: CryptoJS.format.RawCiphertext
          */
-        _cfg: C_lib_Base.extend(),
+        _cfg: C_lib_Base.extend({
+            format: C_format_RawCiphertext
+        }),
 
         /**
          * Encrypts a message.
          *
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} message The message to encrypt.
+         * @param {CryptoJS.lib.WordArray|string} message The message to encrypt.
          * @param {CryptoJS.lib.WordArray} key The key.
-         * @param {object} cfg (Optional) The configuration options to use for this operation.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
          *
-         * @return {CryptoJS.lib.WordArray} The ciphertext.
+         * @return {CryptoJS.lib.CipherParams} The ciphertext.
          *
          * @static
          */
@@ -50,16 +154,20 @@ CryptoJS.lib.Cipher || (function () {
             this._doEncrypt(message, key, cfg);
 
             // Return the now-encrypted message
-            return message;
+            return C_lib_CipherParams.create({
+                rawCiphertext: message,
+                key: key,
+                iv: cfg.iv,
+                formatter: cfg.format
+            });
         },
 
         /**
          * Decrypts ciphertext.
          *
-         * @param {CryptoJS.lib.WordArray|CryptoJS.lib.WordArray.encoder-encoded string} ciphertext
-         *   The ciphertext to decrypt.
+         * @param {CryptoJS.lib.CipherParams|string} ciphertext The ciphertext to decrypt.
          * @param {CryptoJS.lib.WordArray} key The key.
-         * @param {object} cfg (Optional) The configuration options to use for this operation.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
          *
          * @return {CryptoJS.lib.WordArray} The plaintext.
          *
@@ -69,18 +177,21 @@ CryptoJS.lib.Cipher || (function () {
             // Apply config defaults
             cfg = this._cfg.extend(cfg);
 
-            // Convert string to WordArray, else assume WordArray already
+            // Convert string to CipherParams, else assume CipherParams already
             if (typeof ciphertext == 'string') {
-                ciphertext = C_lib_WordArray.encoder.fromString(ciphertext);
+                ciphertext = cfg.format.fromString(ciphertext);
             } else {
                 ciphertext = ciphertext.clone();
             }
 
+            // Shortcut
+            var rawCiphertext = ciphertext.rawCiphertext;
+
             // Perform cipher-specific logic
-            this._doDecrypt(ciphertext, key, cfg);
+            this._doDecrypt(rawCiphertext, key, cfg);
 
             // Return the now-decrypted ciphertext
-            return ciphertext;
+            return rawCiphertext;
         },
 
         _keySize: 128/32,
@@ -88,8 +199,8 @@ CryptoJS.lib.Cipher || (function () {
         _ivSize: 128/32,
 
         /**
-         * Creates object with static encrypt and decrypt functions that intelligently branch between password-based
-         * encryption and low-level algorithm usage.
+         * Creates a helper object with static encrypt and decrypt functions that intelligently branch between
+         * password-based encryption and low-level algorithm usage.
          *
          * @param {CryptoJS.lib.Cipher} cipher The cipher algorithm to create a helper for.
          *
@@ -115,6 +226,16 @@ CryptoJS.lib.Cipher || (function () {
                     }
                 }
             };
+        }
+    });
+
+    /**
+     * Base stream cipher template.
+     */
+    var C_lib_Cipher_Stream = C_lib_Cipher.Stream = C_lib_Cipher.extend({
+        _doDecrypt: function () {
+            // Encryption and decryption are identical operations
+            return this._doEncrypt.apply(this, arguments);
         }
     });
 
@@ -186,7 +307,7 @@ CryptoJS.lib.Cipher || (function () {
              * Encrypts the message using the cipher and IV.
              *
              * @param {CryptoJS.lib.WordArray} message The message to encrypt.
-             * @param {CryptoJS.lib.Cipher} cipher The block cipher to use.
+             * @param {CryptoJS.lib.Cipher.Block} cipher The block cipher to use.
              * @param {CryptoJS.lib.WordArray} iv The IV.
              *
              * @static
@@ -209,7 +330,7 @@ CryptoJS.lib.Cipher || (function () {
              * Decrypts the ciphertext using the cipher and IV.
              *
              * @param {CryptoJS.lib.WordArray} ciphertext The ciphertext to decrypt.
-             * @param {CryptoJS.lib.Cipher} cipher The block cipher to use.
+             * @param {CryptoJS.lib.Cipher.Block} cipher The block cipher to use.
              * @param {CryptoJS.lib.WordArray} iv The IV.
              *
              * @static
@@ -285,124 +406,18 @@ CryptoJS.lib.Cipher || (function () {
     });
 
     /**
-     * Base stream cipher template.
-     */
-    var C_lib_Cipher_Stream = C_lib_Cipher.Stream = C_lib_Cipher.extend({
-        _doDecrypt: function () {
-            // Encryption and decryption are identical operations
-            return this._doEncrypt.apply(this, arguments);
-        }
-    });
-
-    /**
-     * A collection of cipher parameters.
-     *
-     * @property {CryptoJS.lib.WordArray} rawCiphertext The raw ciphertext.
-     * @property {CryptoJS.lib.WordArray} key The key to this ciphertext.
-     * @property {CryptoJS.lib.WordArray} iv The IV used in the ciphering operation.
-     * @property {CryptoJS.lib.WordArray} salt The salt used with a key derivation function.
-     * @property {CryptoJS.format.*} formatter
-     *   The default formatting strategy to use to convert this cipher params object to a string.
-     */
-    var C_lib_CipherParams = C_lib.CipherParams = C_lib_Base.extend({
-        /**
-         * Initializes a newly created cipher params object.
-         *
-         * @param {Object} cipherParams Cipher parameters such as key, IV, salt, or rawCiphertext.
-         */
-        init: function (cipherParams) {
-            this.mixIn(cipherParams);
-        },
-
-        /**
-         * Converts a cipher params object to a string.
-         *
-         * @param {CryptoJS.format.*} formatter (Optional) The formatting strategy to use.
-         *
-         * @return {string} The stringified cipher params.
-         *
-         * @throws Error If neither the formatter nor the default formatter is set.
-         */
-        toString: function (formatter) {
-            return (formatter || this.formatter).toString(this);
-        }
-    });
-
-    /**
-     * Format namespace.
-     */
-    var C_format = C.format = {};
-
-    /**
-     * OpenSSL-compatible formatting strategy.
-     */
-    var C_format_OpenSSL = C_format.OpenSSL = {
-        /**
-         * Converts a cipher params object to an OpenSSL-compatible string.
-         *
-         * @param {CryptoJS.lib.CipherParams} cipherParams The cipher params object.
-         *
-         * @return {Base64 string} The OpenSSL-compatible string.
-         *
-         * @static
-         */
-        toString: function (cipherParams) {
-            // Shortcuts
-            var rawCiphertext = cipherParams.rawCiphertext;
-            var salt = cipherParams.salt;
-
-            // Format
-            if (salt) {
-                var openSSLStr = C_lib_WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(rawCiphertext);
-            } else {
-                var openSSLStr = rawCiphertext;
-            }
-
-            return openSSLStr.toString(C_enc_Base64);
-        },
-
-        /**
-         * Converts an OpenSSL-compatible string to a cipher params object.
-         *
-         * @param {Base64 string} openSSLStr The OpenSSL-compatible string.
-         *
-         * @return {CryptoJS.lib.CipherParams} The cipher params object.
-         *
-         * @static
-         */
-        fromString: function (openSSLStr) {
-            var rawCiphertext = C_enc_Base64.fromString(openSSLStr);
-
-            // Shortcut
-            var rawCiphertextWords = rawCiphertext.words;
-
-            // Test for salt
-            if (rawCiphertextWords[0] == 0x53616c74 && rawCiphertextWords[1] == 0x65645f5f) {
-                // Extract salt
-                var salt = rawCiphertext.$super.create(rawCiphertextWords.slice(2, 4));
-
-                // Remove salt from raw data
-                rawCiphertextWords.splice(0, 4);
-                rawCiphertext.sigBytes -= 16;
-            }
-
-            return C_lib_CipherParams.create({ rawCiphertext: rawCiphertext, salt: salt });
-        }
-    };
-
-    /**
      * Key derivation function namespace.
      */
     var C_kdf = C.kdf = {};
 
     /**
-     * OpenSSL-compatible key derivation function.
+     * OpenSSL key derivation function.
      */
     var C_kdf_OpenSSL = C_kdf.OpenSSL = {
         /**
          * Derives a key and IV from a password.
          *
-         * @param {UTF-8 string} password The password to derive from.
+         * @param {string} password The password to derive from.
          * @param {CryptoJS.lib.Cipher} cipher The cipher to generate a key for.
          * @param {CryptoJS.lib.CipherParams} cipherParams
          *   (Optional) A cipher params object with a salt to use. If omitted, a salt will be generated randomly.
@@ -419,7 +434,7 @@ CryptoJS.lib.Cipher || (function () {
 
             // Generate random salt
             if ( ! salt) {
-                salt = C_lib_WordArray.random(8);
+                salt = C_lib_WordArray.random(64/8);
             }
 
             // Derive key and IV
@@ -429,9 +444,73 @@ CryptoJS.lib.Cipher || (function () {
             var iv = key.$super.create(key.words.slice(cipherKeySize));
             key.sigBytes = cipherKeySize * 4;
 
-            return C_lib_CipherParams.create({ key: key, iv: iv, salt: salt });
+            return C_lib_CipherParams.create({
+                key: key,
+                iv: iv,
+                salt: salt
+            });
         }
     };
+
+    /**
+     * OpenSSL formatting strategy.
+     */
+    var C_format_OpenSSL = C_format.OpenSSL = C_lib_Formatter.extend({
+        /**
+         * Converts a cipher params object to an OpenSSL-compatible string.
+         *
+         * @param {CryptoJS.lib.CipherParams} cipherParams The cipher params object.
+         *
+         * @return {string} The OpenSSL-compatible string.
+         *
+         * @static
+         */
+        toString: function (cipherParams) {
+            // Shortcuts
+            var rawCiphertext = cipherParams.rawCiphertext;
+            var salt = cipherParams.salt;
+
+            // Format
+            if (salt) {
+                var openSslStr = C_lib_WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(rawCiphertext);
+            } else {
+                var openSslStr = rawCiphertext;
+            }
+
+            return openSslStr.toString(C_enc_Base64);
+        },
+
+        /**
+         * Converts an OpenSSL-compatible string to a cipher params object.
+         *
+         * @param {string} openSSLStr The OpenSSL-compatible string.
+         *
+         * @return {CryptoJS.lib.CipherParams} The cipher params object.
+         *
+         * @static
+         */
+        fromString: function (openSslStr) {
+            var rawCiphertext = C_enc_Base64.fromString(openSslStr);
+
+            // Shortcut
+            var rawCiphertextWords = rawCiphertext.words;
+
+            // Test for salt
+            if (rawCiphertextWords[0] == 0x53616c74 && rawCiphertextWords[1] == 0x65645f5f) {
+                // Extract salt
+                var salt = rawCiphertext.$super.create(rawCiphertextWords.slice(2, 4));
+
+                // Remove salt from raw data
+                rawCiphertextWords.splice(0, 4);
+                rawCiphertext.sigBytes -= 16;
+            }
+
+            return C_lib_CipherParams.create({
+                rawCiphertext: rawCiphertext,
+                salt: salt
+            });
+        }
+    });
 
     /**
      * Password-based encryption.
@@ -440,24 +519,24 @@ CryptoJS.lib.Cipher || (function () {
         /**
          * Configuration options.
          *
-         * @property {CryptoJS.format.*} format
-         *   The formatting strategy to use when converting a cipher params object to and from a string.
-         *   Default: CryptoJS.format.OpenSSL
          * @property {CryptoJS.kdf.*} kdf
          *   The key derivation function to use to generate a key, IV, and salt from a password.
          *   Default: CryptoJS.kdf.OpenSSL
+         * @property {CryptoJS.lib.Formatter} format
+         *   The default formatting strategy to convert cipher params objects to and from a string.
+         *   Default: CryptoJS.format.OpenSSL
          */
         _cfg: C_lib_Base.extend({
-            format: C_format_OpenSSL,
-            kdf: C_kdf_OpenSSL
+            kdf: C_kdf_OpenSSL,
+            format: C_format_OpenSSL
         }),
 
         /**
          * Encrypts a message using a password.
          *
          * @param {CryptoJS.lib.Cipher} cipher The cipher algorithm to use.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} message The message to encrypt.
-         * @param {UTF-8 string} password The password to derive from.
+         * @param {CryptoJS.lib.WordArray|string} message The message to encrypt.
+         * @param {string} password The password to derive from.
          * @param {Object} cfg (Optional) The configuration options to use for this operation.
          *
          * @return {CryptoJS.lib.CipherParams} A cipher params object.
@@ -472,7 +551,9 @@ CryptoJS.lib.Cipher || (function () {
             var cipherParams = cfg.kdf.execute(password, cipher);
 
             // Encrypt
-            cipherParams.rawCiphertext = cipher.encrypt(message, cipherParams.key, { iv: cipherParams.iv });
+            cipherParams.rawCiphertext = cipher.encrypt(
+                message, cipherParams.key, { iv: cipherParams.iv }
+            ).rawCiphertext;
 
             // Set default formatter
             cipherParams.formatter = cfg.format;
@@ -484,8 +565,8 @@ CryptoJS.lib.Cipher || (function () {
          * Decrypts ciphertext using a password.
          *
          * @param {CryptoJS.lib.Cipher} cipher The cipher algorithm to use.
-         * @param {CryptoJS.lib.CipherParams|formatted cipher params string} ciphertext The ciphertext to decrypt.
-         * @param {UTF-8 string} password The password to derive from.
+         * @param {CryptoJS.lib.CipherParams|string} ciphertext The ciphertext to decrypt.
+         * @param {string} password The password to derive from.
          * @param {Object} cfg (Optional) The configuration options to use for this operation.
          *
          * @return {CryptoJS.lib.WordArray} The decrypted plaintext.

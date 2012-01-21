@@ -31,38 +31,40 @@
         <script src="http://yui.yahooapis.com/3.4.0/build/yui/yui-min.js"></script>
 
         <!-- Tests -->
-        <script type="text/javascript" src="lib-base-test.js"></script>
-        <script type="text/javascript" src="lib-wordarray-test.js"></script>
-        <script type="text/javascript" src="lib-hash-test.js"></script>
-        <script type="text/javascript" src="enc-hex-test.js"></script>
-        <script type="text/javascript" src="enc-latin1-test.js"></script>
-        <script type="text/javascript" src="enc-utf8-test.js"></script>
-        <script type="text/javascript" src="enc-base64-test.js"></script>
-        <script type="text/javascript" src="md5-test.js"></script>
-        <script type="text/javascript" src="sha1-test.js"></script>
-        <script type="text/javascript" src="sha256-test.js"></script>
-        <script type="text/javascript" src="hmac-test.js"></script>
-        <script type="text/javascript" src="pbkdf2-test.js"></script>
-        <script type="text/javascript" src="evpkdf-test.js"></script>
-        <script type="text/javascript" src="lib-cipher-test.js"></script>
-        <script type="text/javascript" src="pad-pkcs7-test.js"></script>
-        <script type="text/javascript" src="mode-cbc-test.js"></script>
-        <script type="text/javascript" src="format-openssl-test.js"></script>
-        <script type="text/javascript" src="kdf-openssl-test.js"></script>
-        <script type="text/javascript" src="pad-zeropadding-test.js"></script>
-        <script type="text/javascript" src="pad-iso97971-test.js"></script>
-        <script type="text/javascript" src="pad-ansix923-test.js"></script>
-        <script type="text/javascript" src="pad-iso10126-test.js"></script>
-        <script type="text/javascript" src="mode-ecb-test.js"></script>
-        <script type="text/javascript" src="mode-cfb-test.js"></script>
-        <script type="text/javascript" src="mode-ofb-test.js"></script>
-        <script type="text/javascript" src="mode-ctr-test.js"></script>
-        <script type="text/javascript" src="rc4-test.js"></script>
-        <script type="text/javascript" src="rabbit-test.js"></script>
-        <script type="text/javascript" src="aes-test.js"></script>
+        <script src="lib-base-test.js"></script>
+        <script src="lib-wordarray-test.js"></script>
+        <script src="lib-hash-test.js"></script>
+        <script src="enc-hex-test.js"></script>
+        <script src="enc-latin1-test.js"></script>
+        <script src="enc-utf8-test.js"></script>
+        <script src="enc-base64-test.js"></script>
+        <script src="md5-test.js"></script>
+        <script src="sha1-test.js"></script>
+        <script src="sha256-test.js"></script>
+        <script src="hmac-test.js"></script>
+        <script src="pbkdf2-test.js"></script>
+        <script src="evpkdf-test.js"></script>
+        <script src="lib-cipherparams-test.js"></script>
+        <script src="format-rawciphertext-test.js"></script>
+        <script src="lib-cipher-test.js"></script>
+        <script src="pad-pkcs7-test.js"></script>
+        <script src="mode-cbc-test.js"></script>
+        <script src="kdf-openssl-test.js"></script>
+        <script src="format-openssl-test.js"></script>
+        <script src="pad-zeropadding-test.js"></script>
+        <script src="pad-iso97971-test.js"></script>
+        <script src="pad-ansix923-test.js"></script>
+        <script src="pad-iso10126-test.js"></script>
+        <script src="mode-ecb-test.js"></script>
+        <script src="mode-cfb-test.js"></script>
+        <script src="mode-ofb-test.js"></script>
+        <script src="mode-ctr-test.js"></script>
+        <script src="rc4-test.js"></script>
+        <script src="rabbit-test.js"></script>
+        <script src="aes-test.js"></script>
 
         <!-- Test runner -->
-        <script type="text/javascript">
+        <script>
             YUI().use('test', 'console', function (Y) {
                 Y.use('*', function (Y) {
                     new Y.Console({
@@ -85,7 +87,7 @@
             });
         </script>
 
-        <style type="text/css">
+        <style>
             body.yui3-skin-sam .yui3-console-entry-meta,
             body.yui3-skin-sam .yui3-console-entry-content {
                 display: inline-block;

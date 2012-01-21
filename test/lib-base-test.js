@@ -75,6 +75,12 @@ YUI.add('lib-base-test', function (Y) {
             Y.Assert.areEqual('arg_value', this.data.obj.arg);
         },
 
+        testIsa: function () {
+            Y.Assert.isTrue(this.data.obj.isA(this.data.Obj));
+            Y.Assert.isTrue(this.data.obj.isA(C.lib.Base));
+            Y.Assert.isFalse(this.data.objClone.isA(this.data.obj));
+        },
+
         testCloneDistinct: function () {
             Y.Assert.areNotEqual(this.data.obj, this.data.objClone);
         },

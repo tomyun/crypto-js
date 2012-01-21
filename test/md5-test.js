@@ -5,35 +5,33 @@ YUI.add('algo-md5-test', function (Y) {
         name: 'algo.MD5',
 
         testVector1: function () {
-            Y.Assert.areEqual('d41d8cd98f00b204e9800998ecf8427e', C.algo.MD5.create().compute(''));
+            Y.Assert.areEqual('d41d8cd98f00b204e9800998ecf8427e', C.MD5(''));
         },
 
         testVector2: function () {
-            Y.Assert.areEqual('0cc175b9c0f1b6a831c399e269772661', C.algo.MD5.create().compute('a'));
+            Y.Assert.areEqual('0cc175b9c0f1b6a831c399e269772661', C.MD5('a'));
         },
 
         testVector3: function () {
-            Y.Assert.areEqual('900150983cd24fb0d6963f7d28e17f72', C.algo.MD5.create().compute('abc'));
+            Y.Assert.areEqual('900150983cd24fb0d6963f7d28e17f72', C.MD5('abc'));
         },
 
         testVector4: function () {
-            Y.Assert.areEqual('f96b697d7cb7938d525a2f31aaf161d0', C.algo.MD5.create().compute('message digest'));
+            Y.Assert.areEqual('f96b697d7cb7938d525a2f31aaf161d0', C.MD5('message digest'));
         },
 
         testVector5: function () {
-            var actual = C.algo.MD5.create().compute('abcdefghijklmnopqrstuvwxyz');
-
-            Y.Assert.areEqual('c3fcd3d76192e4007dfb496cca67e13b', actual);
+            Y.Assert.areEqual('c3fcd3d76192e4007dfb496cca67e13b', C.MD5('abcdefghijklmnopqrstuvwxyz'));
         },
 
         testVector6: function () {
-            var actual = C.algo.MD5.create().compute('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+            var actual = C.MD5('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
 
             Y.Assert.areEqual('d174ab98d277d9f5a5611c2c9f419d9f', actual);
         },
 
         testVector7: function () {
-            var actual = C.algo.MD5.create().compute('12345678901234567890123456789012345678901234567890123456789012345678901234567890');
+            var actual = C.MD5('12345678901234567890123456789012345678901234567890123456789012345678901234567890');
 
             Y.Assert.areEqual('57edf4a22be3c955ac49da2e2107b67a', actual);
         },

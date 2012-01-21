@@ -28,8 +28,8 @@
         /**
          * Derives a key from a password.
          *
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} password The password.
-         * @param {CryptoJS.lib.WordArray|UTF-8 string} salt A salt.
+         * @param {CryptoJS.lib.WordArray|string} password The password.
+         * @param {CryptoJS.lib.WordArray|string} salt A salt.
          * @param {Object} cfg (Optional) The configuration options to use for this computation.
          *
          * @return {CryptoJS.lib.WordArray} The derived key.
