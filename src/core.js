@@ -233,10 +233,14 @@ var CryptoJS = CryptoJS || (function () {
      * @property {number} _blockSize The number of 32-bit words this hash operates on. Default: 16 (512 bits)
      */
     var C_lib_Hash = C_lib.Hash = C_lib_Base.extend({
+        _cfg: C_lib_Base.extend(),
+
         /**
          * Initializes a newly created hasher.
          */
-        init: function () {
+        init: function (cfg) {
+            this._cfg = this._cfg.extend(cfg);
+
             this.reset();
         },
 
@@ -342,8 +346,8 @@ var CryptoJS = CryptoJS || (function () {
          * @static
          */
         _createHelper: function (hasher) {
-            return function (message) {
-                return hasher.create().compute(message);
+            return function (message, cfg) {
+                return hasher.create(cfg).compute(message);
             };
         },
 
