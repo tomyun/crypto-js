@@ -2,13 +2,13 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Hash = C_lib.Hash;
+    var Hasher = C_lib.Hasher;
     var C_algo = C.algo;
 
     /**
      * SHA-1 hash algorithm.
      */
-    var C_algo_SHA1 = C_algo.SHA1 = C_lib_Hash.extend({
+    var SHA1 = C_algo.SHA1 = Hasher.extend({
         _doReset: function () {
             // Shortcut
             var H = this._hash.words;
@@ -23,25 +23,27 @@
 
         _doHashBlock: function (offset) {
             // Shortcuts
-            var m = this._message.words;
+            var M = this._message.words;
             var H = this._hash.words;
 
+            // Working variables
             var a = H[0];
             var b = H[1];
             var c = H[2];
             var d = H[3];
             var e = H[4];
 
-            var w = [];
+            // Computation
+            var W = [];
             for (var i = 0; i < 80; i++) {
                 if (i < 16) {
-                    w[i] = m[offset + i] | 0;
+                    W[i] = M[offset + i] | 0;
                 } else {
-                    var n = w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16];
-                    w[i] = (n << 1) | (n >>> 31);
+                    var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+                    W[i] = (n << 1) | (n >>> 31);
                 }
 
-                var t = ((a << 5) | (a >>> 27)) + e + w[i];
+                var t = ((a << 5) | (a >>> 27)) + e + W[i];
                 if      (i < 20) t += ((b & c) | (~b & d)) + 0x5a827999;
                 else if (i < 40) t += (b ^ c ^ d) + 0x6ed9eba1;
                 else if (i < 60) t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
@@ -54,6 +56,7 @@
                 a = t;
             }
 
+            // Intermediate hash value
             H[0] = (H[0] + a) | 0;
             H[1] = (H[1] + b) | 0;
             H[2] = (H[2] + c) | 0;
@@ -64,22 +67,46 @@
         _doCompute: function () {
             // Shortcuts
             var message = this._message;
-            var messageWords = message.words;
+            var M = message.words;
 
-            var nBitsTotal = this._length * 8;
+            var nBitsTotal = this._nBytes * 8;
             var nBitsLeft = message.sigBytes * 8;
 
             // Add padding
-            messageWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            messageWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            message.sigBytes = messageWords.length * 4;
+            M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            M[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+            message.sigBytes = M.length * 4;
 
             // Hash final blocks
             this._hashBlocks();
         }
     });
 
-    // Helpers
-    C.SHA1 = C_lib_Hash._createHelper(C_algo_SHA1);
-    C.HMAC_SHA1 = C_lib_Hash._createHmacHelper(C_algo_SHA1);
+    /**
+     * Shortcut function to the hasher's object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     *
+     * @return {WordArray} The hash.
+     *
+     * @example
+     *
+     *     var hash = CryptoJS.SHA1('message');
+     *     var hash = CryptoJS.SHA1(wordArray);
+     */
+    C.SHA1 = Hasher._createHelper(SHA1);
+
+    /**
+     * Shortcut function to the HMAC's object interface.
+     *
+     * @param {WordArray|string} message The message to hash.
+     * @param {WordArray|string} key The secret key.
+     *
+     * @return {WordArray} The HMAC.
+     *
+     * @example
+     *
+     *     var hmac = CryptoJS.HmacSHA1(message, key);
+     */
+    C.HmacSHA1 = Hasher._createHmacHelper(SHA1);
 }());

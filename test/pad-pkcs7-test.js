@@ -2,7 +2,7 @@ YUI.add('pad-pkcs7-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'pad.PKCS7',
+        name: 'PKCS7',
 
         testPad: function () {
             var data = C.lib.WordArray.create([0x666f7200], 3);

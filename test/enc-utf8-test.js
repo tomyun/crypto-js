@@ -2,38 +2,38 @@
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'enc.Utf8',
+        name: 'Utf8',
 
-        testToString1: function () {
-            Y.Assert.areEqual('$', C.enc.Utf8.toString(C.lib.WordArray.create([0x24000000], 1)));
+        testStringify1: function () {
+            Y.Assert.areEqual('$', C.enc.Utf8.stringify(C.lib.WordArray.create([0x24000000], 1)));
         },
 
-        testToString2: function () {
-            Y.Assert.areEqual('¢', C.enc.Utf8.toString(C.lib.WordArray.create([0xc2a20000], 2)));
+        testStringify2: function () {
+            Y.Assert.areEqual('¢', C.enc.Utf8.stringify(C.lib.WordArray.create([0xc2a20000], 2)));
         },
 
-        testToString3: function () {
-            Y.Assert.areEqual('€', C.enc.Utf8.toString(C.lib.WordArray.create([0xe282ac00], 3)));
+        testStringify3: function () {
+            Y.Assert.areEqual('€', C.enc.Utf8.stringify(C.lib.WordArray.create([0xe282ac00], 3)));
         },
 
-        testToString4: function () {
-            Y.Assert.areEqual('𤭢', C.enc.Utf8.toString(C.lib.WordArray.create([0xf0a4ada2], 4)));
+        testStringify4: function () {
+            Y.Assert.areEqual('𤭢', C.enc.Utf8.stringify(C.lib.WordArray.create([0xf0a4ada2], 4)));
         },
 
-        testFromString1: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x24000000], 1).toString(), C.enc.Utf8.fromString('$'));
+        testParse1: function () {
+            Y.Assert.areEqual(C.lib.WordArray.create([0x24000000], 1).toString(), C.enc.Utf8.parse('$'));
         },
 
-        testFromString2: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xc2a20000], 2).toString(), C.enc.Utf8.fromString('¢'));
+        testParse2: function () {
+            Y.Assert.areEqual(C.lib.WordArray.create([0xc2a20000], 2).toString(), C.enc.Utf8.parse('¢'));
         },
 
-        testFromString3: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xe282ac00], 3).toString(), C.enc.Utf8.fromString('€'));
+        testParse3: function () {
+            Y.Assert.areEqual(C.lib.WordArray.create([0xe282ac00], 3).toString(), C.enc.Utf8.parse('€'));
         },
 
-        testFromString4: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xf0a4ada2], 4).toString(), C.enc.Utf8.fromString('𤭢'));
+        testParse4: function () {
+            Y.Assert.areEqual(C.lib.WordArray.create([0xf0a4ada2], 4).toString(), C.enc.Utf8.parse('𤭢'));
         }
     }));
 }, '$Rev$');

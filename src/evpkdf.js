@@ -2,49 +2,65 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Base = C_lib.Base;
-    var C_lib_WordArray = C_lib.WordArray;
+    var Base = C_lib.Base;
+    var WordArray = C_lib.WordArray;
     var C_algo = C.algo;
-    var C_algo_MD5 = C_algo.MD5;
+    var MD5 = C_algo.MD5;
 
     /**
      * This key derivation function is meant to conform with EVP_BytesToKey.
      * www.openssl.org/docs/crypto/EVP_BytesToKey.html
      */
-    var C_algo_EvpKDF = C_algo.EvpKDF = {
+    var EvpKDF = C_algo.EvpKDF = Base.extend({
         /**
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
-         * @property {CryptoJS.lib.Hash} hasher The hash algorithm to use. Default: CryptoJS.algo.MD5
+         * @property {Hasher} hasher The hash algorithm to use. Default: MD5
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
-        _cfg: C_lib_Base.extend({
+        _cfg: Base.extend({
             keySize: 128/32,
-            hasher: C_algo_MD5,
+            hasher: MD5,
             iterations: 1
         }),
 
         /**
+         * Initializes a newly created key derivation function.
+         *
+         * @param {Object} cfg (Optional) The configuration options to use for the derivation.
+         *
+         * @example
+         *
+         *     var kdf = CryptoJS.algo.EvpKDF.create();
+         *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8 });
+         *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8, iterations: 1000 });
+         */
+        init: function (cfg) {
+            this._cfg = this._cfg.extend(cfg);
+        },
+
+        /**
          * Derives a key from a password.
          *
-         * @param {CryptoJS.lib.WordArray|string} password The password.
-         * @param {CryptoJS.lib.WordArray|string} salt A salt.
-         * @param {Object} cfg (Optional) The configuration options to use for this computation.
+         * @param {WordArray|string} password The password.
+         * @param {WordArray|string} salt A salt.
          *
-         * @return {CryptoJS.lib.WordArray} The derived key.
+         * @return {WordArray} The derived key.
          *
-         * @static
+         * @example
+         *
+         *     var key = kdf.compute(password, salt);
          */
-        compute: function (password, salt, cfg) {
-            // Apply config defaults
-            cfg = this._cfg.extend(cfg);
+        compute: function (password, salt) {
+            // Shortcut
+            var cfg = this._cfg;
 
             // Init hasher
             var hasher = cfg.hasher.create();
 
             // Initial values
-            var derivedKey = C_lib_WordArray.create();
+            var derivedKey = WordArray.create();
 
             // Shortcuts
             var derivedKeyWords = derivedKey.words;
@@ -69,10 +85,26 @@
 
             return derivedKey;
         }
-    };
+    });
 
-    // Helper
+    /**
+     * Derives a key from a password.
+     *
+     * @param {WordArray|string} password The password.
+     * @param {WordArray|string} salt A salt.
+     * @param {Object} cfg (Optional) The configuration options to use for this computation.
+     *
+     * @return {WordArray} The derived key.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var key = CryptoJS.EvpKDF(password, salt);
+     *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8 });
+     *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8, iterations: 1000 });
+     */
     C.EvpKDF = function (password, salt, cfg) {
-        return C_algo_EvpKDF.compute(password, salt, cfg);
+        return EvpKDF.create(cfg).compute(password, salt);
     };
 }());

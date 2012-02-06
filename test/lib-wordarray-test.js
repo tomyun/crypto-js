@@ -2,7 +2,7 @@ YUI.add('lib-wordarray-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'lib.WordArray',
+        name: 'WordArray',
 
         testInit0: function () {
             Y.Assert.areEqual('', C.lib.WordArray.create());
@@ -17,33 +17,30 @@ YUI.add('lib-wordarray-test', function (Y) {
         },
 
         testToStringPassedEncoder: function () {
-            var wordArray = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
-
-            Y.Assert.areEqual('Hello, World!', wordArray.toString(C.enc.Latin1));
+            Y.Assert.areEqual('\x12\x34\x56\x78', C.lib.WordArray.create([0x12345678]).toString(C.enc.Latin1));
         },
 
         testToStringDefaultEncoder: function () {
-            var wordArray = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
-
-            Y.Assert.areEqual('48656c6c6f2c20576f726c6421', wordArray);
+            Y.Assert.areEqual('12345678', C.lib.WordArray.create([0x12345678]));
         },
 
         testConcat: function () {
-            var wordArray1 = C.lib.WordArray.create([0x61626364], 3);
-            var wordArray2 = C.lib.WordArray.create([0x61626364], 3);
+            var wordArray1 = C.lib.WordArray.create([0x12345678], 3);
+            var wordArray2 = C.lib.WordArray.create([0x12345678], 3);
 
-            Y.Assert.areEqual('616263616263', wordArray1.concat(wordArray2));
+            Y.Assert.areEqual('123456123456', wordArray1.concat(wordArray2));
+            Y.Assert.areEqual('123456123456', wordArray1);
         },
 
         testClamp: function () {
-            var wordArray = C.lib.WordArray.create([0x61626361, 0x62630000], 3);
+            var wordArray = C.lib.WordArray.create([0x12345678, 0x12345678], 3);
             wordArray.clamp();
 
-            Y.Assert.areEqual([0x61626300].toString(), wordArray.words);
+            Y.Assert.areEqual([0x12345600].toString(), wordArray.words);
         },
 
         testClone: function () {
-            var wordArray = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
+            var wordArray = C.lib.WordArray.create([0x12345678]);
             var wordArrayClone = wordArray.clone();
             wordArrayClone.words[0] = 0;
 

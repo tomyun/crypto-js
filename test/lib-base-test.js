@@ -2,7 +2,7 @@ YUI.add('lib-base-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'lib.Base',
+        name: 'Base',
 
         setUp: function () {
             this.data = {};
@@ -26,10 +26,9 @@ YUI.add('lib-base-test', function (Y) {
 
             this.data.Obj.mixIn(this.data.mixins);
 
-            this.data.obj = this.data.Obj.create('arg_value');
+            this.data.obj = this.data.Obj.create('argValue');
 
             this.data.objClone = this.data.obj.clone();
-
         },
 
         testExtendInheritance: function () {
@@ -72,7 +71,7 @@ YUI.add('lib-base-test', function (Y) {
 
         testCreateInit: function () {
             Y.Assert.isTrue(this.data.obj.initFired);
-            Y.Assert.areEqual('arg_value', this.data.obj.arg);
+            Y.Assert.areEqual('argValue', this.data.obj.arg);
         },
 
         testIsa: function () {
@@ -90,7 +89,7 @@ YUI.add('lib-base-test', function (Y) {
         },
 
         testCloneIndependent: function () {
-            this.data.obj.arg = 'new_value';
+            this.data.obj.arg = 'newValue';
 
             Y.Assert.areNotEqual(this.data.obj.arg, this.data.objClone.arg);
         }

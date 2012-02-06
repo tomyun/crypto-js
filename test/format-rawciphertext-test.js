@@ -2,34 +2,34 @@ YUI.add('format-rawciphertext-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'format.RawCiphertext',
-        
+        name: 'RawCiphertext',
+
         testToStringPassedEncoder: function () {
             var cipherParams = C.lib.CipherParams.create({
-                rawCiphertext: C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13)
+                rawCiphertext: C.lib.WordArray.create([0x12345678])
             });
 
-            Y.Assert.areEqual('Hello, World!', C.format.RawCiphertext.toString(cipherParams, C.enc.Latin1));
+            Y.Assert.areEqual('\x12\x34\x56\x78', C.format.RawCiphertext.toString(cipherParams, C.enc.Latin1));
         },
 
         testToStringDefaultEncoder: function () {
             var cipherParams = C.lib.CipherParams.create({
-                rawCiphertext: C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13)
+                rawCiphertext: C.lib.WordArray.create([0x12345678])
             });
 
-            Y.Assert.areEqual('48656c6c6f2c20576f726c6421', C.format.RawCiphertext.toString(cipherParams));
+            Y.Assert.areEqual('12345678', C.format.RawCiphertext.toString(cipherParams));
         },
-        
+
         testFromStringPassedEncoder: function () {
-            var actual = C.format.RawCiphertext.fromString('Hello, World!', C.enc.Latin1).rawCiphertext;
-        
-            Y.Assert.areEqual('48656c6c6f2c20576f726c6421', actual);
+            var cipherParams = C.format.RawCiphertext.fromString('\x12\x34\x56\x78', C.enc.Latin1);
+
+            Y.Assert.areEqual('12345678', cipherParams.rawCiphertext);
         },
-        
+
         testFromStringDefaultEncoder: function () {
-            var actual = C.format.RawCiphertext.fromString('48656c6c6f2c20576f726c6421').rawCiphertext;
-        
-            Y.Assert.areEqual('48656c6c6f2c20576f726c6421', actual);
+            var cipherParams = C.format.RawCiphertext.fromString('12345678');
+
+            Y.Assert.areEqual('12345678', cipherParams.rawCiphertext);
         }
     }));
 }, '$Rev$');

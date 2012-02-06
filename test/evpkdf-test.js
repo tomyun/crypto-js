@@ -2,13 +2,10 @@ YUI.add('algo-evpkdf-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'algo.EvpKDF',
+        name: 'EvpKDF',
 
         testVector: function () {
-            var expected = 'fdbdf3419fff98bdb0241390f62a9db35f4aba29d77566377997314ebfc709f20b5ca7b1081f94b1ac12e3c8ba87d05a';
-            var actual = C.EvpKDF('password', 'saltsalt', { keySize: (256+128)/32 });
-
-            Y.Assert.areEqual(expected, actual);
+            Y.Assert.areEqual('fdbdf3419fff98bdb0241390f62a9db35f4aba29d77566377997314ebfc709f20b5ca7b1081f94b1ac12e3c8ba87d05a', C.EvpKDF('password', 'saltsalt', { keySize: (256+128)/32 }));
         },
 
         // There are no official test vectors that I could find, and the EVP implementation is short on comments.
@@ -16,8 +13,8 @@ YUI.add('algo-evpkdf-test', function (Y) {
         // The iteration count in particular needs to be tested.
 
         testInputIntegrity: function () {
-            var password = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
-            var salt = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
+            var password = C.lib.WordArray.create([0x12345678]);
+            var salt = C.lib.WordArray.create([0x12345678]);
 
             var expectedPassword = password.toString();
             var expectedSalt = salt.toString();
@@ -33,9 +30,7 @@ YUI.add('algo-evpkdf-test', function (Y) {
             var salt = 'saltsalt';
             var cfg = { keySize: (256+128)/32 };
 
-            var expected = C.algo.EvpKDF.compute(password, salt, cfg).toString();
-
-            Y.Assert.areEqual(expected, C.EvpKDF(password, salt, cfg));
+            Y.Assert.areEqual(C.algo.EvpKDF.create(cfg).compute(password, salt).toString(), C.EvpKDF(password, salt, cfg));
         }
     }));
 }, '$Rev$');

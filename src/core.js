@@ -1,7 +1,7 @@
 /**
  * CryptoJS core components.
  */
-var CryptoJS = CryptoJS || (function () {
+var CryptoJS = CryptoJS || (function (Math, undefined) {
     /**
      * CryptoJS namespace.
      */
@@ -15,7 +15,7 @@ var CryptoJS = CryptoJS || (function () {
     /**
      * Base object for prototypal inheritance.
      */
-    var C_lib_Base = C_lib.Base = (function () {
+    var Base = C_lib.Base = (function () {
         function F() {}
 
         return {
@@ -27,6 +27,15 @@ var CryptoJS = CryptoJS || (function () {
              * @return {Object} The new object.
              *
              * @static
+             *
+             * @example
+             *
+             *     var MyType = CryptoJS.lib.Base.extend({
+             *         field: 'value',
+             *
+             *         method: function () {
+             *         }
+             *     });
              */
             extend: function (overrides) {
                 // Spawn
@@ -48,6 +57,12 @@ var CryptoJS = CryptoJS || (function () {
              * Copies properties into this object.
              *
              * @param {Object} properties The properties to mix in.
+             *
+             * @example
+             *
+             *     MyType.mixIn({
+             *         property: 'value'
+             *     });
              */
             mixIn: function (properties) {
                 for (var p in properties) {
@@ -69,6 +84,10 @@ var CryptoJS = CryptoJS || (function () {
              * @return {Object} The new object.
              *
              * @static
+             *
+             * @example
+             *
+             *     var instance = MyType.create();
              */
             create: function () {
                 var instance = this.extend();
@@ -80,6 +99,14 @@ var CryptoJS = CryptoJS || (function () {
             /**
              * Initializes a newly created object.
              * Override this method to add some logic when your objects are created.
+             *
+             * @example
+             *
+             *     var MyType = CryptoJS.lib.Base.extend({
+             *         init: function () {
+             *             // ...
+             *         }
+             *     });
              */
             init: function () {
             },
@@ -87,9 +114,14 @@ var CryptoJS = CryptoJS || (function () {
             /**
              * Tests if this object is a descendant of the passed type.
              *
-             * @param {CryptoJS.lib.Base} type The potential ancestor.
+             * @param {Base} type The potential ancestor.
              *
              * @return {boolean}
+             *
+             * @example
+             *
+             *     if (instance.isA(MyType)) {
+             *     }
              */
             isA: function (type) {
                 var o = this;
@@ -109,6 +141,10 @@ var CryptoJS = CryptoJS || (function () {
              * Creates a copy of this object.
              *
              * @return {Object} The clone.
+             *
+             * @example
+             *
+             *     var clone = instance.clone();
              */
             clone: function () {
                 return this.$super.extend(this);
@@ -117,21 +153,187 @@ var CryptoJS = CryptoJS || (function () {
     }());
 
     /**
+     * Encoding namespace.
+     */
+    var C_enc = C.enc = {};
+
+    /**
+     * Hex encoding strategy.
+     */
+    var Hex = C_enc.Hex = {
+        /**
+         * Converts a word array to a hex string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The hex string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var hexString = CryptoJS.enc.Hex.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            // Convert
+            var hexChars = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                hexChars.push((bite >>> 4).toString(16));
+                hexChars.push((bite & 0x0f).toString(16));
+            }
+
+            return hexChars.join('');
+        },
+
+        /**
+         * Converts a hex string to a word array.
+         *
+         * @param {string} hexStr The hex string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
+         */
+        parse: function (hexStr) {
+            // Shortcut
+            var hexStrLength = hexStr.length;
+
+            // Convert
+            var words = [];
+            for (var i = 0; i < hexStrLength; i += 2) {
+                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
+            }
+
+            return WordArray.create(words, hexStrLength / 2);
+        }
+    };
+
+    /**
+     * Latin1 encoding strategy.
+     */
+    var Latin1 = C_enc.Latin1 = {
+        /**
+         * Converts a word array to a Latin1 string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The Latin1 string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+
+            // Convert
+            var latin1Chars = [];
+            for (var i = 0; i < sigBytes; i++) {
+                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                latin1Chars.push(String.fromCharCode(bite));
+            }
+
+            return latin1Chars.join('');
+        },
+
+        /**
+         * Converts a Latin1 string to a word array.
+         *
+         * @param {string} latin1Str The Latin1 string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
+         */
+        parse: function (latin1Str) {
+            // Shortcut
+            var latin1StrLength = latin1Str.length;
+
+            // Convert
+            var words = [];
+            for (var i = 0; i < latin1StrLength; i++) {
+                words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
+            }
+
+            return WordArray.create(words, latin1StrLength);
+        }
+    };
+
+    /**
+     * UTF-8 encoding strategy.
+     */
+    var Utf8 = C_enc.Utf8 = {
+        /**
+         * Converts a word array to a UTF-8 string.
+         *
+         * @param {WordArray} wordArray The word array.
+         *
+         * @return {string} The UTF-8 string.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
+         */
+        stringify: function (wordArray) {
+            return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+        },
+
+        /**
+         * Converts a UTF-8 string to a word array.
+         *
+         * @param {string} utf8Str The UTF-8 string.
+         *
+         * @return {WordArray} The word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
+         */
+        parse: function (utf8Str) {
+            return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
+        }
+    };
+
+    /**
      * An array of 32-bit words.
      *
      * @property {Array} words The array of 32-bit words.
      * @property {number} sigBytes The number of significant bytes in this word array.
-     * @property {CryptoJS.enc.*} encoder
-     *   The default encoding strategy to convert this word array to a string. Default: CryptoJS.enc.Hex
+     * @property {Encoder} encoder  The default encoding strategy to convert this word array to a string. Default: Hex
      */
-    // Technical note: The default encoder can be set only after the encoders have been defined,
-    // therefore that assignment appears farther down in this file.
-    var C_lib_WordArray = C_lib.WordArray = C_lib_Base.extend({
+    var WordArray = C_lib.WordArray = Base.extend({
         /**
          * Initializes a newly created word array.
          *
          * @param {Array} words (Optional) An array of 32-bit words.
          * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.lib.WordArray.create();
+         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
+         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
          */
         init: function (words, sigBytes) {
             words = this.words = words || [];
@@ -146,20 +348,32 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Converts this word array to a string.
          *
-         * @param {CryptoJS.enc.*} encoder (Optional) The encoding strategy to use.
+         * @param {Encoder} encoder (Optional) The encoding strategy to use.
          *
          * @return {string} The stringified word array.
+         *
+         * @example
+         *
+         *     var string = wordArray + '';
+         *     var string = wordArray.toString();
+         *     var string = wordArray.toString(CryptoJS.enc.Latin1);
          */
         toString: function (encoder) {
-            return (encoder || this.encoder).toString(this);
+            return (encoder || this.encoder).stringify(this);
         },
+
+        encoder: Hex,
 
         /**
          * Concatenates a word array to this word array.
          *
-         * @param {CryptoJS.lib.WordArray} wordArray The word array to append.
+         * @param {WordArray} wordArray The word array to append.
          *
-         * @return {CryptoJS.lib.WordArray} This word array.
+         * @return {WordArray} This word array.
+         *
+         * @example
+         *
+         *     wordArray1.concat(wordArray2);
          */
         concat: function (wordArray) {
             // Shortcuts
@@ -185,6 +399,10 @@ var CryptoJS = CryptoJS || (function () {
 
         /**
          * Removes insignificant bits.
+         *
+         * @example
+         *
+         *     wordArray.clamp();
          */
         clamp: function () {
             // Shortcuts
@@ -199,10 +417,14 @@ var CryptoJS = CryptoJS || (function () {
         /**
          * Creates a copy of this word array.
          *
-         * @return {CryptoJS.lib.WordArray} The clone.
+         * @return {WordArray} The clone.
+         *
+         * @example
+         *
+         *     var wordArrayClone = wordArray.clone();
          */
         clone: function () {
-            var clone = C_lib_WordArray.$super.clone.call(this);
+            var clone = Base.clone.call(this);
             clone.words = this.words.slice(0);
 
             return clone;
@@ -213,9 +435,13 @@ var CryptoJS = CryptoJS || (function () {
          *
          * @param {number} nBytes The number of random bytes to generate.
          *
-         * @return {CryptoJS.lib.WordArray} The random word array.
+         * @return {WordArray} The random word array.
          *
          * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.lib.WordArray.random(16);
          */
         random: function (nBytes) {
             var words = [];
@@ -223,33 +449,41 @@ var CryptoJS = CryptoJS || (function () {
                 words.push(Math.floor(Math.random() * 0x100000000));
             }
 
-            return this.create(words, nBytes);
+            return WordArray.create(words, nBytes);
         }
     });
 
     /**
-     * Base hash template.
+     * Abstract base hasher template.
      *
-     * @property {number} _blockSize The number of 32-bit words this hash operates on. Default: 16 (512 bits)
+     * @property {number} _blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
      */
-    var C_lib_Hash = C_lib.Hash = C_lib_Base.extend({
+    var Hasher = C_lib.Hasher = Base.extend({
         /**
          * Initializes a newly created hasher.
+         *
+         * @example
+         *
+         *     var hasher = CryptoJS.algo.MD5.create();
          */
         init: function () {
             this.reset();
         },
 
         /**
-         * Resets this hash to its initial state.
+         * Resets this hasher to its initial state.
+         *
+         * @example
+         *
+         *     hasher.reset();
          */
         reset: function () {
             // Initial values
-            var hash = this._hash = C_lib_WordArray.create();
-            this._message = C_lib_WordArray.create();
-            this._length = 0;
+            var hash = this._hash = WordArray.create();
+            this._message = WordArray.create();
+            this._nBytes = 0;
 
-            // Perform hash-specific logic
+            // Perform concrete-hasher logic
             this._doReset();
 
             // Update sigBytes using length of hash
@@ -257,21 +491,26 @@ var CryptoJS = CryptoJS || (function () {
         },
 
         /**
-         * Updates this hash with a message.
+         * Updates this hasher with a message.
          *
-         * @param {CryptoJS.lib.WordArray|string} messageUpdate The message to append.
+         * @param {WordArray|string} messageUpdate The message to append.
          *
-         * @return {CryptoJS.lib.Hash} This hash instance.
+         * @return {Hasher} This hasher.
+         *
+         * @example
+         *
+         *     hasher.update('message');
+         *     hasher.update(wordArray);
          */
         update: function (messageUpdate) {
             // Convert string to WordArray, else assume WordArray already
             if (typeof messageUpdate == 'string') {
-                messageUpdate = C_enc_Utf8.fromString(messageUpdate);
+                messageUpdate = Utf8.parse(messageUpdate);
             }
 
             // Append
             this._message.concat(messageUpdate);
-            this._length += messageUpdate.sigBytes;
+            this._nBytes += messageUpdate.sigBytes;
 
             // Update the hash
             this._hashBlocks();
@@ -281,7 +520,11 @@ var CryptoJS = CryptoJS || (function () {
         },
 
         /**
-         * Updates this hash.
+         * Updates this hasher using available message blocks.
+         *
+         * @example
+         *
+         *     hasher._hashBlocks();
          */
         _hashBlocks: function () {
             // Shortcuts
@@ -296,7 +539,7 @@ var CryptoJS = CryptoJS || (function () {
                 // Hash blocks
                 var nWordsReady = nBlocksReady * blockSize;
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
-                    // Perform hash-specific logic
+                    // Perform concrete-hasher logic
                     this._doHashBlock(offset);
                 }
 
@@ -307,11 +550,17 @@ var CryptoJS = CryptoJS || (function () {
         },
 
         /**
-         * Completes this hash computation, then resets this hash to its initial state.
+         * Completes hash computation, then resets this hasher to its initial state.
          *
-         * @param {CryptoJS.lib.WordArray|string} messageUpdate (Optional) A final message update.
+         * @param {WordArray|string} messageUpdate (Optional) A final message update.
          *
-         * @return {CryptoJS.lib.WordArray} The hash.
+         * @return {WordArray} The hash.
+         *
+         * @example
+         *
+         *     var hash = hasher.compute();
+         *     var hash = hasher.compute('message');
+         *     var hash = hasher.compute(wordArray);
          */
         compute: function (messageUpdate) {
             // Final message update
@@ -319,7 +568,7 @@ var CryptoJS = CryptoJS || (function () {
                 this.update(messageUpdate);
             }
 
-            // Perform hash-specific logic
+            // Perform concrete-hasher logic
             this._doCompute();
 
             // Retain hash after reset
@@ -333,13 +582,17 @@ var CryptoJS = CryptoJS || (function () {
         _blockSize: 512/32,
 
         /**
-         * Creates a shortcut function to a hash algorithm's object interface.
+         * Creates a shortcut function to a hasher's object interface.
          *
-         * @param {CryptoJS.lib.Hash} hasher The hash algorithm to create a helper for.
+         * @param {Hasher} hasher The hasher to create a helper for.
          *
          * @return {Function} The shortcut function.
          *
          * @static
+         *
+         * @example
+         *
+         *     var MD5 = CryptoJS.algo.Hasher._createHelper(CryptoJS.algo.MD5);
          */
         _createHelper: function (hasher) {
             return function (message) {
@@ -348,13 +601,17 @@ var CryptoJS = CryptoJS || (function () {
         },
 
         /**
-         * Creates a shortcut function to the HMAC algorithm's object interface.
+         * Creates a shortcut function to the HMAC's object interface.
          *
-         * @param {CryptoJS.lib.Hash} hasher The hash algorithm to use with this helper.
+         * @param {Hasher} hasher The hasher to use in this HMAC helper.
          *
          * @return {Function} The shortcut function.
          *
          * @static
+         *
+         * @example
+         *
+         *     var HmacMD5 = CryptoJS.algo.Hasher._createHmacHelper(CryptoJS.algo.MD5);
          */
         _createHmacHelper: function (hasher) {
             return function (message, key) {
@@ -364,151 +621,9 @@ var CryptoJS = CryptoJS || (function () {
     });
 
     /**
-     * Encoding namespace.
-     */
-    var C_enc = C.enc = {};
-
-    /**
-     * Hex encoding strategy.
-     */
-    var C_enc_Hex = C_enc.Hex = {
-        /**
-         * Converts a word array to a hex string.
-         *
-         * @param {CryptoJS.lib.WordArray} wordArray The word array.
-         *
-         * @return {string} The hex string.
-         *
-         * @static
-         */
-        toString: function (wordArray) {
-            // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes;
-
-            // Convert
-            var hexStr = [];
-            for (var i = 0; i < sigBytes; i++) {
-                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                hexStr.push((bite >>> 4).toString(16));
-                hexStr.push((bite & 0x0f).toString(16));
-            }
-
-            return hexStr.join('');
-        },
-
-        /**
-         * Converts a hex string to a word array.
-         *
-         * @param {string} hexStr The hex string.
-         *
-         * @return {CryptoJS.lib.WordArray} The word array.
-         *
-         * @static
-         */
-        fromString: function (hexStr) {
-            // Shortcut
-            var hexStrLength = hexStr.length;
-
-            // Convert
-            var words = [];
-            for (var i = 0; i < hexStrLength; i += 2) {
-                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
-            }
-
-            return C_lib_WordArray.create(words, hexStrLength / 2);
-        }
-    };
-
-    /**
-     * Latin1 encoding strategy.
-     */
-    var C_enc_Latin1 = C_enc.Latin1 = {
-        /**
-         * Converts a word array to a Latin1 string.
-         *
-         * @param {CryptoJS.lib.WordArray} wordArray The word array.
-         *
-         * @return {string} The Latin1 string.
-         *
-         * @static
-         */
-        toString: function (wordArray) {
-            // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes;
-
-            // Convert
-            var latin1Str = [];
-            for (var i = 0; i < sigBytes; i++) {
-                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                latin1Str.push(String.fromCharCode(bite));
-            }
-
-            return latin1Str.join('');
-        },
-
-        /**
-         * Converts a Latin1 string to a word array.
-         *
-         * @param {string} latin1Str The Latin1 string.
-         *
-         * @return {CryptoJS.lib.WordArray} The word array.
-         *
-         * @static
-         */
-        fromString: function (latin1Str) {
-            // Shortcut
-            var latin1StrLength = latin1Str.length;
-
-            // Convert
-            var words = [];
-            for (var i = 0; i < latin1StrLength; i++) {
-                words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
-            }
-
-            return C_lib_WordArray.create(words, latin1StrLength);
-        }
-    };
-
-    /**
-     * UTF-8 encoding strategy.
-     */
-    var C_enc_Utf8 = C_enc.Utf8 = {
-        /**
-         * Converts a word array to a UTF-8 string.
-         *
-         * @param {CryptoJS.lib.WordArray} wordArray The word array.
-         *
-         * @return {string} The UTF-8 string.
-         *
-         * @static
-         */
-        toString: function (wordArray) {
-            return decodeURIComponent(escape(C_enc_Latin1.toString(wordArray)));
-        },
-
-        /**
-         * Converts a UTF-8 string to a word array.
-         *
-         * @param {string} utf8Str The UTF-8 string.
-         *
-         * @return {CryptoJS.lib.WordArray} The word array.
-         *
-         * @static
-         */
-        fromString: function (utf8Str) {
-            return C_enc_Latin1.fromString(unescape(encodeURIComponent(utf8Str)));
-        }
-    };
-
-    // Set WordArray default encoder
-    C_lib_WordArray.encoder = C_enc_Hex;
-
-    /**
      * Algorithm namespace.
      */
     var C_algo = C.algo = {};
 
     return C;
-}());
+}(Math));

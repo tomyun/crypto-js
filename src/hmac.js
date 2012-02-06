@@ -2,20 +2,24 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Base = C_lib.Base;
+    var Base = C_lib.Base;
     var C_enc = C.enc;
-    var C_enc_Utf8 = C_enc.Utf8;
+    var Utf8 = C_enc.Utf8;
     var C_algo = C.algo;
 
     /**
      * HMAC algorithm.
      */
-    var C_algo_HMAC = C_algo.HMAC = C_lib_Base.extend({
+    var HMAC = C_algo.HMAC = Base.extend({
         /**
          * Initializes a newly created HMAC.
          *
-         * @param {CryptoJS.lib.Hash} hasher The hash algorithm to use.
-         * @param {CryptoJS.lib.WordArray|string} key The secret key.
+         * @param {Hasher} hasher The hash algorithm to use.
+         * @param {WordArray|string} key The secret key.
+         *
+         * @example
+         *
+         *     var hasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, key);
          */
         init: function (hasher, key) {
             // Init hasher
@@ -23,7 +27,7 @@
 
             // Convert string to WordArray, else assume WordArray already
             if (typeof key == 'string') {
-                key = C_enc_Utf8.fromString(key);
+                key = Utf8.parse(key);
             }
 
             // Shortcuts
@@ -56,6 +60,10 @@
 
         /**
          * Resets this HMAC to its initial state.
+         *
+         * @example
+         *
+         *     hasher.reset();
          */
         reset: function () {
             // Shortcut
@@ -68,9 +76,14 @@
         /**
          * Updates this HMAC with a message.
          *
-         * @param {CryptoJS.lib.WordArray|string} messageUpdate The message to append.
+         * @param {WordArray|string} messageUpdate The message to append.
          *
-         * @return {CryptoJS.algo.HMAC} This HMAC instance.
+         * @return {HMAC} This HMAC instance.
+         *
+         * @example
+         *
+         *     hasher.update('message');
+         *     hasher.update(wordArray);
          */
         update: function (messageUpdate) {
             this._hasher.update(messageUpdate);
@@ -80,11 +93,17 @@
         },
 
         /**
-         * Completes this HMAC computation, then resets this HMAC to its initial state.
+         * Completes HMAC computation, then resets this HMAC to its initial state.
          *
-         * @param {CryptoJS.lib.WordArray|string} messageUpdate (Optional) A final message update.
+         * @param {WordArray|string} messageUpdate (Optional) A final message update.
          *
-         * @return {CryptoJS.lib.WordArray} The HMAC.
+         * @return {WordArray} The HMAC.
+         *
+         * @example
+         *
+         *     var hmac = hasher.compute();
+         *     var hmac = hasher.compute('message');
+         *     var hmac = hasher.compute(wordArray);
          */
         compute: function (messageUpdate) {
             // Final message update

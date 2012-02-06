@@ -2,50 +2,66 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Base = C_lib.Base;
-    var C_lib_WordArray = C_lib.WordArray;
+    var Base = C_lib.Base;
+    var WordArray = C_lib.WordArray;
     var C_algo = C.algo;
-    var C_algo_SHA1 = C_algo.SHA1;
-    var C_algo_HMAC = C_algo.HMAC;
+    var SHA1 = C_algo.SHA1;
+    var HMAC = C_algo.HMAC;
 
     /**
      * Password-Based Key Derivation Function 2 algorithm.
      */
-    var C_algo_PBKDF2 = C_algo.PBKDF2 = {
+    var PBKDF2 = C_algo.PBKDF2 = Base.extend({
         /**
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
-         * @property {CryptoJS.lib.Hash} hasher The hash algorithm to use. Default: CryptoJS.algo.SHA1
+         * @property {Hasher} hasher The hasher to use. Default: SHA1
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
-        _cfg: C_lib_Base.extend({
+        _cfg: Base.extend({
             keySize: 128/32,
-            hasher: C_algo_SHA1,
+            hasher: SHA1,
             iterations: 1
         }),
 
         /**
+         * Initializes a newly created key derivation function.
+         *
+         * @param {Object} cfg (Optional) The configuration options to use for the derivation.
+         *
+         * @example
+         *
+         *     var kdf = CryptoJS.algo.PBKDF2.create();
+         *     var kdf = CryptoJS.algo.PBKDF2.create({ keySize: 8 });
+         *     var kdf = CryptoJS.algo.PBKDF2.create({ keySize: 8, iterations: 1000 });
+         */
+        init: function (cfg) {
+            this._cfg = this._cfg.extend(cfg);
+        },
+
+        /**
          * Computes the Password-Based Key Derivation Function 2.
          *
-         * @param {CryptoJS.lib.WordArray|string} password The password.
-         * @param {CryptoJS.lib.WordArray|string} salt A salt.
-         * @param {Object} cfg (Optional) The configuration options to use for this computation.
+         * @param {WordArray|string} password The password.
+         * @param {WordArray|string} salt A salt.
          *
-         * @return {CryptoJS.lib.WordArray} The derived key.
+         * @return {WordArray} The derived key.
          *
-         * @static
+         * @example
+         *
+         *     var key = kdf.compute(password, salt);
          */
-        compute: function (password, salt, cfg) {
-            // Apply config defaults
-            cfg = this._cfg.extend(cfg);
+        compute: function (password, salt) {
+            // Shortcut
+            var cfg = this._cfg;
 
             // Init HMAC
-            var hmac = C_algo_HMAC.create(cfg.hasher, password);
+            var hmac = HMAC.create(cfg.hasher, password);
 
             // Initial values
-            var derivedKey = C_lib_WordArray.create();
-            var blockIndex = C_lib_WordArray.create([1]);
+            var derivedKey = WordArray.create();
+            var blockIndex = WordArray.create([0x00000001]);
 
             // Shortcuts
             var derivedKeyWords = derivedKey.words;
@@ -82,10 +98,26 @@
 
             return derivedKey;
         }
-    };
+    });
 
-    // Helper
+    /**
+     * Computes the Password-Based Key Derivation Function 2.
+     *
+     * @param {WordArray|string} password The password.
+     * @param {WordArray|string} salt A salt.
+     * @param {Object} cfg (Optional) The configuration options to use for this computation.
+     *
+     * @return {WordArray} The derived key.
+     *
+     * @static
+     *
+     * @example
+     *
+     *     var key = CryptoJS.PBKDF2(password, salt);
+     *     var key = CryptoJS.PBKDF2(password, salt, { keySize: 8 });
+     *     var key = CryptoJS.PBKDF2(password, salt, { keySize: 8, iterations: 1000 });
+     */
     C.PBKDF2 = function (password, salt, cfg) {
-        return C_algo_PBKDF2.compute(password, salt, cfg);
+        return PBKDF2.create(cfg).compute(password, salt);
     };
 }());

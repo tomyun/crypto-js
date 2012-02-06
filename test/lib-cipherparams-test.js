@@ -2,15 +2,15 @@ YUI.add('lib-cipherparams-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'lib.CipherParams',
+        name: 'CipherParams',
 
         setUp: function () {
             this.data = {};
 
-            this.data.rawCiphertext = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
-            this.data.key = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
-            this.data.iv = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
-            this.data.salt = C.lib.WordArray.create([0x48656c6c, 0x6f2c2057, 0x6f726c64, 0x21000000], 13);
+            this.data.rawCiphertext = C.lib.WordArray.create([0x12345678]);
+            this.data.key = C.lib.WordArray.create([0x12345678]);
+            this.data.iv = C.lib.WordArray.create([0x12345678]);
+            this.data.salt = C.lib.WordArray.create([0x12345678]);
 
             this.data.cipherParams = C.lib.CipherParams.create({
                 rawCiphertext: this.data.rawCiphertext,
