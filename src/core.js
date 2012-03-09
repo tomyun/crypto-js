@@ -112,32 +112,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             },
 
             /**
-             * Tests if this object is a descendant of the passed type.
-             *
-             * @param {Base} type The potential ancestor.
-             *
-             * @return {boolean}
-             *
-             * @example
-             *
-             *     if (instance.isA(MyType)) {
-             *     }
-             */
-            isA: function (type) {
-                var o = this;
-
-                while (o) {
-                    if (o == type) {
-                        return true;
-                    } else {
-                        o = o.$super;
-                    }
-                }
-
-                return false;
-            },
-
-            /**
              * Creates a copy of this object.
              *
              * @return {Object} The clone.
@@ -320,7 +294,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
      *
      * @property {Array} words The array of 32-bit words.
      * @property {number} sigBytes The number of significant bytes in this word array.
-     * @property {Encoder} encoder  The default encoding strategy to convert this word array to a string. Default: Hex
      */
     var WordArray = C_lib.WordArray = Base.extend({
         /**
@@ -348,7 +321,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Converts this word array to a string.
          *
-         * @param {Encoder} encoder (Optional) The encoding strategy to use.
+         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
          *
          * @return {string} The stringified word array.
          *
@@ -359,10 +332,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     var string = wordArray.toString(CryptoJS.enc.Latin1);
          */
         toString: function (encoder) {
-            return (encoder || this.encoder).stringify(this);
+            return (encoder || Hex).stringify(this);
         },
-
-        encoder: Hex,
 
         /**
          * Concatenates a word array to this word array.
@@ -382,8 +353,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var thisSigBytes = this.sigBytes;
             var thatSigBytes = wordArray.sigBytes;
 
-            // Clear excess bits
-            this.clamp();
+            // Trim excess bits
+            this.trim();
 
             // Concat
             for (var i = 0; i < thatSigBytes; i++) {
@@ -402,14 +373,14 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     wordArray.clamp();
+         *     wordArray.trim();
          */
-        clamp: function () {
+        trim: function () {
             // Shortcuts
             var words = this.words;
             var sigBytes = this.sigBytes;
 
-            // Clamp
+            // Trim
             words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
             words.length = Math.ceil(sigBytes / 4);
         },
@@ -421,7 +392,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var wordArrayClone = wordArray.clone();
+         *     var clone = wordArray.clone();
          */
         clone: function () {
             var clone = Base.clone.call(this);
@@ -446,7 +417,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         random: function (nBytes) {
             var words = [];
             for (var i = 0; i < nBytes; i += 4) {
-                words.push(Math.floor(Math.random() * 0x100000000));
+                words.push((Math.random() * 0x100000000) | 0);
             }
 
             return WordArray.create(words, nBytes);
@@ -454,19 +425,122 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     });
 
     /**
-     * Abstract base hasher template.
+     * Abstract buffered block algorithm template.
+     * The property _blockSize must be implemented in a concrete subtype.
+     */
+    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+        /**
+         * Resets this block algorithm's data buffer to its initial state.
+         *
+         * @example
+         *
+         *     bufferedBlockAlgorithm._resetData();
+         */
+        _resetData: function () {
+            // Initial values
+            this._data = WordArray.create();
+            this._nDataBytes = 0;
+        },
+
+        /**
+         * Adds new data to this block algorithm's buffer.
+         *
+         * @param {WordArray|string} data The data to add.
+         *
+         * @example
+         *
+         *     bufferedBlockAlgorithm._addData('data');
+         *     bufferedBlockAlgorithm._addData(wordArray);
+         */
+        _addData: function (data) {
+            // Convert string to WordArray, else assume WordArray already
+            if (typeof data == 'string') {
+                data = Utf8.parse(data);
+            }
+
+            // Append
+            this._data.concat(data);
+            this._nDataBytes += data.sigBytes;
+        },
+
+        /**
+         * Processes available data blocks.
+         * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
+         *
+         * @return {WordArray} The processed words.
+         *
+         * @example
+         *
+         *     var processedData = bufferedBlockAlgorithm._processData();
+         */
+        _processData: function () {
+            // Shortcuts
+            var data = this._data;
+            var dataSigBytes = data.sigBytes;
+            var blockSize = this._blockSize;
+            var blockSizeBytes = blockSize * 4;
+
+            // Count words ready
+            var nWordsReady = ((dataSigBytes / blockSizeBytes) | 0) * blockSize;
+
+            // Process blocks
+            if (nWordsReady) {
+                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+                    // Perform concrete-algorithm logic
+                    this._doProcessBlock(offset);
+                }
+
+                // Remove processed words
+                var processedWords = data.words.splice(0, nWordsReady);
+                data.sigBytes = dataSigBytes - nWordsReady * 4;
+            }
+
+            // Return processed words
+            return WordArray.create(processedWords);
+        },
+
+        /**
+         * Creates a copy of this object.
+         *
+         * @return {Object} The clone.
+         *
+         * @example
+         *
+         *     var clone = bufferedBlockAlgorithm.clone();
+         */
+        clone: function () {
+            var clone = Base.clone.call(this);
+            clone._data = this._data.clone();
+
+            return clone;
+        }
+    });
+
+    /**
+     * Abstract hasher template.
      *
      * @property {number} _blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
      */
-    var Hasher = C_lib.Hasher = Base.extend({
+    var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
+        /**
+         * Configuration options.
+         */
+        // _cfg: Base.extend(),
+
         /**
          * Initializes a newly created hasher.
+         *
+         * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
          *
          * @example
          *
          *     var hasher = CryptoJS.algo.MD5.create();
          */
-        init: function () {
+        init: function (cfg) {
+            // Apply config defaults
+            // this._cfg = this._cfg.extend(cfg);
+
+            // Set initial values
             this.reset();
         },
 
@@ -478,15 +552,16 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     hasher.reset();
          */
         reset: function () {
-            // Initial values
+            // Reset data buffer
+            this._resetData()
+
+            // Reset hash
             var hash = this._hash = WordArray.create();
-            this._message = WordArray.create();
-            this._nBytes = 0;
 
             // Perform concrete-hasher logic
             this._doReset();
 
-            // Update sigBytes using length of hash
+            // Update hash sigBytes
             hash.sigBytes = hash.words.length * 4;
         },
 
@@ -503,54 +578,19 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     hasher.update(wordArray);
          */
         update: function (messageUpdate) {
-            // Convert string to WordArray, else assume WordArray already
-            if (typeof messageUpdate == 'string') {
-                messageUpdate = Utf8.parse(messageUpdate);
-            }
-
             // Append
-            this._message.concat(messageUpdate);
-            this._nBytes += messageUpdate.sigBytes;
+            this._addData(messageUpdate);
 
             // Update the hash
-            this._hashBlocks();
+            this._processData();
 
             // Chainable
             return this;
         },
 
         /**
-         * Updates this hasher using available message blocks.
-         *
-         * @example
-         *
-         *     hasher._hashBlocks();
-         */
-        _hashBlocks: function () {
-            // Shortcuts
-            var message = this._message;
-            var sigBytes = message.sigBytes;
-            var blockSize = this._blockSize;
-
-            // Count blocks ready
-            var nBlocksReady = Math.floor(sigBytes / (blockSize * 4));
-
-            if (nBlocksReady) {
-                // Hash blocks
-                var nWordsReady = nBlocksReady * blockSize;
-                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
-                    // Perform concrete-hasher logic
-                    this._doHashBlock(offset);
-                }
-
-                // Remove processed words
-                message.words.splice(0, nWordsReady);
-                message.sigBytes = sigBytes - nWordsReady * 4;
-            }
-        },
-
-        /**
-         * Completes hash computation, then resets this hasher to its initial state.
+         * Finalizes the hash computation.
+         * Note that the finalize operation is effectively a destructive, read-once operation.
          *
          * @param {WordArray|string} messageUpdate (Optional) A final message update.
          *
@@ -558,25 +598,36 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var hash = hasher.compute();
-         *     var hash = hasher.compute('message');
-         *     var hash = hasher.compute(wordArray);
+         *     var hash = hasher.finalize();
+         *     var hash = hasher.finalize('message');
+         *     var hash = hasher.finalize(wordArray);
          */
-        compute: function (messageUpdate) {
+        finalize: function (messageUpdate) {
             // Final message update
             if (messageUpdate) {
-                this.update(messageUpdate);
+                this._addData(messageUpdate);
             }
 
             // Perform concrete-hasher logic
-            this._doCompute();
+            this._doFinalize();
 
-            // Retain hash after reset
-            var hash = this._hash;
+            return this._hash;
+        },
 
-            this.reset();
+        /**
+         * Creates a copy of this object.
+         *
+         * @return {Object} The clone.
+         *
+         * @example
+         *
+         *     var clone = hasher.clone();
+         */
+        clone: function () {
+            var clone = BufferedBlockAlgorithm.clone.call(this);
+            clone._hash = this._hash.clone();
 
-            return hash;
+            return clone;
         },
 
         _blockSize: 512/32,
@@ -592,11 +643,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var MD5 = CryptoJS.algo.Hasher._createHelper(CryptoJS.algo.MD5);
+         *     var MD5 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.MD5);
          */
         _createHelper: function (hasher) {
-            return function (message) {
-                return hasher.create().compute(message);
+            return function (message, cfg) {
+                return hasher.create(cfg).finalize(message);
             };
         },
 
@@ -611,11 +662,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var HmacMD5 = CryptoJS.algo.Hasher._createHmacHelper(CryptoJS.algo.MD5);
+         *     var HmacMD5 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.MD5);
          */
         _createHmacHelper: function (hasher) {
             return function (message, key) {
-                return C_algo.HMAC.create(hasher, key).compute(message);
+                return C_algo.HMAC.create(hasher, key).finalize(message);
             };
         }
     });

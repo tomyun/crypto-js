@@ -28,13 +28,13 @@
             var sigBytes = wordArray.sigBytes;
             var map = this._map;
 
-            // Clear excess bits
-            wordArray.clamp();
+            // Trim excess bits
+            wordArray.trim();
 
             // Convert
             var base64Chars = [];
             for (var i = 0; i < sigBytes; i += 3) {
-                var byte1 = (words[(i + 0) >>> 2] >>> (24 - ((i + 0) % 4) * 8)) & 0xff;
+                var byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
                 var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
                 var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
 
@@ -87,8 +87,8 @@
             var words = [], nBytes = 0;
             for (var i = 0; i < base64StrLength; i++) {
                 if (i % 4) {
-                    var bits1 = map.indexOf(base64Str.charAt(i - 1)) <<  (    (i % 4) * 2);
-                    var bits2 = map.indexOf(base64Str.charAt(i    )) >>> (6 - (i % 4) * 2);
+                    var bits1 = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);
+                    var bits2 = map.indexOf(base64Str.charAt(i)) >>> (6 - (i % 4) * 2);
                     words[nBytes >>> 2] |= (bits1 | bits2) << (24 - (nBytes % 4) * 8);
                     nBytes++;
                 }

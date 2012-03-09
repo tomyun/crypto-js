@@ -71,7 +71,8 @@
 
             // Generate key
             while (derivedKeyWords.length < keySize) {
-                var block = hmac.update(salt).compute(blockIndex);
+                var block = hmac.update(salt).finalize(blockIndex);
+                hmac.reset();
 
                 // Shortcuts
                 var blockWords = block.words;
@@ -80,7 +81,8 @@
                 // Iterations
                 var intermediate = block;
                 for (var i = 1; i < iterations; i++) {
-                    intermediate = hmac.compute(intermediate);
+                    intermediate = hmac.finalize(intermediate);
+                    hmac.reset();
 
                     // Shortcut
                     var intermediateWords = intermediate.words;

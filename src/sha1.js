@@ -21,9 +21,9 @@
             H[4] = 0xc3d2e1f0;
         },
 
-        _doHashBlock: function (offset) {
+        _doProcessBlock: function (offset) {
             // Shortcuts
-            var M = this._message.words;
+            var M = this._data.words;
             var H = this._hash.words;
 
             // Working variables
@@ -44,10 +44,15 @@
                 }
 
                 var t = ((a << 5) | (a >>> 27)) + e + W[i];
-                if      (i < 20) t += ((b & c) | (~b & d)) + 0x5a827999;
-                else if (i < 40) t += (b ^ c ^ d) + 0x6ed9eba1;
-                else if (i < 60) t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
-                else             t += (b ^ c ^ d) - 0x359d3e2a;
+                if (i < 20) {
+                    t += ((b & c) | (~b & d)) + 0x5a827999;
+                } else if (i < 40) {
+                    t += (b ^ c ^ d) + 0x6ed9eba1;
+                } else if (i < 60) {
+                    t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
+                } else /* if (i < 80) */ {
+                    t += (b ^ c ^ d) - 0x359d3e2a;
+                }
 
                 e = d;
                 d = c;
@@ -64,21 +69,21 @@
             H[4] = (H[4] + e) | 0;
         },
 
-        _doCompute: function () {
+        _doFinalize: function () {
             // Shortcuts
-            var message = this._message;
-            var M = message.words;
+            var m = this._data;
+            var M = m.words;
 
-            var nBitsTotal = this._nBytes * 8;
-            var nBitsLeft = message.sigBytes * 8;
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = m.sigBytes * 8;
 
             // Add padding
             M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
             M[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            message.sigBytes = M.length * 4;
+            m.sigBytes = M.length * 4;
 
             // Hash final blocks
-            this._hashBlocks();
+            this._processData();
         }
     });
 

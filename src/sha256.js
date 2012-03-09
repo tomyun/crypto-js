@@ -1,4 +1,4 @@
-(function () {
+(function (Math) {
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -12,8 +12,9 @@
     // Compute constants
     (function () {
         function isPrime(n) {
-            for (var factor = 2; factor * factor <= n; factor++) {
-                if (n % factor == 0) {
+            var sqrtN = Math.sqrt(n);
+            for (var factor = 2; factor <= sqrtN; factor++) {
+                if ( ! (n % factor)) {
                     return false;
                 }
             }
@@ -48,9 +49,9 @@
             this._hash.words = H.slice(0);
         },
 
-        _doHashBlock: function (offset) {
+        _doProcessBlock: function (offset) {
             // Shortcuts
-            var M = this._message.words;
+            var M = this._data.words;
             var H = this._hash.words;
 
             // Working variables
@@ -70,14 +71,14 @@
                     W[i] = M[offset + i] | 0;
                 } else {
                     var gamma0x = W[i - 15];
-                    var gamma0  = ((gamma0x << 25) | (gamma0x >>>  7)) ^
+                    var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
                                   ((gamma0x << 14) | (gamma0x >>> 18)) ^
-                                  ((gamma0x >>> 3)                   );
+                                   (gamma0x >>> 3);
 
                     var gamma1x = W[i - 2];
-                    var gamma1  = ((gamma1x <<  15) | (gamma1x >>> 17)) ^
-                                  ((gamma1x <<  13) | (gamma1x >>> 19)) ^
-                                  ((gamma1x >>> 10)                   );
+                    var gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
+                                  ((gamma1x << 13) | (gamma1x >>> 19)) ^
+                                   (gamma1x >>> 10);
 
                     W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16];
                 }
@@ -86,7 +87,7 @@
                 var maj = (a & b) ^ (a & c) ^ (b & c);
 
                 var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
-                var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7 ) | (e >>> 25));
+                var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
 
                 var t1 = h + sigma1 + ch + K[i] + W[i];
                 var t2 = sigma0 + maj;
@@ -112,21 +113,21 @@
             H[7] = (H[7] + h) | 0;
         },
 
-        _doCompute: function () {
+        _doFinalize: function () {
             // Shortcuts
-            var message = this._message;
-            var M = message.words;
+            var m = this._data;
+            var M = m.words;
 
-            var nBitsTotal = this._nBytes * 8;
-            var nBitsLeft = message.sigBytes * 8;
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = m.sigBytes * 8;
 
             // Add padding
             M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
             M[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            message.sigBytes = M.length * 4;
+            m.sigBytes = M.length * 4;
 
             // Hash final blocks
-            this._hashBlocks();
+            this._processData();
         }
     });
 
@@ -157,4 +158,4 @@
      *     var hmac = CryptoJS.HmacSHA256(message, key);
      */
     C.HmacSHA256 = Hasher._createHmacHelper(SHA256);
-}());
+}(Math));

@@ -19,7 +19,7 @@
          *
          * @example
          *
-         *     var hasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, key);
+         *     var hmacHasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, key);
          */
         init: function (hasher, key) {
             // Init hasher
@@ -36,7 +36,7 @@
 
             // Allow arbitrary length keys
             if (key.sigBytes > hasherBlockSizeBytes) {
-                key = hasher.compute(key);
+                key = hasher.finalize(key);
             }
 
             // Clone key for inner and outer pads
@@ -63,12 +63,13 @@
          *
          * @example
          *
-         *     hasher.reset();
+         *     hmacHasher.reset();
          */
         reset: function () {
             // Shortcut
             var hasher = this._hasher;
 
+            // Reset
             hasher.reset();
             hasher.update(this._iKey);
         },
@@ -82,8 +83,8 @@
          *
          * @example
          *
-         *     hasher.update('message');
-         *     hasher.update(wordArray);
+         *     hmacHasher.update('message');
+         *     hmacHasher.update(wordArray);
          */
         update: function (messageUpdate) {
             this._hasher.update(messageUpdate);
@@ -93,7 +94,8 @@
         },
 
         /**
-         * Completes HMAC computation, then resets this HMAC to its initial state.
+         * Finalizes the HMAC computation.
+         * Note that the finalize operation is effectively a destructive, read-once operation.
          *
          * @param {WordArray|string} messageUpdate (Optional) A final message update.
          *
@@ -101,23 +103,18 @@
          *
          * @example
          *
-         *     var hmac = hasher.compute();
-         *     var hmac = hasher.compute('message');
-         *     var hmac = hasher.compute(wordArray);
+         *     var hmac = hmacHasher.finalize();
+         *     var hmac = hmacHasher.finalize('message');
+         *     var hmac = hmacHasher.finalize(wordArray);
          */
-        compute: function (messageUpdate) {
-            // Final message update
-            if (messageUpdate) {
-                this.update(messageUpdate);
-            }
-
+        finalize: function (messageUpdate) {
             // Shortcut
             var hasher = this._hasher;
 
             // Compute HMAC
-            var hmac = hasher.compute(this._oKey.clone().concat(hasher.compute()));
-
-            this.reset();
+            var innerHash = hasher.finalize(messageUpdate);
+            hasher.reset();
+            var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
 
             return hmac;
         }

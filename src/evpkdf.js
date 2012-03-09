@@ -72,11 +72,13 @@
                 if (block) {
                     hasher.update(block);
                 }
-                var block = hasher.update(password).compute(salt);
+                var block = hasher.update(password).finalize(salt);
+                hasher.reset();
 
                 // Iterations
                 for (var i = 1; i < iterations; i++) {
-                    block = hasher.compute(block);
+                    block = hasher.finalize(block);
+                    hasher.reset();
                 }
 
                 derivedKey.concat(block);
