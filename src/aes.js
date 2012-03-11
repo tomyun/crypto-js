@@ -2,8 +2,8 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Cipher = C_lib.Cipher;
-    var C_lib_Cipher_Block = C_lib_Cipher.Block;
+    var Cipher = C_lib.Cipher;
+    var BlockCipher = Cipher.Block;
     var C_algo = C.algo;
 
     // Multiplication in GF(2^8) lookup tables
@@ -73,28 +73,58 @@
         0x80000000, 0x1b000000, 0x36000000
     ];
 
-    // Private static inner state
-    var keySchedule = [];
-    var keyLength;
-    var nRounds;
-
     /**
      * AES block cipher algorithm.
      */
-    var C_algo_AES = C_algo.AES = C_lib_Cipher_Block.extend({
-        _init: function (key) {
-            keyLength = key.sigBytes / 4;
-            nRounds = keyLength + 6;
+    var AES = C_algo.AES = BlockCipher.extend({
+        _doReset: function () {
+            // Shortcuts
+            var key = this._key;
+            var keyWords = key.words;
+            var keyLength = key.sigBytes / 4;
 
-            computeKeySchedule(key.words);
+            // Compute number of rounds
+            var nRounds = this._nRounds = keyLength + 6
+
+            // Compute key schedule
+            var keySchedule = this._keySchedule = [];
+            var ksRows = (nRounds + 1) * 4;
+            for (var ksRow = 0; ksRow < ksRows; ksRow++) {
+                if (ksRow < keyLength) {
+                    keySchedule[ksRow] = keyWords[ksRow];
+                } else {
+                    var t = keySchedule[ksRow - 1];
+
+                    if (ksRow % keyLength == 0) {
+                        // Rot word
+                        t = (t << 8) | (t >>> 24);
+
+                        // Sub word
+                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+
+                        // Mix Rcon
+                        t ^= RCON[(ksRow / keyLength) | 0];
+                    } else if (keyLength > 6 && ksRow % keyLength == 4) {
+                        // Sub word
+                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+                    }
+
+                    keySchedule[ksRow] = keySchedule[ksRow - keyLength] ^ t;
+                }
+            }
         },
 
-        _encryptBlock: function (data, offset) {
+        _encryptBlock: function (offset) {
+            // Shortcuts
+            var M = this._data.words;
+            var nRounds = this._nRounds;
+            var keySchedule = this._keySchedule;
+
             // Set input, add round key
-            var s0 = data[offset + 0] ^ keySchedule[0];
-            var s1 = data[offset + 1] ^ keySchedule[1];
-            var s2 = data[offset + 2] ^ keySchedule[2];
-            var s3 = data[offset + 3] ^ keySchedule[3];
+            var s0 = M[offset]     ^ keySchedule[0];
+            var s1 = M[offset + 1] ^ keySchedule[1];
+            var s2 = M[offset + 2] ^ keySchedule[2];
+            var s3 = M[offset + 3] ^ keySchedule[3];
 
             // Key schedule row counter
             var ksRow = 4;
@@ -105,26 +135,26 @@
                 var t0 = (
                     ((MULT2_SBOX[s0 >>> 24] ^ MULT3_SBOX[(s1 >>> 16) & 0xff] ^ SBOX[(s2 >>> 8) & 0xff]       ^ SBOX[s3 & 0xff])       << 24) |
                     ((SBOX[s0 >>> 24]       ^ MULT2_SBOX[(s1 >>> 16) & 0xff] ^ MULT3_SBOX[(s2 >>> 8) & 0xff] ^ SBOX[s3 & 0xff])       << 16) |
-                    ((SBOX[s0 >>> 24]       ^ SBOX[(s1 >>> 16) & 0xff]       ^ MULT2_SBOX[(s2 >>> 8) & 0xff] ^ MULT3_SBOX[s3 & 0xff]) << 8 ) |
-                    ((MULT3_SBOX[s0 >>> 24] ^ SBOX[(s1 >>> 16) & 0xff]       ^ SBOX[(s2 >>> 8) & 0xff]       ^ MULT2_SBOX[s3 & 0xff])      )
+                    ((SBOX[s0 >>> 24]       ^ SBOX[(s1 >>> 16) & 0xff]       ^ MULT2_SBOX[(s2 >>> 8) & 0xff] ^ MULT3_SBOX[s3 & 0xff]) << 8)  |
+                    (MULT3_SBOX[s0 >>> 24]  ^ SBOX[(s1 >>> 16) & 0xff]       ^ SBOX[(s2 >>> 8) & 0xff]       ^ MULT2_SBOX[s3 & 0xff])
                 );
                 var t1 = (
                     ((MULT2_SBOX[s1 >>> 24] ^ MULT3_SBOX[(s2 >>> 16) & 0xff] ^ SBOX[(s3 >>> 8) & 0xff]       ^ SBOX[s0 & 0xff])       << 24) |
                     ((SBOX[s1 >>> 24]       ^ MULT2_SBOX[(s2 >>> 16) & 0xff] ^ MULT3_SBOX[(s3 >>> 8) & 0xff] ^ SBOX[s0 & 0xff])       << 16) |
-                    ((SBOX[s1 >>> 24]       ^ SBOX[(s2 >>> 16) & 0xff]       ^ MULT2_SBOX[(s3 >>> 8) & 0xff] ^ MULT3_SBOX[s0 & 0xff]) << 8 ) |
-                    ((MULT3_SBOX[s1 >>> 24] ^ SBOX[(s2 >>> 16) & 0xff]       ^ SBOX[(s3 >>> 8) & 0xff]       ^ MULT2_SBOX[s0 & 0xff])      )
+                    ((SBOX[s1 >>> 24]       ^ SBOX[(s2 >>> 16) & 0xff]       ^ MULT2_SBOX[(s3 >>> 8) & 0xff] ^ MULT3_SBOX[s0 & 0xff]) << 8)  |
+                    (MULT3_SBOX[s1 >>> 24]  ^ SBOX[(s2 >>> 16) & 0xff]       ^ SBOX[(s3 >>> 8) & 0xff]       ^ MULT2_SBOX[s0 & 0xff])
                 );
                 var t2 = (
                     ((MULT2_SBOX[s2 >>> 24] ^ MULT3_SBOX[(s3 >>> 16) & 0xff] ^ SBOX[(s0 >>> 8) & 0xff]       ^ SBOX[s1 & 0xff])       << 24) |
                     ((SBOX[s2 >>> 24]       ^ MULT2_SBOX[(s3 >>> 16) & 0xff] ^ MULT3_SBOX[(s0 >>> 8) & 0xff] ^ SBOX[s1 & 0xff])       << 16) |
-                    ((SBOX[s2 >>> 24]       ^ SBOX[(s3 >>> 16) & 0xff]       ^ MULT2_SBOX[(s0 >>> 8) & 0xff] ^ MULT3_SBOX[s1 & 0xff]) << 8 ) |
-                    ((MULT3_SBOX[s2 >>> 24] ^ SBOX[(s3 >>> 16) & 0xff]       ^ SBOX[(s0 >>> 8) & 0xff]       ^ MULT2_SBOX[s1 & 0xff])      )
+                    ((SBOX[s2 >>> 24]       ^ SBOX[(s3 >>> 16) & 0xff]       ^ MULT2_SBOX[(s0 >>> 8) & 0xff] ^ MULT3_SBOX[s1 & 0xff]) << 8)  |
+                    (MULT3_SBOX[s2 >>> 24]  ^ SBOX[(s3 >>> 16) & 0xff]       ^ SBOX[(s0 >>> 8) & 0xff]       ^ MULT2_SBOX[s1 & 0xff])
                 );
                 var t3 = (
                     ((MULT2_SBOX[s3 >>> 24] ^ MULT3_SBOX[(s0 >>> 16) & 0xff] ^ SBOX[(s1 >>> 8) & 0xff]       ^ SBOX[s2 & 0xff])       << 24) |
                     ((SBOX[s3 >>> 24]       ^ MULT2_SBOX[(s0 >>> 16) & 0xff] ^ MULT3_SBOX[(s1 >>> 8) & 0xff] ^ SBOX[s2 & 0xff])       << 16) |
-                    ((SBOX[s3 >>> 24]       ^ SBOX[(s0 >>> 16) & 0xff]       ^ MULT2_SBOX[(s1 >>> 8) & 0xff] ^ MULT3_SBOX[s2 & 0xff]) << 8 ) |
-                    ((MULT3_SBOX[s3 >>> 24] ^ SBOX[(s0 >>> 16) & 0xff]       ^ SBOX[(s1 >>> 8) & 0xff]       ^ MULT2_SBOX[s2 & 0xff])      )
+                    ((SBOX[s3 >>> 24]       ^ SBOX[(s0 >>> 16) & 0xff]       ^ MULT2_SBOX[(s1 >>> 8) & 0xff] ^ MULT3_SBOX[s2 & 0xff]) << 8)  |
+                    (MULT3_SBOX[s3 >>> 24]  ^ SBOX[(s0 >>> 16) & 0xff]       ^ SBOX[(s1 >>> 8) & 0xff]       ^ MULT2_SBOX[s2 & 0xff])
                 );
 
                 // Add round key
@@ -141,22 +171,26 @@
             var t3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) | (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++];
 
             // Set output
-            data[offset + 0] = t0;
-            data[offset + 1] = t1;
-            data[offset + 2] = t2;
-            data[offset + 3] = t3;
-
+            M[offset]     = t0;
+            M[offset + 1] = t1;
+            M[offset + 2] = t2;
+            M[offset + 3] = t3;
         },
 
-        _decryptBlock: function (data, offset) {
+        _decryptBlock: function (offset) {
+            // Shortcuts
+            var M = this._data.words;
+            var nRounds = this._nRounds;
+            var keySchedule = this._keySchedule;
+
             // Key schedule row counter
             var ksRow = (nRounds + 1) * 4;
 
             // Set input, add round key
-            var s3 = data[offset + 3] ^ keySchedule[--ksRow];
-            var s2 = data[offset + 2] ^ keySchedule[--ksRow];
-            var s1 = data[offset + 1] ^ keySchedule[--ksRow];
-            var s0 = data[offset + 0] ^ keySchedule[--ksRow];
+            var s3 = M[offset + 3] ^ keySchedule[--ksRow];
+            var s2 = M[offset + 2] ^ keySchedule[--ksRow];
+            var s1 = M[offset + 1] ^ keySchedule[--ksRow];
+            var s0 = M[offset]     ^ keySchedule[--ksRow];
 
             // Rounds
             for (var round = 1; round < nRounds; round++) {
@@ -170,26 +204,26 @@
                 s0 = (
                     ((MULTE[t0 >>> 24] ^ MULTB[(t0 >>> 16) & 0xff] ^ MULTD[(t0 >>> 8) & 0xff] ^ MULT9[t0 & 0xff]) << 24) |
                     ((MULT9[t0 >>> 24] ^ MULTE[(t0 >>> 16) & 0xff] ^ MULTB[(t0 >>> 8) & 0xff] ^ MULTD[t0 & 0xff]) << 16) |
-                    ((MULTD[t0 >>> 24] ^ MULT9[(t0 >>> 16) & 0xff] ^ MULTE[(t0 >>> 8) & 0xff] ^ MULTB[t0 & 0xff]) <<  8) |
-                    ((MULTB[t0 >>> 24] ^ MULTD[(t0 >>> 16) & 0xff] ^ MULT9[(t0 >>> 8) & 0xff] ^ MULTE[t0 & 0xff])      )
+                    ((MULTD[t0 >>> 24] ^ MULT9[(t0 >>> 16) & 0xff] ^ MULTE[(t0 >>> 8) & 0xff] ^ MULTB[t0 & 0xff]) << 8)  |
+                     (MULTB[t0 >>> 24] ^ MULTD[(t0 >>> 16) & 0xff] ^ MULT9[(t0 >>> 8) & 0xff] ^ MULTE[t0 & 0xff])
                 );
                 s1 = (
                     ((MULTE[t1 >>> 24] ^ MULTB[(t1 >>> 16) & 0xff] ^ MULTD[(t1 >>> 8) & 0xff] ^ MULT9[t1 & 0xff]) << 24) |
                     ((MULT9[t1 >>> 24] ^ MULTE[(t1 >>> 16) & 0xff] ^ MULTB[(t1 >>> 8) & 0xff] ^ MULTD[t1 & 0xff]) << 16) |
-                    ((MULTD[t1 >>> 24] ^ MULT9[(t1 >>> 16) & 0xff] ^ MULTE[(t1 >>> 8) & 0xff] ^ MULTB[t1 & 0xff]) <<  8) |
-                    ((MULTB[t1 >>> 24] ^ MULTD[(t1 >>> 16) & 0xff] ^ MULT9[(t1 >>> 8) & 0xff] ^ MULTE[t1 & 0xff])      )
+                    ((MULTD[t1 >>> 24] ^ MULT9[(t1 >>> 16) & 0xff] ^ MULTE[(t1 >>> 8) & 0xff] ^ MULTB[t1 & 0xff]) << 8)  |
+                     (MULTB[t1 >>> 24] ^ MULTD[(t1 >>> 16) & 0xff] ^ MULT9[(t1 >>> 8) & 0xff] ^ MULTE[t1 & 0xff])
                 );
                 s2 = (
                     ((MULTE[t2 >>> 24] ^ MULTB[(t2 >>> 16) & 0xff] ^ MULTD[(t2 >>> 8) & 0xff] ^ MULT9[t2 & 0xff]) << 24) |
                     ((MULT9[t2 >>> 24] ^ MULTE[(t2 >>> 16) & 0xff] ^ MULTB[(t2 >>> 8) & 0xff] ^ MULTD[t2 & 0xff]) << 16) |
-                    ((MULTD[t2 >>> 24] ^ MULT9[(t2 >>> 16) & 0xff] ^ MULTE[(t2 >>> 8) & 0xff] ^ MULTB[t2 & 0xff]) <<  8) |
-                    ((MULTB[t2 >>> 24] ^ MULTD[(t2 >>> 16) & 0xff] ^ MULT9[(t2 >>> 8) & 0xff] ^ MULTE[t2 & 0xff])      )
+                    ((MULTD[t2 >>> 24] ^ MULT9[(t2 >>> 16) & 0xff] ^ MULTE[(t2 >>> 8) & 0xff] ^ MULTB[t2 & 0xff]) << 8)  |
+                     (MULTB[t2 >>> 24] ^ MULTD[(t2 >>> 16) & 0xff] ^ MULT9[(t2 >>> 8) & 0xff] ^ MULTE[t2 & 0xff])
                 );
                 s3 = (
                     ((MULTE[t3 >>> 24] ^ MULTB[(t3 >>> 16) & 0xff] ^ MULTD[(t3 >>> 8) & 0xff] ^ MULT9[t3 & 0xff]) << 24) |
                     ((MULT9[t3 >>> 24] ^ MULTE[(t3 >>> 16) & 0xff] ^ MULTB[(t3 >>> 8) & 0xff] ^ MULTD[t3 & 0xff]) << 16) |
-                    ((MULTD[t3 >>> 24] ^ MULT9[(t3 >>> 16) & 0xff] ^ MULTE[(t3 >>> 8) & 0xff] ^ MULTB[t3 & 0xff]) <<  8) |
-                    ((MULTB[t3 >>> 24] ^ MULTD[(t3 >>> 16) & 0xff] ^ MULT9[(t3 >>> 8) & 0xff] ^ MULTE[t3 & 0xff])      )
+                    ((MULTD[t3 >>> 24] ^ MULT9[(t3 >>> 16) & 0xff] ^ MULTE[(t3 >>> 8) & 0xff] ^ MULTB[t3 & 0xff]) << 8)  |
+                     (MULTB[t3 >>> 24] ^ MULTD[(t3 >>> 16) & 0xff] ^ MULT9[(t3 >>> 8) & 0xff] ^ MULTE[t3 & 0xff])
                 );
             }
 
@@ -200,42 +234,22 @@
             var t0 = ((INVSBOX[s0 >>> 24] << 24) | (INVSBOX[(s3 >>> 16) & 0xff] << 16) | (INVSBOX[(s2 >>> 8) & 0xff] << 8) | INVSBOX[s1 & 0xff]) ^ keySchedule[--ksRow];
 
             // Set output
-            data[offset + 0] = t0;
-            data[offset + 1] = t1;
-            data[offset + 2] = t2;
-            data[offset + 3] = t3;
+            M[offset]     = t0;
+            M[offset + 1] = t1;
+            M[offset + 2] = t2;
+            M[offset + 3] = t3;
         },
 
         _keySize: 256/32
     });
 
-    function computeKeySchedule(k) {
-        var ksRows = (nRounds + 1) * 4;
-        for (var ksRow = 0; ksRow < ksRows; ksRow++) {
-            if (ksRow < keyLength) {
-                keySchedule[ksRow] = k[ksRow];
-            } else {
-                var t = keySchedule[ksRow - 1];
-
-                if (ksRow % keyLength == 0) {
-                    // Rot word
-                    t = (t << 8) | (t >>> 24);
-
-                    // Sub word
-                    t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
-
-                    // Mix Rcon
-                    t ^= RCON[ksRow / keyLength];
-                } else if (keyLength > 6 && ksRow % keyLength == 4) {
-                    // Sub word
-                    t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
-                }
-
-                keySchedule[ksRow] = keySchedule[ksRow - keyLength] ^ t;
-            }
-        }
-    }
-
-    // Helper
-    C.AES = C_lib_Cipher._createHelper(C_algo_AES);
+    /**
+     * Shortcut functions to the cipher's object interface.
+     *
+     * @example
+     *
+     *     var ciphertext = CryptoJS.AES.encrypt(message, key, cfg);
+     *     var plaintext  = CryptoJS.AES.decrypt(ciphertext, key, cfg);
+     */
+    C.AES = Cipher._createHelper(AES);
 }());

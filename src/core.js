@@ -268,7 +268,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
          */
         stringify: function (wordArray) {
-            return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+            try {
+                return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+            } catch (e) {
+                throw new Error('Invalid UTF-8 bytes');
+            }
         },
 
         /**
@@ -353,8 +357,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var thisSigBytes = this.sigBytes;
             var thatSigBytes = wordArray.sigBytes;
 
-            // Trim excess bits
-            this.trim();
+            // Clamp excess bits
+            this._clamp();
 
             // Concat
             for (var i = 0; i < thatSigBytes; i++) {
@@ -366,23 +370,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
             // Chainable
             return this;
-        },
-
-        /**
-         * Removes insignificant bits.
-         *
-         * @example
-         *
-         *     wordArray.trim();
-         */
-        trim: function () {
-            // Shortcuts
-            var words = this.words;
-            var sigBytes = this.sigBytes;
-
-            // Trim
-            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
-            words.length = Math.ceil(sigBytes / 4);
         },
 
         /**
@@ -399,6 +386,23 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             clone.words = this.words.slice(0);
 
             return clone;
+        },
+
+        /**
+         * Removes insignificant bits.
+         *
+         * @example
+         *
+         *     wordArray._clamp();
+         */
+        _clamp: function () {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes;
+
+            // Clamp
+            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+            words.length = Math.ceil(sigBytes / 4);
         },
 
         /**
@@ -467,13 +471,15 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Processes available data blocks.
          * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
          *
+         * @param {number} nBlocksRetain The number of full blocks that should be kept in the buffer and not processed.
+         *
          * @return {WordArray} The processed words.
          *
          * @example
          *
          *     var processedData = bufferedBlockAlgorithm._processData();
          */
-        _processData: function () {
+        _processData: function (nBlocksRetain) {
             // Shortcuts
             var data = this._data;
             var dataSigBytes = data.sigBytes;
@@ -481,10 +487,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var blockSizeBytes = blockSize * 4;
 
             // Count words ready
-            var nWordsReady = ((dataSigBytes / blockSizeBytes) | 0) * blockSize;
+            var nWordsReady = (((dataSigBytes / blockSizeBytes) | 0) - (nBlocksRetain || 0)) * blockSize;
 
             // Process blocks
-            if (nWordsReady) {
+            if (nWordsReady > 0) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
                     // Perform concrete-algorithm logic
                     this._doProcessBlock(offset);

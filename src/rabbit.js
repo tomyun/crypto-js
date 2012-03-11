@@ -2,141 +2,154 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_Cipher = C_lib.Cipher;
-    var C_lib_Cipher_Stream = C_lib_Cipher.Stream;
+    var Cipher = C_lib.Cipher;
+    var StreamCipher = Cipher.Stream;
     var C_algo = C.algo;
 
-    // Private static inner state
-    var x = [];
-    var c = [], c_ = [];
-    var b;
-    var g = [];
-    var s = [];
-
     /**
-     * Rabbit stream cipher algorithm.
+     * Rabbit stream cipher algorithm
      */
-    var C_algo_Rabbit = C_algo.Rabbit = C_lib_Cipher_Stream.extend({
-        _doEncrypt: function (data, key, cfg) {
-            // Shortcut
-            var iv = cfg.iv;
+    var Rabbit = C_algo.Rabbit = StreamCipher.extend({
+        _doReset: function () {
+            // Shortcuts
+            var K = this._key.words;
+            var iv = this._cfg.iv;
 
-            // Init
-            keySetup(key.words);
-            if (iv) {
-                ivSetup(iv.words);
+            // Generate initial state values
+            var X = this._X = [
+                K[0], (K[3] << 16) | (K[2] >>> 16),
+                K[1], (K[0] << 16) | (K[3] >>> 16),
+                K[2], (K[1] << 16) | (K[0] >>> 16),
+                K[3], (K[2] << 16) | (K[1] >>> 16)
+            ];
+
+            // Generate initial counter values
+            var C = this._C = [
+                (K[2] << 16) | (K[2] >>> 16), (K[0] & 0xffff0000) | (K[1] & 0x0000ffff),
+                (K[3] << 16) | (K[3] >>> 16), (K[1] & 0xffff0000) | (K[2] & 0x0000ffff),
+                (K[0] << 16) | (K[0] >>> 16), (K[2] & 0xffff0000) | (K[3] & 0x0000ffff),
+                (K[1] << 16) | (K[1] >>> 16), (K[3] & 0xffff0000) | (K[0] & 0x0000ffff)
+            ];
+
+            // Carry bit
+            this._b = 0;
+
+            // Iterate the system four times
+            for (var i = 0; i < 4; i++) {
+                nextState.call(this);
             }
 
-            // Shortcuts
-            var dataWords = data.words;
-            var dataWordsLength = data.sigBytes / 4;
+            // Modify the counters
+            for (var i = 0; i < 8; i++) {
+                C[i] ^= X[(i + 4) & 7];
+            }
 
-            // Encrypt each block
-            for (var offset = 0; offset < dataWordsLength; offset += 4) {
-                // Iterate the system
-                nextState();
+            // IV setup
+            if (iv) {
+                // Shortcuts
+                var IV = iv.words;
+                var IV_0 = IV[0];
+                var IV_1 = IV[1];
 
-                // Generate four keystream words
-                s[0] = x[0] ^ (x[5] >>> 16) ^ (x[3] << 16);
-                s[1] = x[2] ^ (x[7] >>> 16) ^ (x[5] << 16);
-                s[2] = x[4] ^ (x[1] >>> 16) ^ (x[7] << 16);
-                s[3] = x[6] ^ (x[3] >>> 16) ^ (x[1] << 16);
+                // Generate four subvectors
+                var i0 = (((IV_0 << 8) | (IV_0 >>> 24)) & 0x00ff00ff) | (((IV_0 << 24) | (IV_0 >>> 8)) & 0xff00ff00);
+                var i2 = (((IV_1 << 8) | (IV_1 >>> 24)) & 0x00ff00ff) | (((IV_1 << 24) | (IV_1 >>> 8)) & 0xff00ff00);
+                var i1 = (i0 >>> 16) | (i2 & 0xffff0000);
+                var i3 = (i2 <<  16) | (i0 & 0x0000ffff);
 
+                // Modify counter values
+                C[0] ^= i0;
+                C[1] ^= i1;
+                C[2] ^= i2;
+                C[3] ^= i3;
+                C[4] ^= i0;
+                C[5] ^= i1;
+                C[6] ^= i2;
+                C[7] ^= i3;
+
+                // Iterate the system four times
                 for (var i = 0; i < 4; i++) {
-                    // Swap endian
-                    s[i] = (((s[i] <<  8) | (s[i] >>> 24)) & 0x00ff00ff) |
-                           (((s[i] << 24) | (s[i] >>>  8)) & 0xff00ff00);
-
-                    // Encrypt
-                    dataWords[offset + i] ^= s[i];
+                    nextState.call(this);
                 }
             }
         },
 
-        _ivSize: 64/32
+        _doProcessBlock: function (offset) {
+            // Shortcuts
+            var M = this._data.words;
+            var X = this._X;
+
+            // Iterate the system
+            nextState.call(this);
+
+            // Generate four keystream words
+            var S = [
+                X[0] ^ (X[5] >>> 16) ^ (X[3] << 16),
+                X[2] ^ (X[7] >>> 16) ^ (X[5] << 16),
+                X[4] ^ (X[1] >>> 16) ^ (X[7] << 16),
+                X[6] ^ (X[3] >>> 16) ^ (X[1] << 16)
+            ];
+
+            for (var i = 0; i < 4; i++) {
+                // Swap endian
+                S[i] = (((S[i] << 8)  | (S[i] >>> 24)) & 0x00ff00ff) |
+                       (((S[i] << 24) | (S[i] >>> 8))  & 0xff00ff00);
+
+                // Encrypt
+                M[offset + i] ^= S[i];
+            }
+        },
+
+        _blockSize: 128/32,
+
+        _ivSize: 64/32,
+
+        /**
+         * Returns the serializable name of this cipher algorithm.
+         *
+         * @return {string} The serializable name.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var serializedCipherAlgorithm = CryptoJS.algo.Rabbit + '';
+         *     var serializedCipherAlgorithm = CryptoJS.algo.Rabbit.toString();
+         */
+        toString: function () {
+            return 'Rabbit';
+        }
     });
 
-    function keySetup(k) {
-        // Generate initial state values
-        x[0] = k[0];
-        x[2] = k[1];
-        x[4] = k[2];
-        x[6] = k[3];
-        x[1] = (k[3] << 16) | (k[2] >>> 16);
-        x[3] = (k[0] << 16) | (k[3] >>> 16);
-        x[5] = (k[1] << 16) | (k[0] >>> 16);
-        x[7] = (k[2] << 16) | (k[1] >>> 16);
-
-        // Generate initial counter values
-        c[0] = (k[2] << 16) | (k[2] >>> 16);
-        c[2] = (k[3] << 16) | (k[3] >>> 16);
-        c[4] = (k[0] << 16) | (k[0] >>> 16);
-        c[6] = (k[1] << 16) | (k[1] >>> 16);
-        c[1] = (k[0] & 0xffff0000) | (k[1] & 0x0000ffff);
-        c[3] = (k[1] & 0xffff0000) | (k[2] & 0x0000ffff);
-        c[5] = (k[2] & 0xffff0000) | (k[3] & 0x0000ffff);
-        c[7] = (k[3] & 0xffff0000) | (k[0] & 0x0000ffff);
-
-        // Clear carry bit
-        b = 0;
-
-        // Iterate the system four times
-        for (var i = 0; i < 4; i++) {
-            nextState();
-        }
-
-        // Modify the counters
-        for (var i = 0; i < 8; i++) {
-            c[i] ^= x[(i + 4) & 7];
-        }
-    }
-
-    function ivSetup(iv) {
-        // Generate four subvectors
-        var i0 = (((iv[0] << 8) | (iv[0] >>> 24)) & 0x00ff00ff) | (((iv[0] << 24) | (iv[0] >>> 8)) & 0xff00ff00);
-        var i2 = (((iv[1] << 8) | (iv[1] >>> 24)) & 0x00ff00ff) | (((iv[1] << 24) | (iv[1] >>> 8)) & 0xff00ff00);
-        var i1 = (i0 >>> 16) | (i2 & 0xffff0000);
-        var i3 = (i2 <<  16) | (i0 & 0x0000ffff);
-
-        // Modify counter values
-        c[0] ^= i0;
-        c[1] ^= i1;
-        c[2] ^= i2;
-        c[3] ^= i3;
-        c[4] ^= i0;
-        c[5] ^= i1;
-        c[6] ^= i2;
-        c[7] ^= i3;
-
-        // Iterate the system four times
-        for (var i = 0; i < 4; i++) {
-            nextState();
-        }
-    }
-
     function nextState() {
+        // Shortcuts
+        var X = this._X;
+        var C = this._C;
+
         // Save old counter values
+        var C_ = [];
         for (var i = 0; i < 8; i++) {
-            c_[i] = c[i];
+            C_[i] = C[i];
         }
 
         // Calculate new counter values
-        c[0] = (c[0] + 0x4d34d34d + b) | 0;
-        c[1] = (c[1] + 0xd34d34d3 + ((c[0] >>> 0) < (c_[0] >>> 0) ? 1 : 0)) | 0;
-        c[2] = (c[2] + 0x34d34d34 + ((c[1] >>> 0) < (c_[1] >>> 0) ? 1 : 0)) | 0;
-        c[3] = (c[3] + 0x4d34d34d + ((c[2] >>> 0) < (c_[2] >>> 0) ? 1 : 0)) | 0;
-        c[4] = (c[4] + 0xd34d34d3 + ((c[3] >>> 0) < (c_[3] >>> 0) ? 1 : 0)) | 0;
-        c[5] = (c[5] + 0x34d34d34 + ((c[4] >>> 0) < (c_[4] >>> 0) ? 1 : 0)) | 0;
-        c[6] = (c[6] + 0x4d34d34d + ((c[5] >>> 0) < (c_[5] >>> 0) ? 1 : 0)) | 0;
-        c[7] = (c[7] + 0xd34d34d3 + ((c[6] >>> 0) < (c_[6] >>> 0) ? 1 : 0)) | 0;
-        b = (c[7] >>> 0) < (c_[7] >>> 0) ? 1 : 0;
+        C[0] = (C[0] + 0x4d34d34d + this._b) | 0;
+        C[1] = (C[1] + 0xd34d34d3 + ((C[0] >>> 0) < (C_[0] >>> 0) ? 1 : 0)) | 0;
+        C[2] = (C[2] + 0x34d34d34 + ((C[1] >>> 0) < (C_[1] >>> 0) ? 1 : 0)) | 0;
+        C[3] = (C[3] + 0x4d34d34d + ((C[2] >>> 0) < (C_[2] >>> 0) ? 1 : 0)) | 0;
+        C[4] = (C[4] + 0xd34d34d3 + ((C[3] >>> 0) < (C_[3] >>> 0) ? 1 : 0)) | 0;
+        C[5] = (C[5] + 0x34d34d34 + ((C[4] >>> 0) < (C_[4] >>> 0) ? 1 : 0)) | 0;
+        C[6] = (C[6] + 0x4d34d34d + ((C[5] >>> 0) < (C_[5] >>> 0) ? 1 : 0)) | 0;
+        C[7] = (C[7] + 0xd34d34d3 + ((C[6] >>> 0) < (C_[6] >>> 0) ? 1 : 0)) | 0;
+        this._b = (C[7] >>> 0) < (C_[7] >>> 0) ? 1 : 0;
 
         // Calculate the g-values
+        var G = [];
         for (var i = 0; i < 8; i++) {
-            var gx = (x[i] + c[i]) | 0;
+            var gx = (X[i] + C[i]) | 0;
 
             // Construct high and low argument for squaring
-            var ga = gx & 0x0000ffff;
+            var ga = gx & 0xffff;
             var gb = gx >>> 16;
 
             // Calculate high and low result of squaring
@@ -144,20 +157,27 @@
             var gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
 
             // High XOR low
-            g[i] = gh ^ gl;
+            G[i] = gh ^ gl;
         }
 
         // Calculate new state values
-        x[0] = g[0] + ((g[7] << 16) | (g[7] >>> 16)) + ((g[6] << 16) | (g[6] >>> 16));
-        x[1] = g[1] + ((g[0] <<  8) | (g[0] >>> 24)) + g[7];
-        x[2] = g[2] + ((g[1] << 16) | (g[1] >>> 16)) + ((g[0] << 16) | (g[0] >>> 16));
-        x[3] = g[3] + ((g[2] <<  8) | (g[2] >>> 24)) + g[1];
-        x[4] = g[4] + ((g[3] << 16) | (g[3] >>> 16)) + ((g[2] << 16) | (g[2] >>> 16));
-        x[5] = g[5] + ((g[4] <<  8) | (g[4] >>> 24)) + g[3];
-        x[6] = g[6] + ((g[5] << 16) | (g[5] >>> 16)) + ((g[4] << 16) | (g[4] >>> 16));
-        x[7] = g[7] + ((g[6] <<  8) | (g[6] >>> 24)) + g[5];
+        X[0] = G[0] + ((G[7] << 16) | (G[7] >>> 16)) + ((G[6] << 16) | (G[6] >>> 16));
+        X[1] = G[1] + ((G[0] << 8)  | (G[0] >>> 24)) + G[7];
+        X[2] = G[2] + ((G[1] << 16) | (G[1] >>> 16)) + ((G[0] << 16) | (G[0] >>> 16));
+        X[3] = G[3] + ((G[2] << 8)  | (G[2] >>> 24)) + G[1];
+        X[4] = G[4] + ((G[3] << 16) | (G[3] >>> 16)) + ((G[2] << 16) | (G[2] >>> 16));
+        X[5] = G[5] + ((G[4] << 8)  | (G[4] >>> 24)) + G[3];
+        X[6] = G[6] + ((G[5] << 16) | (G[5] >>> 16)) + ((G[4] << 16) | (G[4] >>> 16));
+        X[7] = G[7] + ((G[6] << 8)  | (G[6] >>> 24)) + G[5];
     }
 
-    // Helper
-    C.Rabbit = C_lib_Cipher._createHelper(C_algo_Rabbit);
+    /**
+     * Shortcut functions to the cipher's object interface.
+     *
+     * @example
+     *
+     *     var ciphertext = CryptoJS.Rabbit.encrypt(message, key, cfg);
+     *     var plaintext  = CryptoJS.Rabbit.decrypt(ciphertext, key, cfg);
+     */
+    C.Rabbit = Cipher._createHelper(Rabbit);
 }());

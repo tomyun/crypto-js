@@ -28,8 +28,8 @@
             var sigBytes = wordArray.sigBytes;
             var map = this._map;
 
-            // Trim excess bits
-            wordArray.trim();
+            // Clamp excess bits
+            wordArray._clamp();
 
             // Convert
             var base64Chars = [];
