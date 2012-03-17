@@ -1,34 +1,40 @@
 /**
  * Counter block mode.
  */
-CryptoJS.mode.CTR = {
-    encrypt: function (message, cipher, iv) {
-        // Shortcuts
-        var messageWords = message.words;
-        var messageWordsLength = message.sigBytes / 4;
-        var cipherBlockSize = cipher._blockSize;
-        var counter = iv.clone();
-        var counterWords = counter.words;
-
-        // Encrypt each block
-        for (var offset = 0; offset < messageWordsLength; offset += cipherBlockSize) {
-            // Generate next keystream block
-            var keystream = counter.clone();
-            var keystreamWords = keystream.words;
-            cipher._encryptBlock(keystreamWords, 0);
-
-            // Encrypt this block
-            for (var i = 0; i < cipherBlockSize; i++) {
-                messageWords[offset + i] ^= keystreamWords[i];
-            }
-
-            // Increment counter
-            counterWords[cipherBlockSize - 1]++;
+CryptoJS.mode.CTR = (function () {
+    var CTR = CryptoJS.lib.Cipher.Mode.extend({
+        toString: function () {
+            return 'CTR';
         }
-    },
+    });
 
-    decrypt: function () {
-        // Encrypt and decryption are identical operations
-        this.encrypt.apply(this, arguments);
-    }
-};
+    var Encryptor = CTR.Encryptor = CTR.extend({
+        processBlock: function (dataWords, offset) {
+            // Shortcuts
+            var cipher = this._cipher
+            var blockSize = cipher._blockSize;
+            var iv = this._iv;
+            var counter = this._counter;
+
+            // Generate keystream
+            if (iv) {
+                counter = this._counter = iv.words.slice(0);
+
+                // Remove IV for subsequent blocks
+                this._iv = undefined;
+            }
+            var keystream = counter.slice(0);
+            cipher._encryptBlock(keystream, 0);
+            counter[counter.length - 1]++;
+
+            // Encrypt
+            for (var i = 0; i < blockSize; i++) {
+                dataWords[offset + i] ^= keystream[i];
+            }
+        }
+    });
+
+    CTR.Decryptor = Encryptor;
+
+    return CTR;
+}());

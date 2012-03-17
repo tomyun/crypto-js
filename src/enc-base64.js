@@ -29,7 +29,7 @@
             var map = this._map;
 
             // Clamp excess bits
-            wordArray._clamp();
+            wordArray.clamp();
 
             // Convert
             var base64Chars = [];
@@ -84,7 +84,8 @@
             }
 
             // Convert
-            var words = [], nBytes = 0;
+            var words = [];
+            var nBytes = 0;
             for (var i = 0; i < base64StrLength; i++) {
                 if (i % 4) {
                     var bits1 = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);

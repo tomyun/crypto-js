@@ -2,7 +2,7 @@ YUI.add('pad-iso97971-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'pad.Iso97971',
+        name: 'Iso97971',
 
         testPad: function () {
             var data = C.lib.WordArray.create([0x666f7200], 3);

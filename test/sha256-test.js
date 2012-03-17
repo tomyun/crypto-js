@@ -38,7 +38,15 @@ YUI.add('algo-sha256-test', function (Y) {
                 sha256.update('12345678901234567890123456789012345678901234567890');
             }
 
-            Y.Assert.areEqual('f8146961d9b73d8da49ccd526fca65439cdd5b402f76971556d5f52fd129843e', sha256.compute());
+            Y.Assert.areEqual('f8146961d9b73d8da49ccd526fca65439cdd5b402f76971556d5f52fd129843e', sha256.finalize());
+        },
+
+        testClone: function () {
+            var sha256 = C.algo.SHA256.create();
+
+            Y.Assert.areEqual(C.SHA256('a').toString(), sha256.update('a').clone().finalize());
+            Y.Assert.areEqual(C.SHA256('ab').toString(), sha256.update('b').clone().finalize());
+            Y.Assert.areEqual(C.SHA256('abc').toString(), sha256.update('c').clone().finalize());
         },
 
         testInputIntegrity: function () {
@@ -52,14 +60,11 @@ YUI.add('algo-sha256-test', function (Y) {
         },
 
         testHelper: function () {
-            Y.Assert.areEqual(C.algo.SHA256.create().compute('').toString(), C.SHA256(''));
+            Y.Assert.areEqual(C.algo.SHA256.create().finalize('').toString(), C.SHA256(''));
         },
 
         testHmacHelper: function () {
-            var key = C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var message = 'Hi There';
-
-            Y.Assert.areEqual(C.algo.HMAC.create(C.algo.SHA256, key).compute(message).toString(), C.HmacSHA256(message, key));
+            Y.Assert.areEqual(C.algo.HMAC.create(C.algo.SHA256, C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b')).finalize('Hi There').toString(), C.HmacSHA256('Hi There', C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b')));
         }
     }));
 }, '$Rev$');

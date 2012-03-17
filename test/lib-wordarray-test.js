@@ -41,17 +41,14 @@ YUI.add('lib-wordarray-test', function (Y) {
 
         testClone: function () {
             var wordArray = C.lib.WordArray.create([0x12345678]);
-            var wordArrayClone = wordArray.clone();
-            wordArrayClone.words[0] = 0;
+            var clone = wordArray.clone();
+            clone.words[0] = 0;
 
-            Y.Assert.areNotEqual(wordArray.toString(), wordArrayClone);
+            Y.Assert.areNotEqual(wordArray.toString(), clone);
         },
 
         testRandom: function () {
             Y.Assert.areNotEqual(C.lib.WordArray.random(8).toString(), C.lib.WordArray.random(8).toString());
-        },
-
-        testRandomNBytes: function () {
             Y.Assert.areEqual(8, C.lib.WordArray.random(8).sigBytes);
         }
     }));

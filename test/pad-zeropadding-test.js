@@ -2,7 +2,7 @@ YUI.add('pad-zeropadding-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'pad.ZeroPadding',
+        name: 'ZeroPadding',
 
         testPad: function () {
             var data = C.lib.WordArray.create([0x666f7200], 3);

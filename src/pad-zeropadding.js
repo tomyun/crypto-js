@@ -16,9 +16,13 @@ CryptoJS.pad.ZeroPadding = {
 
         // Unpad
         var i = data.sigBytes - 1;
-        while (((dataWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff) == 0) {
+        while ( ! ((dataWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff)) {
             i--;
         }
         data.sigBytes = i + 1;
+    },
+
+    toString: function () {
+        return 'ZeroPadding';
     }
 };

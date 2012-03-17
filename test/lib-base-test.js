@@ -10,7 +10,7 @@ YUI.add('lib-base-test', function (Y) {
             this.data.overrides = {
                 init: function (arg) {
                     this.initFired = true;
-                    this.arg = arg;
+                    this.initArg = arg;
                 },
 
                 toString: function () {
@@ -18,7 +18,7 @@ YUI.add('lib-base-test', function (Y) {
             };
 
             this.data.mixins = {
-                mixedMethod: function () {
+                mixinMethod: function () {
                 }
             };
 
@@ -50,11 +50,6 @@ YUI.add('lib-base-test', function (Y) {
             Y.Assert.isTrue(this.data.Obj.hasOwnProperty('toString'));
         },
 
-        testMixIn: function () {
-            Y.Assert.areEqual(this.data.mixins.mixedMethod, this.data.Obj.mixedMethod);
-            Y.Assert.isTrue(this.data.Obj.hasOwnProperty('mixedMethod'));
-        },
-
         testCreateInheritanceFromObj: function () {
             Y.Assert.areEqual(this.data.Obj.init, this.data.obj.init);
             Y.Assert.isFalse(this.data.obj.hasOwnProperty('init'));
@@ -71,13 +66,12 @@ YUI.add('lib-base-test', function (Y) {
 
         testCreateInit: function () {
             Y.Assert.isTrue(this.data.obj.initFired);
-            Y.Assert.areEqual('argValue', this.data.obj.arg);
+            Y.Assert.areEqual('argValue', this.data.obj.initArg);
         },
 
-        testIsa: function () {
-            Y.Assert.isTrue(this.data.obj.isA(this.data.Obj));
-            Y.Assert.isTrue(this.data.obj.isA(C.lib.Base));
-            Y.Assert.isFalse(this.data.objClone.isA(this.data.obj));
+        testMixIn: function () {
+            Y.Assert.areEqual(this.data.mixins.mixinMethod, this.data.Obj.mixinMethod);
+            Y.Assert.isTrue(this.data.Obj.hasOwnProperty('mixinMethod'));
         },
 
         testCloneDistinct: function () {
@@ -85,13 +79,13 @@ YUI.add('lib-base-test', function (Y) {
         },
 
         testCloneCopy: function () {
-            Y.Assert.areEqual(this.data.obj.arg, this.data.objClone.arg);
+            Y.Assert.areEqual(this.data.obj.initArg, this.data.objClone.initArg);
         },
 
         testCloneIndependent: function () {
-            this.data.obj.arg = 'newValue';
+            this.data.obj.initArg = 'newValue';
 
-            Y.Assert.areNotEqual(this.data.obj.arg, this.data.objClone.arg);
+            Y.Assert.areNotEqual(this.data.obj.initArg, this.data.objClone.initArg);
         }
     }));
 }, '$Rev$');

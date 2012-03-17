@@ -54,30 +54,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             },
 
             /**
-             * Copies properties into this object.
-             *
-             * @param {Object} properties The properties to mix in.
-             *
-             * @example
-             *
-             *     MyType.mixIn({
-             *         property: 'value'
-             *     });
-             */
-            mixIn: function (properties) {
-                for (var p in properties) {
-                    if (properties.hasOwnProperty(p)) {
-                        this[p] = properties[p];
-                    }
-                }
-
-                // IE won't copy toString using the loop above
-                if (properties.hasOwnProperty('toString')) {
-                    this.toString = properties.toString;
-                }
-            },
-
-            /**
              * Extends this object and runs the init method.
              * Arguments to create() will be passed to init().
              *
@@ -112,6 +88,30 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             },
 
             /**
+             * Copies properties into this object.
+             *
+             * @param {Object} properties The properties to mix in.
+             *
+             * @example
+             *
+             *     MyType.mixIn({
+             *         field: 'value'
+             *     });
+             */
+            mixIn: function (properties) {
+                for (var p in properties) {
+                    if (properties.hasOwnProperty(p)) {
+                        this[p] = properties[p];
+                    }
+                }
+
+                // IE won't copy toString using the loop above
+                if (properties.hasOwnProperty('toString')) {
+                    this.toString = properties.toString;
+                }
+            },
+
+            /**
              * Creates a copy of this object.
              *
              * @return {Object} The clone.
@@ -125,6 +125,141 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             }
         };
     }());
+
+    /**
+     * An array of 32-bit words.
+     *
+     * @property {Array} words The array of 32-bit words.
+     * @property {number} sigBytes The number of significant bytes in this word array.
+     */
+    var WordArray = C_lib.WordArray = Base.extend({
+        /**
+         * Initializes a newly created word array.
+         *
+         * @param {Array} words (Optional) An array of 32-bit words.
+         * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.lib.WordArray.create();
+         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
+         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
+         */
+        init: function (words, sigBytes) {
+            words = this.words = words || [];
+
+            if (sigBytes != undefined) {
+                this.sigBytes = sigBytes;
+            } else {
+                this.sigBytes = words.length * 4;
+            }
+        },
+
+        /**
+         * Converts this word array to a string.
+         *
+         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
+         *
+         * @return {string} The stringified word array.
+         *
+         * @example
+         *
+         *     var string = wordArray + '';
+         *     var string = wordArray.toString();
+         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+         */
+        toString: function (encoder) {
+            return (encoder || Hex).stringify(this);
+        },
+
+        /**
+         * Concatenates a word array to this word array.
+         *
+         * @param {WordArray} wordArray The word array to append.
+         *
+         * @return {WordArray} This word array.
+         *
+         * @example
+         *
+         *     wordArray1.concat(wordArray2);
+         */
+        concat: function (wordArray) {
+            // Shortcuts
+            var thisWords = this.words;
+            var thatWords = wordArray.words;
+            var thisSigBytes = this.sigBytes;
+            var thatSigBytes = wordArray.sigBytes;
+
+            // Clamp excess bits
+            this.clamp();
+
+            // Concat
+            for (var i = 0; i < thatSigBytes; i++) {
+                var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                thisWords[thisSigBytes >>> 2] |= thatByte << (24 - (thisSigBytes % 4) * 8);
+                thisSigBytes++;
+            }
+            this.sigBytes = thisSigBytes;
+
+            // Chainable
+            return this;
+        },
+
+        /**
+         * Removes insignificant bits.
+         *
+         * @example
+         *
+         *     wordArray.clamp();
+         */
+        clamp: function () {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes;
+
+            // Clamp
+            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+            words.length = Math.ceil(sigBytes / 4);
+        },
+
+        /**
+         * Creates a copy of this word array.
+         *
+         * @return {WordArray} The clone.
+         *
+         * @example
+         *
+         *     var clone = wordArray.clone();
+         */
+        clone: function () {
+            var clone = Base.clone.call(this);
+            clone.words = this.words.slice(0);
+
+            return clone;
+        },
+
+        /**
+         * Creates a word array filled with random bytes.
+         *
+         * @param {number} nBytes The number of random bytes to generate.
+         *
+         * @return {WordArray} The random word array.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var wordArray = CryptoJS.lib.WordArray.random(16);
+         */
+        random: function (nBytes) {
+            var words = [];
+            for (var i = 0; i < nBytes; i += 4) {
+                words.push((Math.random() * 0x100000000) | 0);
+            }
+
+            return WordArray.create(words, nBytes);
+        }
+    });
 
     /**
      * Encoding namespace.
@@ -243,7 +378,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Convert
             var words = [];
             for (var i = 0; i < latin1StrLength; i++) {
-                words[i >>> 2] |= latin1Str.charCodeAt(i) << (24 - (i % 4) * 8);
+                words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
             }
 
             return WordArray.create(words, latin1StrLength);
@@ -271,7 +406,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             try {
                 return decodeURIComponent(escape(Latin1.stringify(wordArray)));
             } catch (e) {
-                throw new Error('Invalid UTF-8 bytes');
+                throw new Error('Malformed UTF-8 data');
             }
         },
 
@@ -294,143 +429,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     };
 
     /**
-     * An array of 32-bit words.
-     *
-     * @property {Array} words The array of 32-bit words.
-     * @property {number} sigBytes The number of significant bytes in this word array.
-     */
-    var WordArray = C_lib.WordArray = Base.extend({
-        /**
-         * Initializes a newly created word array.
-         *
-         * @param {Array} words (Optional) An array of 32-bit words.
-         * @param {number} sigBytes (Optional) The number of significant bytes in the words.
-         *
-         * @example
-         *
-         *     var wordArray = CryptoJS.lib.WordArray.create();
-         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
-         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
-         */
-        init: function (words, sigBytes) {
-            words = this.words = words || [];
-
-            if (sigBytes !== undefined) {
-                this.sigBytes = sigBytes;
-            } else {
-                this.sigBytes = words.length * 4;
-            }
-        },
-
-        /**
-         * Converts this word array to a string.
-         *
-         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
-         *
-         * @return {string} The stringified word array.
-         *
-         * @example
-         *
-         *     var string = wordArray + '';
-         *     var string = wordArray.toString();
-         *     var string = wordArray.toString(CryptoJS.enc.Latin1);
-         */
-        toString: function (encoder) {
-            return (encoder || Hex).stringify(this);
-        },
-
-        /**
-         * Concatenates a word array to this word array.
-         *
-         * @param {WordArray} wordArray The word array to append.
-         *
-         * @return {WordArray} This word array.
-         *
-         * @example
-         *
-         *     wordArray1.concat(wordArray2);
-         */
-        concat: function (wordArray) {
-            // Shortcuts
-            var thisWords = this.words;
-            var thatWords = wordArray.words;
-            var thisSigBytes = this.sigBytes;
-            var thatSigBytes = wordArray.sigBytes;
-
-            // Clamp excess bits
-            this._clamp();
-
-            // Concat
-            for (var i = 0; i < thatSigBytes; i++) {
-                var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                thisWords[thisSigBytes >>> 2] |= thatByte << (24 - (thisSigBytes % 4) * 8);
-                thisSigBytes++;
-            }
-            this.sigBytes = thisSigBytes;
-
-            // Chainable
-            return this;
-        },
-
-        /**
-         * Creates a copy of this word array.
-         *
-         * @return {WordArray} The clone.
-         *
-         * @example
-         *
-         *     var clone = wordArray.clone();
-         */
-        clone: function () {
-            var clone = Base.clone.call(this);
-            clone.words = this.words.slice(0);
-
-            return clone;
-        },
-
-        /**
-         * Removes insignificant bits.
-         *
-         * @example
-         *
-         *     wordArray._clamp();
-         */
-        _clamp: function () {
-            // Shortcuts
-            var words = this.words;
-            var sigBytes = this.sigBytes;
-
-            // Clamp
-            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
-            words.length = Math.ceil(sigBytes / 4);
-        },
-
-        /**
-         * Creates a word array filled with random bytes.
-         *
-         * @param {number} nBytes The number of random bytes to generate.
-         *
-         * @return {WordArray} The random word array.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var wordArray = CryptoJS.lib.WordArray.random(16);
-         */
-        random: function (nBytes) {
-            var words = [];
-            for (var i = 0; i < nBytes; i += 4) {
-                words.push((Math.random() * 0x100000000) | 0);
-            }
-
-            return WordArray.create(words, nBytes);
-        }
-    });
-
-    /**
      * Abstract buffered block algorithm template.
      * The property _blockSize must be implemented in a concrete subtype.
+     *
+     * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
      */
     var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
         /**
@@ -438,9 +440,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     bufferedBlockAlgorithm._resetData();
+         *     bufferedBlockAlgorithm.reset();
          */
-        _resetData: function () {
+        reset: function () {
             // Initial values
             this._data = WordArray.create();
             this._nDataBytes = 0;
@@ -449,14 +451,14 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Adds new data to this block algorithm's buffer.
          *
-         * @param {WordArray|string} data The data to add.
+         * @param {WordArray|string} data The data to append.
          *
          * @example
          *
-         *     bufferedBlockAlgorithm._addData('data');
-         *     bufferedBlockAlgorithm._addData(wordArray);
+         *     bufferedBlockAlgorithm._append('data');
+         *     bufferedBlockAlgorithm._append(wordArray);
          */
-        _addData: function (data) {
+        _append: function (data) {
             // Convert string to WordArray, else assume WordArray already
             if (typeof data == 'string') {
                 data = Utf8.parse(data);
@@ -471,26 +473,38 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Processes available data blocks.
          * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
          *
-         * @param {number} nBlocksRetain The number of full blocks that should be kept in the buffer and not processed.
+         * @param {boolean} flush Whether all blocks and partial blocks should be processed.
          *
-         * @return {WordArray} The processed words.
+         * @return {WordArray} The processed data.
          *
          * @example
          *
-         *     var processedData = bufferedBlockAlgorithm._processData();
+         *     var processedData = bufferedBlockAlgorithm._process();
+         *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
          */
-        _processData: function (nBlocksRetain) {
+        _process: function (doFlush) {
             // Shortcuts
             var data = this._data;
             var dataSigBytes = data.sigBytes;
             var blockSize = this._blockSize;
             var blockSizeBytes = blockSize * 4;
 
+            // Count blocks ready
+            var nBlocksReady = dataSigBytes / blockSizeBytes;
+            if (doFlush) {
+                nBlocksReady = Math.ceil(nBlocksReady);
+            } else {
+                nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
+            }
+
             // Count words ready
-            var nWordsReady = (((dataSigBytes / blockSizeBytes) | 0) - (nBlocksRetain || 0)) * blockSize;
+            var nWordsReady = nBlocksReady * blockSize;
+
+            // Count bytes ready
+            var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
 
             // Process blocks
-            if (nWordsReady > 0) {
+            if (nWordsReady) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
                     // Perform concrete-algorithm logic
                     this._doProcessBlock(offset);
@@ -498,12 +512,14 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
                 // Remove processed words
                 var processedWords = data.words.splice(0, nWordsReady);
-                data.sigBytes = dataSigBytes - nWordsReady * 4;
+                data.sigBytes -= nBytesReady;
             }
 
             // Return processed words
-            return WordArray.create(processedWords);
+            return WordArray.create(processedWords, nBytesReady);
         },
+
+        _minBufferSize: 0,
 
         /**
          * Creates a copy of this object.
@@ -559,7 +575,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         reset: function () {
             // Reset data buffer
-            this._resetData()
+            BufferedBlockAlgorithm.reset.call(this);
 
             // Reset hash
             var hash = this._hash = WordArray.create();
@@ -585,10 +601,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         update: function (messageUpdate) {
             // Append
-            this._addData(messageUpdate);
+            this._append(messageUpdate);
 
             // Update the hash
-            this._processData();
+            this._process();
 
             // Chainable
             return this;
@@ -611,7 +627,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         finalize: function (messageUpdate) {
             // Final message update
             if (messageUpdate) {
-                this._addData(messageUpdate);
+                this._append(messageUpdate);
             }
 
             // Perform concrete-hasher logic

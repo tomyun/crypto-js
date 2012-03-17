@@ -2,13 +2,13 @@ YUI.add('pad-iso10126-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'pad.Iso10126',
+        name: 'Iso10126',
 
         setUp: function () {
             this.data = {};
 
             // Save original random method
-            this.data.random_ = C.lib.WordArray.random;
+            this.data.random = C.lib.WordArray.random;
 
             // Replace random method with one that returns a predictable value
             C.lib.WordArray.random = function (nBytes) {
@@ -17,13 +17,13 @@ YUI.add('pad-iso10126-test', function (Y) {
                     words.push([0x11223344]);
                 }
 
-                return this.create(words, nBytes);
+                return C.lib.WordArray.create(words, nBytes);
             };
         },
 
         tearDown: function () {
             // Restore random method
-            C.lib.WordArray.random = this.data.random_;
+            C.lib.WordArray.random = this.data.random;
         },
 
         testPad: function () {

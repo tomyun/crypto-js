@@ -26,7 +26,8 @@
             return ((n - (n | 0)) * 0x100000000) | 0;
         }
 
-        var nPrime = 0, n = 2;
+        var n = 2;
+        var nPrime = 0;
         while (nPrime < 64) {
             if (isPrime(n)) {
                 if (nPrime < 8) {
@@ -127,7 +128,7 @@
             m.sigBytes = M.length * 4;
 
             // Hash final blocks
-            this._processData();
+            this._process(!!'flush');
         }
     });
 
@@ -137,6 +138,8 @@
      * @param {WordArray|string} message The message to hash.
      *
      * @return {WordArray} The hash.
+     *
+     * @static
      *
      * @example
      *
@@ -152,6 +155,8 @@
      * @param {WordArray|string} key The secret key.
      *
      * @return {WordArray} The HMAC.
+     *
+     * @static
      *
      * @example
      *

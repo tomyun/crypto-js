@@ -38,7 +38,15 @@ YUI.add('algo-sha1-test', function (Y) {
                 sha1.update('12345678901234567890123456789012345678901234567890');
             }
 
-            Y.Assert.areEqual('85e4c4b3933d5553ebf82090409a9d90226d845c', sha1.compute());
+            Y.Assert.areEqual('85e4c4b3933d5553ebf82090409a9d90226d845c', sha1.finalize());
+        },
+
+        testClone: function () {
+            var sha1 = C.algo.SHA1.create();
+
+            Y.Assert.areEqual(C.SHA1('a').toString(), sha1.update('a').clone().finalize());
+            Y.Assert.areEqual(C.SHA1('ab').toString(), sha1.update('b').clone().finalize());
+            Y.Assert.areEqual(C.SHA1('abc').toString(), sha1.update('c').clone().finalize());
         },
 
         testInputIntegrity: function () {
@@ -52,14 +60,11 @@ YUI.add('algo-sha1-test', function (Y) {
         },
 
         testHelper: function () {
-            Y.Assert.areEqual(C.algo.SHA1.create().compute('').toString(), C.SHA1(''));
+            Y.Assert.areEqual(C.algo.SHA1.create().finalize('').toString(), C.SHA1(''));
         },
 
         testHmacHelper: function () {
-            var key = C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var message = 'Hi There';
-
-            Y.Assert.areEqual(C.algo.HMAC.create(C.algo.SHA1, key).compute(message).toString(), C.HmacSHA1(message, key));
+            Y.Assert.areEqual(C.algo.HMAC.create(C.algo.SHA1, C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b')).finalize('Hi There').toString(), C.HmacSHA1('Hi There', C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b')));
         }
     }));
 }, '$Rev$');

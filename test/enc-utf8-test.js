@@ -1,4 +1,4 @@
-﻿YUI.add('enc-utf8-test', function (Y) {
+YUI.add('enc-utf8-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({

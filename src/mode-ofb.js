@@ -1,29 +1,38 @@
 /**
  * Output Feedback block mode.
  */
-CryptoJS.mode.OFB = {
-    encrypt: function (message, cipher, iv) {
-        // Shortcuts
-        var messageWords = message.words;
-        var messageWordsLength = message.sigBytes / 4;
-        var cipherBlockSize = cipher._blockSize;
-        var keystream = iv.clone();
-        var keystreamWords = keystream.words;
+CryptoJS.mode.OFB = (function () {
+    var OFB = CryptoJS.lib.Cipher.Mode.extend({
+        toString: function () {
+            return 'OFB';
+        }
+    });
 
-        // Encrypt each block
-        for (var offset = 0; offset < messageWordsLength; offset += cipherBlockSize) {
-            // Generate next keystream block
-            cipher._encryptBlock(keystreamWords, 0);
+    var Encryptor = OFB.Encryptor = OFB.extend({
+        processBlock: function (dataWords, offset) {
+            // Shortcuts
+            var cipher = this._cipher
+            var blockSize = cipher._blockSize;
+            var iv = this._iv;
+            var keystream = this._keystream;
 
-            // Encrypt this block
-            for (var i = 0; i < cipherBlockSize; i++) {
-                messageWords[offset + i] ^= keystreamWords[i];
+            // Generate keystream
+            if (iv) {
+                keystream = this._keystream = iv.words.slice(0);
+
+                // Remove IV for subsequent blocks
+                this._iv = undefined;
+            }
+            cipher._encryptBlock(keystream, 0);
+
+            // Encrypt
+            for (var i = 0; i < blockSize; i++) {
+                dataWords[offset + i] ^= keystream[i];
             }
         }
-    },
+    });
 
-    decrypt: function () {
-        // Encrypt and decryption are identical operations
-        this.encrypt.apply(this, arguments);
-    }
-};
+    OFB.Decryptor = Encryptor;
+
+    return OFB;
+}());

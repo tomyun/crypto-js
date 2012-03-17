@@ -1,54 +1,62 @@
 /**
  * Cipher Feedback block mode.
  */
-CryptoJS.mode.CFB = {
-    encrypt: function (message, cipher, iv) {
-        // Shortcuts
-        var messageWords = message.words;
-        var messageWordsLength = message.sigBytes / 4;
-        var cipherBlockSize = cipher._blockSize;
-        var keystream = iv.clone();
-        var keystreamWords = keystream.words;
-
-        // Encrypt each block
-        for (var offset = 0; offset < messageWordsLength; offset += cipherBlockSize) {
-            // Generate next keystream block
-            cipher._encryptBlock(keystreamWords, 0);
-
-            // Encrypt this block
-            for (var i = 0; i < cipherBlockSize; i++) {
-                messageWords[offset + i] ^= keystreamWords[i];
-
-                // Use ciphertext for next keystream
-                keystreamWords[i] = messageWords[offset + i];
-            }
+CryptoJS.mode.CFB = (function () {
+    var CFB = CryptoJS.lib.Cipher.Mode.extend({
+        toString: function () {
+            return 'CFB';
         }
-    },
+    });
 
-    decrypt: function (ciphertext, cipher, iv) {
-        // Shortcuts
-        var ciphertextWords = ciphertext.words;
-        var ciphertextWordsLength = ciphertext.sigBytes / 4;
-        var cipherBlockSize = cipher._blockSize;
-        var keystream = iv.clone();
-        var keystreamWords = keystream.words;
+    CFB.Encryptor = CFB.extend({
+        processBlock: function (dataWords, offset) {
+            // Shortcuts
+            var cipher = this._cipher;
+            var blockSize = cipher._blockSize;
 
-        // Encrypt each block
-        for (var offset = 0; offset < ciphertextWordsLength; offset += cipherBlockSize) {
-            // Generate next keystream block
-            cipher._encryptBlock(keystreamWords, 0);
+            generateKeystreamAndEncrypt.call(this, dataWords, offset, cipher, blockSize);
 
-            // Encrypt this block
-            for (var i = 0; i < cipherBlockSize; i++) {
-                // Remember ciphertext
-                var ciphertextWord = ciphertextWords[offset + i];
+            // Remember this block to use with next block
+            this._previousBlock = dataWords.slice(offset, blockSize);
+        }
+    });
 
-                // Decrypt
-                ciphertextWords[offset + i] ^= keystreamWords[i];
+    CFB.Decryptor = CFB.extend({
+        processBlock: function (dataWords, offset) {
+            // Shortcuts
+            var cipher = this._cipher;
+            var blockSize = cipher._blockSize;
 
-                // Use ciphertext for next keystream
-                keystreamWords[i] = ciphertextWord;
-            }
+            // Remember this block to use with next block
+            var thisBlock = dataWords.slice(offset, blockSize);
+
+            generateKeystreamAndEncrypt.call(this, dataWords, offset, cipher, blockSize);
+
+            // This block becomes the previous block
+            this._previousBlock = thisBlock;
+        }
+    });
+
+    function generateKeystreamAndEncrypt(dataWords, offset, cipher, blockSize) {
+        // Shortcut
+        var iv = this._iv;
+
+        // Generate keystream
+        if (iv) {
+            var keystream = iv.words.slice(0);
+
+            // Remove IV for subsequent blocks
+            this._iv = undefined;
+        } else {
+            var keystream = this._previousBlock;
+        }
+        cipher._encryptBlock(keystream, 0);
+
+        // Encrypt
+        for (var i = 0; i < blockSize; i++) {
+            dataWords[offset + i] ^= keystream[i];
         }
     }
-};
+
+    return CFB;
+}());

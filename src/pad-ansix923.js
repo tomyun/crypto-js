@@ -15,7 +15,7 @@ CryptoJS.pad.AnsiX923 = {
 
         // Pad
         data.words[lastBytePos >>> 2] |= nPaddingBytes << (24 - (lastBytePos % 4) * 8);
-        data.sigBytes = dataSigBytes + nPaddingBytes;
+        data.sigBytes += nPaddingBytes;
     },
 
     unpad: function (data) {
@@ -24,5 +24,9 @@ CryptoJS.pad.AnsiX923 = {
 
         // Remove padding
         data.sigBytes -= nPaddingBytes;
+    },
+
+    toString: function () {
+        return 'ANSIX923';
     }
 };

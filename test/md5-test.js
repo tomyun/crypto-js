@@ -38,7 +38,15 @@ YUI.add('algo-md5-test', function (Y) {
                 md5.update('12345678901234567890123456789012345678901234567890');
             }
 
-            Y.Assert.areEqual('7d017545e0268a6a12f2b507871d0429', md5.compute());
+            Y.Assert.areEqual('7d017545e0268a6a12f2b507871d0429', md5.finalize());
+        },
+
+        testClone: function () {
+            var md5 = C.algo.MD5.create();
+
+            Y.Assert.areEqual(C.MD5('a').toString(), md5.update('a').clone().finalize());
+            Y.Assert.areEqual(C.MD5('ab').toString(), md5.update('b').clone().finalize());
+            Y.Assert.areEqual(C.MD5('abc').toString(), md5.update('c').clone().finalize());
         },
 
         testInputIntegrity: function () {
@@ -52,14 +60,11 @@ YUI.add('algo-md5-test', function (Y) {
         },
 
         testHelper: function () {
-            Y.Assert.areEqual(C.algo.MD5.create().compute('').toString(), C.MD5(''));
+            Y.Assert.areEqual(C.algo.MD5.create().finalize('').toString(), C.MD5(''));
         },
 
         testHmacHelper: function () {
-            var key = C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
-            var message = 'Hi There';
-
-            Y.Assert.areEqual(C.algo.HMAC.create(C.algo.MD5, key).compute(message).toString(), C.HmacMD5(message, key));
+            Y.Assert.areEqual(C.algo.HMAC.create(C.algo.MD5, C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b')).finalize('Hi There').toString(), C.HmacMD5('Hi There', C.enc.Hex.parse('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b')));
         }
     }));
 }, '$Rev$');

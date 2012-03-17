@@ -31,7 +31,8 @@
         }
 
         // Walk GF(2^8)
-        var x = 0, xi = 0;
+        var x = 0;
+        var xi = 0;
         for (var i = 0; i < 256; i++) {
             // Compute sbox
             var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
@@ -51,7 +52,7 @@
             MULTE[x] = x8 ^ x4 ^ x2;
 
             // Compute next counter
-            if (x == 0) {
+            if ( ! x) {
                 x = xi = 1;
             } else {
                 x = x2 ^ d[d[d[x8 ^ x2]]];
@@ -95,7 +96,7 @@
                 } else {
                     var t = keySchedule[ksRow - 1];
 
-                    if (ksRow % keyLength == 0) {
+                    if ( ! (ksRow % keyLength)) {
                         // Rot word
                         t = (t << 8) | (t >>> 24);
 
@@ -114,9 +115,8 @@
             }
         },
 
-        _encryptBlock: function (offset) {
+        _encryptBlock: function (M, offset) {
             // Shortcuts
-            var M = this._data.words;
             var nRounds = this._nRounds;
             var keySchedule = this._keySchedule;
 
@@ -177,9 +177,8 @@
             M[offset + 3] = t3;
         },
 
-        _decryptBlock: function (offset) {
+        _decryptBlock: function (M, offset) {
             // Shortcuts
-            var M = this._data.words;
             var nRounds = this._nRounds;
             var keySchedule = this._keySchedule;
 

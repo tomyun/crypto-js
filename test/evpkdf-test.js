@@ -9,7 +9,7 @@ YUI.add('algo-evpkdf-test', function (Y) {
         },
 
         // There are no official test vectors that I could find, and the EVP implementation is short on comments.
-        // Someone should use the C code to generate more test vectors.
+        // Need to use the C code to generate more test vectors.
         // The iteration count in particular needs to be tested.
 
         testInputIntegrity: function () {
@@ -26,11 +26,7 @@ YUI.add('algo-evpkdf-test', function (Y) {
         },
 
         testHelper: function () {
-            var password = 'password';
-            var salt = 'saltsalt';
-            var cfg = { keySize: (256+128)/32 };
-
-            Y.Assert.areEqual(C.algo.EvpKDF.create(cfg).compute(password, salt).toString(), C.EvpKDF(password, salt, cfg));
+            Y.Assert.areEqual(C.algo.EvpKDF.create({ keySize: (256+128)/32 }).compute('password', 'saltsalt').toString(), C.EvpKDF('password', 'saltsalt', { keySize: (256+128)/32 }));
         }
     }));
 }, '$Rev$');

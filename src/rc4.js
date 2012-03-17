@@ -104,7 +104,7 @@
     /**
      * Modified RC4 stream cipher algorithm.
      */
-    var MARC4 = C_algo.MARC4 = RC4.extend({
+    var RC4Drop = RC4.Drop = RC4.extend({
         /**
          * Configuration options.
          *
@@ -132,11 +132,11 @@
          *
          * @example
          *
-         *     var serializedCipherAlgorithm = CryptoJS.algo.MARC4 + '';
-         *     var serializedCipherAlgorithm = CryptoJS.algo.MARC4.toString();
+         *     var serializedCipherAlgorithm = CryptoJS.algo.RC4.Drop + '';
+         *     var serializedCipherAlgorithm = CryptoJS.algo.RC4.Drop.toString();
          */
         toString: function () {
-            return 'MARC4';
+            return 'RC4-drop';
         }
     });
 
@@ -145,8 +145,8 @@
      *
      * @example
      *
-     *     var ciphertext = CryptoJS.MARC4.encrypt(message, key, cfg);
-     *     var plaintext  = CryptoJS.MARC4.decrypt(ciphertext, key, cfg);
+     *     var ciphertext = CryptoJS.RC4.Drop.encrypt(message, key, cfg);
+     *     var plaintext  = CryptoJS.RC4.Drop.decrypt(ciphertext, key, cfg);
      */
-    C.MARC4 = Cipher._createHelper(MARC4);
+    C.RC4.Drop = Cipher._createHelper(RC4Drop);
 }());

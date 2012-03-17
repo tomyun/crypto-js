@@ -17,14 +17,12 @@ YUI.add('algo-hmac-test', function (Y) {
         },
 
         testUpdate: function () {
-            var key = C.enc.Hex.parse('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-
-            var hmac = C.algo.HMAC.create(C.algo.MD5, key);
+            var hmac = C.algo.HMAC.create(C.algo.MD5, C.enc.Hex.parse('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
             hmac.update(C.enc.Hex.parse('dddddddddddddddddddddddddddddddddddd'));
             hmac.update(C.enc.Hex.parse('dddddddddddddddddddddddddddddddd'));
             hmac.update(C.enc.Hex.parse('dddddddddddddddddddddddddddddddd'));
 
-            Y.Assert.areEqual(C.HmacMD5(C.enc.Hex.parse('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'), key).toString(), hmac.compute());
+            Y.Assert.areEqual(C.HmacMD5(C.enc.Hex.parse('dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'), C.enc.Hex.parse('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')).toString(), hmac.finalize());
         },
 
         testInputIntegrity: function () {

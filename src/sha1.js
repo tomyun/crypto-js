@@ -83,7 +83,7 @@
             m.sigBytes = M.length * 4;
 
             // Hash final blocks
-            this._processData();
+            this._process(!!'flush');
         }
     });
 
@@ -93,6 +93,8 @@
      * @param {WordArray|string} message The message to hash.
      *
      * @return {WordArray} The hash.
+     *
+     * @static
      *
      * @example
      *
@@ -108,6 +110,8 @@
      * @param {WordArray|string} key The secret key.
      *
      * @return {WordArray} The HMAC.
+     *
+     * @static
      *
      * @example
      *

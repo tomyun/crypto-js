@@ -2,62 +2,61 @@ YUI.add('algo-rabbit-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'algo.Rabbit',
+        name: 'Rabbit',
 
         testVector1: function () {
-            var message = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var key = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var actual = C.algo.Rabbit.encrypt(message, key);
-
-            Y.Assert.areEqual('02f74a1c26456bf5ecd6a536f05457b1', actual);
+            Y.Assert.areEqual('02f74a1c26456bf5ecd6a536f05457b1', C.Rabbit.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('00000000000000000000000000000000')).ciphertext);
         },
 
         testVector2: function () {
-            var message = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var key = C.enc.Hex.fromString('dc51c3ac3bfc62f12e3d36fe91281329');
-            var actual = C.algo.Rabbit.encrypt(message, key);
-
-            Y.Assert.areEqual('9c51e28784c37fe9a127f63ec8f32d3d', actual);
+            Y.Assert.areEqual('9c51e28784c37fe9a127f63ec8f32d3d', C.Rabbit.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('dc51c3ac3bfc62f12e3d36fe91281329')).ciphertext);
         },
 
         testVector3: function () {
-            var message = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var key = C.enc.Hex.fromString('c09b0043e9e9ab0187e0c73383957415');
-            var actual = C.algo.Rabbit.encrypt(message, key);
-
-            Y.Assert.areEqual('9b60d002fd5ceb32accd41a0cd0db10c', actual);
+            Y.Assert.areEqual('9b60d002fd5ceb32accd41a0cd0db10c', C.Rabbit.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('c09b0043e9e9ab0187e0c73383957415')).ciphertext);
         },
 
         testVector4: function () {
-            var message = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var key = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var iv = C.enc.Hex.fromString('0000000000000000');
-            var actual = C.algo.Rabbit.encrypt(message, key, { iv: iv });
-
-            Y.Assert.areEqual('edb70567375dcd7cd89554f85e27a7c6', actual);
+            Y.Assert.areEqual('edb70567375dcd7cd89554f85e27a7c6', C.Rabbit.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('00000000000000000000000000000000'), { iv: C.enc.Hex.parse('0000000000000000') }).ciphertext);
         },
 
         testVector5: function () {
-            var message = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var key = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var iv = C.enc.Hex.fromString('597e26c175f573c3');
-            var actual = C.algo.Rabbit.encrypt(message, key, { iv: iv });
-
-            Y.Assert.areEqual('6d7d012292ccdce0e2120058b94ecd1f', actual);
+            Y.Assert.areEqual('6d7d012292ccdce0e2120058b94ecd1f', C.Rabbit.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('00000000000000000000000000000000'), { iv: C.enc.Hex.parse('597e26c175f573c3') }).ciphertext);
         },
 
         testVector6: function () {
-            var message = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var key = C.enc.Hex.fromString('00000000000000000000000000000000');
-            var iv = C.enc.Hex.fromString('2717f4d21a56eba6');
-            var actual = C.algo.Rabbit.encrypt(message, key, { iv: iv });
+            Y.Assert.areEqual('4d1051a123afb670bf8d8505c8d85a44', C.Rabbit.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('00000000000000000000000000000000'), { iv: C.enc.Hex.parse('2717f4d21a56eba6') }).ciphertext);
+        },
 
-            Y.Assert.areEqual('4d1051a123afb670bf8d8505c8d85a44', actual);
+        testMultiPart: function () {
+            var rabbit = C.algo.Rabbit.createEncryptor(C.enc.Hex.parse('00000000000000000000000000000000'));
+            var ciphertext1 = rabbit.process(C.enc.Hex.parse('000000000000'));
+            var ciphertext2 = rabbit.process(C.enc.Hex.parse('0000000000'));
+            var ciphertext3 = rabbit.process(C.enc.Hex.parse('0000000000'));
+            var ciphertext4 = rabbit.finalize();
+
+            Y.Assert.areEqual('02f74a1c26456bf5ecd6a536f05457b1', ciphertext1.concat(ciphertext2).concat(ciphertext3).concat(ciphertext4));
+        },
+
+        testInputIntegrity: function () {
+            var message = C.enc.Hex.parse('0000000000000000');
+            var key = C.enc.Hex.parse('0123456789abcdef');
+            var iv = C.enc.Hex.parse('0000000000000000');
+
+            var expectedMessage = message.toString();
+            var expectedKey = key.toString();
+            var expectedIv = iv.toString();
+
+            C.Rabbit.encrypt(message, key, { iv: iv });
+
+            Y.Assert.areEqual(expectedMessage, message);
+            Y.Assert.areEqual(expectedKey, key);
+            Y.Assert.areEqual(expectedIv, iv);
         },
 
         testHelper: function () {
             // Save original random method
-            var random_ = C.lib.WordArray.random;
+            var random = C.lib.WordArray.random;
 
             // Replace random method with one that returns a predictable value
             C.lib.WordArray.random = function (nBytes) {
@@ -66,19 +65,16 @@ YUI.add('algo-rabbit-test', function (Y) {
                     words.push([0x11223344]);
                 }
 
-                return this.create(words, nBytes);
+                return C.lib.WordArray.create(words, nBytes);
             };
 
-            // Expected
-            var message = 'Hi There';
-            var password = 'Jefe';
-            var expected = C.algo.PBE.encrypt(C.algo.Rabbit, message, password).toString();
-
             // Test
-            Y.Assert.areEqual(expected, C.Rabbit.encrypt(message, password));
+            Y.Assert.areEqual(C.algo.Rabbit.createEncryptor(C.MD5('Jefe')).finalize('Hi There').toString(), C.Rabbit.encrypt('Hi There', C.MD5('Jefe')).ciphertext);
+            Y.Assert.areEqual(C.lib.Cipher.Serializable.encrypt(C.algo.Rabbit, 'Hi There', C.MD5('Jefe')).toString(), C.Rabbit.encrypt('Hi There', C.MD5('Jefe')));
+            Y.Assert.areEqual(C.lib.Cipher.PBE.encrypt(C.algo.Rabbit, 'Hi There', 'Jefe').toString(), C.Rabbit.encrypt('Hi There', 'Jefe'));
 
             // Restore random method
-            C.lib.WordArray.random = random_;
+            C.lib.WordArray.random = random;
         }
     }));
 }, '$Rev$');

@@ -2,7 +2,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var C_lib_WordArray = C_lib.WordArray;
+    var WordArray = C_lib.WordArray;
     var C_pad = C.pad;
 
     /**
@@ -17,8 +17,8 @@
             var nPaddingBytes = (blockSizeBytes - data.sigBytes % blockSizeBytes) || blockSizeBytes;
 
             // Pad
-            data.concat(C_lib_WordArray.random(nPaddingBytes - 1)).
-                 concat(C_lib_WordArray.create([nPaddingBytes << 24], 1));
+            data.concat(WordArray.random(nPaddingBytes - 1)).
+                 concat(WordArray.create([nPaddingBytes << 24], 1));
         },
 
         unpad: function (data) {
@@ -27,6 +27,10 @@
 
             // Remove padding
             data.sigBytes -= nPaddingBytes;
+        },
+
+        toString: function () {
+            return 'ISO10126';
         }
     };
 }());

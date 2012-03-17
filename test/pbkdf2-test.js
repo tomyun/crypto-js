@@ -74,11 +74,7 @@ YUI.add('algo-pbkdf2-test', function (Y) {
         },
 
         testHelper: function () {
-            var password = 'password';
-            var salt = 'ATHENA.MIT.EDUraeburn';
-            var cfg = { keySize: 128/32 };
-
-            Y.Assert.areEqual(C.algo.PBKDF2.create(cfg).compute(password, salt).toString(), C.PBKDF2(password, salt, cfg));
+            Y.Assert.areEqual(C.algo.PBKDF2.create({ keySize: 128/32 }).compute('password', 'ATHENA.MIT.EDUraeburn').toString(), C.PBKDF2('password', 'ATHENA.MIT.EDUraeburn', { keySize: 128/32 }));
         }
     }));
 }, '$Rev$');

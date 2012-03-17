@@ -2,7 +2,7 @@ YUI.add('pad-ansix923-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'pad.AnsiX923',
+        name: 'AnsiX923',
 
         testPad: function () {
             var data = C.lib.WordArray.create([0x666f7200], 3);

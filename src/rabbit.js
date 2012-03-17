@@ -55,7 +55,7 @@
                 var i0 = (((IV_0 << 8) | (IV_0 >>> 24)) & 0x00ff00ff) | (((IV_0 << 24) | (IV_0 >>> 8)) & 0xff00ff00);
                 var i2 = (((IV_1 << 8) | (IV_1 >>> 24)) & 0x00ff00ff) | (((IV_1 << 24) | (IV_1 >>> 8)) & 0xff00ff00);
                 var i1 = (i0 >>> 16) | (i2 & 0xffff0000);
-                var i3 = (i2 <<  16) | (i0 & 0x0000ffff);
+                var i3 = (i2 << 16)  | (i0 & 0x0000ffff);
 
                 // Modify counter values
                 C[0] ^= i0;
