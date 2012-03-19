@@ -2,34 +2,36 @@
  * Counter block mode.
  */
 CryptoJS.mode.CTR = (function () {
-    var CTR = CryptoJS.lib.Cipher.Mode.extend({
-        toString: function () {
-            return 'CTR';
-        }
-    });
+    var CTR = CryptoJS.lib.Cipher.Mode.extend();
 
     var Encryptor = CTR.Encryptor = CTR.extend({
-        processBlock: function (dataWords, offset) {
+        processBlock: function (data, offset) {
             // Shortcuts
+            var dataWords = data.words;
             var cipher = this._cipher
-            var blockSize = cipher._blockSize;
+            var blockSize = cipher.blockSize;
             var iv = this._iv;
             var counter = this._counter;
 
             // Generate keystream
             if (iv) {
-                counter = this._counter = iv.words.slice(0);
+                counter = this._counter = iv.clone();
 
                 // Remove IV for subsequent blocks
                 this._iv = undefined;
             }
-            var keystream = counter.slice(0);
-            cipher._encryptBlock(keystream, 0);
-            counter[counter.length - 1]++;
+            var keystream = counter.clone();
+            cipher.encryptBlock(keystream, 0);
+
+            // Increment counter
+            counter.words[(counter.sigBytes - 1) >>> 2]++
+
+            // Shortcut
+            var keystreamWords = keystream.words;
 
             // Encrypt
             for (var i = 0; i < blockSize; i++) {
-                dataWords[offset + i] ^= keystream[i];
+                dataWords[offset + i] ^= keystreamWords[i];
             }
         }
     });

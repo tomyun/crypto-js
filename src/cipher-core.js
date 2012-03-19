@@ -17,8 +17,8 @@ CryptoJS.lib.Cipher || (function (undefined) {
     /**
      * Abstract base cipher template.
      *
-     * @property {number} _keySize This cipher's key size. Default: 4 (128 bits)
-     * @property {number} _ivSize This cipher's IV size. Default: 4 (128 bits)
+     * @property {number} keySize This cipher's key size. Default: 4 (128 bits)
+     * @property {number} ivSize This cipher's IV size. Default: 4 (128 bits)
      * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
      * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
      */
@@ -28,7 +28,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          *
          * @property {WordArray} iv The IV to use for this operation.
          */
-        _cfg: Base.extend(),
+        cfg: Base.extend(),
 
         /**
          * Initializes a newly created cipher.
@@ -43,7 +43,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         init: function (xformMode, key, cfg) {
             // Apply config defaults
-            this._cfg = this._cfg.extend(cfg);
+            this.cfg = this.cfg.extend(cfg);
 
             // Store transform mode and key
             this._xformMode = xformMode;
@@ -150,9 +150,9 @@ CryptoJS.lib.Cipher || (function (undefined) {
             return finalProcessedData;
         },
 
-        _keySize: 128/32,
+        keySize: 128/32,
 
-        _ivSize: 128/32,
+        ivSize: 128/32,
 
         _ENC_XFORM_MODE: 1,
 
@@ -197,7 +197,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
     /**
      * Abstract base stream cipher template.
      *
-     * @property {number} _blockSize The number of 32-bit words this cipher operates on. Default: 1 (32 bits)
+     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 1 (32 bits)
      */
     var StreamCipher = Cipher.Stream = Cipher.extend({
         _doFinalize: function () {
@@ -207,8 +207,158 @@ CryptoJS.lib.Cipher || (function (undefined) {
             return finalProcessedBlocks;
         },
 
-        _blockSize: 1
+        blockSize: 1
     });
+
+    /**
+     * Mode namespace.
+     */
+    var C_mode = C.mode = {};
+
+    /**
+     * Abstract base mode template.
+     */
+    var BlockCipherMode = Cipher.Mode = Base.extend({
+        /**
+         * Initializes a newly create mode.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {WordArray} iv The IV.
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv);
+         */
+        init: function (cipher, iv) {
+            this._cipher = cipher;
+            this._iv = iv;
+        },
+
+        /**
+         * Creates this mode for encryption.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {WordArray} iv The IV.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.createEncryptor(cipher, iv);
+         */
+        createEncryptor: function (cipher, iv) {
+            return this.Encryptor.create(cipher, iv);
+        },
+
+        /**
+         * Creates this mode for decryption.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {WordArray} iv The IV.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.createDecryptor(cipher, iv);
+         */
+        createDecryptor: function (cipher, iv) {
+            return this.Decryptor.create(cipher, iv);
+        }
+    });
+
+    /**
+     * Cipher Block Chaining mode.
+     */
+    var CBC = C_mode.CBC = (function () {
+        /**
+         * Abstract base CBC mode.
+         */
+        var CBC = BlockCipherMode.extend();
+
+        /**
+         * CBC encryptor.
+         */
+        CBC.Encryptor = CBC.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {WordArray} data The data to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data, offset);
+             */
+            processBlock: function (data, offset) {
+                // Shortcuts
+                var dataWords = data.words;
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+
+                // XOR and encrypt
+                xorBlock.call(this, dataWords, offset, blockSize);
+                cipher.encryptBlock(data, offset);
+
+                // Remember this block to use with next block
+                this._prevBlock = dataWords.slice(offset, blockSize);
+            }
+        });
+
+        /**
+         * CBC decryptor.
+         */
+        CBC.Decryptor = CBC.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {WordArray} data The data to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data, offset);
+             */
+            processBlock: function (data, offset) {
+                // Shortcuts
+                var dataWords = data.words;
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+
+                // Remember this block to use with next block
+                var thisBlock = dataWords.slice(offset, blockSize);
+
+                // Decrypt and XOR
+                cipher.decryptBlock(data, offset);
+                xorBlock.call(this, dataWords, offset, blockSize);
+
+                // This block becomes the previous block
+                this._prevBlock = thisBlock;
+            }
+        });
+
+        function xorBlock(dataWords, offset, blockSize) {
+            // Shortcut
+            var iv = this._iv;
+
+            // Choose mixing block
+            if (iv) {
+                var block = iv.words;
+
+                // Remove IV for subsequent blocks
+                this._iv = undefined;
+            } else {
+                var block = this._prevBlock;
+            }
+
+            // XOR blocks
+            for (var i = 0; i < blockSize; i++) {
+                dataWords[offset + i] ^= block[i];
+            }
+        }
+
+        return CBC;
+    }());
 
     /**
      * Padding namespace.
@@ -236,7 +386,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
             var blockSizeBytes = blockSize * 4;
 
             // Count padding bytes
-            var nPaddingBytes = (blockSizeBytes - data.sigBytes % blockSizeBytes) || blockSizeBytes;
+            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
 
             // Create padding word
             var paddingWord = (nPaddingBytes << 24) | (nPaddingBytes << 16) | (nPaddingBytes << 8) | nPaddingBytes;
@@ -269,201 +419,24 @@ CryptoJS.lib.Cipher || (function (undefined) {
 
             // Remove padding
             data.sigBytes -= nPaddingBytes;
-        },
-
-        /**
-         * Returns the serializable name of this padding scheme.
-         *
-         * @return {string} The serializable name.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var serializedPaddingScheme = CryptoJS.pad.PKCS7 + '';
-         *     var serializedPaddingScheme = CryptoJS.pad.PKCS7.toString();
-         */
-        toString: function () {
-            return 'PKCS7';
         }
     };
 
     /**
-     * Mode namespace.
-     */
-    var C_mode = C.mode = {};
-
-    /**
-     * Abstract base mode template.
-     */
-    var CipherMode = Cipher.Mode = Base.extend({
-        /**
-         * Initializes a newly create mode.
-         *
-         * @param {Cipher} cipher A block cipher instance.
-         * @param {WordArray} iv (Optional) The IV.
-         *
-         * @example
-         *
-         *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv);
-         */
-        init: function (cipher, iv) {
-            this._cipher = cipher;
-            this._iv = iv;
-        },
-
-        /**
-         * Creates this mode for encryption.
-         *
-         * @param {Cipher} cipher A block cipher instance.
-         * @param {WordArray} iv (Optional) The IV.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var mode = CryptoJS.mode.CBC.createEncryptor(cipher, iv);
-         */
-        createEncryptor: function (cipher, iv) {
-            return this.Encryptor.create(cipher, iv);
-        },
-
-        /**
-         * Creates this mode for decryption.
-         *
-         * @param {Cipher} cipher A block cipher instance.
-         * @param {WordArray} iv (Optional) The IV.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var mode = CryptoJS.mode.CBC.createDecryptor(cipher, iv);
-         */
-        createDecryptor: function (cipher, iv) {
-            return this.Decryptor.create(cipher, iv);
-        }
-    });
-
-    /**
-     * Cipher Block Chaining mode.
-     */
-    var CBC = C_mode.CBC = (function () {
-        var CBC = CipherMode.extend({
-            /**
-             * Returns the serializable name of this block mode.
-             *
-             * @return {string} The serializable name.
-             *
-             * @static
-             *
-             * @example
-             *
-             *     var serializedBlockMode = CryptoJS.mode.CBC + '';
-             *     var serializedBlockMode = CryptoJS.mode.CBC.toString();
-             */
-            toString: function () {
-                return 'CBC';
-            }
-        });
-
-        /**
-         * CBC encryptor.
-         */
-        CBC.Encryptor = CBC.extend({
-            /**
-             * Processes the data block at offset.
-             *
-             * @param {Array} dataWords The data words to operate on.
-             * @param {number} offset The offset where the block starts.
-             *
-             * @example
-             *
-             *     mode.processBlock(data.words, offset);
-             */
-            processBlock: function (dataWords, offset) {
-                // Shortcuts
-                var cipher = this._cipher;
-                var blockSize = cipher._blockSize;
-
-                // XOR and encrypt
-                xorBlock.call(this, dataWords, offset, blockSize);
-                cipher._encryptBlock(dataWords, offset);
-
-                // Remember this block to use with next block
-                this._previousBlock = dataWords.slice(offset, blockSize);
-            }
-        });
-
-        /**
-         * CBC decryptor.
-         */
-        CBC.Decryptor = CBC.extend({
-            /**
-             * Processes the data block at offset.
-             *
-             * @param {Array} dataWords The data words to operate on.
-             * @param {number} offset The offset where the block starts.
-             *
-             * @example
-             *
-             *     mode.processBlock(data.words, offset);
-             */
-            processBlock: function (dataWords, offset) {
-                // Shortcuts
-                var cipher = this._cipher;
-                var blockSize = cipher._blockSize;
-
-                // Remember this block to use with next block
-                var thisBlock = dataWords.slice(offset, blockSize);
-
-                // Decrypt and XOR
-                cipher._decryptBlock(dataWords, offset);
-                xorBlock.call(this, dataWords, offset, blockSize);
-
-                // This block becomes the previous block
-                this._previousBlock = thisBlock;
-            }
-        });
-
-        function xorBlock(dataWords, offset, blockSize) {
-            // Shortcut
-            var iv = this._iv;
-
-            // Choose mixing block
-            if (iv) {
-                var block = iv.words;
-
-                // Remove IV for subsequent blocks
-                this._iv = undefined;
-            } else {
-                var block = this._previousBlock;
-            }
-
-            // XOR blocks
-            for (var i = 0; i < blockSize; i++) {
-                dataWords[offset + i] ^= block[i];
-            }
-        }
-
-        return CBC;
-    }());
-
-    /**
      * Abstract base block cipher template.
      *
-     * @property {number} _blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
+     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
      */
     var BlockCipher = Cipher.Block = Cipher.extend({
         /**
          * Configuration options.
          *
-         * @property {Padding} padding The padding scheme to use. Default: PKCS7
          * @property {Mode} mode The block mode to use. Default: CBC
+         * @property {Padding} padding The padding strategy to use. Default: PKCS7
          */
-        _cfg: Cipher._cfg.extend({
-            padding: PKCS7,
-            mode: CBC
+        cfg: Cipher.cfg.extend({
+            mode: CBC,
+            padding: PKCS7
         }),
 
         reset: function () {
@@ -471,7 +444,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
             Cipher.reset.call(this);
 
             // Shortcuts
-            var cfg = this._cfg;
+            var cfg = this.cfg;
             var mode = cfg.mode;
 
             // Reset block mode
@@ -480,27 +453,27 @@ CryptoJS.lib.Cipher || (function (undefined) {
             } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
                 var modeCreator = mode.createDecryptor;
 
-                // Retain at least one block for unpadding
+                // Keep at least one block in the buffer for unpadding
                 this._minBufferSize = 1;
             }
             this._mode = modeCreator.call(mode, this, cfg.iv);
         },
 
         _doProcessBlock: function (offset) {
-            this._mode.processBlock(this._data.words, offset);
+            this._mode.processBlock(this._data, offset);
         },
 
         _doFinalize: function () {
             // Shortcut
-            var padding = this._cfg.padding;
+            var padding = this.cfg.padding;
 
             // Finalize
             if (this._xformMode == this._ENC_XFORM_MODE) {
                 // Pad data
-                padding.pad(this._data, this._blockSize);
+                padding.pad(this._data, this.blockSize);
 
                 // Process final blocks
-                var finalProcessedBlocks = this._process(!!'flush');
+                var finalProcessedBlocks = this._process();
             } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
                 // Process final blocks
                 var finalProcessedBlocks = this._process(!!'flush');
@@ -512,7 +485,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
             return finalProcessedBlocks;
         },
 
-        _blockSize: 128/32
+        blockSize: 128/32
     });
 
     /**
@@ -522,9 +495,9 @@ CryptoJS.lib.Cipher || (function (undefined) {
      * @property {WordArray} key The key to this ciphertext.
      * @property {WordArray} iv The IV used in the ciphering operation.
      * @property {WordArray} salt The salt used with a key derivation function.
-     * @property {Cipher|string} algorithm The cipher algorithm, represented either as a string or the algorithm object itself.
-     * @property {Mode|string} mode The block mode used in the ciphering operation, represented either as a string or the mode object itself.
-     * @property {Padding|string} padding The padding scheme used in the ciphering operation, represented either as a string or the padding object itself.
+     * @property {Cipher} algorithm The cipher algorithm.
+     * @property {Mode} mode The block mode used in the ciphering operation.
+     * @property {Padding} padding The padding scheme used in the ciphering operation.
      * @property {number} blockSize The block size of the cipher.
      * @property {Format} formatter The default formatting strategy to convert this cipher params object to a string.
      */
@@ -652,7 +625,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          *
          * @property {Formatter} format The formatting strategy to convert cipher param objects to and from a string. Default: OpenSSL
          */
-        _cfg: Base.extend({
+        cfg: Base.extend({
             format: OpenSSLFormatter
         }),
 
@@ -676,14 +649,14 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         encrypt: function (cipher, message, key, cfg) {
             // Apply config defaults
-            cfg = this._cfg.extend(cfg);
+            cfg = this.cfg.extend(cfg);
 
             // Encrypt
             var encryptor = cipher.createEncryptor(key, cfg);
             var ciphertext = encryptor.finalize(message);
 
             // Shortcut
-            var cipherCfg = encryptor._cfg;
+            var cipherCfg = encryptor.cfg;
 
             // Create and return serializable cipher params
             return CipherParams.create({
@@ -693,7 +666,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
                 algorithm: cipher,
                 mode: cipherCfg.mode,
                 padding: cipherCfg.padding,
-                blockSize: cipher._blockSize,
+                blockSize: cipher.blockSize,
                 formatter: cfg.format
             });
         },
@@ -717,7 +690,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         decrypt: function (cipher, ciphertext, key, cfg) {
             // Apply config defaults
-            cfg = this._cfg.extend(cfg);
+            cfg = this.cfg.extend(cfg);
 
             // Convert string to CipherParams
             ciphertext = this._parse(ciphertext, cfg.format);
@@ -745,7 +718,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         _parse: function (ciphertext, format) {
             if (typeof ciphertext == 'string') {
-                return format.parse(ciphertext);
+                return format.parse(ciphertext, this);
             } else {
                 return ciphertext;
             }
@@ -806,7 +779,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          *
          * @property {KDF} kdf The key derivation function to use to generate a key and IV from a password. Default: OpenSSL
          */
-        _cfg: SerializableCipher._cfg.extend({
+        cfg: SerializableCipher.cfg.extend({
             kdf: OpenSSLKdf
         }),
 
@@ -829,10 +802,10 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         encrypt: function (cipher, message, password, cfg) {
             // Apply config defaults
-            cfg = this._cfg.extend(cfg);
+            cfg = this.cfg.extend(cfg);
 
             // Derive key and other params
-            var derivedParams = cfg.kdf.execute(password, cipher._keySize, cipher._ivSize);
+            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize);
 
             // Add IV to config
             cfg.iv = derivedParams.iv;
@@ -865,13 +838,13 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         decrypt: function (cipher, ciphertext, password, cfg) {
             // Apply config defaults
-            cfg = this._cfg.extend(cfg);
+            cfg = this.cfg.extend(cfg);
 
             // Convert string to CipherParams
             ciphertext = this._parse(ciphertext, cfg.format);
 
             // Derive key and other params
-            var derivedParams = cfg.kdf.execute(password, cipher._keySize, cipher._ivSize, ciphertext.salt);
+            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt);
 
             // Add IV to config
             cfg.iv = derivedParams.iv;

@@ -7,14 +7,14 @@ YUI.add('lib-cipherparams-test', function (Y) {
         setUp: function () {
             this.data = {};
 
-            this.data.ciphertext = C.enc.Hex.parse('69c4e0d86a7b0430d8cdb78070b4c55a');
-            this.data.key = C.enc.Hex.parse('00112233445566778899aabbccddeeff');
-            this.data.iv = C.enc.Hex.parse('000102030405060708090a0b0c0d0e0f');
-            this.data.salt = C.enc.Hex.parse('1011121314151617');
+            this.data.ciphertext = C.enc.Hex.parse('000102030405060708090a0b0c0d0e0f');
+            this.data.key = C.enc.Hex.parse('101112131415161718191a1b1c1d1e1f');
+            this.data.iv = C.enc.Hex.parse('202122232425262728292a2b2c2d2e2f');
+            this.data.salt = C.enc.Hex.parse('0123456789abcdef');
             this.data.algorithm = C.algo.AES;
             this.data.mode = C.mode.CBC;
             this.data.padding = C.pad.PKCS7;
-            this.data.blockSize = this.data.algorithm._blockSize;
+            this.data.blockSize = this.data.algorithm.blockSize;
             this.data.formatter = C.format.OpenSSL;
 
             this.data.cipherParams = C.lib.Cipher.Params.create({

@@ -194,12 +194,19 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             this.clamp();
 
             // Concat
-            for (var i = 0; i < thatSigBytes; i++) {
-                var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                thisWords[thisSigBytes >>> 2] |= thatByte << (24 - (thisSigBytes % 4) * 8);
-                thisSigBytes++;
+            if (thisSigBytes % 4) {
+                // Copy one byte at a time
+                for (var i = 0; i < thatSigBytes; i++) {
+                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
+                }
+            } else {
+                // Copy one word at a time
+                for (var i = 0; i < thatSigBytes; i += 4) {
+                    thisWords[(thisSigBytes + i) >>> 2] |= thatWords[i >>> 2];
+                }
             }
-            this.sigBytes = thisSigBytes;
+            this.sigBytes += thatSigBytes;
 
             // Chainable
             return this;
@@ -430,7 +437,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
     /**
      * Abstract buffered block algorithm template.
-     * The property _blockSize must be implemented in a concrete subtype.
+     * The property blockSize must be implemented in a concrete subtype.
      *
      * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
      */
@@ -451,7 +458,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Adds new data to this block algorithm's buffer.
          *
-         * @param {WordArray|string} data The data to append.
+         * @param {WordArray|string} data The data to append. Strings are converted to a WordArray using UTF-8.
          *
          * @example
          *
@@ -486,14 +493,17 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Shortcuts
             var data = this._data;
             var dataSigBytes = data.sigBytes;
-            var blockSize = this._blockSize;
+            var blockSize = this.blockSize;
             var blockSizeBytes = blockSize * 4;
 
             // Count blocks ready
             var nBlocksReady = dataSigBytes / blockSizeBytes;
             if (doFlush) {
+                // Round up to include partial blocks
                 nBlocksReady = Math.ceil(nBlocksReady);
             } else {
+                // Round down to include only full blocks,
+                // less the number of blocks that must remain in the buffer
                 nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
             }
 
@@ -519,8 +529,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             return WordArray.create(processedWords, nBytesReady);
         },
 
-        _minBufferSize: 0,
-
         /**
          * Creates a copy of this object.
          *
@@ -535,19 +543,21 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             clone._data = this._data.clone();
 
             return clone;
-        }
+        },
+
+        _minBufferSize: 0
     });
 
     /**
      * Abstract hasher template.
      *
-     * @property {number} _blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+     * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
      */
     var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
         /**
          * Configuration options.
          */
-        // _cfg: Base.extend(),
+        // cfg: Base.extend(),
 
         /**
          * Initializes a newly created hasher.
@@ -556,11 +566,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var hasher = CryptoJS.algo.MD5.create();
+         *     var hasher = CryptoJS.algo.SHA256.create();
          */
         init: function (cfg) {
             // Apply config defaults
-            // this._cfg = this._cfg.extend(cfg);
+            // this.cfg = this.cfg.extend(cfg);
 
             // Set initial values
             this.reset();
@@ -577,14 +587,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Reset data buffer
             BufferedBlockAlgorithm.reset.call(this);
 
-            // Reset hash
-            var hash = this._hash = WordArray.create();
-
             // Perform concrete-hasher logic
             this._doReset();
-
-            // Update hash sigBytes
-            hash.sigBytes = hash.words.length * 4;
         },
 
         /**
@@ -652,7 +656,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             return clone;
         },
 
-        _blockSize: 512/32,
+        blockSize: 512/32,
 
         /**
          * Creates a shortcut function to a hasher's object interface.

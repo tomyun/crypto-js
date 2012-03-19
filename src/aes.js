@@ -82,21 +82,21 @@
             // Shortcuts
             var key = this._key;
             var keyWords = key.words;
-            var keyLength = key.sigBytes / 4;
+            var keySize = key.sigBytes / 4;
 
             // Compute number of rounds
-            var nRounds = this._nRounds = keyLength + 6
+            var nRounds = this._nRounds = keySize + 6
 
             // Compute key schedule
             var keySchedule = this._keySchedule = [];
             var ksRows = (nRounds + 1) * 4;
             for (var ksRow = 0; ksRow < ksRows; ksRow++) {
-                if (ksRow < keyLength) {
+                if (ksRow < keySize) {
                     keySchedule[ksRow] = keyWords[ksRow];
                 } else {
                     var t = keySchedule[ksRow - 1];
 
-                    if ( ! (ksRow % keyLength)) {
+                    if ( ! (ksRow % keySize)) {
                         // Rot word
                         t = (t << 8) | (t >>> 24);
 
@@ -104,19 +104,20 @@
                         t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
 
                         // Mix Rcon
-                        t ^= RCON[(ksRow / keyLength) | 0];
-                    } else if (keyLength > 6 && ksRow % keyLength == 4) {
+                        t ^= RCON[(ksRow / keySize) | 0];
+                    } else if (keySize > 6 && ksRow % keySize == 4) {
                         // Sub word
                         t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
                     }
 
-                    keySchedule[ksRow] = keySchedule[ksRow - keyLength] ^ t;
+                    keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
                 }
             }
         },
 
-        _encryptBlock: function (M, offset) {
+        encryptBlock: function (data, offset) {
             // Shortcuts
+            var M = data.words;
             var nRounds = this._nRounds;
             var keySchedule = this._keySchedule;
 
@@ -177,8 +178,9 @@
             M[offset + 3] = t3;
         },
 
-        _decryptBlock: function (M, offset) {
+        decryptBlock: function (data, offset) {
             // Shortcuts
+            var M = data.words;
             var nRounds = this._nRounds;
             var keySchedule = this._keySchedule;
 
@@ -239,7 +241,7 @@
             M[offset + 3] = t3;
         },
 
-        _keySize: 256/32
+        keySize: 256/32
     });
 
     /**

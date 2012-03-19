@@ -8,12 +8,13 @@ CryptoJS.pad.AnsiX923 = {
         var blockSizeBytes = blockSize * 4;
 
         // Count padding bytes
-        var nPaddingBytes = (blockSizeBytes - dataSigBytes % blockSizeBytes) || blockSizeBytes;
+        var nPaddingBytes = blockSizeBytes - dataSigBytes % blockSizeBytes;
 
         // Compute last byte position
         var lastBytePos = dataSigBytes + nPaddingBytes - 1;
 
         // Pad
+        data.clamp();
         data.words[lastBytePos >>> 2] |= nPaddingBytes << (24 - (lastBytePos % 4) * 8);
         data.sigBytes += nPaddingBytes;
     },
@@ -24,9 +25,5 @@ CryptoJS.pad.AnsiX923 = {
 
         // Remove padding
         data.sigBytes -= nPaddingBytes;
-    },
-
-    toString: function () {
-        return 'ANSIX923';
     }
 };

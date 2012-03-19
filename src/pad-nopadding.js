@@ -6,9 +6,5 @@ CryptoJS.pad.NoPadding = {
     },
 
     unpad: function () {
-    },
-
-    toString: function () {
-        return 'NoPadding';
     }
 };

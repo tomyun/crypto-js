@@ -45,23 +45,7 @@
 
         _keySize: 256/32,
 
-        _ivSize: 0,
-
-        /**
-         * Returns the serializable name of this cipher algorithm.
-         *
-         * @return {string} The serializable name.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var serializedCipherAlgorithm = CryptoJS.algo.RC4 + '';
-         *     var serializedCipherAlgorithm = CryptoJS.algo.RC4.toString();
-         */
-        toString: function () {
-            return 'RC4';
-        }
+        _ivSize: 0
     });
 
     function generateKeystreamWord() {
@@ -110,7 +94,7 @@
          *
          * @property {number} drop The number of keystream words to drop. Default 192
          */
-        _cfg: RC4._cfg.extend({
+        cfg: RC4.cfg.extend({
             drop: 192
         }),
 
@@ -118,7 +102,7 @@
             RC4._doReset.call(this);
 
             // Drop
-            for (var i = this._cfg.drop; i > 0; i--) {
+            for (var i = this.cfg.drop; i > 0; i--) {
                 generateKeystreamWord.call(this);
             }
         },

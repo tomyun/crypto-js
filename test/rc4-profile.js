@@ -5,22 +5,24 @@ YUI.add('algo-rc4-profile', function (Y) {
         name: 'RC4',
 
         setUp: function () {
-            this.data = { key: C.enc.Hex.parse('0123456789abcdef') };
+            this.data = {
+                key: C.enc.Hex.parse('000102030405060708090a0b0c0d0e0f')
+            };
         },
 
         profileSinglePartMessage: function () {
             var singlePartMessage = '';
             for (var i = 0; i < 500; i++) {
-                singlePartMessage += '01234567890123456789012345678901234567890123456789';
+                singlePartMessage += '12345678901234567890123456789012345678901234567890';
             }
 
-            C.RC4.encrypt(singlePartMessage, 'Jefe') + '';
+            C.algo.RC4.createEncryptor(this.data.key).finalize(singlePartMessage) + '';
         },
 
         profileMultiPartMessage: function () {
             var rc4 = C.algo.RC4.createEncryptor(this.data.key);
             for (var i = 0; i < 500; i++) {
-                rc4.process('01234567890123456789012345678901234567890123456789') + '';
+                rc4.process('12345678901234567890123456789012345678901234567890') + '';
             }
             rc4.finalize() + '';
         }

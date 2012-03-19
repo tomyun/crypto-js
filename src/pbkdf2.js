@@ -19,7 +19,7 @@
          * @property {Hasher} hasher The hasher to use. Default: SHA1
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
-        _cfg: Base.extend({
+        cfg: Base.extend({
             keySize: 128/32,
             hasher: SHA1,
             iterations: 1
@@ -37,7 +37,7 @@
          *     var kdf = CryptoJS.algo.PBKDF2.create({ keySize: 8, iterations: 1000 });
          */
         init: function (cfg) {
-            this._cfg = this._cfg.extend(cfg);
+            this.cfg = this.cfg.extend(cfg);
         },
 
         /**
@@ -54,7 +54,7 @@
          */
         compute: function (password, salt) {
             // Shortcut
-            var cfg = this._cfg;
+            var cfg = this.cfg;
 
             // Init HMAC
             var hmac = HMAC.create(cfg.hasher, password);

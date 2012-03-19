@@ -39,8 +39,8 @@ YUI.add('algo-rabbit-test', function (Y) {
         },
 
         testInputIntegrity: function () {
-            var message = C.enc.Hex.parse('0000000000000000');
-            var key = C.enc.Hex.parse('0123456789abcdef');
+            var message = C.enc.Hex.parse('00000000000000000000000000000000');
+            var key = C.enc.Hex.parse('00000000000000000000000000000000');
             var iv = C.enc.Hex.parse('0000000000000000');
 
             var expectedMessage = message.toString();

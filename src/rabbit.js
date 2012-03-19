@@ -6,6 +6,11 @@
     var StreamCipher = Cipher.Stream;
     var C_algo = C.algo;
 
+    // Reusable objects
+    var S  = [];
+    var C_ = [];
+    var G  = [];
+
     /**
      * Rabbit stream cipher algorithm
      */
@@ -13,7 +18,7 @@
         _doReset: function () {
             // Shortcuts
             var K = this._key.words;
-            var iv = this._cfg.iv;
+            var iv = this.cfg.iv;
 
             // Generate initial state values
             var X = this._X = [
@@ -83,12 +88,10 @@
             nextState.call(this);
 
             // Generate four keystream words
-            var S = [
-                X[0] ^ (X[5] >>> 16) ^ (X[3] << 16),
-                X[2] ^ (X[7] >>> 16) ^ (X[5] << 16),
-                X[4] ^ (X[1] >>> 16) ^ (X[7] << 16),
-                X[6] ^ (X[3] >>> 16) ^ (X[1] << 16)
-            ];
+            S[0] = X[0] ^ (X[5] >>> 16) ^ (X[3] << 16);
+            S[1] = X[2] ^ (X[7] >>> 16) ^ (X[5] << 16);
+            S[2] = X[4] ^ (X[1] >>> 16) ^ (X[7] << 16);
+            S[3] = X[6] ^ (X[3] >>> 16) ^ (X[1] << 16);
 
             for (var i = 0; i < 4; i++) {
                 // Swap endian
@@ -100,25 +103,9 @@
             }
         },
 
-        _blockSize: 128/32,
+        blockSize: 128/32,
 
-        _ivSize: 64/32,
-
-        /**
-         * Returns the serializable name of this cipher algorithm.
-         *
-         * @return {string} The serializable name.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var serializedCipherAlgorithm = CryptoJS.algo.Rabbit + '';
-         *     var serializedCipherAlgorithm = CryptoJS.algo.Rabbit.toString();
-         */
-        toString: function () {
-            return 'Rabbit';
-        }
+        ivSize: 64/32
     });
 
     function nextState() {
@@ -127,7 +114,6 @@
         var C = this._C;
 
         // Save old counter values
-        var C_ = [];
         for (var i = 0; i < 8; i++) {
             C_[i] = C[i];
         }
@@ -144,7 +130,6 @@
         this._b = (C[7] >>> 0) < (C_[7] >>> 0) ? 1 : 0;
 
         // Calculate the g-values
-        var G = [];
         for (var i = 0; i < 8; i++) {
             var gx = (X[i] + C[i]) | 0;
 

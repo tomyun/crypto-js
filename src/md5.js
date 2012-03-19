@@ -2,6 +2,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
     var Hasher = C_lib.Hasher;
     var C_algo = C.algo;
 
@@ -20,14 +21,10 @@
      */
     var MD5 = C_algo.MD5 = Hasher.extend({
         _doReset: function () {
-            // Shortcut
-            var H = this._hash.words;
-
-            // Initial values
-            H[0] = 0x67452301;
-            H[1] = 0xefcdab89;
-            H[2] = 0x98badcfe;
-            H[3] = 0x10325476;
+            this._hash = WordArray.create([
+                0x67452301, 0xefcdab89,
+                0x98badcfe, 0x10325476
+            ]);
         },
 
         _doProcessBlock: function (offset) {
@@ -87,11 +84,11 @@
 
         _doFinalize: function () {
             // Shortcuts
-            var m = this._data;
-            var M = m.words;
+            var data = this._data;
+            var M = data.words;
 
             var nBitsTotal = this._nDataBytes * 8;
-            var nBitsLeft = m.sigBytes * 8;
+            var nBitsLeft = data.sigBytes * 8;
 
             // Add padding
             M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
@@ -99,10 +96,10 @@
                 (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
                 (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
             );
-            m.sigBytes = (M.length + 1) * 4;
+            data.sigBytes = (M.length + 1) * 4;
 
             // Hash final blocks
-            this._process(!!'flush');
+            this._process();
 
             // Shortcut
             var H = this._hash.words;

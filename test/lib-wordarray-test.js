@@ -24,12 +24,28 @@ YUI.add('lib-wordarray-test', function (Y) {
             Y.Assert.areEqual('12345678', C.lib.WordArray.create([0x12345678]));
         },
 
-        testConcat: function () {
+        testConcat3: function () {
             var wordArray1 = C.lib.WordArray.create([0x12345678], 3);
             var wordArray2 = C.lib.WordArray.create([0x12345678], 3);
 
             Y.Assert.areEqual('123456123456', wordArray1.concat(wordArray2));
             Y.Assert.areEqual('123456123456', wordArray1);
+        },
+
+        testConcat4: function () {
+            var wordArray1 = C.lib.WordArray.create([0x12345678], 4);
+            var wordArray2 = C.lib.WordArray.create([0x12345678], 3);
+
+            Y.Assert.areEqual('12345678123456', wordArray1.concat(wordArray2));
+            Y.Assert.areEqual('12345678123456', wordArray1);
+        },
+
+        testConcat5: function () {
+            var wordArray1 = C.lib.WordArray.create([0x12345678], 5);
+            var wordArray2 = C.lib.WordArray.create([0x12345678], 3);
+
+            Y.Assert.areEqual('1234567800123456', wordArray1.concat(wordArray2));
+            Y.Assert.areEqual('1234567800123456', wordArray1);
         },
 
         testClamp: function () {

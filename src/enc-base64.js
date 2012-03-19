@@ -40,7 +40,7 @@
 
                 var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
 
-                for (var j = 0; (j < 4) && (i + j * 0.75 <= sigBytes); j++) {
+                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
                     base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
                 }
             }
@@ -77,9 +77,9 @@
             // Ignore padding
             var paddingChar = map.charAt(64);
             if (paddingChar) {
-                var paddingStartIndex = base64Str.indexOf(paddingChar);
-                if (paddingStartIndex != -1) {
-                    base64StrLength = paddingStartIndex;
+                var paddingIndex = base64Str.indexOf(paddingChar);
+                if (paddingIndex != -1) {
+                    base64StrLength = paddingIndex;
                 }
             }
 

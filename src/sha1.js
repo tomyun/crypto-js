@@ -2,23 +2,23 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
     var Hasher = C_lib.Hasher;
     var C_algo = C.algo;
+
+    // Reusable objects
+    var W = [];
 
     /**
      * SHA-1 hash algorithm.
      */
     var SHA1 = C_algo.SHA1 = Hasher.extend({
         _doReset: function () {
-            // Shortcut
-            var H = this._hash.words;
-
-            // Initial values
-            H[0] = 0x67452301;
-            H[1] = 0xefcdab89;
-            H[2] = 0x98badcfe;
-            H[3] = 0x10325476;
-            H[4] = 0xc3d2e1f0;
+            this._hash = WordArray.create([
+                0x67452301, 0xefcdab89,
+                0x98badcfe, 0x10325476,
+                0xc3d2e1f0
+            ]);
         },
 
         _doProcessBlock: function (offset) {
@@ -34,7 +34,6 @@
             var e = H[4];
 
             // Computation
-            var W = [];
             for (var i = 0; i < 80; i++) {
                 if (i < 16) {
                     W[i] = M[offset + i] | 0;
@@ -71,19 +70,19 @@
 
         _doFinalize: function () {
             // Shortcuts
-            var m = this._data;
-            var M = m.words;
+            var data = this._data;
+            var M = data.words;
 
             var nBitsTotal = this._nDataBytes * 8;
-            var nBitsLeft = m.sigBytes * 8;
+            var nBitsLeft = data.sigBytes * 8;
 
             // Add padding
             M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
             M[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            m.sigBytes = M.length * 4;
+            data.sigBytes = M.length * 4;
 
             // Hash final blocks
-            this._process(!!'flush');
+            this._process();
         }
     });
 

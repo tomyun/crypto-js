@@ -31,7 +31,7 @@
             }
 
             // Shortcuts
-            var hasherBlockSize = hasher._blockSize;
+            var hasherBlockSize = hasher.blockSize;
             var hasherBlockSizeBytes = hasherBlockSize * 4;
 
             // Allow arbitrary length keys

@@ -14,16 +14,16 @@ YUI.add('algo-aes-profile', function (Y) {
         profileSinglePartMessage: function () {
             var singlePartMessage = '';
             for (var i = 0; i < 500; i++) {
-                singlePartMessage += '01234567890123456789012345678901234567890123456789';
+                singlePartMessage += '12345678901234567890123456789012345678901234567890';
             }
 
-            C.AES.encrypt(singlePartMessage, this.data.key, { iv: this.data.iv }) + '';
+            C.algo.AES.createEncryptor(this.data.key, { iv: this.data.iv }).finalize(singlePartMessage) + '';
         },
 
         profileMultiPartMessage: function () {
             var aes = C.algo.AES.createEncryptor(this.data.key, { iv: this.data.iv });
             for (var i = 0; i < 500; i++) {
-                aes.process('01234567890123456789012345678901234567890123456789') + '';
+                aes.process('12345678901234567890123456789012345678901234567890') + '';
             }
             aes.finalize() + '';
         }

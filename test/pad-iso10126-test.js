@@ -27,17 +27,24 @@ YUI.add('pad-iso10126-test', function (Y) {
         },
 
         testPad: function () {
-            var data = C.lib.WordArray.create([0x666f7200], 3);
+            var data = C.lib.WordArray.create([0xdddddd00], 3);
             C.pad.Iso10126.pad(data, 2);
 
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f7211, 0x22334405]).toString(), data);
+            Y.Assert.areEqual(C.lib.WordArray.create([0xdddddd11, 0x22334405]).toString(), data);
+        },
+
+        testPadClamp: function () {
+            var data = C.lib.WordArray.create([0xdddddddd, 0xdddddddd], 3);
+            C.pad.Iso10126.pad(data, 2);
+
+            Y.Assert.areEqual(C.lib.WordArray.create([0xdddddd11, 0x22334405]).toString(), data);
         },
 
         testUnpad: function () {
-            var data = C.lib.WordArray.create([0x666f7211, 0x22334405]);
+            var data = C.lib.WordArray.create([0xdddddd11, 0x22334405]);
             C.pad.Iso10126.unpad(data);
 
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f7200], 3).toString(), data);
+            Y.Assert.areEqual(C.lib.WordArray.create([0xdddddd00], 3).toString(), data);
         }
     }));
 }, '$Rev$');

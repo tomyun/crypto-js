@@ -24,10 +24,6 @@
 
             // Remove one more byte -- the 0x80 byte
             data.sigBytes--;
-        },
-
-        toString: function () {
-            return 'ISO97971';
         }
     };
 }());

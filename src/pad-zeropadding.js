@@ -7,7 +7,8 @@ CryptoJS.pad.ZeroPadding = {
         var blockSizeBytes = blockSize * 4;
 
         // Pad
-        data.sigBytes += blockSizeBytes - data.sigBytes % blockSizeBytes;
+        data.clamp();
+        data.sigBytes += blockSizeBytes - ((data.sigBytes % blockSizeBytes) || blockSizeBytes);
     },
 
     unpad: function (data) {
@@ -20,9 +21,5 @@ CryptoJS.pad.ZeroPadding = {
             i--;
         }
         data.sigBytes = i + 1;
-    },
-
-    toString: function () {
-        return 'ZeroPadding';
     }
 };

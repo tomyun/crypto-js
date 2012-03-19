@@ -7,7 +7,7 @@ YUI.add('algo-sha1-profile', function (Y) {
         profileSinglePartMessage: function () {
             var singlePartMessage = '';
             for (var i = 0; i < 500; i++) {
-                singlePartMessage += '01234567890123456789012345678901234567890123456789';
+                singlePartMessage += '12345678901234567890123456789012345678901234567890';
             }
 
             C.algo.SHA1.create().finalize(singlePartMessage) + '';
@@ -16,7 +16,7 @@ YUI.add('algo-sha1-profile', function (Y) {
         profileMultiPartMessage: function () {
             var sha1 = C.algo.SHA1.create();
             for (var i = 0; i < 500; i++) {
-                sha1.update('01234567890123456789012345678901234567890123456789');
+                sha1.update('12345678901234567890123456789012345678901234567890');
             }
             sha1.finalize() + '';
         }

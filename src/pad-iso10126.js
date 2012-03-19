@@ -14,7 +14,7 @@
             var blockSizeBytes = blockSize * 4;
 
             // Count padding bytes
-            var nPaddingBytes = (blockSizeBytes - data.sigBytes % blockSizeBytes) || blockSizeBytes;
+            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
 
             // Pad
             data.concat(WordArray.random(nPaddingBytes - 1)).
@@ -27,10 +27,6 @@
 
             // Remove padding
             data.sigBytes -= nPaddingBytes;
-        },
-
-        toString: function () {
-            return 'ISO10126';
         }
     };
 }());
