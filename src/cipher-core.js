@@ -31,29 +31,6 @@ CryptoJS.lib.Cipher || (function (undefined) {
         cfg: Base.extend(),
 
         /**
-         * Initializes a newly created cipher.
-         *
-         * @param {number} xformMode Either the encryption or decryption transormation mode constant.
-         * @param {WordArray} key The key.
-         * @param {Object} cfg (Optional) The configuration options to use for this operation.
-         *
-         * @example
-         *
-         *     var cipher = CryptoJS.algo.AES.create(CryptoJS.algo.AES._ENC_XFORM_MODE, keyWordArray, { iv: ivWordArray });
-         */
-        init: function (xformMode, key, cfg) {
-            // Apply config defaults
-            this.cfg = this.cfg.extend(cfg);
-
-            // Store transform mode and key
-            this._xformMode = xformMode;
-            this._key = key;
-
-            // Set initial values
-            this.reset();
-        },
-
-        /**
          * Creates this cipher in encryption mode.
          *
          * @param {WordArray} key The key.
@@ -87,6 +64,29 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         createDecryptor: function (key, cfg) {
             return this.create(this._DEC_XFORM_MODE, key, cfg);
+        },
+
+        /**
+         * Initializes a newly created cipher.
+         *
+         * @param {number} xformMode Either the encryption or decryption transormation mode constant.
+         * @param {WordArray} key The key.
+         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+         *
+         * @example
+         *
+         *     var cipher = CryptoJS.algo.AES.create(CryptoJS.algo.AES._ENC_XFORM_MODE, keyWordArray, { iv: ivWordArray });
+         */
+        init: function (xformMode, key, cfg) {
+            // Apply config defaults
+            this.cfg = this.cfg.extend(cfg);
+
+            // Store transform mode and key
+            this._xformMode = xformMode;
+            this._key = key;
+
+            // Set initial values
+            this.reset();
         },
 
         /**
@@ -218,22 +218,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
     /**
      * Abstract base mode template.
      */
-    var BlockCipherMode = Cipher.Mode = Base.extend({
-        /**
-         * Initializes a newly create mode.
-         *
-         * @param {Cipher} cipher A block cipher instance.
-         * @param {WordArray} iv The IV.
-         *
-         * @example
-         *
-         *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv);
-         */
-        init: function (cipher, iv) {
-            this._cipher = cipher;
-            this._iv = iv;
-        },
-
+    var CipherMode = Cipher.Mode = Base.extend({
         /**
          * Creates this mode for encryption.
          *
@@ -264,6 +249,21 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         createDecryptor: function (cipher, iv) {
             return this.Decryptor.create(cipher, iv);
+        },
+
+        /**
+         * Initializes a newly create mode.
+         *
+         * @param {Cipher} cipher A block cipher instance.
+         * @param {WordArray} iv The IV.
+         *
+         * @example
+         *
+         *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv);
+         */
+        init: function (cipher, iv) {
+            this._cipher = cipher;
+            this._iv = iv;
         }
     });
 
@@ -274,7 +274,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
         /**
          * Abstract base CBC mode.
          */
-        var CBC = BlockCipherMode.extend();
+        var CBC = CipherMode.extend();
 
         /**
          * CBC encryptor.

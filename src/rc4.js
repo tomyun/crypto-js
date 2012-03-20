@@ -43,9 +43,9 @@
             this._data.words[offset] ^= generateKeystreamWord.call(this);
         },
 
-        _keySize: 256/32,
+        keySize: 256/32,
 
-        _ivSize: 0
+        ivSize: 0
     });
 
     function generateKeystreamWord() {
@@ -105,22 +105,6 @@
             for (var i = this.cfg.drop; i > 0; i--) {
                 generateKeystreamWord.call(this);
             }
-        },
-
-        /**
-         * Returns the serializable name of this cipher algorithm.
-         *
-         * @return {string} The serializable name.
-         *
-         * @static
-         *
-         * @example
-         *
-         *     var serializedCipherAlgorithm = CryptoJS.algo.RC4.Drop + '';
-         *     var serializedCipherAlgorithm = CryptoJS.algo.RC4.Drop.toString();
-         */
-        toString: function () {
-            return 'RC4-drop';
         }
     });
 

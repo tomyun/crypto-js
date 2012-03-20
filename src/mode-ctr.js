@@ -23,8 +23,12 @@ CryptoJS.mode.CTR = (function () {
             var keystream = counter.clone();
             cipher.encryptBlock(keystream, 0);
 
+            // Shortcuts
+            var counterWords = counter.words;
+            var counterLastWordIndex = (counter.sigBytes - 1) >>> 2;
+
             // Increment counter
-            counter.words[(counter.sigBytes - 1) >>> 2]++
+            counterWords[counterLastWordIndex] = (counterWords[counterLastWordIndex] + 1) | 0
 
             // Shortcut
             var keystreamWords = keystream.words;
