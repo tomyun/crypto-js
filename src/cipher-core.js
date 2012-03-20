@@ -473,7 +473,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
                 padding.pad(this._data, this.blockSize);
 
                 // Process final blocks
-                var finalProcessedBlocks = this._process();
+                var finalProcessedBlocks = this._process(!!'flush');
             } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
                 // Process final blocks
                 var finalProcessedBlocks = this._process(!!'flush');
