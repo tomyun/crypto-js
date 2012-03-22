@@ -155,7 +155,7 @@
                 INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX
             );
 
-            // Swap 2nd and 4th rows
+            // Inv swap 2nd and 4th rows
             var t = M[offset + 1];
             M[offset + 1] = M[offset + 3];
             M[offset + 3] = t;
