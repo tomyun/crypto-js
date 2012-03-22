@@ -6,17 +6,17 @@
     var BlockCipher = Cipher.Block;
     var C_algo = C.algo;
 
-    // Multiplication in GF(2^8) lookup tables
+    // Lookup tables
     var SBOX = [];
-    var INVSBOX = [];
-    var MULT2 = [];
-    var MULT3 = [];
-    var MULT9 = [];
-    var MULTB = [];
-    var MULTD = [];
-    var MULTE = [];
-    var MULT2_SBOX = [];
-    var MULT3_SBOX = [];
+    var INV_SBOX = [];
+    var SUB_MIX_0 = [];
+    var SUB_MIX_1 = [];
+    var SUB_MIX_2 = [];
+    var SUB_MIX_3 = [];
+    var INV_SUB_MIX_0 = [];
+    var INV_SUB_MIX_1 = [];
+    var INV_SUB_MIX_2 = [];
+    var INV_SUB_MIX_3 = [];
 
     // Compute lookup tables
     (function () {
@@ -38,18 +38,26 @@
             var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
             sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
             SBOX[x] = sx;
-            INVSBOX[sx] = x;
+            INV_SBOX[sx] = x;
 
             // Compute multiplication
             var x2 = d[x];
             var x4 = d[x2];
             var x8 = d[x4];
-            MULT2[x] = x2;
-            MULT3[x] = x2 ^ x;
-            MULT9[x] = x8 ^ x;
-            MULTB[x] = x8 ^ x2 ^ x;
-            MULTD[x] = x8 ^ x4 ^ x;
-            MULTE[x] = x8 ^ x4 ^ x2;
+
+            // Compute sub bytes, mix columns tables
+            var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
+            SUB_MIX_0[x] = (t << 24) ^ (t >>> 8);
+            SUB_MIX_1[x] = (t << 16) ^ (t >>> 16);
+            SUB_MIX_2[x] = (t << 8)  ^ (t >>> 24);
+            SUB_MIX_3[x] = t;
+
+            // Compute inv sub bytes, inv mix columns tables
+            var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
+            INV_SUB_MIX_0[sx] = (t << 24) ^ (t >>> 8);
+            INV_SUB_MIX_1[sx] = (t << 16) ^ (t >>> 16);
+            INV_SUB_MIX_2[sx] = (t << 8)  ^ (t >>> 24);
+            INV_SUB_MIX_3[sx] = t;
 
             // Compute next counter
             if ( ! x) {
@@ -59,20 +67,10 @@
                 xi ^= d[d[xi]];
             }
         }
-
-        // Shortcuts
-        for (var i = 0; i < 256; i++) {
-            MULT2_SBOX[i] = MULT2[SBOX[i]];
-            MULT3_SBOX[i] = MULT3[SBOX[i]];
-        }
     }());
 
-    // Precomputed RCon lookup
-    var RCON = [
-        0x00000000, 0x01000000, 0x02000000, 0x04000000,
-        0x08000000, 0x10000000, 0x20000000, 0x40000000,
-        0x80000000, 0x1b000000, 0x36000000
-    ];
+    // Precomputed Rcon lookup
+    var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
 
     /**
      * AES block cipher algorithm.
@@ -87,9 +85,11 @@
             // Compute number of rounds
             var nRounds = this._nRounds = keySize + 6
 
+            // Compute number of key schedule rows
+            var ksRows = (nRounds + 1) * 4;
+
             // Compute key schedule
             var keySchedule = this._keySchedule = [];
-            var ksRows = (nRounds + 1) * 4;
             for (var ksRow = 0; ksRow < ksRows; ksRow++) {
                 if (ksRow < keySize) {
                     keySchedule[ksRow] = keyWords[ksRow];
@@ -104,7 +104,7 @@
                         t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
 
                         // Mix Rcon
-                        t ^= RCON[(ksRow / keySize) | 0];
+                        t ^= RCON[(ksRow / keySize) | 0] << 24;
                     } else if (keySize > 6 && ksRow % keySize == 4) {
                         // Sub word
                         t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
@@ -113,13 +113,57 @@
                     keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
                 }
             }
+
+            // Compute inv key schedule
+            var invKeySchedule = this._invKeySchedule = [];
+            for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+                var ksRow = ksRows - invKsRow;
+
+                if (invKsRow % 4) {
+                    var t = keySchedule[ksRow];
+                } else {
+                    var t = keySchedule[ksRow - 4];
+                }
+
+                if (invKsRow < 4 || ksRow <= 4) {
+                    invKeySchedule[invKsRow] = t;
+                } else {
+                    invKeySchedule[invKsRow] = INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[(t >>> 16) & 0xff]] ^
+                                               INV_SUB_MIX_2[SBOX[(t >>> 8) & 0xff]] ^ INV_SUB_MIX_3[SBOX[t & 0xff]];
+                }
+            }
         },
 
         encryptBlock: function (data, offset) {
-            // Shortcuts
-            var M = data.words;
+            this._doCryptBlock(
+                data.words, offset, this._keySchedule,
+                SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX
+            );
+        },
+
+        decryptBlock: function (data, offset) {
+            // Shortcut
+            var M = data.words
+
+            // Swap 2nd and 4th rows
+            var t = M[offset + 1];
+            M[offset + 1] = M[offset + 3];
+            M[offset + 3] = t;
+
+            this._doCryptBlock(
+                M, offset, this._invKeySchedule,
+                INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX
+            );
+
+            // Swap 2nd and 4th rows
+            var t = M[offset + 1];
+            M[offset + 1] = M[offset + 3];
+            M[offset + 3] = t;
+        },
+
+        _doCryptBlock: function (M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
+            // Shortcut
             var nRounds = this._nRounds;
-            var keySchedule = this._keySchedule;
 
             // Set input, add round key
             var s0 = M[offset]     ^ keySchedule[0];
@@ -132,37 +176,17 @@
 
             // Rounds
             for (var round = 1; round < nRounds; round++) {
-                // Shift rows, sub bytes, mix columns
-                var t0 = (
-                    ((MULT2_SBOX[s0 >>> 24] ^ MULT3_SBOX[(s1 >>> 16) & 0xff] ^ SBOX[(s2 >>> 8) & 0xff]       ^ SBOX[s3 & 0xff])       << 24) |
-                    ((SBOX[s0 >>> 24]       ^ MULT2_SBOX[(s1 >>> 16) & 0xff] ^ MULT3_SBOX[(s2 >>> 8) & 0xff] ^ SBOX[s3 & 0xff])       << 16) |
-                    ((SBOX[s0 >>> 24]       ^ SBOX[(s1 >>> 16) & 0xff]       ^ MULT2_SBOX[(s2 >>> 8) & 0xff] ^ MULT3_SBOX[s3 & 0xff]) << 8)  |
-                    (MULT3_SBOX[s0 >>> 24]  ^ SBOX[(s1 >>> 16) & 0xff]       ^ SBOX[(s2 >>> 8) & 0xff]       ^ MULT2_SBOX[s3 & 0xff])
-                );
-                var t1 = (
-                    ((MULT2_SBOX[s1 >>> 24] ^ MULT3_SBOX[(s2 >>> 16) & 0xff] ^ SBOX[(s3 >>> 8) & 0xff]       ^ SBOX[s0 & 0xff])       << 24) |
-                    ((SBOX[s1 >>> 24]       ^ MULT2_SBOX[(s2 >>> 16) & 0xff] ^ MULT3_SBOX[(s3 >>> 8) & 0xff] ^ SBOX[s0 & 0xff])       << 16) |
-                    ((SBOX[s1 >>> 24]       ^ SBOX[(s2 >>> 16) & 0xff]       ^ MULT2_SBOX[(s3 >>> 8) & 0xff] ^ MULT3_SBOX[s0 & 0xff]) << 8)  |
-                    (MULT3_SBOX[s1 >>> 24]  ^ SBOX[(s2 >>> 16) & 0xff]       ^ SBOX[(s3 >>> 8) & 0xff]       ^ MULT2_SBOX[s0 & 0xff])
-                );
-                var t2 = (
-                    ((MULT2_SBOX[s2 >>> 24] ^ MULT3_SBOX[(s3 >>> 16) & 0xff] ^ SBOX[(s0 >>> 8) & 0xff]       ^ SBOX[s1 & 0xff])       << 24) |
-                    ((SBOX[s2 >>> 24]       ^ MULT2_SBOX[(s3 >>> 16) & 0xff] ^ MULT3_SBOX[(s0 >>> 8) & 0xff] ^ SBOX[s1 & 0xff])       << 16) |
-                    ((SBOX[s2 >>> 24]       ^ SBOX[(s3 >>> 16) & 0xff]       ^ MULT2_SBOX[(s0 >>> 8) & 0xff] ^ MULT3_SBOX[s1 & 0xff]) << 8)  |
-                    (MULT3_SBOX[s2 >>> 24]  ^ SBOX[(s3 >>> 16) & 0xff]       ^ SBOX[(s0 >>> 8) & 0xff]       ^ MULT2_SBOX[s1 & 0xff])
-                );
-                var t3 = (
-                    ((MULT2_SBOX[s3 >>> 24] ^ MULT3_SBOX[(s0 >>> 16) & 0xff] ^ SBOX[(s1 >>> 8) & 0xff]       ^ SBOX[s2 & 0xff])       << 24) |
-                    ((SBOX[s3 >>> 24]       ^ MULT2_SBOX[(s0 >>> 16) & 0xff] ^ MULT3_SBOX[(s1 >>> 8) & 0xff] ^ SBOX[s2 & 0xff])       << 16) |
-                    ((SBOX[s3 >>> 24]       ^ SBOX[(s0 >>> 16) & 0xff]       ^ MULT2_SBOX[(s1 >>> 8) & 0xff] ^ MULT3_SBOX[s2 & 0xff]) << 8)  |
-                    (MULT3_SBOX[s3 >>> 24]  ^ SBOX[(s0 >>> 16) & 0xff]       ^ SBOX[(s1 >>> 8) & 0xff]       ^ MULT2_SBOX[s2 & 0xff])
-                );
+                // Shift rows, sub bytes, mix columns, add round key
+                var t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^ SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
+                var t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^ SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
+                var t2 = SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[(s3 >>> 16) & 0xff] ^ SUB_MIX_2[(s0 >>> 8) & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++];
+                var t3 = SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[(s0 >>> 16) & 0xff] ^ SUB_MIX_2[(s1 >>> 8) & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++];
 
-                // Add round key
-                s0 = t0 ^ keySchedule[ksRow++];
-                s1 = t1 ^ keySchedule[ksRow++];
-                s2 = t2 ^ keySchedule[ksRow++];
-                s3 = t3 ^ keySchedule[ksRow++];
+                // Update state
+                s0 = t0;
+                s1 = t1;
+                s2 = t2;
+                s3 = t3;
             }
 
             // Shift rows, sub bytes, add round key
@@ -170,69 +194,6 @@
             var t1 = ((SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) | (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]) ^ keySchedule[ksRow++];
             var t2 = ((SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) | (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]) ^ keySchedule[ksRow++];
             var t3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) | (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++];
-
-            // Set output
-            M[offset]     = t0;
-            M[offset + 1] = t1;
-            M[offset + 2] = t2;
-            M[offset + 3] = t3;
-        },
-
-        decryptBlock: function (data, offset) {
-            // Shortcuts
-            var M = data.words;
-            var nRounds = this._nRounds;
-            var keySchedule = this._keySchedule;
-
-            // Key schedule row counter
-            var ksRow = (nRounds + 1) * 4;
-
-            // Set input, add round key
-            var s3 = M[offset + 3] ^ keySchedule[--ksRow];
-            var s2 = M[offset + 2] ^ keySchedule[--ksRow];
-            var s1 = M[offset + 1] ^ keySchedule[--ksRow];
-            var s0 = M[offset]     ^ keySchedule[--ksRow];
-
-            // Rounds
-            for (var round = 1; round < nRounds; round++) {
-                // Inv shift rows, inv sub bytes, add round key
-                var t3 = ((INVSBOX[s3 >>> 24] << 24) | (INVSBOX[(s2 >>> 16) & 0xff] << 16) | (INVSBOX[(s1 >>> 8) & 0xff] << 8) | INVSBOX[s0 & 0xff]) ^ keySchedule[--ksRow];
-                var t2 = ((INVSBOX[s2 >>> 24] << 24) | (INVSBOX[(s1 >>> 16) & 0xff] << 16) | (INVSBOX[(s0 >>> 8) & 0xff] << 8) | INVSBOX[s3 & 0xff]) ^ keySchedule[--ksRow];
-                var t1 = ((INVSBOX[s1 >>> 24] << 24) | (INVSBOX[(s0 >>> 16) & 0xff] << 16) | (INVSBOX[(s3 >>> 8) & 0xff] << 8) | INVSBOX[s2 & 0xff]) ^ keySchedule[--ksRow];
-                var t0 = ((INVSBOX[s0 >>> 24] << 24) | (INVSBOX[(s3 >>> 16) & 0xff] << 16) | (INVSBOX[(s2 >>> 8) & 0xff] << 8) | INVSBOX[s1 & 0xff]) ^ keySchedule[--ksRow];
-
-                // Inv mix columns
-                s0 = (
-                    ((MULTE[t0 >>> 24] ^ MULTB[(t0 >>> 16) & 0xff] ^ MULTD[(t0 >>> 8) & 0xff] ^ MULT9[t0 & 0xff]) << 24) |
-                    ((MULT9[t0 >>> 24] ^ MULTE[(t0 >>> 16) & 0xff] ^ MULTB[(t0 >>> 8) & 0xff] ^ MULTD[t0 & 0xff]) << 16) |
-                    ((MULTD[t0 >>> 24] ^ MULT9[(t0 >>> 16) & 0xff] ^ MULTE[(t0 >>> 8) & 0xff] ^ MULTB[t0 & 0xff]) << 8)  |
-                     (MULTB[t0 >>> 24] ^ MULTD[(t0 >>> 16) & 0xff] ^ MULT9[(t0 >>> 8) & 0xff] ^ MULTE[t0 & 0xff])
-                );
-                s1 = (
-                    ((MULTE[t1 >>> 24] ^ MULTB[(t1 >>> 16) & 0xff] ^ MULTD[(t1 >>> 8) & 0xff] ^ MULT9[t1 & 0xff]) << 24) |
-                    ((MULT9[t1 >>> 24] ^ MULTE[(t1 >>> 16) & 0xff] ^ MULTB[(t1 >>> 8) & 0xff] ^ MULTD[t1 & 0xff]) << 16) |
-                    ((MULTD[t1 >>> 24] ^ MULT9[(t1 >>> 16) & 0xff] ^ MULTE[(t1 >>> 8) & 0xff] ^ MULTB[t1 & 0xff]) << 8)  |
-                     (MULTB[t1 >>> 24] ^ MULTD[(t1 >>> 16) & 0xff] ^ MULT9[(t1 >>> 8) & 0xff] ^ MULTE[t1 & 0xff])
-                );
-                s2 = (
-                    ((MULTE[t2 >>> 24] ^ MULTB[(t2 >>> 16) & 0xff] ^ MULTD[(t2 >>> 8) & 0xff] ^ MULT9[t2 & 0xff]) << 24) |
-                    ((MULT9[t2 >>> 24] ^ MULTE[(t2 >>> 16) & 0xff] ^ MULTB[(t2 >>> 8) & 0xff] ^ MULTD[t2 & 0xff]) << 16) |
-                    ((MULTD[t2 >>> 24] ^ MULT9[(t2 >>> 16) & 0xff] ^ MULTE[(t2 >>> 8) & 0xff] ^ MULTB[t2 & 0xff]) << 8)  |
-                     (MULTB[t2 >>> 24] ^ MULTD[(t2 >>> 16) & 0xff] ^ MULT9[(t2 >>> 8) & 0xff] ^ MULTE[t2 & 0xff])
-                );
-                s3 = (
-                    ((MULTE[t3 >>> 24] ^ MULTB[(t3 >>> 16) & 0xff] ^ MULTD[(t3 >>> 8) & 0xff] ^ MULT9[t3 & 0xff]) << 24) |
-                    ((MULT9[t3 >>> 24] ^ MULTE[(t3 >>> 16) & 0xff] ^ MULTB[(t3 >>> 8) & 0xff] ^ MULTD[t3 & 0xff]) << 16) |
-                    ((MULTD[t3 >>> 24] ^ MULT9[(t3 >>> 16) & 0xff] ^ MULTE[(t3 >>> 8) & 0xff] ^ MULTB[t3 & 0xff]) << 8)  |
-                     (MULTB[t3 >>> 24] ^ MULTD[(t3 >>> 16) & 0xff] ^ MULT9[(t3 >>> 8) & 0xff] ^ MULTE[t3 & 0xff])
-                );
-            }
-
-            // Inv shift rows, inv sub bytes, add round key
-            var t3 = ((INVSBOX[s3 >>> 24] << 24) | (INVSBOX[(s2 >>> 16) & 0xff] << 16) | (INVSBOX[(s1 >>> 8) & 0xff] << 8) | INVSBOX[s0 & 0xff]) ^ keySchedule[--ksRow];
-            var t2 = ((INVSBOX[s2 >>> 24] << 24) | (INVSBOX[(s1 >>> 16) & 0xff] << 16) | (INVSBOX[(s0 >>> 8) & 0xff] << 8) | INVSBOX[s3 & 0xff]) ^ keySchedule[--ksRow];
-            var t1 = ((INVSBOX[s1 >>> 24] << 24) | (INVSBOX[(s0 >>> 16) & 0xff] << 16) | (INVSBOX[(s3 >>> 8) & 0xff] << 8) | INVSBOX[s2 & 0xff]) ^ keySchedule[--ksRow];
-            var t0 = ((INVSBOX[s0 >>> 24] << 24) | (INVSBOX[(s3 >>> 16) & 0xff] << 16) | (INVSBOX[(s2 >>> 8) & 0xff] << 8) | INVSBOX[s1 & 0xff]) ^ keySchedule[--ksRow];
 
             // Set output
             M[offset]     = t0;
