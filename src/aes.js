@@ -47,16 +47,16 @@
 
             // Compute sub bytes, mix columns tables
             var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
-            SUB_MIX_0[x] = (t << 24) ^ (t >>> 8);
-            SUB_MIX_1[x] = (t << 16) ^ (t >>> 16);
-            SUB_MIX_2[x] = (t << 8)  ^ (t >>> 24);
+            SUB_MIX_0[x] = (t << 24) | (t >>> 8);
+            SUB_MIX_1[x] = (t << 16) | (t >>> 16);
+            SUB_MIX_2[x] = (t << 8)  | (t >>> 24);
             SUB_MIX_3[x] = t;
 
             // Compute inv sub bytes, inv mix columns tables
             var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
-            INV_SUB_MIX_0[sx] = (t << 24) ^ (t >>> 8);
-            INV_SUB_MIX_1[sx] = (t << 16) ^ (t >>> 16);
-            INV_SUB_MIX_2[sx] = (t << 8)  ^ (t >>> 24);
+            INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
+            INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
+            INV_SUB_MIX_2[sx] = (t << 8)  | (t >>> 24);
             INV_SUB_MIX_3[sx] = t;
 
             // Compute next counter
