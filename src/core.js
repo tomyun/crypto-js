@@ -201,10 +201,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                     thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
                 }
             } else {
-                // Copy one word at a time
-                for (var i = 0; i < thatSigBytes; i += 4) {
-                    thisWords[(thisSigBytes + i) >>> 2] |= thatWords[i >>> 2];
-                }
+                // Copy all words at once
+                thisWords.push.apply(thisWords, thatWords);
             }
             this.sigBytes += thatSigBytes;
 
