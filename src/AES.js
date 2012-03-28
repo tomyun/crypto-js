@@ -43,7 +43,7 @@ var SBOX = [ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
 // Compute inverse SBOX lookup table
 for (var INVSBOX = [], i = 0; i < 256; i++) INVSBOX[SBOX[i]] = i;
 
-// Compute mulitplication in GF(2^8) lookup tables
+// Compute multiplication in GF(2^8) lookup tables
 var MULT2 = [],
     MULT3 = [],
     MULT9 = [],
@@ -111,7 +111,7 @@ var AES = C.AES = {
 			// Generate key
 			k = (
 				password.constructor == String ?
-				// Derive key from passphrase
+				// Derive key from pass-phrase
 				C.PBKDF2(password, iv, 32, { asBytes: true }) :
 				// else, assume byte array representing cryptographic key
 				password
@@ -152,7 +152,7 @@ var AES = C.AES = {
 			// Generate key
 			k = (
 				password.constructor == String ?
-				// Derive key from passphrase
+				// Derive key from pass-phrase
 				C.PBKDF2(password, iv, 32, { asBytes: true }) :
 				// else, assume byte array representing cryptographic key
 				password
