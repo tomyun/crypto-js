@@ -14,7 +14,7 @@ CryptoJS.mode.CFB = (function () {
             generateKeystreamAndEncrypt.call(this, dataWords, offset, blockSize, cipher);
 
             // Remember this block to use with next block
-            this._prevBlock = dataWords.slice(offset, blockSize);
+            this._prevBlock = dataWords.slice(offset, offset + blockSize);
         }
     });
 
@@ -26,7 +26,7 @@ CryptoJS.mode.CFB = (function () {
             var blockSize = cipher.blockSize;
 
             // Remember this block to use with next block
-            var thisBlock = dataWords.slice(offset, blockSize);
+            var thisBlock = dataWords.slice(offset, offset + blockSize);
 
             generateKeystreamAndEncrypt.call(this, dataWords, offset, blockSize, cipher);
 

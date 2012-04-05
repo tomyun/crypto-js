@@ -301,7 +301,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
                 cipher.encryptBlock(data, offset);
 
                 // Remember this block to use with next block
-                this._prevBlock = dataWords.slice(offset, blockSize);
+                this._prevBlock = dataWords.slice(offset, offset + blockSize);
             }
         });
 
@@ -326,7 +326,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
                 var blockSize = cipher.blockSize;
 
                 // Remember this block to use with next block
-                var thisBlock = dataWords.slice(offset, blockSize);
+                var thisBlock = dataWords.slice(offset, offset + blockSize);
 
                 // Decrypt and XOR
                 cipher.decryptBlock(data, offset);
