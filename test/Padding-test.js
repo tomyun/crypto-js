@@ -33,7 +33,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 		
 		if( pad!=Crypto.pad.ZeroPadding ) {
 			var unpad = output.slice(0);
-			pad.unpad(unpad);
+			pad.unpad(cipher, unpad);
 
 			// check result has expected length
 			Assert.areEqual(unpad.length, input.length);
