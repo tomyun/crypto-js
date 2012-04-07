@@ -12,20 +12,35 @@ function _requiredPadding(cipher, message) {
     var blockSizeInBytes = cipher._blocksize * 4;
     var reqd = blockSizeInBytes - message.length % blockSizeInBytes;
     return reqd;
-};
+}
 
 // Remove padding when the final byte gives the number of padding bytes.
-var _unpadLength = function (message) {
-        var pad = message.pop();
-        for (var i = 1; i < pad; i++) {
-            message.pop();
-        }
-    };
+var _unpadLength = function(cipher, message, alg, padding) {
+	var pad = message.pop();
+	if (pad == 0) {
+		throw new Error("Invalid zero-length padding specified for " + alg
+				+ ". Wrong cipher specification or key used?");
+	}
+	var maxPad = cipher._blocksize * 4;
+	if (pad > maxPad) {
+		throw new Error("Invalid padding length of " + pad
+				+ " specified for " + alg
+				+ ". Wrong cipher specification or key used?");
+	}
+	for ( var i = 1; i < pad; i++) {
+		var b = message.pop();
+		if (padding != undefined && padding != b) {
+			throw new Error("Invalid padding byte of 0x" + b.toString(16)
+					+ " specified for " + alg
+					+ ". Wrong cipher specification or key used?");
+		}
+	}
+};
 
 // No-operation padding, used for stream ciphers
 C_pad.NoPadding = {
         pad : function (cipher,message) {},
-        unpad : function (message) {}
+        unpad : function (cipher,message) {}
     };
 
 // Zero Padding.
@@ -59,8 +74,16 @@ C_pad.iso7816 = {
         }
     },
 
-    unpad : function (message) {
-        while (message.pop() != 0x80) {}
+    unpad : function (cipher, message) {
+    	var padLength;
+    	for(padLength = cipher._blocksize * 4; padLength>0; padLength--) {
+    		var b = message.pop();
+    		if( b==0x80 ) return;
+    		if( b!=0x00 ) {
+    			throw new Error("ISO-7816 padding byte must be 0, not 0x"+b.toString(16)+". Wrong cipher specification or key used?");
+    		}
+    	}
+    	throw new Error("ISO-7816 padded beyond cipher block size. Wrong cipher specification or key used?");
     }
 };
 
@@ -77,7 +100,9 @@ C_pad.ansix923 = {
         message.push(reqd);
     },
 
-    unpad : _unpadLength
+    unpad : function (cipher,message) {
+    	_unpadLength(cipher,message,"ANSI X.923",0);
+    }
 };
 
 // ISO 10126
@@ -93,7 +118,9 @@ C_pad.iso10126 = {
         message.push(reqd);
     },
 
-    unpad : _unpadLength
+    unpad : function (cipher,message) {
+    	_unpadLength(cipher,message,"ISO 10126",undefined);
+    }
 };
 
 // PKCS7 padding
@@ -109,7 +136,9 @@ C_pad.pkcs7 = {
         }
     },
 
-    unpad : _unpadLength
+    unpad : function (cipher,message) {
+    	_unpadLength(cipher,message,"PKCS 7",message[message.length-1]);
+    }
 };
 
 // Create mode namespace
@@ -132,7 +161,7 @@ Mode.prototype = {
 
     decrypt: function (cipher, m, iv) {
         this._doDecrypt(cipher, m, iv);
-        this._padding.unpad(m);
+        this._padding.unpad(cipher, m);
     },
 
     // Default padding
