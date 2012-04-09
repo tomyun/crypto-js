@@ -19,6 +19,7 @@ components:
     - pad-zeropadding
     - pad-nopadding
     - aes
+    - des
     - rc4
     - rabbit
 
@@ -34,5 +35,6 @@ rollups:
     pbkdf2: [core, sha1, hmac, pbkdf2]
 
     aes:    [core, enc-base64, md5, evpkdf, cipher-core, aes]
+    des:    [core, enc-base64, md5, evpkdf, cipher-core, des]
     rc4:    [core, enc-base64, md5, evpkdf, cipher-core, rc4]
     rabbit: [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
