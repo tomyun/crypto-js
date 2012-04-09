@@ -2,6 +2,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
     var Cipher = C_lib.Cipher;
     var BlockCipher = Cipher.Block;
     var C_algo = C.algo;
@@ -706,4 +707,48 @@
      *     var plaintext  = CryptoJS.DES.decrypt(ciphertext, key, cfg);
      */
     C.DES = Cipher._createHelper(DES);
+
+    /**
+     * Triple-DES block cipher algorithm.
+     */
+    var TripleDES = C_algo.TripleDES = BlockCipher.extend({
+        _doReset: function () {
+            // Shortcuts
+            var key = this._key;
+            var keyWords = key.words;
+
+            // Create DES instances
+            this._des1 = DES.createEncryptor(WordArray.create(keyWords.slice(0, 2)));
+            this._des2 = DES.createEncryptor(WordArray.create(keyWords.slice(2, 4)));
+            this._des3 = DES.createEncryptor(WordArray.create(keyWords.slice(4, 6)));
+        },
+
+        encryptBlock: function (data, offset) {
+            this._des1.encryptBlock(data, offset);
+            this._des2.decryptBlock(data, offset);
+            this._des3.encryptBlock(data, offset);
+        },
+
+        decryptBlock: function (data, offset) {
+            this._des1.decryptBlock(data, offset);
+            this._des2.encryptBlock(data, offset);
+            this._des3.decryptBlock(data, offset);
+        },
+
+        keySize: 192/32,
+
+        ivSize: 64/32,
+
+        blockSize: 64/32
+    });
+
+    /**
+     * Shortcut functions to the cipher's object interface.
+     *
+     * @example
+     *
+     *     var ciphertext = CryptoJS.TripleDES.encrypt(message, key, cfg);
+     *     var plaintext  = CryptoJS.TripleDES.decrypt(ciphertext, key, cfg);
+     */
+    C.TripleDES = Cipher._createHelper(TripleDES);
 }());
