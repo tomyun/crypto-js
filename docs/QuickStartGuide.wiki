@@ -74,7 +74,7 @@ You can convert a WordArray object to other formats by explicitly calling the to
 
 {{{
 <script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/rollups/sha256.js"></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/enc-base64.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/enc-base64-min.js"></script>
 <script>
     var hash = CryptoJS.SHA256("Message");
 
@@ -250,8 +250,8 @@ By default, 192 words (768 bytes) are dropped, but you can configure the algorit
 
 {{{
 <script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/rollups/aes.js"></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/mode-cfb.js"></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/pad-ansix923.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/mode-cfb-min.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/pad-ansix923-min.js"></script>
 <script>
     var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase", { mode: CryptoJS.mode.CFB, padding: CryptoJS.pad.AnsiX923 });
 </script>
@@ -363,9 +363,9 @@ Here's how you might write a JSON formatter:
 CryptoJS can convert from encoding formats such as Base64, Latin1 or Hex to WordArray objects and vica versa.
 
 {{{
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/core.js"></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/enc-utf16.js"></script>
-<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/enc-base64.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/core-min.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/enc-utf16-min.js"></script>
+<script src="http://crypto-js.googlecode.com/svn/tags/3.0-beta1/build/components/enc-base64-min.js"></script>
 <script>
     var words = CryptoJS.enc.Base64.parse('SGVsbG8sIFdvcmxkIQ==');
     var base64 = CryptoJS.enc.Base64.stringify(words);
