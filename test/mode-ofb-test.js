@@ -22,13 +22,13 @@ YUI.add('mode-ofb-test', function (Y) {
 
             // First block XORed with encrypted IV
             var keystream = this.data.iv.clone();
-            aes.encryptBlock(keystream, 0);
+            aes.encryptBlock(keystream.words, 0);
             for (var i = 0; i < 4; i++) {
                 expected.words[i] ^= keystream.words[i];
             }
 
             // Subsequent blocks XORed with encrypted previous keystream
-            aes.encryptBlock(keystream, 0);
+            aes.encryptBlock(keystream.words, 0);
             for (var i = 4; i < 8; i++) {
                 expected.words[i] ^= keystream.words[i % 4];
             }

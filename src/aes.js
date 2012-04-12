@@ -2,8 +2,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var Cipher = C_lib.Cipher;
-    var BlockCipher = Cipher.Block;
+    var BlockCipher = C_lib.BlockCipher;
     var C_algo = C.algo;
 
     // Lookup tables
@@ -134,26 +133,17 @@
             }
         },
 
-        encryptBlock: function (data, offset) {
-            this._doCryptBlock(
-                data.words, offset, this._keySchedule,
-                SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX
-            );
+        encryptBlock: function (M, offset) {
+            this._doCryptBlock(M, offset, this._keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX);
         },
 
-        decryptBlock: function (data, offset) {
-            // Shortcut
-            var M = data.words
-
+        decryptBlock: function (M, offset) {
             // Swap 2nd and 4th rows
             var t = M[offset + 1];
             M[offset + 1] = M[offset + 3];
             M[offset + 3] = t;
 
-            this._doCryptBlock(
-                M, offset, this._invKeySchedule,
-                INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX
-            );
+            this._doCryptBlock(M, offset, this._invKeySchedule, INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX);
 
             // Inv swap 2nd and 4th rows
             var t = M[offset + 1];
@@ -165,7 +155,7 @@
             // Shortcut
             var nRounds = this._nRounds;
 
-            // Set input, add round key
+            // Get input, add round key
             var s0 = M[offset]     ^ keySchedule[0];
             var s1 = M[offset + 1] ^ keySchedule[1];
             var s2 = M[offset + 2] ^ keySchedule[2];
@@ -213,5 +203,5 @@
      *     var ciphertext = CryptoJS.AES.encrypt(message, key, cfg);
      *     var plaintext  = CryptoJS.AES.decrypt(ciphertext, key, cfg);
      */
-    C.AES = Cipher._createHelper(AES);
+    C.AES = BlockCipher._createHelper(AES);
 }());

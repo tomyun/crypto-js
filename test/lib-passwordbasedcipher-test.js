@@ -1,4 +1,4 @@
-YUI.add('lib-cipherpbe-test', function (Y) {
+YUI.add('lib-passwordbasedcipher-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({

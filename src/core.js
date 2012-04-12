@@ -99,9 +99,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              *     });
              */
             mixIn: function (properties) {
-                for (var p in properties) {
-                    if (properties.hasOwnProperty(p)) {
-                        this[p] = properties[p];
+                for (var propertyName in properties) {
+                    if (properties.hasOwnProperty(propertyName)) {
+                        this[propertyName] = properties[propertyName];
                     }
                 }
 
@@ -490,6 +490,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         _process: function (doFlush) {
             // Shortcuts
             var data = this._data;
+            var dataWords = data.words;
             var dataSigBytes = data.sigBytes;
             var blockSize = this.blockSize;
             var blockSizeBytes = blockSize * 4;
@@ -515,11 +516,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             if (nWordsReady) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
                     // Perform concrete-algorithm logic
-                    this._doProcessBlock(offset);
+                    this._doProcessBlock(dataWords, offset);
                 }
 
                 // Remove processed words
-                var processedWords = data.words.splice(0, nWordsReady);
+                var processedWords = dataWords.splice(0, nWordsReady);
                 data.sigBytes -= nBytesReady;
             }
 
@@ -667,7 +668,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var MD5 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.MD5);
+         *     var SHA256 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.SHA256);
          */
         _createHelper: function (hasher) {
             return function (message, cfg) {
@@ -686,7 +687,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     var HmacMD5 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.MD5);
+         *     var HmacSHA256 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.SHA256);
          */
         _createHmacHelper: function (hasher) {
             return function (message, key) {

@@ -12,15 +12,15 @@ YUI.add('format-openssl-test', function (Y) {
         },
 
         testSaltedToString: function () {
-            Y.Assert.areEqual(C.enc.Latin1.parse('Salted__').concat(this.data.salt).concat(this.data.ciphertext).toString(C.enc.Base64), C.format.OpenSSL.stringify(C.lib.Cipher.Params.create({ ciphertext: this.data.ciphertext, salt: this.data.salt })));
+            Y.Assert.areEqual(C.enc.Latin1.parse('Salted__').concat(this.data.salt).concat(this.data.ciphertext).toString(C.enc.Base64), C.format.OpenSSL.stringify(C.lib.CipherParams.create({ ciphertext: this.data.ciphertext, salt: this.data.salt })));
         },
 
         testUnsaltedToString: function () {
-            Y.Assert.areEqual(this.data.ciphertext.toString(C.enc.Base64), C.format.OpenSSL.stringify(C.lib.Cipher.Params.create({ ciphertext: this.data.ciphertext })));
+            Y.Assert.areEqual(this.data.ciphertext.toString(C.enc.Base64), C.format.OpenSSL.stringify(C.lib.CipherParams.create({ ciphertext: this.data.ciphertext })));
         },
 
         testSaltedFromString: function () {
-            var openSslStr = C.format.OpenSSL.stringify(C.lib.Cipher.Params.create({ ciphertext: this.data.ciphertext, salt: this.data.salt }));
+            var openSslStr = C.format.OpenSSL.stringify(C.lib.CipherParams.create({ ciphertext: this.data.ciphertext, salt: this.data.salt }));
             var cipherParams = C.format.OpenSSL.parse(openSslStr);
 
             Y.Assert.areEqual(this.data.ciphertext.toString(), cipherParams.ciphertext);
@@ -28,7 +28,7 @@ YUI.add('format-openssl-test', function (Y) {
         },
 
         testUnsaltedFromString: function () {
-            var openSslStr = C.format.OpenSSL.stringify(C.lib.Cipher.Params.create({ ciphertext: this.data.ciphertext }));
+            var openSslStr = C.format.OpenSSL.stringify(C.lib.CipherParams.create({ ciphertext: this.data.ciphertext }));
             var cipherParams = C.format.OpenSSL.parse(openSslStr);
 
             Y.Assert.areEqual(this.data.ciphertext.toString(), cipherParams.ciphertext);

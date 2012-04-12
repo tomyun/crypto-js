@@ -6,7 +6,7 @@
     var Hasher = C_lib.Hasher;
     var C_algo = C.algo;
 
-    // Reusable objects
+    // Reusable object
     var W = [];
 
     /**
@@ -21,9 +21,8 @@
             ]);
         },
 
-        _doProcessBlock: function (offset) {
-            // Shortcuts
-            var M = this._data.words;
+        _doProcessBlock: function (M, offset) {
+            // Shortcut
             var H = this._hash.words;
 
             // Working variables
@@ -71,15 +70,15 @@
         _doFinalize: function () {
             // Shortcuts
             var data = this._data;
-            var M = data.words;
+            var dataWords = data.words;
 
             var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
 
             // Add padding
-            M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            M[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
-            data.sigBytes = M.length * 4;
+            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+            data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks
             this._process();

@@ -15,7 +15,7 @@ YUI.add('algo-rc4-test', function (Y) {
         testDrop: function () {
             Y.Assert.areEqual(
                 C.RC4.encrypt(C.enc.Hex.parse('00000000000000000000000000000000'), C.enc.Hex.parse('0123456789abcdef')).ciphertext.toString().substr(16),
-                C.RC4.Drop.encrypt(C.enc.Hex.parse('0000000000000000'), C.enc.Hex.parse('0123456789abcdef'), { drop: 2 }).ciphertext
+                C.RC4Drop.encrypt(C.enc.Hex.parse('0000000000000000'), C.enc.Hex.parse('0123456789abcdef'), { drop: 2 }).ciphertext
             );
         },
 
@@ -58,8 +58,8 @@ YUI.add('algo-rc4-test', function (Y) {
 
             // Test
             Y.Assert.areEqual(C.algo.RC4.createEncryptor(C.SHA256('Jefe')).finalize('Hi There').toString(), C.RC4.encrypt('Hi There', C.SHA256('Jefe')).ciphertext);
-            Y.Assert.areEqual(C.lib.Cipher.Serializable.encrypt(C.algo.RC4, 'Hi There', C.SHA256('Jefe')).toString(), C.RC4.encrypt('Hi There', C.SHA256('Jefe')));
-            Y.Assert.areEqual(C.lib.Cipher.PBE.encrypt(C.algo.RC4, 'Hi There', 'Jefe').toString(), C.RC4.encrypt('Hi There', 'Jefe'));
+            Y.Assert.areEqual(C.lib.SerializableCipher.encrypt(C.algo.RC4, 'Hi There', C.SHA256('Jefe')).toString(), C.RC4.encrypt('Hi There', C.SHA256('Jefe')));
+            Y.Assert.areEqual(C.lib.PasswordBasedCipher.encrypt(C.algo.RC4, 'Hi There', 'Jefe').toString(), C.RC4.encrypt('Hi There', 'Jefe'));
 
             // Restore random method
             C.lib.WordArray.random = random;

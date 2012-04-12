@@ -1,4 +1,4 @@
-YUI.add('lib-cipherserializable-test', function (Y) {
+YUI.add('lib-serializablecipher-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
@@ -16,7 +16,7 @@ YUI.add('lib-cipherserializable-test', function (Y) {
             // Compute expected
             var aes = C.algo.AES.createEncryptor(this.data.key, { iv: this.data.iv });
             var ciphertext = aes.finalize(this.data.message);
-            var expected = C.lib.Cipher.Params.create({
+            var expected = C.lib.CipherParams.create({
                 ciphertext: ciphertext,
                 key: this.data.key,
                 iv: aes.cfg.iv,
@@ -28,7 +28,7 @@ YUI.add('lib-cipherserializable-test', function (Y) {
             });
 
             // Compute actual
-            var actual = C.lib.Cipher.Serializable.encrypt(C.algo.AES, this.data.message, this.data.key, { iv: this.data.iv });
+            var actual = C.lib.SerializableCipher.encrypt(C.algo.AES, this.data.message, this.data.key, { iv: this.data.iv });
 
             // Test
             Y.Assert.areEqual(expected.toString(), actual);
@@ -42,8 +42,8 @@ YUI.add('lib-cipherserializable-test', function (Y) {
         },
 
         testDecrypt: function () {
-            var encrypted = C.lib.Cipher.Serializable.encrypt(C.algo.AES, this.data.message, this.data.key, { iv: this.data.iv }) + '';
-            var decrypted = C.lib.Cipher.Serializable.decrypt(C.algo.AES, encrypted, this.data.key, { iv: this.data.iv });
+            var encrypted = C.lib.SerializableCipher.encrypt(C.algo.AES, this.data.message, this.data.key, { iv: this.data.iv }) + '';
+            var decrypted = C.lib.SerializableCipher.decrypt(C.algo.AES, encrypted, this.data.key, { iv: this.data.iv });
 
             Y.Assert.areEqual(this.data.message.toString(), decrypted);
         }

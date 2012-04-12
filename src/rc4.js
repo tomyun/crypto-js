@@ -2,8 +2,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var Cipher = C_lib.Cipher;
-    var StreamCipher = Cipher.Stream;
+    var StreamCipher = C_lib.StreamCipher;
     var C_algo = C.algo;
 
     /**
@@ -39,8 +38,8 @@
             this._i = this._j = 0;
         },
 
-        _doProcessBlock: function (offset) {
-            this._data.words[offset] ^= generateKeystreamWord.call(this);
+        _doProcessBlock: function (M, offset) {
+            M[offset] ^= generateKeystreamWord.call(this);
         },
 
         keySize: 256/32,
@@ -83,12 +82,12 @@
      *     var ciphertext = CryptoJS.RC4.encrypt(message, key, cfg);
      *     var plaintext  = CryptoJS.RC4.decrypt(ciphertext, key, cfg);
      */
-    C.RC4 = Cipher._createHelper(RC4);
+    C.RC4 = StreamCipher._createHelper(RC4);
 
     /**
      * Modified RC4 stream cipher algorithm.
      */
-    var RC4Drop = RC4.Drop = RC4.extend({
+    var RC4Drop = C_algo.RC4Drop = RC4.extend({
         /**
          * Configuration options.
          *
@@ -116,5 +115,5 @@
      *     var ciphertext = CryptoJS.RC4.Drop.encrypt(message, key, cfg);
      *     var plaintext  = CryptoJS.RC4.Drop.decrypt(ciphertext, key, cfg);
      */
-    C.RC4.Drop = Cipher._createHelper(RC4Drop);
+    C.RC4Drop = StreamCipher._createHelper(RC4Drop);
 }());

@@ -19,7 +19,7 @@
          *
          * @example
          *
-         *     var hmacHasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.MD5, key);
+         *     var hmacHasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, key);
          */
         init: function (hasher, key) {
             // Init hasher

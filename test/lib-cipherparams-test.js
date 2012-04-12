@@ -2,7 +2,7 @@ YUI.add('lib-cipherparams-test', function (Y) {
     var C = CryptoJS;
 
     Y.Test.Runner.add(new Y.Test.Case({
-        name: 'Cipher.Params',
+        name: 'CipherParams',
 
         setUp: function () {
             this.data = {};
@@ -17,7 +17,7 @@ YUI.add('lib-cipherparams-test', function (Y) {
             this.data.blockSize = this.data.algorithm.blockSize;
             this.data.formatter = C.format.OpenSSL;
 
-            this.data.cipherParams = C.lib.Cipher.Params.create({
+            this.data.cipherParams = C.lib.CipherParams.create({
                 ciphertext: this.data.ciphertext,
                 key: this.data.key,
                 iv: this.data.iv,

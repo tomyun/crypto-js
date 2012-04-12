@@ -3,8 +3,7 @@
     var C = CryptoJS;
     var C_lib = C.lib;
     var WordArray = C_lib.WordArray;
-    var Cipher = C_lib.Cipher;
-    var BlockCipher = Cipher.Block;
+    var BlockCipher = C_lib.BlockCipher;
     var C_algo = C.algo;
 
     // Permuted Choice 1 constants
@@ -622,21 +621,18 @@
             }
         },
 
-        encryptBlock: function (data, offset) {
-            this._doCryptBlock(data, offset, this._subKeys);
+        encryptBlock: function (M, offset) {
+            this._doCryptBlock(M, offset, this._subKeys);
         },
 
-        decryptBlock: function (data, offset) {
-            this._doCryptBlock(data, offset, this._invSubKeys);
+        decryptBlock: function (M, offset) {
+            this._doCryptBlock(M, offset, this._invSubKeys);
         },
 
-        _doCryptBlock: function (data, offset, subKeys) {
-            // Shortcut
-            var dataWords = data.words;
-
+        _doCryptBlock: function (M, offset, subKeys) {
             // Get input
-            this._lBlock = dataWords[offset];
-            this._rBlock = dataWords[offset + 1];
+            this._lBlock = M[offset];
+            this._rBlock = M[offset + 1];
 
             // Initial permutation
             exchangeLR.call(this, 4,  0x0f0f0f0f);
@@ -674,8 +670,8 @@
             exchangeLR.call(this, 4, 0x0f0f0f0f);
 
             // Set output
-            dataWords[offset] = this._lBlock;
-            dataWords[offset + 1] = this._rBlock;
+            M[offset] = this._lBlock;
+            M[offset + 1] = this._rBlock;
         },
 
         keySize: 64/32,
@@ -706,7 +702,7 @@
      *     var ciphertext = CryptoJS.DES.encrypt(message, key, cfg);
      *     var plaintext  = CryptoJS.DES.decrypt(ciphertext, key, cfg);
      */
-    C.DES = Cipher._createHelper(DES);
+    C.DES = BlockCipher._createHelper(DES);
 
     /**
      * Triple-DES block cipher algorithm.
@@ -723,16 +719,16 @@
             this._des3 = DES.createEncryptor(WordArray.create(keyWords.slice(4, 6)));
         },
 
-        encryptBlock: function (data, offset) {
-            this._des1.encryptBlock(data, offset);
-            this._des2.decryptBlock(data, offset);
-            this._des3.encryptBlock(data, offset);
+        encryptBlock: function (M, offset) {
+            this._des1.encryptBlock(M, offset);
+            this._des2.decryptBlock(M, offset);
+            this._des3.encryptBlock(M, offset);
         },
 
-        decryptBlock: function (data, offset) {
-            this._des1.decryptBlock(data, offset);
-            this._des2.encryptBlock(data, offset);
-            this._des3.decryptBlock(data, offset);
+        decryptBlock: function (M, offset) {
+            this._des1.decryptBlock(M, offset);
+            this._des2.encryptBlock(M, offset);
+            this._des3.decryptBlock(M, offset);
         },
 
         keySize: 192/32,
@@ -750,5 +746,5 @@
      *     var ciphertext = CryptoJS.TripleDES.encrypt(message, key, cfg);
      *     var plaintext  = CryptoJS.TripleDES.decrypt(ciphertext, key, cfg);
      */
-    C.TripleDES = Cipher._createHelper(TripleDES);
+    C.TripleDES = BlockCipher._createHelper(TripleDES);
 }());

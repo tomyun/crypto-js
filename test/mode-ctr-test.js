@@ -25,7 +25,7 @@ YUI.add('mode-ctr-test', function (Y) {
 
             // First block XORed with encrypted counter
             var keystream = counter.clone();
-            aes.encryptBlock(keystream, 0);
+            aes.encryptBlock(keystream.words, 0);
             for (var i = 0; i < 4; i++) {
                 expected.words[i] ^= keystream.words[i];
             }
@@ -33,7 +33,7 @@ YUI.add('mode-ctr-test', function (Y) {
             // Subsequent blocks XORed with encrypted incremented counter
             counter.words[3]++;
             var keystream = counter.clone();
-            aes.encryptBlock(keystream, 0);
+            aes.encryptBlock(keystream.words, 0);
             for (var i = 4; i < 8; i++) {
                 expected.words[i] ^= keystream.words[i % 4];
             }

@@ -70,8 +70,8 @@ YUI.add('algo-rabbit-test', function (Y) {
 
             // Test
             Y.Assert.areEqual(C.algo.Rabbit.createEncryptor(C.MD5('Jefe')).finalize('Hi There').toString(), C.Rabbit.encrypt('Hi There', C.MD5('Jefe')).ciphertext);
-            Y.Assert.areEqual(C.lib.Cipher.Serializable.encrypt(C.algo.Rabbit, 'Hi There', C.MD5('Jefe')).toString(), C.Rabbit.encrypt('Hi There', C.MD5('Jefe')));
-            Y.Assert.areEqual(C.lib.Cipher.PBE.encrypt(C.algo.Rabbit, 'Hi There', 'Jefe').toString(), C.Rabbit.encrypt('Hi There', 'Jefe'));
+            Y.Assert.areEqual(C.lib.SerializableCipher.encrypt(C.algo.Rabbit, 'Hi There', C.MD5('Jefe')).toString(), C.Rabbit.encrypt('Hi There', C.MD5('Jefe')));
+            Y.Assert.areEqual(C.lib.PasswordBasedCipher.encrypt(C.algo.Rabbit, 'Hi There', 'Jefe').toString(), C.Rabbit.encrypt('Hi There', 'Jefe'));
 
             // Restore random method
             C.lib.WordArray.random = random;

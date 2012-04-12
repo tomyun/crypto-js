@@ -2,8 +2,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
-    var Cipher = C_lib.Cipher;
-    var StreamCipher = Cipher.Stream;
+    var StreamCipher = C_lib.StreamCipher;
     var C_algo = C.algo;
 
     // Reusable objects
@@ -79,9 +78,8 @@
             }
         },
 
-        _doProcessBlock: function (offset) {
-            // Shortcuts
-            var M = this._data.words;
+        _doProcessBlock: function (M, offset) {
+            // Shortcut
             var X = this._X;
 
             // Iterate the system
@@ -164,5 +162,5 @@
      *     var ciphertext = CryptoJS.Rabbit.encrypt(message, key, cfg);
      *     var plaintext  = CryptoJS.Rabbit.decrypt(ciphertext, key, cfg);
      */
-    C.Rabbit = Cipher._createHelper(Rabbit);
+    C.Rabbit = StreamCipher._createHelper(Rabbit);
 }());

@@ -27,11 +27,7 @@
             ]);
         },
 
-        _doProcessBlock: function (offset) {
-            // Shortcuts
-            var M = this._data.words;
-            var H = this._hash.words;
-
+        _doProcessBlock: function (M, offset) {
             // Swap endian
             for (var i = 0; i < 16; i++) {
                 // Shortcuts
@@ -43,6 +39,9 @@
                     (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
                 );
             }
+
+            // Shortcut
+            var H = this._hash.words;
 
             // Working variables
             var a = H[0];
@@ -85,18 +84,18 @@
         _doFinalize: function () {
             // Shortcuts
             var data = this._data;
-            var M = data.words;
+            var dataWords = data.words;
 
             var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
 
             // Add padding
-            M[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            M[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
                 (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
                 (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
             );
-            data.sigBytes = (M.length + 1) * 4;
+            data.sigBytes = (dataWords.length + 1) * 4;
 
             // Hash final blocks
             this._process();

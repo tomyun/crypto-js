@@ -24,13 +24,13 @@ YUI.add('mode-cbc-test', function (Y) {
             for (var i = 0; i < 4; i++) {
                 expected.words[i] ^= this.data.iv.words[i];
             }
-            aes.encryptBlock(expected, 0);
+            aes.encryptBlock(expected.words, 0);
 
             // Subsequent blocks XORed with previous crypted block, then encrypted
             for (var i = 4; i < 8; i++) {
                 expected.words[i] ^= expected.words[i - 4];
             }
-            aes.encryptBlock(expected, 4);
+            aes.encryptBlock(expected.words, 4);
 
             // Compute actual
             var actual = C.AES.encrypt(this.data.message, this.data.key, { iv: this.data.iv, mode: C.mode.CBC, padding: C.pad.NoPadding }).ciphertext;
