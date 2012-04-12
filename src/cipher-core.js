@@ -752,7 +752,7 @@ CryptoJS.lib.Cipher || (function (undefined) {
          */
         execute: function (password, keySize, ivSize, salt) {
             // Generate random salt
-            if ( ! salt) {
+            if (!salt) {
                 salt = WordArray.random(64/8);
             }
 
