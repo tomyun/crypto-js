@@ -10,22 +10,20 @@ $loader->register();
 $build = Symfony\Component\Yaml\Yaml::parse(__DIR__.'/build.yml');
 
 // Build components
+mkdir(__DIR__."/../build/components", 0777, true);
 foreach ($build['components'] as $componentName) {
-    // Create component directory
-    mkdir(__DIR__."/../build/components/$componentName", 0777, true);
-
     // Compute component source path
     $componentSourcePath = __DIR__."/../src/$componentName.js";
 
     // Build raw
     file_put_contents(
-        __DIR__."/../build/components/$componentName/$componentName.js",
+        __DIR__."/../build/components/$componentName.js",
         render(__DIR__.'/copyright.php', array('content' => file_get_contents($componentSourcePath)))
     );
 
     // Build minified
     file_put_contents(
-        __DIR__."/../build/components/$componentName/$componentName-min.js",
+        __DIR__."/../build/components/$componentName-min.js",
         render(__DIR__.'/copyright.php', array('content' => compress(file_get_contents($componentSourcePath))))
     );
 }
