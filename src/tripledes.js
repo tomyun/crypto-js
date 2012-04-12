@@ -726,9 +726,9 @@
         },
 
         decryptBlock: function (M, offset) {
-            this._des1.decryptBlock(M, offset);
-            this._des2.encryptBlock(M, offset);
             this._des3.decryptBlock(M, offset);
+            this._des2.encryptBlock(M, offset);
+            this._des1.decryptBlock(M, offset);
         },
 
         keySize: 192/32,
