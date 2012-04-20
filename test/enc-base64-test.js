@@ -37,35 +37,35 @@ YUI.add('enc-base64-test', function (Y) {
         },
 
         testParse0: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 0).toString(), C.enc.Base64.parse(''));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 0).toString(), C.enc.Base64.parse('').toString());
         },
 
         testParse1: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 1).toString(), C.enc.Base64.parse('Zg=='));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 1).toString(), C.enc.Base64.parse('Zg==').toString());
         },
 
         testParse2: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 2).toString(), C.enc.Base64.parse('Zm8='));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 2).toString(), C.enc.Base64.parse('Zm8=').toString());
         },
 
         testParse3: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 3).toString(), C.enc.Base64.parse('Zm9v'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 3).toString(), C.enc.Base64.parse('Zm9v').toString());
         },
 
         testParse4: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 4).toString(), C.enc.Base64.parse('Zm9vYg=='));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 4).toString(), C.enc.Base64.parse('Zm9vYg==').toString());
         },
 
         testParse5: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 5).toString(), C.enc.Base64.parse('Zm9vYmE='));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 5).toString(), C.enc.Base64.parse('Zm9vYmE=').toString());
         },
 
         testParse6: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 6).toString(), C.enc.Base64.parse('Zm9vYmFy'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 6).toString(), C.enc.Base64.parse('Zm9vYmFy').toString());
         },
 
         testParse15: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15).toString(), C.enc.Base64.parse('Pj4+Pz8/Pj4+Pz8/PS8r'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15).toString(), C.enc.Base64.parse('Pj4+Pz8/Pj4+Pz8/PS8r').toString());
         }
     }));
 }, '$Rev$');

@@ -25,23 +25,23 @@ YUI.add('enc-utf16-test', function (Y) {
         },
 
         testParse1: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x007a0000], 2).toString(), C.enc.Utf16.parse('z'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x007a0000], 2).toString(), C.enc.Utf16.parse('z').toString());
         },
 
         testParse2: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x6c340000], 2).toString(), C.enc.Utf16.parse('水'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x6c340000], 2).toString(), C.enc.Utf16.parse('水').toString());
         },
 
         testParse3: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xd800dc00], 4).toString(), C.enc.Utf16.parse('𐀀'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0xd800dc00], 4).toString(), C.enc.Utf16.parse('𐀀').toString());
         },
 
         testParse4: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xd834dd1e], 4).toString(), C.enc.Utf16.parse('𝄞'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0xd834dd1e], 4).toString(), C.enc.Utf16.parse('𝄞').toString());
         },
 
         testParse5: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xdbffdffd], 4).toString(), C.enc.Utf16.parse('􏿽'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0xdbffdffd], 4).toString(), C.enc.Utf16.parse('􏿽').toString());
         }
     }));
 }, '$Rev$');

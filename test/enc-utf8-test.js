@@ -21,19 +21,19 @@ YUI.add('enc-utf8-test', function (Y) {
         },
 
         testParse1: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x24000000], 1).toString(), C.enc.Utf8.parse('$'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x24000000], 1).toString(), C.enc.Utf8.parse('$').toString());
         },
 
         testParse2: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xc2a20000], 2).toString(), C.enc.Utf8.parse('¢'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0xc2a20000], 2).toString(), C.enc.Utf8.parse('¢').toString());
         },
 
         testParse3: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xe282ac00], 3).toString(), C.enc.Utf8.parse('€'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0xe282ac00], 3).toString(), C.enc.Utf8.parse('€').toString());
         },
 
         testParse4: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0xf0a4ada2], 4).toString(), C.enc.Utf8.parse('𤭢'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0xf0a4ada2], 4).toString(), C.enc.Utf8.parse('𤭢').toString());
         }
     }));
 }, '$Rev$');

@@ -9,7 +9,7 @@ YUI.add('enc-latin1-test', function (Y) {
         },
 
         testParse: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x12345678]).toString(), C.enc.Latin1.parse('\x12\x34\x56\x78'));
+            Y.Assert.areEqual(C.lib.WordArray.create([0x12345678]).toString(), C.enc.Latin1.parse('\x12\x34\x56\x78').toString());
         }
     }));
 }, '$Rev$');

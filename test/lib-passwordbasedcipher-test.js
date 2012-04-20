@@ -5,17 +5,19 @@ YUI.add('lib-passwordbasedcipher-test', function (Y) {
         name: 'PasswordBasedCipher',
 
         testEncrypt: function () {
-            var passwordBased = C.AES.encrypt('Hello, World!', 'password');
+            // Compute actual
+            var actual = C.lib.PasswordBasedCipher.encrypt(C.algo.AES, 'Hello, World!', 'password');
 
-            var aes = C.algo.AES.createEncryptor(passwordBased.key, { iv: passwordBased.iv });
-            var lowLevelBased = aes.finalize('Hello, World!');
+            // Compute expected
+            var aes = C.algo.AES.createEncryptor(actual.key, { iv: actual.iv });
+            var expected = aes.finalize('Hello, World!');
 
-            Y.Assert.areEqual(lowLevelBased.toString(), passwordBased.ciphertext);
+            Y.Assert.areEqual(expected.toString(), actual.ciphertext.toString());
         },
 
         testDecrypt: function () {
-            var ciphertext = C.AES.encrypt('Hello, World!', 'password');
-            var plaintext = C.AES.decrypt(ciphertext, 'password');
+            var ciphertext = C.lib.PasswordBasedCipher.encrypt(C.algo.AES, 'Hello, World!', 'password');
+            var plaintext = C.lib.PasswordBasedCipher.decrypt(C.algo.AES, ciphertext, 'password');
 
             Y.Assert.areEqual('Hello, World!', plaintext.toString(C.enc.Utf8));
         }
