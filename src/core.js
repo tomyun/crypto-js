@@ -158,7 +158,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Converts this word array to a string.
          *
-         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
+         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
          *
          * @return {string} The stringified word array.
          *
@@ -267,7 +267,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     });
 
     /**
-     * Encoding namespace.
+     * Encoder namespace.
      */
     var C_enc = C.enc = {};
 
@@ -435,6 +435,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
     /**
      * Abstract buffered block algorithm template.
+     *
      * The property blockSize must be implemented in a concrete subtype.
      *
      * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
@@ -476,9 +477,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
         /**
          * Processes available data blocks.
+         *
          * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
          *
-         * @param {boolean} flush Whether all blocks and partial blocks should be processed.
+         * @param {boolean} doFlush Whether all blocks and partial blocks should be processed.
          *
          * @return {WordArray} The processed data.
          *

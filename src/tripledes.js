@@ -663,11 +663,11 @@
             this._rBlock = t;
 
             // Final permutation
-            exchangeLR.call(this, 1, 0x55555555);
-            exchangeRL.call(this, 8, 0x00ff00ff);
-            exchangeRL.call(this, 2, 0x33333333);
+            exchangeLR.call(this, 1,  0x55555555);
+            exchangeRL.call(this, 8,  0x00ff00ff);
+            exchangeRL.call(this, 2,  0x33333333);
             exchangeLR.call(this, 16, 0x0000ffff);
-            exchangeLR.call(this, 4, 0x0f0f0f0f);
+            exchangeLR.call(this, 4,  0x0f0f0f0f);
 
             // Set output
             M[offset] = this._lBlock;
