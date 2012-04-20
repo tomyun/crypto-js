@@ -112,8 +112,8 @@
      *
      * @example
      *
-     *     var ciphertext = CryptoJS.RC4.Drop.encrypt(message, key, cfg);
-     *     var plaintext  = CryptoJS.RC4.Drop.decrypt(ciphertext, key, cfg);
+     *     var ciphertext = CryptoJS.RC4Drop.encrypt(message, key, cfg);
+     *     var plaintext  = CryptoJS.RC4Drop.decrypt(ciphertext, key, cfg);
      */
     C.RC4Drop = StreamCipher._createHelper(RC4Drop);
 }());
