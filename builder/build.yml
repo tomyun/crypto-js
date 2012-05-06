@@ -1,11 +1,13 @@
 components:
     - core
+    - x64-core
     - enc-utf16
     - enc-base64
     - md5
     - sha1
     - sha256
     - sha224
+    - sha512
     - hmac
     - pbkdf2
     - evpkdf
@@ -29,11 +31,13 @@ rollups:
     sha1:   [core, sha1]
     sha256: [core, sha256]
     sha224: [core, sha256, sha224]
+    sha512: [core, x64-core, sha512]
 
     hmac-md5:    [core, md5, hmac]
     hmac-sha1:   [core, sha1, hmac]
     hmac-sha256: [core, sha256, hmac]
     hmac-sha224: [core, sha256, sha224, hmac]
+    hmac-sha512: [core, x64-core, sha512, hmac]
 
     pbkdf2: [core, sha1, hmac, pbkdf2]
 
