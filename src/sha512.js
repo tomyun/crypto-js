@@ -193,6 +193,7 @@
                 var t1l = t1l + Wil;
                 var t1h = t1h + Wih + ((t1l >>> 0) < (Wil >>> 0) ? 1 : 0);
 
+                // t2 = sigma0 + maj
                 var t2l = sigma0l + majl;
                 var t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
 
