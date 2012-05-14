@@ -75,10 +75,6 @@ var util = Crypto.util = {
 
 	// Convert a byte array to a base-64 string
 	bytesToBase64: function (bytes) {
-
-		// Use browser-native function if it exists
-		if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
-
 		for(var base64 = [], i = 0; i < bytes.length; i += 3) {
 			var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
 			for (var j = 0; j < 4; j++) {
@@ -89,15 +85,10 @@ var util = Crypto.util = {
 		}
 
 		return base64.join("");
-
 	},
 
 	// Convert a base-64 string to a byte array
 	base64ToBytes: function (base64) {
-
-		// Use browser-native function if it exists
-		if (typeof atob == "function") return Binary.stringToBytes(atob(base64));
-
 		// Remove non-base-64 characters
 		base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
 
@@ -108,7 +99,6 @@ var util = Crypto.util = {
 		}
 
 		return bytes;
-
 	}
 
 };
