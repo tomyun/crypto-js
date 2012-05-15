@@ -48,6 +48,20 @@ YUI.add('lib-wordarray-test', function (Y) {
             Y.Assert.areEqual('1234567800123456', wordArray1.toString());
         },
 
+        testConcatLong: function () {
+            var wordArray1 = C.lib.WordArray.create();
+
+            var wordArray2 = C.lib.WordArray.create();
+            var wordArray3 = C.lib.WordArray.create();
+            for (var i = 0; i < 500000; i++) {
+                wordArray2.words[i] = i;
+                wordArray3.words[i] = i;
+            }
+            wordArray2.sigBytes = wordArray3.sigBytes = 500000;
+
+            Y.Assert.areEqual(wordArray2.toString() + wordArray3.toString(), wordArray1.concat(wordArray2.concat(wordArray3)).toString());
+        },
+
         testClamp: function () {
             var wordArray = C.lib.WordArray.create([0x12345678, 0x12345678], 3);
             wordArray.clamp();
