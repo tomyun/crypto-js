@@ -70,6 +70,9 @@
          *     var wordArray = CryptoJS.enc.Base64.parse(base64String);
          */
         parse: function (base64Str) {
+            // Remove newlines
+            base64Str = base64Str.replace(/[\r\n]/g, '');
+
             // Shortcuts
             var base64StrLength = base64Str.length;
             var map = this._map;
