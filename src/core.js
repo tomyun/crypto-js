@@ -106,6 +106,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 }
 
                 // IE won't copy toString using the loop above
+                // Other non-enumerable properties are:
+                //   hasOwnProperty, isPrototypeOf, propertyIsEnumerable,
+                //   toLocaleString, valueOf
                 if (properties.hasOwnProperty('toString')) {
                     this.toString = properties.toString;
                 }
