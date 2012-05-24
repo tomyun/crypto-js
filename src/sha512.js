@@ -139,17 +139,17 @@
                     var gamma0x  = W[i - 15];
                     var gamma0xh = gamma0x.high;
                     var gamma0xl = gamma0x.low;
-                    var gamma0h  = ((gamma0xh >>> 1) | (gamma0xl << 31)) ^ ((gamma0xh >>> 8) | (gamma0xl << 24)) ^ (gamma0xh >>> 7);
-                    var gamma0l  = ((gamma0xl >>> 1) | (gamma0xh << 31)) ^ ((gamma0xl >>> 8) | (gamma0xh << 24)) ^ ((gamma0xl >>> 7) | (gamma0xh << 25));
+                    var gamma0h  = ((gamma0xl << 31) | (gamma0xh >>> 1)) ^ ((gamma0xl << 24) | (gamma0xh >>> 8)) ^ (gamma0xh >>> 7);
+                    var gamma0l  = ((gamma0xh << 31) | (gamma0xl >>> 1)) ^ ((gamma0xh << 24) | (gamma0xl >>> 8)) ^ ((gamma0xh << 25) | (gamma0xl >>> 7));
 
                     // Gamma1
                     var gamma1x  = W[i - 2];
                     var gamma1xh = gamma1x.high;
                     var gamma1xl = gamma1x.low;
-                    var gamma1h  = ((gamma1xh >>> 19) | (gamma1xl << 13)) ^ ((gamma1xh << 3) | (gamma1xl >>> 29)) ^ (gamma1xh >>> 6);
-                    var gamma1l  = ((gamma1xl >>> 19) | (gamma1xh << 13)) ^ ((gamma1xl << 3) | (gamma1xh >>> 29)) ^ ((gamma1xl >>> 6) | (gamma1xh << 26));
+                    var gamma1h  = ((gamma1xl << 13) | (gamma1xh >>> 19)) ^ ((gamma1xh << 3) | (gamma1xl >>> 29)) ^ (gamma1xh >>> 6);
+                    var gamma1l  = ((gamma1xh << 13) | (gamma1xl >>> 19)) ^ ((gamma1xl << 3) | (gamma1xh >>> 29)) ^ ((gamma1xh << 26) | (gamma1xl >>> 6));
 
-                    // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
+                    // Shortcuts
                     var Wi7  = W[i - 7];
                     var Wi7h = Wi7.high;
                     var Wi7l = Wi7.low;
@@ -158,6 +158,7 @@
                     var Wi16h = Wi16.high;
                     var Wi16l = Wi16.low;
 
+                    // W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16]
                     var Wil = gamma0l + Wi7l;
                     var Wih = gamma0h + Wi7h + ((Wil >>> 0) < (gamma0l >>> 0) ? 1 : 0);
                     var Wil = Wil + gamma1l;
@@ -169,21 +170,28 @@
                     Wi.low  = Wil;
                 }
 
+                // Ch
                 var chh  = (eh & fh) ^ (~eh & gh);
                 var chl  = (el & fl) ^ (~el & gl);
+
+                // Maj
                 var majh = (ah & bh) ^ (ah & ch) ^ (bh & ch);
                 var majl = (al & bl) ^ (al & cl) ^ (bl & cl);
 
-                var sigma0h = ((ah >>> 28) | (al << 4))  ^ ((ah << 30)  | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
-                var sigma0l = ((al >>> 28) | (ah << 4))  ^ ((al << 30)  | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
-                var sigma1h = ((eh >>> 14) | (el << 18)) ^ ((eh >>> 18) | (el << 14)) ^ ((eh << 23) | (el >>> 9));
-                var sigma1l = ((el >>> 14) | (eh << 18)) ^ ((el >>> 18) | (eh << 14)) ^ ((el << 23) | (eh >>> 9));
+                // Sigma0
+                var sigma0h = ((al << 4) | (ah >>> 28)) ^ ((ah << 30) | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
+                var sigma0l = ((ah << 4) | (al >>> 28)) ^ ((al << 30) | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
 
-                // t1 = h + sigma1 + ch + K[i] + W[i]
+                // Sigma1
+                var sigma1h = ((el << 18) | (eh >>> 14)) ^ ((el << 14) | (eh >>> 18)) ^ ((eh << 23) | (el >>> 9));
+                var sigma1l = ((eh << 18) | (el >>> 14)) ^ ((eh << 14) | (el >>> 18)) ^ ((el << 23) | (eh >>> 9));
+
+                // Shortcuts
                 var Ki  = K[i];
                 var Kih = Ki.high;
                 var Kil = Ki.low;
 
+                // t1 = h + sigma1 + ch + K[i] + W[i]
                 var t1l = hl + sigma1l;
                 var t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
                 var t1l = t1l + chl;
@@ -217,22 +225,22 @@
             }
 
             // Intermediate hash value
-            H0l = H0.low  = (H0l + al);
-            H0.high = (H0h + ah + ((H0l >>> 0) < (al >>> 0) ? 1 : 0));
-            H1l = H1.low  = (H1l + bl);
-            H1.high = (H1h + bh + ((H1l >>> 0) < (bl >>> 0) ? 1 : 0));
-            H2l = H2.low  = (H2l + cl);
-            H2.high = (H2h + ch + ((H2l >>> 0) < (cl >>> 0) ? 1 : 0));
-            H3l = H3.low  = (H3l + dl);
-            H3.high = (H3h + dh + ((H3l >>> 0) < (dl >>> 0) ? 1 : 0));
-            H4l = H4.low  = (H4l + el);
-            H4.high = (H4h + eh + ((H4l >>> 0) < (el >>> 0) ? 1 : 0));
-            H5l = H5.low  = (H5l + fl);
-            H5.high = (H5h + fh + ((H5l >>> 0) < (fl >>> 0) ? 1 : 0));
-            H6l = H6.low  = (H6l + gl);
-            H6.high = (H6h + gh + ((H6l >>> 0) < (gl >>> 0) ? 1 : 0));
-            H7l = H7.low  = (H7l + hl);
-            H7.high = (H7h + hh + ((H7l >>> 0) < (hl >>> 0) ? 1 : 0));
+            H0l = H0.low = (H0l + al) | 0;
+            H0.high = (H0h + ah + ((H0l >>> 0) < (al >>> 0) ? 1 : 0)) | 0;
+            H1l = H1.low = (H1l + bl) | 0;
+            H1.high = (H1h + bh + ((H1l >>> 0) < (bl >>> 0) ? 1 : 0)) | 0;
+            H2l = H2.low = (H2l + cl) | 0;
+            H2.high = (H2h + ch + ((H2l >>> 0) < (cl >>> 0) ? 1 : 0)) | 0;
+            H3l = H3.low = (H3l + dl) | 0;
+            H3.high = (H3h + dh + ((H3l >>> 0) < (dl >>> 0) ? 1 : 0)) | 0;
+            H4l = H4.low = (H4l + el) | 0;
+            H4.high = (H4h + eh + ((H4l >>> 0) < (el >>> 0) ? 1 : 0)) | 0;
+            H5l = H5.low = (H5l + fl) | 0;
+            H5.high = (H5h + fh + ((H5l >>> 0) < (fl >>> 0) ? 1 : 0)) | 0;
+            H6l = H6.low = (H6l + gl) | 0;
+            H6.high = (H6h + gh + ((H6l >>> 0) < (gl >>> 0) ? 1 : 0)) | 0;
+            H7l = H7.low = (H7l + hl) | 0;
+            H7.high = (H7h + hh + ((H7l >>> 0) < (hl >>> 0) ? 1 : 0)) | 0;
         },
 
         _doFinalize: function () {

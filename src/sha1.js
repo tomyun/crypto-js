@@ -14,11 +14,7 @@
      */
     var SHA1 = C_algo.SHA1 = Hasher.extend({
         _doReset: function () {
-            this._hash = WordArray.create([
-                0x67452301, 0xefcdab89,
-                0x98badcfe, 0x10325476,
-                0xc3d2e1f0
-            ]);
+            this._hash = WordArray.create([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
         },
 
         _doProcessBlock: function (M, offset) {
