@@ -2,6 +2,8 @@
  * CryptoJS core components.
  */
 var CryptoJS = CryptoJS || (function (Math, undefined) {
+    'use strict';
+
     /**
      * CryptoJS namespace.
      */
@@ -151,7 +153,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         init: function (words, sigBytes) {
             words = this.words = words || [];
 
-            if (sigBytes != undefined) {
+            if (sigBytes !== undefined) {
                 this.sigBytes = sigBytes;
             } else {
                 this.sigBytes = words.length * 4;
@@ -192,6 +194,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var thatWords = wordArray.words;
             var thisSigBytes = this.sigBytes;
             var thatSigBytes = wordArray.sigBytes;
+            var thatWordsLength = thatWords.length;
 
             // Clamp excess bits
             this.clamp();
@@ -199,14 +202,14 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Concat
             if (thisSigBytes % 4) {
                 // Copy one byte at a time
-                for (var i = 0; i < thatSigBytes; i++) {
-                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
+                for (var nByte = 0; nByte < thatSigBytes; nByte++) {
+                    var thatByte = (thatWords[nByte >>> 2] >>> (24 - (nByte % 4) * 8)) & 0xff;
+                    thisWords[(thisSigBytes + nByte) >>> 2] |= thatByte << (24 - ((thisSigBytes + nByte) % 4) * 8);
                 }
-            } else if (thatWords.length > 0xffff) {
+            } else if (thatWordsLength > 0xffff) {
                 // Copy one word at a time
-                for (var i = 0; i < thatSigBytes; i += 4) {
-                    thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
+                for (var nWord = 0; nWord < thatWordsLength; nWord++) {
+                    thisWords[(thisSigBytes >>> 2) + nWord] = thatWords[nWord];
                 }
             } else {
                 // Copy all words at once
@@ -416,6 +419,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
          */
         stringify: function (wordArray) {
+            /*jshint nonstandard:true */
+
             try {
                 return decodeURIComponent(escape(Latin1.stringify(wordArray)));
             } catch (e) {
@@ -437,6 +442,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
          */
         parse: function (utf8Str) {
+            /*jshint nonstandard:true */
+
             return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
         }
     };
@@ -520,6 +527,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Count bytes ready
             var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
 
+            // The data after processing
+            var processedWords;
+
             // Process blocks
             if (nWordsReady) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
@@ -528,7 +538,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 }
 
                 // Remove processed words
-                var processedWords = dataWords.splice(0, nWordsReady);
+                processedWords = dataWords.splice(0, nWordsReady);
                 data.sigBytes -= nBytesReady;
             }
 
@@ -560,7 +570,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
      *
      * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
      */
-    var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
+    /*var Hasher =*/ C_lib.Hasher = BufferedBlockAlgorithm.extend({
         /**
          * Configuration options.
          */
