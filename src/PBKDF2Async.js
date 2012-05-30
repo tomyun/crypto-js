@@ -60,10 +60,14 @@ C.PBKDF2Async = function (password, salt, keylen, callback, options) {
 
             var u = block, i = 1;
             nextTick(inner = function () {
+                var start = new Date();  
                 if (i < iterations) {
-                    u = PRF(password, u);
-                    for (var j = 0; j < block.length; j++) block[j] ^= u[j];
-                    i++;
+                    // Run multiple iterations before calling setTimeout as setTimeout waits minimum 4 ms.
+                    while (i < iterations && ((new Date()).getTime() - start.getTime()) < 100) {
+                        u = PRF(password, u);
+                        for (var j = 0; j < block.length; j++) block[j] ^= u[j];
+                        i++;
+                   	}
                     fireProgressChange(i);
 
                     nextTick(inner);
