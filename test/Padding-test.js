@@ -31,18 +31,16 @@ TestSuite.add(new YAHOO.tool.TestCase({
 			}
 		}
 		
-		if( pad!=Crypto.pad.ZeroPadding ) {
-			var unpad = output.slice(0);
-			pad.unpad(cipher, unpad);
+		var unpad = output.slice(0);
+		pad.unpad(cipher, unpad);
 
-			// check result has expected length
-			Assert.areEqual(unpad.length, input.length);
-			
-			// check input has been preserved
-			for(var i=0;i<input.length;i++) {
-				Assert.areEqual(unpad[i],input[i]);
-			}
-		}		
+		// check result has expected length
+		Assert.areEqual(unpad.length, input.length);
+		
+		// check input has been preserved
+		for(var i=0;i<input.length;i++) {
+			Assert.areEqual(unpad[i],input[i]);
+		}
 	},
 
 	test_zeropad: function() {
@@ -51,7 +49,7 @@ TestSuite.add(new YAHOO.tool.TestCase({
 		var p = Crypto.pad.ZeroPadding;
 		
 		this._compare(p, cipher, "", "");
-		this._compare(p, cipher, "0,0", "0,0,0,0,0,0,0,0");
+		// this._compare(p, cipher, "0,0", "0,0,0,0,0,0,0,0"); // this test *should* fail; the problem with zero padding
 		this._compare(p, cipher, "1,2,3", "1,2,3,0,0,0,0,0");
 		this._compare(p, cipher, "4,3,2,1,8,7,6,5", "4,3,2,1,8,7,6,5");
 		this._compare(p, cipher, "5,4,3,2,1,5,4,3,2,1", "5,4,3,2,1,5,4,3,2,1,0,0,0,0,0,0");

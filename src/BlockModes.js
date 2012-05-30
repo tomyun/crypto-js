@@ -58,7 +58,11 @@ C_pad.ZeroPadding = {
         }
     },
 
-    unpad : function (message) {}
+    unpad : function (cipher, message) {
+        while (message[message.length - 1] == 0) {
+            message.pop();
+        }
+    }
 };
 
 // ISO/IEC 7816-4 padding.
