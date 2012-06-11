@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -10,7 +14,7 @@
     /**
      * HMAC algorithm.
      */
-    var HMAC = C_algo.HMAC = Base.extend({
+    /*var HMAC =*/ C_algo.HMAC = Base.extend({
         /**
          * Initializes a newly created HMAC.
          *

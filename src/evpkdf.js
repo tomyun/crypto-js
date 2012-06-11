@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -16,7 +20,7 @@
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
-         * @property {Hasher} hasher The hash algorithm to use. Default: CryptoJS.algo.MD5
+         * @property {Hasher} hasher The hash algorithm to use. Default: MD5
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         cfg: Base.extend({
@@ -68,11 +72,12 @@
             var iterations = cfg.iterations;
 
             // Generate key
+            var block;
             while (derivedKeyWords.length < keySize) {
                 if (block) {
                     hasher.update(block);
                 }
-                var block = hasher.update(password).finalize(salt);
+                block = hasher.update(password).finalize(salt);
                 hasher.reset();
 
                 // Iterations

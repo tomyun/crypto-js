@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -8,7 +12,7 @@
     /**
      * UTF-16 BE encoding strategy.
      */
-    var Utf16 = C_enc.Utf16 = {
+    /*var Utf16 =*/ C_enc.Utf16 = {
         /**
          * Converts a word array to a UTF-16 string.
          *

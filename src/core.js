@@ -18,7 +18,24 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
      * Base object for prototypal inheritance.
      */
     var Base = C_lib.Base = (function () {
+        // Reusable constructor function
         function F() {}
+
+        // If a property on Object.prototype is non-enumerable,
+        // then older versions of IE won't enumerate different properties of the same name on child objects,
+        // so we have to check for those explicitly.
+        var NON_ENUMERABLES = [
+            'toString'/*,
+            'valueOf',
+            'hasOwnProperty',
+            'isPrototypeOf',
+            'toLocaleString',
+            'propertyIsEnumerable'
+            */
+        ];
+
+        // Shortcut
+        var NON_ENUMERABLES_LENGTH = NON_ENUMERABLES.length;
 
         return {
             /**
@@ -57,6 +74,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
             /**
              * Extends this object and runs the init method.
+             *
              * Arguments to create() will be passed to init().
              *
              * @return {Object} The new object.
@@ -65,7 +83,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              *
              * @example
              *
-             *     var instance = MyType.create();
+             *     var instance = MyType.create(initParam);
              */
             create: function () {
                 var instance = this.extend();
@@ -76,12 +94,13 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
             /**
              * Initializes a newly created object.
+             *
              * Override this method to add some logic when your objects are created.
              *
              * @example
              *
              *     var MyType = CryptoJS.lib.Base.extend({
-             *         init: function () {
+             *         init: function (initParam) {
              *             // ...
              *         }
              *     });
@@ -97,27 +116,66 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              * @example
              *
              *     MyType.mixIn({
-             *         field: 'value'
+             *         field: 'value',
+             *
+             *         method: function () {
+             *         }
              *     });
              */
             mixIn: function (properties) {
-                for (var propertyName in properties) {
+                var propertyName;
+
+                for (propertyName in properties) {
                     if (properties.hasOwnProperty(propertyName)) {
                         this[propertyName] = properties[propertyName];
                     }
                 }
 
-                // IE won't copy toString using the loop above
-                // Other non-enumerable properties are:
-                //   hasOwnProperty, isPrototypeOf, propertyIsEnumerable,
-                //   toLocaleString, valueOf
-                if (properties.hasOwnProperty('toString')) {
-                    this.toString = properties.toString;
+                for (var i = 0; i < NON_ENUMERABLES_LENGTH; i++) {
+                    propertyName = NON_ENUMERABLES[i];
+
+                    if (properties.hasOwnProperty(propertyName)) {
+                        this[propertyName] = properties[propertyName];
+                    }
                 }
             },
 
             /**
+             * Tests if this object is a descendant of the passed type.
+             *
+             * @param {Base} type The potential ancestor.
+             *
+             * @return {boolean} True if this object is a descendant.
+             *
+             * @example
+             *
+             *     if (instance.isA(MyType)) {
+             *     }
+             */
+            /*
+            isA: function (type) {
+                var o = this;
+
+                do {
+                    if (o == type) {
+                        return true;
+                    } else {
+                        o = o.$super;
+                    }
+                } while (o);
+
+                return false;
+            },
+            */
+
+            /**
              * Creates a copy of this object.
+             *
+             * The new, cloned object should be independent of this object.
+             * To achieve this, subtypes may need to modify fields of the object
+             * returned by $super.clone before returning it.
+             * Typically this means copying any internal objects of this object.
+             * If this object contains only primitives, then no fields need to be modified.
              *
              * @return {Object} The clone.
              *
@@ -163,7 +221,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Converts this word array to a string.
          *
-         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
+         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
          *
          * @return {string} The stringified word array.
          *
@@ -194,22 +252,22 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var thatWords = wordArray.words;
             var thisSigBytes = this.sigBytes;
             var thatSigBytes = wordArray.sigBytes;
-            var thatWordsLength = thatWords.length;
 
             // Clamp excess bits
             this.clamp();
 
             // Concat
+            var i;
             if (thisSigBytes % 4) {
                 // Copy one byte at a time
-                for (var nByte = 0; nByte < thatSigBytes; nByte++) {
-                    var thatByte = (thatWords[nByte >>> 2] >>> (24 - (nByte % 4) * 8)) & 0xff;
-                    thisWords[(thisSigBytes + nByte) >>> 2] |= thatByte << (24 - ((thisSigBytes + nByte) % 4) * 8);
+                for (i = 0; i < thatSigBytes; i++) {
+                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
                 }
-            } else if (thatWordsLength > 0xffff) {
+            } else if (thatWords.length > 0xffff) {
                 // Copy one word at a time
-                for (var nWord = 0; nWord < thatWordsLength; nWord++) {
-                    thisWords[(thisSigBytes >>> 2) + nWord] = thatWords[nWord];
+                for (i = 0; i < thatSigBytes; i += 4) {
+                    thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
                 }
             } else {
                 // Copy all words at once
@@ -450,6 +508,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
     /**
      * Abstract buffered block algorithm template.
+     *
      * The property blockSize must be implemented in a concrete subtype.
      *
      * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
@@ -491,6 +550,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
         /**
          * Processes available data blocks.
+         *
          * This method invokes _doProcessBlock(dataWords, offset), which must be implemented by a concrete subtype.
          *
          * @param {boolean} flush Whether all blocks and partial blocks should be processed.
@@ -633,6 +693,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
         /**
          * Finalizes the hash computation.
+         *
          * Note that the finalize operation is effectively a destructive, read-once operation.
          *
          * @param {WordArray|string} messageUpdate (Optional) A final message update.

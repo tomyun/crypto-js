@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -16,7 +20,7 @@
          * Configuration options.
          *
          * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
-         * @property {Hasher} hasher The hasher to use. Default: CryptoJS.algo.SHA1
+         * @property {Hasher} hasher The hasher to use. Default: SHA1
          * @property {number} iterations The number of iterations to perform. Default: 1
          */
         cfg: Base.extend({

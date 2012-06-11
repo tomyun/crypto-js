@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -29,22 +33,22 @@
             var e = H[4];
 
             // Computation
-            for (var i = 0; i < 80; i++) {
-                if (i < 16) {
-                    W[i] = M[offset + i] | 0;
+            for (var round = 0; round < 80; round++) {
+                if (round < 16) {
+                    W[round] = M[offset + round] | 0;
                 } else {
-                    var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
-                    W[i] = (n << 1) | (n >>> 31);
+                    var n = W[round - 3] ^ W[round - 8] ^ W[round - 14] ^ W[round - 16];
+                    W[round] = (n << 1) | (n >>> 31);
                 }
 
-                var t = ((a << 5) | (a >>> 27)) + e + W[i];
-                if (i < 20) {
+                var t = ((a << 5) | (a >>> 27)) + e + W[round];
+                if (round < 20) {
                     t += ((b & c) | (~b & d)) + 0x5a827999;
-                } else if (i < 40) {
+                } else if (round < 40) {
                     t += (b ^ c ^ d) + 0x6ed9eba1;
-                } else if (i < 60) {
+                } else if (round < 60) {
                     t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
-                } else /* if (i < 80) */ {
+                } else /* if (round < 80) */ {
                     t += (b ^ c ^ d) - 0x359d3e2a;
                 }
 

@@ -1,4 +1,8 @@
 (function (Math) {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -15,7 +19,7 @@
         function isPrime(n) {
             var sqrtN = Math.sqrt(n);
             for (var factor = 2; factor <= sqrtN; factor++) {
-                if (!(n % factor)) {
+                if (n % factor === 0) {
                     return false;
                 }
             }
@@ -69,21 +73,23 @@
             var h = H[7];
 
             // Computation
-            for (var i = 0; i < 64; i++) {
-                if (i < 16) {
-                    W[i] = M[offset + i] | 0;
+            for (var round = 0; round < 64; round++) {
+                if (round < 16) {
+                    W[round] = M[offset + round] | 0;
                 } else {
-                    var gamma0x = W[i - 15];
-                    var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
-                                  ((gamma0x << 14) | (gamma0x >>> 18)) ^
-                                   (gamma0x >>> 3);
+                    var gamma0x = W[round - 15];
+                    var gamma0  =
+                        ((gamma0x << 25) | (gamma0x >>> 7)) ^
+                        ((gamma0x << 14) | (gamma0x >>> 18)) ^
+                         (gamma0x >>> 3);
 
-                    var gamma1x = W[i - 2];
-                    var gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
-                                  ((gamma1x << 13) | (gamma1x >>> 19)) ^
-                                   (gamma1x >>> 10);
+                    var gamma1x = W[round - 2];
+                    var gamma1  =
+                        ((gamma1x << 15) | (gamma1x >>> 17)) ^
+                        ((gamma1x << 13) | (gamma1x >>> 19)) ^
+                         (gamma1x >>> 10);
 
-                    W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16];
+                    W[round] = gamma0 + W[round - 7] + gamma1 + W[round - 16];
                 }
 
                 var ch  = (e & f) ^ (~e & g);
@@ -92,7 +98,7 @@
                 var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
                 var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
 
-                var t1 = h + sigma1 + ch + K[i] + W[i];
+                var t1 = h + sigma1 + ch + K[round] + W[round];
                 var t2 = sigma0 + maj;
 
                 h = g;

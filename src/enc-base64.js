@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -8,7 +12,7 @@
     /**
      * Base64 encoding strategy.
      */
-    var Base64 = C_enc.Base64 = {
+    /*var Base64 =*/ C_enc.Base64 = {
         /**
          * Converts a word array to a Base64 string.
          *
@@ -93,7 +97,9 @@
                 if (i % 4) {
                     var bitsHigh = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);
                     var bitsLow  = map.indexOf(base64Str.charAt(i)) >>> (6 - (i % 4) * 2);
+
                     words[nBytes >>> 2] |= (bitsHigh | bitsLow) << (24 - (nBytes % 4) * 8);
+
                     nBytes++;
                 }
             }
