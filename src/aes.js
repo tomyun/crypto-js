@@ -122,7 +122,7 @@
                         );
 
                         // Mix Rcon
-                        t ^= RCON[(ksRow / keySize) | 0] << 24;
+                        t ^= RCON[ksRow / keySize] << 24;
                     } else if (keySize > 6 && ksRow % keySize == 4) {
                         // Sub word
                         t = (
@@ -196,20 +196,20 @@
     function doCryptBlock(M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
         /*jshint validthis:true */
 
-        // Shortcut
-        var nRounds = this._nRounds;
-
         // Get input, add round key
         var s0 = M[offset]     ^ keySchedule[0];
         var s1 = M[offset + 1] ^ keySchedule[1];
         var s2 = M[offset + 2] ^ keySchedule[2];
         var s3 = M[offset + 3] ^ keySchedule[3];
 
-        // Temp state values
-        var t0, t1, t2, t3;
-
         // Key schedule row counter
         var ksRow = 4;
+
+        // Shortcut
+        var nRounds = this._nRounds;
+
+        // Temp state values
+        var t0, t1, t2, t3;
 
         // Rounds
         for (var round = 1; round < nRounds; round++) {
