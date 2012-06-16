@@ -218,7 +218,7 @@
     });
 
     /**
-     * Mode namespace.
+     * Block cipher mode namespace.
      */
     var C_mode = C.mode = {};
 

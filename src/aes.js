@@ -205,11 +205,11 @@
         // Key schedule row counter
         var ksRow = 4;
 
-        // Shortcut
-        var nRounds = this._nRounds;
-
         // Temp state values
         var t0, t1, t2, t3;
+
+        // Shortcut
+        var nRounds = this._nRounds;
 
         // Rounds
         for (var round = 1; round < nRounds; round++) {
