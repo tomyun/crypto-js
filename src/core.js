@@ -587,10 +587,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Count bytes ready
             var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
 
-            // The data after processing
-            var processedWords;
-
             // Process blocks
+            var processedWords;
             if (nWordsReady) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
                     // Perform concrete-algorithm logic
@@ -626,7 +624,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     });
 
     /**
-     * Abstract hasher template.
+     * Abstract base hasher template.
      *
      * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
      */
