@@ -36,6 +36,13 @@ YUI.add('enc-base64-test', function (Y) {
             Y.Assert.areEqual('Pj4+Pz8/Pj4+Pz8/PS8r', C.enc.Base64.stringify(C.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15)));
         },
 
+        testStringifyLineLength: function () {
+            var words = C.enc.Base64.parse('Pj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8r');
+
+            Y.Assert.areEqual('Pj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8rPj4+\nPz8/Pj4+Pz8/PS8r', C.enc.Base64.stringify(words, 64));
+            Y.Assert.areEqual('Pj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/PS8rPj4+Pz8/Pj4+Pz8/\nPS8r', C.enc.Base64.stringify(words, 76));
+        },
+
         testParse0: function () {
             Y.Assert.areEqual(C.lib.WordArray.create([0x666f6f62, 0x61720000], 0).toString(), C.enc.Base64.parse('').toString());
         },
@@ -68,7 +75,7 @@ YUI.add('enc-base64-test', function (Y) {
             Y.Assert.areEqual(C.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15).toString(), C.enc.Base64.parse('Pj4+Pz8/Pj4+Pz8/PS8r').toString());
         },
 
-        testParseNewline: function () {
+        testParseWhitespaces: function () {
             Y.Assert.areEqual(C.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15).toString(), C.enc.Base64.parse('Pj4+P\nz8/Pj4+Pz8\n/PS8r').toString());
         }
     }));

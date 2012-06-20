@@ -222,6 +222,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Converts this word array to a string.
          *
          * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
+         * @param {*} * (Optional) Additional arguments to pass to the encoder.
          *
          * @return {string} The stringified word array.
          *
@@ -229,10 +230,17 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          *     var string = wordArray + '';
          *     var string = wordArray.toString();
-         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+         *     var string = wordArray.toString(CryptoJS.enc.Base64);
+         *     var string = wordArray.toString(CryptoJS.enc.Base64, 76);
          */
         toString: function (encoder) {
-            return (encoder || Hex).stringify(this);
+            encoder = encoder || Hex;
+
+            // Prepare encoder arguments
+            var encoderArguments = Array.prototype.slice.call(arguments, 1);
+            encoderArguments.unshift(this);
+
+            return encoder.stringify.apply(encoder, encoderArguments);
         },
 
         /**
@@ -401,15 +409,15 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     };
 
     /**
-     * Latin1 encoding strategy.
+     * Latin-1 encoding strategy.
      */
     var Latin1 = C_enc.Latin1 = {
         /**
-         * Converts a word array to a Latin1 string.
+         * Converts a word array to a Latin-1 string.
          *
          * @param {WordArray} wordArray The word array.
          *
-         * @return {string} The Latin1 string.
+         * @return {string} The Latin-1 string.
          *
          * @static
          *
@@ -433,9 +441,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         },
 
         /**
-         * Converts a Latin1 string to a word array.
+         * Converts a Latin-1 string to a word array.
          *
-         * @param {string} latin1Str The Latin1 string.
+         * @param {string} latin1Str The Latin-1 string.
          *
          * @return {WordArray} The word array.
          *

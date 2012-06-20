@@ -24,6 +24,10 @@ YUI.add('lib-wordarray-test', function (Y) {
             Y.Assert.areEqual('12345678', C.lib.WordArray.create([0x12345678]).toString());
         },
 
+        testToStringEncoderArguments: function () {
+            Y.Assert.areEqual('Zm9v\nYmFy', C.lib.WordArray.create([0x666f6f62, 0x61720000], 6).toString(C.enc.Base64, 4));
+        },
+
         testConcat3: function () {
             var wordArray1 = C.lib.WordArray.create([0x12345678], 3);
             var wordArray2 = C.lib.WordArray.create([0x12345678], 3);

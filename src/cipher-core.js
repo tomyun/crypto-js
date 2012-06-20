@@ -376,7 +376,7 @@
     /**
      * PKCS #5/7 padding strategy.
      */
-    var Pkcs7 = C_pad.Pkcs7 = {
+    var PKCS7 = C_pad.PKCS7 = {
         /**
          * Pads data using the algorithm defined in PKCS #5/7.
          *
@@ -387,7 +387,7 @@
          *
          * @example
          *
-         *     CryptoJS.pad.Pkcs7.pad(wordArray, 4);
+         *     CryptoJS.pad.PKCS7.pad(wordArray, 4);
          */
         pad: function (data, blockSize) {
             // Shortcut
@@ -419,7 +419,7 @@
          *
          * @example
          *
-         *     CryptoJS.pad.Pkcs7.unpad(wordArray);
+         *     CryptoJS.pad.PKCS7.unpad(wordArray);
          */
         unpad: function (data) {
             // Get number of padding bytes from last byte
@@ -431,6 +431,11 @@
     };
 
     /**
+     * @bc
+     */
+    C_pad.Pkcs7 = PKCS7;
+
+    /**
      * Abstract base block cipher template.
      *
      * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
@@ -440,11 +445,11 @@
          * Configuration options.
          *
          * @property {Mode} mode The block mode to use. Default: CBC
-         * @property {Padding} padding The padding strategy to use. Default: Pkcs7
+         * @property {Padding} padding The padding strategy to use. Default: PKCS7
          */
         cfg: Cipher.cfg.extend({
             mode: CBC,
-            padding: Pkcs7
+            padding: PKCS7
         }),
 
         reset: function () {
@@ -527,7 +532,7 @@
          *         salt: saltWordArray,
          *         algorithm: CryptoJS.algo.AES,
          *         mode: CryptoJS.mode.CBC,
-         *         padding: CryptoJS.pad.Pkcs7,
+         *         padding: CryptoJS.pad.PKCS7,
          *         blockSize: 4,
          *         formatter: CryptoJS.format.OpenSSL
          *     });
@@ -579,25 +584,16 @@
          *     var openSSLString = CryptoJS.format.OpenSSL.stringify(cipherParams);
          */
         stringify: function (cipherParams) {
-            /*jshint regexp:false */
-
             // Shortcuts
             var ciphertext = cipherParams.ciphertext;
             var salt = cipherParams.salt;
 
-            // Format
-            var openSSLWordArray;
+            // Prepend salt
             if (salt) {
-                openSSLWordArray = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
-            } else {
-                openSSLWordArray = ciphertext;
+                ciphertext = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
             }
-            var openSSLStr = openSSLWordArray.toString(Base64);
 
-            // Limit lines to 64 characters
-            openSSLStr = openSSLStr.replace(/(.{64})/g, '$1\n');
-
-            return openSSLStr;
+            return ciphertext.toString(Base64, 64);
         },
 
         /**
@@ -801,6 +797,11 @@
     };
 
     /**
+     * @bc
+     */
+    OpenSSLKdf.execute = OpenSSLKdf.compute;
+
+    /**
      * A serializable cipher wrapper that derives the key from a password,
      * and returns ciphertext as a serializable cipher params object.
      */
@@ -833,7 +834,11 @@
          *         CryptoJS.algo.AES, message, 'password'
          *     );
          *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(
-         *         CryptoJS.algo.AES, message, 'password', { format: CryptoJS.format.OpenSSL }
+         *         CryptoJS.algo.AES, message, 'password', { kdf: CryptoJS.kdf.OpenSSL }
+         *     );
+         *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(
+         *         CryptoJS.algo.AES, message, 'password',
+         *         { kdf: CryptoJS.kdf.OpenSSL, format: CryptoJS.format.OpenSSL }
          *     );
          */
         encrypt: function (cipher, message, password, cfg) {
@@ -870,10 +875,10 @@
          * @example
          *
          *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(
-         *         CryptoJS.algo.AES, formattedCiphertext, 'password', { format: CryptoJS.format.OpenSSL }
+         *         CryptoJS.algo.AES, formattedCiphertext, 'password'
          *     );
          *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(
-         *         CryptoJS.algo.AES, ciphertextParams, 'password', { format: CryptoJS.format.OpenSSL }
+         *         CryptoJS.algo.AES, ciphertextParams, 'password'
          *     );
          */
         decrypt: function (cipher, ciphertext, password, cfg) {

@@ -17,6 +17,7 @@
          * Converts a word array to a Base64 string.
          *
          * @param {WordArray} wordArray The word array.
+         * @param {number} maxLineLength (Optional) The maximum encoded line length. Default, no limit.
          *
          * @return {string} The Base64 string.
          *
@@ -25,8 +26,9 @@
          * @example
          *
          *     var base64String = CryptoJS.enc.Base64.stringify(wordArray);
+         *     var base64String = CryptoJS.enc.Base64.stringify(wordArray, 76);
          */
-        stringify: function (wordArray) {
+        stringify: function (wordArray, maxLineLength) {
             // Shortcuts
             var words = wordArray.words;
             var sigBytes = wordArray.sigBytes;
@@ -57,7 +59,15 @@
                 }
             }
 
-            return base64Chars.join('');
+            // All together now
+            var base64Str = base64Chars.join('');
+
+            // Limit line length
+            if (maxLineLength) {
+                base64Str = base64Str.replace(new RegExp('(.{' + maxLineLength + '})(?=.)', 'g'), '$1\n');
+            }
+
+            return base64Str;
         },
 
         /**
