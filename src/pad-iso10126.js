@@ -1,24 +1,41 @@
-/**
- * ISO 10126 padding strategy.
- */
-CryptoJS.pad.Iso10126 = {
-    pad: function (data, blockSize) {
-        // Shortcut
-        var blockSizeBytes = blockSize * 4;
+(function () {
+    /*global CryptoJS:true */
 
-        // Count padding bytes
-        var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+    'use strict';
 
-        // Pad
-        data.concat(CryptoJS.lib.WordArray.random(nPaddingBytes - 1)).
-             concat(CryptoJS.lib.WordArray.create([nPaddingBytes << 24], 1));
-    },
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var C_pad = C.pad;
 
-    unpad: function (data) {
-        // Get number of padding bytes from last byte
-        var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+    /**
+     * ISO 10126 padding strategy.
+     */
+    var ISO10126 = C_pad.ISO10126 = {
+        pad: function (data, blockSize) {
+            // Shortcut
+            var blockSizeBytes = blockSize * 4;
 
-        // Remove padding
-        data.sigBytes -= nPaddingBytes;
-    }
-};
+            // Count padding bytes
+            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+
+            // Pad
+            data.concat(WordArray.random(nPaddingBytes - 1)).
+                 concat(WordArray.create([nPaddingBytes << 24], 1));
+        },
+
+        unpad: function (data) {
+            // Get number of padding bytes from last byte
+            var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+
+            // Remove padding
+            data.sigBytes -= nPaddingBytes;
+        }
+    };
+
+    /**
+     * @bc
+     */
+    C_pad.Iso10126 = ISO10126;
+}());

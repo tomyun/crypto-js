@@ -1,29 +1,44 @@
-/**
- * ANSI X.923 padding strategy.
- */
-CryptoJS.pad.AnsiX923 = {
-    pad: function (data, blockSize) {
-        // Shortcuts
-        var dataSigBytes = data.sigBytes;
-        var blockSizeBytes = blockSize * 4;
+(function () {
+    /*global CryptoJS:true */
 
-        // Count padding bytes
-        var nPaddingBytes = blockSizeBytes - dataSigBytes % blockSizeBytes;
+    'use strict';
 
-        // Compute last byte position
-        var lastBytePos = dataSigBytes + nPaddingBytes - 1;
+    // Shortcuts
+    var C = CryptoJS;
+    var C_pad = C.pad;
 
-        // Pad
-        data.clamp();
-        data.words[lastBytePos >>> 2] |= nPaddingBytes << (24 - (lastBytePos % 4) * 8);
-        data.sigBytes += nPaddingBytes;
-    },
+    /**
+     * ANSI X.923 padding strategy.
+     */
+    var ANSIX923 = C_pad.ANSIX923 = {
+        pad: function (data, blockSize) {
+            // Shortcuts
+            var dataSigBytes = data.sigBytes;
+            var blockSizeBytes = blockSize * 4;
 
-    unpad: function (data) {
-        // Get number of padding bytes from last byte
-        var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+            // Count padding bytes
+            var nPaddingBytes = blockSizeBytes - dataSigBytes % blockSizeBytes;
 
-        // Remove padding
-        data.sigBytes -= nPaddingBytes;
-    }
-};
+            // Compute last byte position
+            var lastBytePos = dataSigBytes + nPaddingBytes - 1;
+
+            // Pad
+            data.clamp();
+            data.words[lastBytePos >>> 2] |= nPaddingBytes << (24 - (lastBytePos % 4) * 8);
+            data.sigBytes += nPaddingBytes;
+        },
+
+        unpad: function (data) {
+            // Get number of padding bytes from last byte
+            var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+
+            // Remove padding
+            data.sigBytes -= nPaddingBytes;
+        }
+    };
+
+    /**
+     * @bc
+     */
+    C_pad.AnsiX923 = ANSIX923;
+}());
