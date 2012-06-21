@@ -1,20 +1,32 @@
-/**
- * Electronic Codebook block mode.
- */
-CryptoJS.mode.ECB = (function () {
-    var ECB = CryptoJS.lib.BlockCipherMode.extend();
+(function () {
+    /*global CryptoJS:true */
 
-    ECB.Encryptor = ECB.extend({
-        processBlock: function (words, offset) {
-            this._cipher.encryptBlock(words, offset);
-        }
-    });
+    'use strict';
 
-    ECB.Decryptor = ECB.extend({
-        processBlock: function (words, offset) {
-            this._cipher.decryptBlock(words, offset);
-        }
-    });
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var BlockCipherMode = C_lib.BlockCipherMode;
+    var C_mode = C.mode;
 
-    return ECB;
+    /**
+     * Electronic Codebook mode.
+     */
+    /*var ECB =*/ C_mode.ECB = (function () {
+        var ECB = BlockCipherMode.extend();
+
+        ECB.Encryptor = ECB.extend({
+            processBlock: function (words, offset) {
+                this._cipher.encryptBlock(words, offset);
+            }
+        });
+
+        ECB.Decryptor = ECB.extend({
+            processBlock: function (words, offset) {
+                this._cipher.decryptBlock(words, offset);
+            }
+        });
+
+        return ECB;
+    }());
 }());

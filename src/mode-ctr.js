@@ -1,38 +1,48 @@
-/**
- * Counter block mode.
- */
-CryptoJS.mode.CTR = (function () {
-    var CTR = CryptoJS.lib.BlockCipherMode.extend();
+(function () {
+    /*global CryptoJS:true */
 
-    var Encryptor = CTR.Encryptor = CTR.extend({
-        processBlock: function (words, offset) {
-            // Shortcuts
-            var cipher = this._cipher
-            var blockSize = cipher.blockSize;
-            var iv = this._iv;
-            var counter = this._counter;
+    'use strict';
 
-            // Generate keystream
-            if (iv) {
-                counter = this._counter = iv.slice(0);
+    // Shortcuts
+    var C = CryptoJS;
+    var C_lib = C.lib;
+    var BlockCipherMode = C_lib.BlockCipherMode;
+    var C_mode = C.mode;
 
-                // Remove IV for subsequent blocks
-                this._iv = undefined;
+    /**
+     * Counter mode.
+     */
+    /*var CTR =*/ C_mode.CTR = (function () {
+        var CTR = BlockCipherMode.extend();
+
+        CTR.Encryptor = CTR.Decryptor = CTR.extend({
+            processBlock: function (words, offset) {
+                // Shortcuts
+                var cipher = this._cipher;
+                var blockSize = cipher.blockSize;
+                var iv = this._iv;
+                var counter = this._counter;
+
+                // Generate keystream
+                if (iv) {
+                    counter = this._counter = iv.slice(0);
+
+                    // Remove IV for subsequent blocks
+                    this._iv = undefined;
+                }
+                var keystream = counter.slice(0);
+                cipher.encryptBlock(keystream, 0);
+
+                // Increment counter
+                counter[blockSize - 1] = (counter[blockSize - 1] + 1) | 0;
+
+                // Encrypt
+                for (var i = 0; i < blockSize; i++) {
+                    words[offset + i] ^= keystream[i];
+                }
             }
-            var keystream = counter.slice(0);
-            cipher.encryptBlock(keystream, 0);
+        });
 
-            // Increment counter
-            counter[blockSize - 1] = (counter[blockSize - 1] + 1) | 0
-
-            // Encrypt
-            for (var i = 0; i < blockSize; i++) {
-                words[offset + i] ^= keystream[i];
-            }
-        }
-    });
-
-    CTR.Decryptor = Encryptor;
-
-    return CTR;
+        return CTR;
+    }());
 }());
