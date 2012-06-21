@@ -99,6 +99,7 @@
 
         /**
          * Finalizes the HMAC computation.
+         *
          * Note that the finalize operation is effectively a destructive, read-once operation.
          *
          * @param {WordArray|string} messageUpdate (Optional) A final message update.
@@ -118,7 +119,8 @@
             // Compute HMAC
             var innerHash = hasher.finalize(messageUpdate);
             hasher.reset();
-            var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
+
+            var hmac = hasher.update(this._oKey).finalize(innerHash);
 
             return hmac;
         }
