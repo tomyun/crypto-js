@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -10,7 +14,7 @@
     var G = [];
 
     /**
-     * Rabbit stream cipher algorithm
+     * Rabbit stream cipher algorithm.
      */
     var Rabbit = C_algo.Rabbit = StreamCipher.extend({
         _doReset: function () {
@@ -41,14 +45,17 @@
             // Carry bit
             this._b = 0;
 
+            // Reusable iterator
+            var i;
+
             // Iterate the system four times
-            for (var i = 0; i < 4; i++) {
+            for (i = 0; i < 4; i++) {
                 nextState.call(this);
             }
 
             // Modify the counters
-            for (var i = 0; i < 8; i++) {
-                C[i] ^= X[(i + 4) & 7];
+            for (i = 0; i < 8; i++) {
+                C[i] ^= X[(i + 4) % 8];
             }
 
             // Shortcut
@@ -58,6 +65,7 @@
             if (iv) {
                 // Shortcuts
                 var IV = iv.words;
+
                 var IV0 = IV[0];
                 var IV1 = IV[1];
 
@@ -78,7 +86,7 @@
                 C[7] ^= i3;
 
                 // Iterate the system four times
-                for (var i = 0; i < 4; i++) {
+                for (i = 0; i < 4; i++) {
                     nextState.call(this);
                 }
             }
@@ -102,8 +110,7 @@
                 var Si = S[i];
 
                 // Swap endian
-                Si = (((Si << 8)  | (Si >>> 24)) & 0x00ff00ff) |
-                     (((Si << 24) | (Si >>> 8))  & 0xff00ff00);
+                Si = (((Si << 8) | (Si >>> 24)) & 0x00ff00ff) | (((Si << 24) | (Si >>> 8)) & 0xff00ff00);
 
                 // Encrypt
                 M[offset + i] ^= Si;
@@ -116,6 +123,8 @@
     });
 
     function nextState() {
+        /*jshint validthis:true */
+
         // Shortcuts
         var X = this._X;
         var C = this._C;
@@ -139,7 +148,7 @@
             var ga = gx & 0xffff;
             var gb = gx >>> 16;
 
-            // Calculate high and low result of squaring
+            // Compute high and low result of squaring
             var gh = ((((ga * ga) >>> 17) + ga * gb) >>> 15) + gb * gb;
             var gl = (((gx & 0xffff0000) * gx) | 0) + (((gx & 0x0000ffff) * gx) | 0);
 
