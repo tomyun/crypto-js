@@ -33,12 +33,12 @@
             for (var i = 0; i < 16; i++) {
                 // Shortcuts
                 var swapOffset = offset + i;
-                var swapWord = M[swapOffset];
+                var word = M[swapOffset];
 
                 // Swap
                 M[swapOffset] =
-                    (((swapWord << 8)  | (swapWord >>> 24)) & 0x00ff00ff) |
-                    (((swapWord << 24) | (swapWord >>> 8))  & 0xff00ff00);
+                    (((word << 8)  | (word >>> 24)) & 0x00ff00ff) |
+                    (((word << 24) | (word >>> 8))  & 0xff00ff00);
             }
 
             // Shortcut

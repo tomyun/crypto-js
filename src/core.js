@@ -123,16 +123,14 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              *     });
              */
             mixIn: function (properties) {
-                var propertyName;
-
-                for (propertyName in properties) {
+                for (var propertyName in properties) {
                     if (properties.hasOwnProperty(propertyName)) {
                         this[propertyName] = properties[propertyName];
                     }
                 }
 
                 for (var i = 0; i < NON_ENUMERABLES_LENGTH; i++) {
-                    propertyName = NON_ENUMERABLES[i];
+                    var propertyName = NON_ENUMERABLES[i];
 
                     if (properties.hasOwnProperty(propertyName)) {
                         this[propertyName] = properties[propertyName];
@@ -265,16 +263,15 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             this.clamp();
 
             // Concat
-            var i;
             if (thisSigBytes % 4) {
                 // Copy one byte at a time
-                for (i = 0; i < thatSigBytes; i++) {
+                for (var i = 0; i < thatSigBytes; i++) {
                     var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                     thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
                 }
             } else if (thatWords.length > 0xffff) {
                 // Copy one word at a time
-                for (i = 0; i < thatSigBytes; i += 4) {
+                for (var i = 0; i < thatSigBytes; i += 4) {
                     thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
                 }
             } else {

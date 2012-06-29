@@ -23,12 +23,9 @@
 
     // Compute lookup tables
     (function () {
-        // Reusable iterator
-        var i;
-
         // Compute double table
         var d = [];
-        for (i = 0; i < 256; i++) {
+        for (var i = 0; i < 256; i++) {
             if (i < 128) {
                 d[i] = i << 1;
             } else {
@@ -39,7 +36,7 @@
         // Walk GF(2^8)
         var x = 0;
         var xi = 0;
-        for (i = 0; i < 256; i++) {
+        for (var i = 0; i < 256; i++) {
             // Compute sbox
             var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
             sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
@@ -51,18 +48,15 @@
             var x4 = d[x2];
             var x8 = d[x4];
 
-            // Reusable temp value
-            var t;
-
             // Compute sub bytes, mix columns tables
-            t = (d[sx] * 0x101) ^ (sx * 0x1010100);
+            var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
             SUB_MIX_0[x] = (t << 24) | (t >>> 8);
             SUB_MIX_1[x] = (t << 16) | (t >>> 16);
             SUB_MIX_2[x] = (t << 8)  | (t >>> 24);
             SUB_MIX_3[x] = t;
 
             // Compute inv sub bytes, inv mix columns tables
-            t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
+            var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
             INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
             INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
             INV_SUB_MIX_2[sx] = (t << 8)  | (t >>> 24);
@@ -97,19 +91,13 @@
             // Compute number of key schedule rows
             var ksRows = (nRounds + 1) * 4;
 
-            // Key schedule row
-            var ksRow;
-
-            // Reusable temp value
-            var t;
-
             // Compute key schedule
             var keySchedule = this._keySchedule = [];
-            for (ksRow = 0; ksRow < ksRows; ksRow++) {
+            for (var ksRow = 0; ksRow < ksRows; ksRow++) {
                 if (ksRow < keySize) {
                     keySchedule[ksRow] = keyWords[ksRow];
                 } else {
-                    t = keySchedule[ksRow - 1];
+                    var t = keySchedule[ksRow - 1];
 
                     if (ksRow % keySize === 0) {
                         // Rot word
@@ -138,8 +126,9 @@
             // Compute inv key schedule
             var invKeySchedule = this._invKeySchedule = [];
             for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
-                ksRow = ksRows - invKsRow;
+                var ksRow = ksRows - invKsRow;
 
+                var t;
                 if (invKsRow % 4) {
                     t = keySchedule[ksRow];
                 } else {
@@ -168,11 +157,8 @@
         },
 
         decryptBlock: function (M, offset) {
-            // Reusable temp value
-            var t;
-
             // Swap 2nd and 4th rows
-            t = M[offset + 1];
+            var t = M[offset + 1];
             M[offset + 1] = M[offset + 3];
             M[offset + 3] = t;
 
@@ -185,7 +171,7 @@
             );
 
             // Inv swap 2nd and 4th rows
-            t = M[offset + 1];
+            var t = M[offset + 1];
             M[offset + 1] = M[offset + 3];
             M[offset + 3] = t;
         },
@@ -205,28 +191,25 @@
         // Key schedule row counter
         var ksRow = 4;
 
-        // Temp state values
-        var t0, t1, t2, t3;
-
         // Shortcut
         var nRounds = this._nRounds;
 
         // Rounds
         for (var round = 1; round < nRounds; round++) {
             // Shift rows, sub bytes, mix columns, add round key
-            t0 = (
+            var t0 = (
                 SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^
                 SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++]
             );
-            t1 = (
+            var t1 = (
                 SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^
                 SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++]
             );
-            t2 = (
+            var t2 = (
                 SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[(s3 >>> 16) & 0xff] ^
                 SUB_MIX_2[(s0 >>> 8) & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++]
             );
-            t3 = (
+            var t3 = (
                 SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[(s0 >>> 16) & 0xff] ^
                 SUB_MIX_2[(s1 >>> 8) & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++]
             );
@@ -239,19 +222,19 @@
         }
 
         // Shift rows, sub bytes, add round key
-        t0 = (
+        var t0 = (
                 (SBOX[s0 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xff] << 16) |
                 (SBOX[(s2 >>> 8) & 0xff] << 8) | SBOX[s3 & 0xff]
             ) ^ keySchedule[ksRow++];
-        t1 = (
+        var t1 = (
                 (SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) |
                 (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]
             ) ^ keySchedule[ksRow++];
-        t2 = (
+        var t2 = (
                 (SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) |
                 (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]
             ) ^ keySchedule[ksRow++];
-        t3 = (
+        var t3 = (
                 (SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) |
                 (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]
             ) ^ keySchedule[ksRow++];

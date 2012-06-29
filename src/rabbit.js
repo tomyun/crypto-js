@@ -42,19 +42,16 @@
                 (K1 << 16) | (K1 >>> 16), (K3 & 0xffff0000) | (K0 & 0x0000ffff)
             ];
 
-            // Carry bit
+            // Initial carry value
             this._b = 0;
 
-            // Reusable iterator
-            var i;
-
             // Iterate the system four times
-            for (i = 0; i < 4; i++) {
+            for (var i = 0; i < 4; i++) {
                 nextState.call(this);
             }
 
             // Modify the counters
-            for (i = 0; i < 8; i++) {
+            for (var i = 0; i < 8; i++) {
                 C[i] ^= X[(i + 4) % 8];
             }
 
@@ -86,7 +83,7 @@
                 C[7] ^= i3;
 
                 // Iterate the system four times
-                for (i = 0; i < 4; i++) {
+                for (var i = 0; i < 4; i++) {
                     nextState.call(this);
                 }
             }
