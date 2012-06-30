@@ -593,7 +593,7 @@
                 ciphertext = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
             }
 
-            return ciphertext.toString(Base64, 64);
+            return Base64.stringify(ciphertext, 64);
         },
 
         /**

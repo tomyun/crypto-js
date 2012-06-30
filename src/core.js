@@ -220,7 +220,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Converts this word array to a string.
          *
          * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
-         * @param {*} * (Optional) Additional arguments to pass to the encoder.
          *
          * @return {string} The stringified word array.
          *
@@ -228,17 +227,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          *     var string = wordArray + '';
          *     var string = wordArray.toString();
-         *     var string = wordArray.toString(CryptoJS.enc.Base64);
-         *     var string = wordArray.toString(CryptoJS.enc.Base64, 76);
+         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
          */
         toString: function (encoder) {
-            encoder = encoder || Hex;
-
-            // Prepare encoder arguments
-            var encoderArguments = Array.prototype.slice.call(arguments, 1);
-            encoderArguments.unshift(this);
-
-            return encoder.stringify.apply(encoder, encoderArguments);
+            return (encoder || Hex).stringify(this);
         },
 
         /**
