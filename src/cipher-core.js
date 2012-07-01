@@ -104,7 +104,7 @@
          */
         reset: function () {
             // Reset data buffer
-            BufferedBlockAlgorithm.reset.call(this);
+            this._reset();
 
             // Perform concrete-cipher logic
             this._doReset();

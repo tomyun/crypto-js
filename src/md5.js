@@ -36,9 +36,10 @@
                 var word = M[swapOffset];
 
                 // Swap
-                M[swapOffset] =
+                M[swapOffset] = (
                     (((word << 8)  | (word >>> 24)) & 0x00ff00ff) |
-                    (((word << 24) | (word >>> 8))  & 0xff00ff00);
+                    (((word << 24) | (word >>> 8))  & 0xff00ff00)
+                );
             }
 
             // Shortcut
@@ -50,7 +51,7 @@
             var c = H[2];
             var d = H[3];
 
-            // Computation
+            // Rounds
             for (var round = 0; round < 64; round += 4) {
                 if (round < 16) {
                     a = FF(a, b, c, d, M[offset + round],     7,  T[round]);
@@ -92,9 +93,10 @@
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] =
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
                 (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
-                (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00);
+                (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
+            );
             data.sigBytes = (dataWords.length + 1) * 4;
 
             // Hash final blocks
@@ -109,9 +111,10 @@
                 var word = H[i];
 
                 // Swap
-                H[i] =
+                H[i] = (
                     (((word << 8)  | (word >>> 24)) & 0x00ff00ff) |
-                    (((word << 24) | (word >>> 8))  & 0xff00ff00);
+                    (((word << 24) | (word >>> 8))  & 0xff00ff00)
+                );
             }
         }
     });

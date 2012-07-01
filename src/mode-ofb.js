@@ -1,4 +1,4 @@
-(function () {
+(function (undefined) {
     /*global CryptoJS:true */
 
     'use strict';

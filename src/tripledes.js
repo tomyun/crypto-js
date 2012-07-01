@@ -1,4 +1,8 @@
 ﻿(function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -30,7 +34,7 @@
     ];
 
     // Cumulative bit shift constants
-    var BIT_SHIFTS = [1,  2,  4,  6,  8,  10, 12, 14, 15, 17, 19, 21, 23, 25, 27, 28];
+    var BIT_SHIFTS = [1, 2, 4, 6, 8, 10, 12, 14, 15, 17, 19, 21, 23, 25, 27, 28];
 
     // SBOXes and precomputed round permutation constants
     var SBOX_P = [
@@ -180,8 +184,8 @@
         }
     ];
 
-    // Masks that select the SBOX input
-    var SBOX_MASK = [
+    // SBOX input masks
+    var SBOX_MASKS = [
         0xf8000001, 0x1f800000, 0x01f80000, 0x001f8000,
         0x0001f800, 0x00001f80, 0x000001f8, 0x8000001f
     ];
@@ -238,56 +242,11 @@
         },
 
         encryptBlock: function (M, offset) {
-            this._doCryptBlock(M, offset, this._subKeys);
+            doCryptBlock.call(this, M, offset, this._subKeys);
         },
 
         decryptBlock: function (M, offset) {
-            this._doCryptBlock(M, offset, this._invSubKeys);
-        },
-
-        _doCryptBlock: function (M, offset, subKeys) {
-            // Get input
-            this._lBlock = M[offset];
-            this._rBlock = M[offset + 1];
-
-            // Initial permutation
-            exchangeLR.call(this, 4,  0x0f0f0f0f);
-            exchangeLR.call(this, 16, 0x0000ffff);
-            exchangeRL.call(this, 2,  0x33333333);
-            exchangeRL.call(this, 8,  0x00ff00ff);
-            exchangeLR.call(this, 1,  0x55555555);
-
-            // Rounds
-            for (var round = 0; round < 16; round++) {
-                // Shortcuts
-                var subKey = subKeys[round];
-                var lBlock = this._lBlock;
-                var rBlock = this._rBlock;
-
-                // Feistel function
-                var f = 0;
-                for (var i = 0; i < 8; i++) {
-                    f |= SBOX_P[i][((rBlock ^ subKey[i]) & SBOX_MASK[i]) >>> 0];
-                }
-                this._lBlock = rBlock;
-                this._rBlock = lBlock ^ f;
-            }
-
-            // Undo swap from last round
-            var t = this._lBlock;
-            this._lBlock = this._rBlock;
-            this._rBlock = t;
-
-            // Final permutation
-            exchangeLR.call(this, 1,  0x55555555);
-            exchangeRL.call(this, 8,  0x00ff00ff);
-            exchangeRL.call(this, 2,  0x33333333);
-            exchangeLR.call(this, 16, 0x0000ffff);
-            exchangeLR.call(this, 4,  0x0f0f0f0f);
-
-            // Set output
-            M[offset] = this._lBlock;
-            M[offset + 1] = this._rBlock;
+            doCryptBlock.call(this, M, offset, this._invSubKeys);
         },
 
         keySize: 64/32,
@@ -297,14 +256,65 @@
         blockSize: 64/32
     });
 
+    function doCryptBlock(M, offset, subKeys) {
+        /*jshint validthis:true */
+
+        // Get input
+        this._lBlock = M[offset];
+        this._rBlock = M[offset + 1];
+
+        // Initial permutation
+        exchangeLR.call(this, 4,  0x0f0f0f0f);
+        exchangeLR.call(this, 16, 0x0000ffff);
+        exchangeRL.call(this, 2,  0x33333333);
+        exchangeRL.call(this, 8,  0x00ff00ff);
+        exchangeLR.call(this, 1,  0x55555555);
+
+        // Rounds
+        for (var round = 0; round < 16; round++) {
+            // Shortcuts
+            var subKey = subKeys[round];
+            var lBlock = this._lBlock;
+            var rBlock = this._rBlock;
+
+            // Feistel function
+            var f = 0;
+            for (var i = 0; i < 8; i++) {
+                f |= SBOX_P[i][((rBlock ^ subKey[i]) & SBOX_MASKS[i]) >>> 0];
+            }
+            this._lBlock = rBlock;
+            this._rBlock = lBlock ^ f;
+        }
+
+        // Undo swap from last round
+        var t = this._lBlock;
+        this._lBlock = this._rBlock;
+        this._rBlock = t;
+
+        // Final permutation
+        exchangeLR.call(this, 1,  0x55555555);
+        exchangeRL.call(this, 8,  0x00ff00ff);
+        exchangeRL.call(this, 2,  0x33333333);
+        exchangeLR.call(this, 16, 0x0000ffff);
+        exchangeLR.call(this, 4,  0x0f0f0f0f);
+
+        // Set output
+        M[offset]     = this._lBlock;
+        M[offset + 1] = this._rBlock;
+    }
+
     // Swap bits across the left and right words
     function exchangeLR(offset, mask) {
+        /*jshint validthis:true */
+
         var t = ((this._lBlock >>> offset) ^ this._rBlock) & mask;
         this._rBlock ^= t;
         this._lBlock ^= t << offset;
     }
 
     function exchangeRL(offset, mask) {
+        /*jshint validthis:true */
+
         var t = ((this._rBlock >>> offset) ^ this._lBlock) & mask;
         this._lBlock ^= t;
         this._rBlock ^= t << offset;

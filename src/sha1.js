@@ -32,7 +32,7 @@
             var d = H[3];
             var e = H[4];
 
-            // Computation
+            // Rounds
             for (var round = 0; round < 80; round++) {
                 if (round < 16) {
                     W[round] = M[offset + round] | 0;

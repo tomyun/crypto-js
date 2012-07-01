@@ -1,4 +1,8 @@
 (function () {
+    /*global CryptoJS:true */
+
+    'use strict';
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -48,6 +52,8 @@
     });
 
     function generateKeystreamWord() {
+        /*jshint validthis:true */
+
         // Shortcuts
         var S = this._S;
         var i = this._i;

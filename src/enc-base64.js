@@ -101,8 +101,7 @@
             }
 
             // Convert
-            var words = [];
-            var nBytes = 0;
+            var words = [], nBytes = 0;
             for (var i = 0; i < base64StrLength; i++) {
                 if (i % 4) {
                     var bitsHigh = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);

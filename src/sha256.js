@@ -31,8 +31,7 @@
             return ((n - (n | 0)) * 0x100000000) | 0;
         }
 
-        var n = 2;
-        var nPrime = 0;
+        var n = 2, nPrime = 0;
         while (nPrime < 64) {
             if (isPrime(n)) {
                 if (nPrime < 8) {
@@ -72,22 +71,24 @@
             var g = H[6];
             var h = H[7];
 
-            // Computation
+            // Rounds
             for (var round = 0; round < 64; round++) {
                 if (round < 16) {
                     W[round] = M[offset + round] | 0;
                 } else {
                     var gamma0x = W[round - 15];
-                    var gamma0  =
+                    var gamma0  = (
                         ((gamma0x << 25) | (gamma0x >>> 7)) ^
                         ((gamma0x << 14) | (gamma0x >>> 18)) ^
-                         (gamma0x >>> 3);
+                         (gamma0x >>> 3)
+                    );
 
                     var gamma1x = W[round - 2];
-                    var gamma1  =
+                    var gamma1  = (
                         ((gamma1x << 15) | (gamma1x >>> 17)) ^
                         ((gamma1x << 13) | (gamma1x >>> 19)) ^
-                         (gamma1x >>> 10);
+                         (gamma1x >>> 10)
+                    );
 
                     W[round] = gamma0 + W[round - 7] + gamma1 + W[round - 16];
                 }

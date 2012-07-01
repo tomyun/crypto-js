@@ -144,27 +144,31 @@
                     var gamma0x  = W[round - 15];
                     var gamma0xh = gamma0x.high;
                     var gamma0xl = gamma0x.low;
-                    var gamma0h  =
+                    var gamma0h  = (
                         ((gamma0xl << 31) | (gamma0xh >>> 1)) ^
                         ((gamma0xl << 24) | (gamma0xh >>> 8)) ^
-                         (gamma0xh >>> 7);
-                    var gamma0l  =
+                         (gamma0xh >>> 7)
+                    );
+                    var gamma0l  = (
                         ((gamma0xh << 31) | (gamma0xl >>> 1)) ^
                         ((gamma0xh << 24) | (gamma0xl >>> 8)) ^
-                        ((gamma0xh << 25) | (gamma0xl >>> 7));
+                        ((gamma0xh << 25) | (gamma0xl >>> 7))
+                    );
 
                     // Gamma1
                     var gamma1x  = W[round - 2];
                     var gamma1xh = gamma1x.high;
                     var gamma1xl = gamma1x.low;
-                    var gamma1h  =
+                    var gamma1h  = (
                         ((gamma1xl << 13) | (gamma1xh >>> 19)) ^
                         ((gamma1xh << 3)  | (gamma1xl >>> 29)) ^
-                         (gamma1xh >>> 6);
-                    var gamma1l  =
+                         (gamma1xh >>> 6)
+                    );
+                    var gamma1l  = (
                         ((gamma1xh << 13) | (gamma1xl >>> 19)) ^
                         ((gamma1xl << 3)  | (gamma1xh >>> 29)) ^
-                        ((gamma1xh << 26) | (gamma1xl >>> 6));
+                        ((gamma1xh << 26) | (gamma1xl >>> 6))
+                    );
 
                     // Shortcuts
                     var Wr7  = W[round - 7];

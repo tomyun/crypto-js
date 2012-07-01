@@ -34,8 +34,7 @@
         }
 
         // Walk GF(2^8)
-        var x = 0;
-        var xi = 0;
+        var x = 0, xi = 0;
         for (var i = 0; i < 256; i++) {
             // Compute sbox
             var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
@@ -55,7 +54,7 @@
             SUB_MIX_2[x] = (t << 8)  | (t >>> 24);
             SUB_MIX_3[x] = t;
 
-            // Compute inv sub bytes, inv mix columns tables
+            // Compute inv sub bytes, mix columns tables
             var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
             INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
             INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
@@ -89,7 +88,7 @@
             var nRounds = this._nRounds = keySize + 6;
 
             // Compute number of key schedule rows
-            var ksRows = (nRounds + 1) * 4;
+            var ksRows = nRounds * 4 + 4;
 
             // Compute key schedule
             var keySchedule = this._keySchedule = [];

@@ -516,9 +516,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
-         *     bufferedBlockAlgorithm.reset();
+         *     bufferedBlockAlgorithm._reset();
          */
-        reset: function () {
+        _reset: function () {
             // Initial values
             this._data = WordArray.create();
             this._nDataBytes = 0;
@@ -657,7 +657,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         reset: function () {
             // Reset data buffer
-            BufferedBlockAlgorithm.reset.call(this);
+            this._reset();
 
             // Perform concrete-hasher logic
             this._doReset();
