@@ -127,9 +127,7 @@
          */
         /*
         shiftL: function (n) {
-            var high;
-            var low;
-
+            var high, low;
             if (n < 32) {
                 high = (this.high << n) | (this.low >>> (32 - n));
                 low = this.low << n;
@@ -155,9 +153,7 @@
          */
         /*
         shiftR: function (n) {
-            var high;
-            var low;
-
+            var high, low;
             if (n < 32) {
                 low = (this.low >>> n) | (this.high << (32 - n));
                 high = this.high >>> n;
