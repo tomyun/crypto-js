@@ -17,7 +17,7 @@
          * Converts a word array to a Base64 string.
          *
          * @param {WordArray} wordArray The word array.
-         * @param {number} maxLineLength (Optional) The maximum encoded line length. Default, no limit.
+         * @param {number} maxLineLength (Optional) The maximum encoded line length. Default: No limit.
          *
          * @return {string} The Base64 string.
          *
@@ -47,7 +47,8 @@
                 var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
 
                 for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
-                    base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
+                    var index = (triplet >>> (6 * (3 - j))) & 0x3f;
+                    base64Chars.push(map.charAt(index));
                 }
             }
 
