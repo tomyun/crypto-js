@@ -34,14 +34,16 @@
 
             // Rounds
             for (var round = 0; round < 80; round++) {
+                var Wr;
                 if (round < 16) {
-                    W[round] = M[offset + round] | 0;
+                    Wr = M[offset + round] | 0;
                 } else {
                     var n = W[round - 3] ^ W[round - 8] ^ W[round - 14] ^ W[round - 16];
-                    W[round] = (n << 1) | (n >>> 31);
+                    Wr = (n << 1) | (n >>> 31);
                 }
+                W[round] = Wr;
 
-                var t = ((a << 5) | (a >>> 27)) + e + W[round];
+                var t = ((a << 5) | (a >>> 27)) + e + Wr;
                 if (round < 20) {
                     t += ((b & c) | (~b & d)) + 0x5a827999;
                 } else if (round < 40) {

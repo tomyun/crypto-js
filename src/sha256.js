@@ -73,8 +73,9 @@
 
             // Rounds
             for (var round = 0; round < 64; round++) {
+                var Wr;
                 if (round < 16) {
-                    W[round] = M[offset + round] | 0;
+                    Wr = M[offset + round] | 0;
                 } else {
                     var gamma0x = W[round - 15];
                     var gamma0  = (
@@ -90,8 +91,9 @@
                          (gamma1x >>> 10)
                     );
 
-                    W[round] = gamma0 + W[round - 7] + gamma1 + W[round - 16];
+                    Wr = gamma0 + W[round - 7] + gamma1 + W[round - 16];
                 }
+                W[round] = Wr;
 
                 var ch  = (e & f) ^ (~e & g);
                 var maj = (a & b) ^ (a & c) ^ (b & c);
@@ -99,7 +101,7 @@
                 var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
                 var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
 
-                var t1 = h + sigma1 + ch + K[round] + W[round];
+                var t1 = h + sigma1 + ch + K[round] + Wr;
                 var t2 = sigma0 + maj;
 
                 h = g;
