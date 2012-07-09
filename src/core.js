@@ -505,12 +505,17 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
     /**
      * Abstract buffered block algorithm template.
-     *
-     * The property blockSize must be implemented in a concrete subtype.
-     *
-     * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
      */
     var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+        /**
+         * Abstract number of words that this block algorithm operates on at a time.
+         *
+         * @type {number}
+         */
+        /*
+        blockSize,
+        */
+
         /**
          * Resets this block algorithm's data buffer to its initial state.
          *
@@ -602,6 +607,20 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         },
 
         /**
+         * Abstract method to process the data block at the given offset.
+         *
+         * @param {Array} dataWords An array of 32-bit numbers.
+         * @param {number} offset The offset to the start of the block to be processed.
+         *
+         * @example
+         *
+         *     bufferedBlockAlgorithm._doProcessBlock(data.words, 16);
+         */
+        /*
+        _doProcessBlock(dataWords, offset),
+        */
+
+        /**
          * Creates a copy of this object.
          *
          * @return {Object} The clone.
@@ -617,13 +636,16 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             return clone;
         },
 
+        /**
+         * The number of blocks that should be kept unprocessed in the buffer. Default: 0
+         *
+         * @type {number}
+         */
         _minBufferSize: 0
     });
 
     /**
      * Abstract base hasher template.
-     *
-     * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
      */
     /*var Hasher =*/ C_lib.Hasher = BufferedBlockAlgorithm.extend({
         /**
@@ -729,6 +751,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             return clone;
         },
 
+        /**
+         * The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+         *
+         * @type {number}
+         */
         blockSize: 512/32,
 
         /**
