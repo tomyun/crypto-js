@@ -508,15 +508,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
      */
     var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
         /**
-         * Abstract number of words that this block algorithm operates on at a time.
-         *
-         * @type {number}
-         */
-        /*
-        blockSize,
-        */
-
-        /**
          * Resets this block algorithm's data buffer to its initial state.
          *
          * @example
@@ -607,6 +598,15 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         },
 
         /**
+         * Abstract number of words that this block algorithm operates on at a time.
+         *
+         * @type {number}
+         */
+        /*
+        blockSize,
+        */
+
+        /**
          * Abstract method to process the data block at the given offset.
          *
          * @param {Array} dataWords An array of 32-bit numbers.
@@ -686,6 +686,13 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         },
 
         /**
+         * Abstract method to reset this hasher to its initial state.
+         */
+        /*
+        _doReset(),
+        */
+
+        /**
          * Updates this hasher with a message.
          *
          * @param {WordArray|string} messageUpdate The message to append.
@@ -734,6 +741,13 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
             return this._hash;
         },
+
+        /**
+         * Abstract method to finalize the hash computation.
+         */
+        /*
+        _doFinalize(),
+        */
 
         /**
          * Creates a copy of this object.
