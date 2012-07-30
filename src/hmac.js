@@ -14,7 +14,7 @@
     /**
      * HMAC algorithm.
      */
-    /*var HMAC =*/ C_algo.HMAC = Base.extend({
+    C_algo.HMAC = Base.extend({
         /**
          * Initializes a newly created HMAC.
          *
