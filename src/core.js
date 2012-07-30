@@ -544,8 +544,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Processes available data blocks.
          *
-         * This method invokes _doProcessBlock(dataWords, offset), which must be implemented by a concrete subtype.
-         *
          * @param {boolean} flush Whether all blocks and partial blocks should be processed.
          *
          * @return {WordArray} The data after processing.
@@ -617,7 +615,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     bufferedBlockAlgorithm._doProcessBlock(data.words, 16);
          */
         /*
-        _doProcessBlock(dataWords, offset),
+        _doProcessBlock: function (dataWords, offset),
         */
 
         /**
@@ -647,7 +645,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     /**
      * Abstract base hasher template.
      */
-    /*var Hasher =*/ C_lib.Hasher = BufferedBlockAlgorithm.extend({
+    C_lib.Hasher = BufferedBlockAlgorithm.extend({
         /**
          * Configuration options.
          */
@@ -689,7 +687,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Abstract method to reset this hasher to its initial state.
          */
         /*
-        _doReset(),
+        _doReset: function (),
         */
 
         /**
@@ -746,7 +744,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Abstract method to finalize the hash computation.
          */
         /*
-        _doFinalize(),
+        _doFinalize: function (),
         */
 
         /**
