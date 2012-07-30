@@ -12,7 +12,7 @@
     /**
      * UTF-16 BE encoding strategy.
      */
-    /*var Utf16 =*/ C_enc.Utf16 = {
+    C_enc.Utf16 = {
         /**
          * Converts a word array to a UTF-16 string.
          *

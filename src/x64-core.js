@@ -20,7 +20,7 @@
      * @property {number} high The high 32 bits.
      * @property {number} low The low 32 bits.
      */
-    /*var X64Word =*/ C_x64.Word = Base.extend({
+    C_x64.Word = Base.extend({
         /**
          * Initializes a newly created 64-bit word.
          *
@@ -228,7 +228,7 @@
      * @property {Array} words The array of X64Word objects.
      * @property {number} sigBytes The number of significant bytes in this word array.
      */
-    /*var X64WordArray =*/ C_x64.WordArray = Base.extend({
+    C_x64.WordArray = Base.extend({
         /**
          * Initializes a newly created word array.
          *

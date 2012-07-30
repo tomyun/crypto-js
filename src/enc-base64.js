@@ -12,7 +12,7 @@
     /**
      * Base64 encoding strategy.
      */
-    /*var Base64 =*/ C_enc.Base64 = {
+    C_enc.Base64 = {
         /**
          * Converts a word array to a Base64 string.
          *
