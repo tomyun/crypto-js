@@ -19,11 +19,6 @@
 
     /**
      * Abstract base cipher template.
-     *
-     * @property {number} keySize This cipher's key size. Default: 4 (128 bits)
-     * @property {number} ivSize This cipher's IV size. Default: 4 (128 bits)
-     * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
-     * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
      */
     var Cipher = C_lib.Cipher = BufferedBlockAlgorithm.extend({
         /**
@@ -111,6 +106,13 @@
         },
 
         /**
+         * Abstract method to reset this cipher to its initial state.
+         */
+        /*
+        _doReset: function (),
+        */
+
+        /**
          * Adds data to be encrypted or decrypted.
          *
          * @param {WordArray|string} dataUpdate The data to encrypt or decrypt.
@@ -157,12 +159,39 @@
             return finalProcessedData;
         },
 
+        /**
+         * Abstract method to finalize the encryption or decryption process.
+         */
+        /*
+        _doFinalize: function (),
+        */
+
+        /**
+         * This cipher's key size. Default: 4 (128 bits)
+         *
+         * @type {number}
+         */
         keySize: 128/32,
 
+        /**
+         * This cipher's IV size. Default: 4 (128 bits)
+         *
+         * @type {number}
+         */
         ivSize: 128/32,
 
+        /**
+         * A constant representing encryption mode.
+         *
+         * @type {number}
+         */
         _ENC_XFORM_MODE: 1,
 
+        /**
+         * A constant representing decryption mode.
+         *
+         * @type {number}
+         */
         _DEC_XFORM_MODE: 2,
 
         /**
