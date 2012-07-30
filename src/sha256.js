@@ -75,7 +75,7 @@
             for (var round = 0; round < 64; round++) {
                 var Wr;
                 if (round < 16) {
-                    Wr = M[offset + round] | 0;
+                    Wr = M[offset + round];
                 } else {
                     var gamma0x = W[round - 15];
                     var gamma0  = (
@@ -93,7 +93,7 @@
 
                     Wr = gamma0 + W[round - 7] + gamma1 + W[round - 16];
                 }
-                W[round] = Wr;
+                W[round] = Wr |= 0;
 
                 var ch  = (e & f) ^ (~e & g);
                 var maj = (a & b) ^ (a & c) ^ (b & c);

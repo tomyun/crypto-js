@@ -137,8 +137,8 @@
                 // Extend message
                 var Wrh, Wrl;
                 if (round < 16) {
-                    Wrh = M[offset + round * 2]     | 0;
-                    Wrl = M[offset + round * 2 + 1] | 0;
+                    Wrh = M[offset + round * 2];
+                    Wrl = M[offset + round * 2 + 1];
                 } else {
                     // Gamma0
                     var gamma0x  = W[round - 15];
@@ -182,13 +182,13 @@
                     // W[round] = gamma0 + W[round - 7] + gamma1 + W[round - 16]
                     Wrl = gamma0l + Wr7l;
                     Wrh = gamma0h + Wr7h + ((Wrl >>> 0) < (gamma0l >>> 0) ? 1 : 0);
-                    Wrl = Wrl + gamma1l;
-                    Wrh = Wrh + gamma1h + ((Wrl >>> 0) < (gamma1l >>> 0) ? 1 : 0);
-                    Wrl = Wrl + Wr16l;
-                    Wrh = Wrh + Wr16h + ((Wrl >>> 0) < (Wr16l >>> 0) ? 1 : 0);
+                    Wrl += gamma1l;
+                    Wrh += gamma1h + ((Wrl >>> 0) < (gamma1l >>> 0) ? 1 : 0);
+                    Wrl += Wr16l;
+                    Wrh += Wr16h + ((Wrl >>> 0) < (Wr16l >>> 0) ? 1 : 0);
                 }
-                Wr.high = Wrh;
-                Wr.low  = Wrl;
+                Wr.high = Wrh |= 0;
+                Wr.low  = Wrl |= 0;
 
                 // Ch
                 var chh = (eh & fh) ^ (~eh & gh);
@@ -212,15 +212,14 @@
                 var Krl = Kr.low;
 
                 // t1 = h + sigma1 + ch + K[round] + W[round]
-                var t1h, t1l;
-                t1l = hl + sigma1l;
-                t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
-                t1l = t1l + chl;
-                t1h = t1h + chh + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0);
-                t1l = t1l + Krl;
-                t1h = t1h + Krh + ((t1l >>> 0) < (Krl >>> 0) ? 1 : 0);
-                t1l = t1l + Wrl;
-                t1h = t1h + Wrh + ((t1l >>> 0) < (Wrl >>> 0) ? 1 : 0);
+                var t1l = hl + sigma1l;
+                var t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
+                t1l += chl;
+                t1h += chh + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0);
+                t1l += Krl;
+                t1h += Krh + ((t1l >>> 0) < (Krl >>> 0) ? 1 : 0);
+                t1l += Wrl;
+                t1h += Wrh + ((t1l >>> 0) < (Wrl >>> 0) ? 1 : 0);
 
                 // t2 = sigma0 + maj
                 var t2l = sigma0l + majl;
