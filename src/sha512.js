@@ -245,6 +245,7 @@
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+            dataWords[(((nBitsLeft + 128) >>> 10) << 5) + 30] = Math.floor(nBitsTotal / 0x100000000);
             dataWords[(((nBitsLeft + 128) >>> 10) << 5) + 31] = nBitsTotal;
             data.sigBytes = dataWords.length * 4;
 

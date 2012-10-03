@@ -91,10 +91,18 @@
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
-                (((nBitsTotal << 8)  | (nBitsTotal >>> 24)) & 0x00ff00ff) |
-                (((nBitsTotal << 24) | (nBitsTotal >>> 8))  & 0xff00ff00)
+
+            var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+            var nBitsTotalL = nBitsTotal;
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = (
+                (((nBitsTotalH << 8)  | (nBitsTotalH >>> 24)) & 0x00ff00ff) |
+                (((nBitsTotalH << 24) | (nBitsTotalH >>> 8))  & 0xff00ff00)
             );
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+                (((nBitsTotalL << 8)  | (nBitsTotalL >>> 24)) & 0x00ff00ff) |
+                (((nBitsTotalL << 24) | (nBitsTotalL >>> 8))  & 0xff00ff00)
+            );
+
             data.sigBytes = (dataWords.length + 1) * 4;
 
             // Hash final blocks
