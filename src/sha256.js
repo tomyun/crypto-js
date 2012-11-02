@@ -5,10 +5,10 @@
 
     // Shortcuts
     var C = CryptoJS;
-    var C_lib = C.lib;
-    var WordArray = C_lib.WordArray;
-    var Hasher = C_lib.Hasher;
-    var C_algo = C.algo;
+    var C_LIB = C.lib;
+    var WordArray = C_LIB.WordArray;
+    var Hasher = C_LIB.Hasher;
+    var C_ALGO = C.algo;
 
     // Initialization and round constants tables
     var H = [];
@@ -52,7 +52,7 @@
     /**
      * SHA-256 hash algorithm.
      */
-    var SHA256 = C_algo.SHA256 = Hasher.extend({
+    var SHA256 = C_ALGO.SHA256 = Hasher.extend({
         _doReset: function () {
             this._hash = WordArray.create(H.slice(0));
         },
@@ -73,25 +73,24 @@
 
             // Rounds
             for (var round = 0; round < 64; round++) {
-                var Wr;
                 if (round < 16) {
-                    Wr = M[offset + round];
+                    var Wr = M[offset + round];
                 } else {
                     var gamma0x = W[round - 15];
-                    var gamma0  = (
+                    var gamma0 = (
                         ((gamma0x << 25) | (gamma0x >>> 7)) ^
                         ((gamma0x << 14) | (gamma0x >>> 18)) ^
                          (gamma0x >>> 3)
                     );
 
                     var gamma1x = W[round - 2];
-                    var gamma1  = (
+                    var gamma1 = (
                         ((gamma1x << 15) | (gamma1x >>> 17)) ^
                         ((gamma1x << 13) | (gamma1x >>> 19)) ^
                          (gamma1x >>> 10)
                     );
 
-                    Wr = gamma0 + W[round - 7] + gamma1 + W[round - 16];
+                    var Wr = gamma0 + W[round - 7] + gamma1 + W[round - 16];
                 }
                 W[round] = Wr |= 0;
 
@@ -130,12 +129,18 @@
             var data = this._data;
             var dataWords = data.words;
 
-            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
+
+            var nBitsTotalL = this._nDataBitsL;
+            var nBitsTotalH = this._nDataBitsH;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+
+            var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
+            dataWords[lengthStartIndex] = nBitsTotalH;
+            dataWords[lengthStartIndex + 1] = nBitsTotalL;
+
             data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks

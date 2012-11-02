@@ -1,7 +1,7 @@
 YUI.add('enc-utf16-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'Utf16',
 
         testStringify1: function () {
@@ -24,6 +24,17 @@ YUI.add('enc-utf16-test', function (Y) {
             Y.Assert.areEqual('􏿽', C.enc.Utf16.stringify(C.lib.WordArray.create([0xdbffdffd], 4)));
         },
 
+        testStringifyLE: function () {
+            Y.Assert.areEqual('􏿽', C.enc.Utf16LE.stringify(C.lib.WordArray.create([0xffdbfddf], 4)));
+        },
+
+        testStringifyLEInputIntegrity: function () {
+            var wordArray = C.lib.WordArray.create([0xffdbfddf], 4);
+
+            Y.Assert.areEqual('􏿽', C.enc.Utf16LE.stringify(wordArray));
+            Y.Assert.areEqual('􏿽', C.enc.Utf16LE.stringify(wordArray));
+        },
+
         testParse1: function () {
             Y.Assert.areEqual(C.lib.WordArray.create([0x007a0000], 2).toString(), C.enc.Utf16.parse('z').toString());
         },
@@ -42,6 +53,10 @@ YUI.add('enc-utf16-test', function (Y) {
 
         testParse5: function () {
             Y.Assert.areEqual(C.lib.WordArray.create([0xdbffdffd], 4).toString(), C.enc.Utf16.parse('􏿽').toString());
+        },
+
+        testParseLE: function () {
+            Y.Assert.areEqual(C.lib.WordArray.create([0xffdbfddf], 4).toString(), C.enc.Utf16LE.parse('􏿽').toString());
         }
     }));
 }, '$Rev$');

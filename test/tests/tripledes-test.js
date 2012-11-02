@@ -36,6 +36,14 @@ YUI.add('algo-tripledes-test', function (Y) {
             Y.Assert.areEqual('0000000000000001', C.TripleDES.decrypt(C.lib.CipherParams.create({ ciphertext: C.enc.Hex.parse('166b40b44aba4bd6') }), C.enc.Hex.parse('010101010101010101010101010101010101010101010101'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString());
         },
 
+        testKeyOption1: function () {
+            Y.Assert.areEqual(C.TripleDES.encrypt(C.enc.Hex.parse('0000000000000000'), C.enc.Hex.parse('800000000000000080000000000000008000000000000000'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString(), C.TripleDES.encrypt(C.enc.Hex.parse('0000000000000000'), C.enc.Hex.parse('8000000000000000'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString());
+        },
+
+        testKeyOption2: function () {
+            Y.Assert.areEqual(C.TripleDES.encrypt(C.enc.Hex.parse('0000000000000000'), C.enc.Hex.parse('800000000000000000000000000020008000000000000000'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString(), C.TripleDES.encrypt(C.enc.Hex.parse('0000000000000000'), C.enc.Hex.parse('80000000000000000000000000002000'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString());
+        },
+
         testMultiPart: function () {
             var des = C.algo.TripleDES.createEncryptor(C.enc.Hex.parse('000102030405060708090a0b0c0d0e0f1011121314151617'), { mode: C.mode.ECB, padding: C.pad.NoPadding });
             var ciphertext1 = des.process(C.enc.Hex.parse('001122334455'));
@@ -77,8 +85,8 @@ YUI.add('algo-tripledes-test', function (Y) {
             };
 
             // Test
-            Y.Assert.areEqual(C.algo.TripleDES.createEncryptor(C.SHA256('Jefe'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).finalize('Hi There').toString(), C.TripleDES.encrypt('Hi There', C.SHA256('Jefe'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).ciphertext.toString());
-            Y.Assert.areEqual(C.lib.SerializableCipher.encrypt(C.algo.TripleDES, 'Hi There', C.SHA256('Jefe'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString(), C.TripleDES.encrypt('Hi There', C.SHA256('Jefe'), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString());
+            Y.Assert.areEqual(C.algo.TripleDES.createEncryptor(C.PBKDF2('Jefe', '', { keySize: 192/32 }), { mode: C.mode.ECB, padding: C.pad.NoPadding }).finalize('Hi There').toString(), C.TripleDES.encrypt('Hi There', C.PBKDF2('Jefe', '', { keySize: 192/32 }), { mode: C.mode.ECB, padding: C.pad.NoPadding }).ciphertext.toString());
+            Y.Assert.areEqual(C.lib.SerializableCipher.encrypt(C.algo.TripleDES, 'Hi There', C.PBKDF2('Jefe', '', { keySize: 192/32 }), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString(), C.TripleDES.encrypt('Hi There', C.PBKDF2('Jefe', '', { keySize: 192/32 }), { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString());
             Y.Assert.areEqual(C.lib.PasswordBasedCipher.encrypt(C.algo.TripleDES, 'Hi There', 'Jefe', { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString(), C.TripleDES.encrypt('Hi There', 'Jefe', { mode: C.mode.ECB, padding: C.pad.NoPadding }).toString());
 
             // Restore random method

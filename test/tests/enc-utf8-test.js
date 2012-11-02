@@ -1,7 +1,7 @@
 YUI.add('enc-utf8-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'Utf8',
 
         testStringify1: function () {

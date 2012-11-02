@@ -1,7 +1,7 @@
 YUI.add('algo-sha224-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'SHA224',
 
         testVector1: function () {

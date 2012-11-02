@@ -5,10 +5,10 @@
 
     // Shortcuts
     var C = CryptoJS;
-    var C_lib = C.lib;
-    var WordArray = C_lib.WordArray;
-    var Hasher = C_lib.Hasher;
-    var C_algo = C.algo;
+    var C_LIB = C.lib;
+    var WordArray = C_LIB.WordArray;
+    var Hasher = C_LIB.Hasher;
+    var C_ALGO = C.algo;
 
     // Reusable object
     var W = [];
@@ -16,7 +16,7 @@
     /**
      * SHA-1 hash algorithm.
      */
-    var SHA1 = C_algo.SHA1 = Hasher.extend({
+    var SHA1 = C_ALGO.SHA1 = Hasher.extend({
         _doReset: function () {
             this._hash = WordArray.create([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
         },
@@ -34,12 +34,11 @@
 
             // Rounds
             for (var round = 0; round < 80; round++) {
-                var Wr;
                 if (round < 16) {
-                    Wr = M[offset + round] | 0;
+                    var Wr = M[offset + round] | 0;
                 } else {
                     var n = W[round - 3] ^ W[round - 8] ^ W[round - 14] ^ W[round - 16];
-                    Wr = (n << 1) | (n >>> 31);
+                    var Wr = (n << 1) | (n >>> 31);
                 }
                 W[round] = Wr;
 
@@ -74,12 +73,18 @@
             var data = this._data;
             var dataWords = data.words;
 
-            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
+
+            var nBitsTotalL = this._nDataBitsL;
+            var nBitsTotalH = this._nDataBitsH;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+
+            var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
+            dataWords[lengthStartIndex] = nBitsTotalH;
+            dataWords[lengthStartIndex + 1] = nBitsTotalL;
+
             data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks

@@ -1,7 +1,7 @@
 YUI.add('algo-sha256-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'SHA256',
 
         testVector1: function () {
@@ -32,14 +32,16 @@ YUI.add('algo-sha256-test', function (Y) {
             Y.Assert.areEqual('f371bc4a311f2b009eef952dd83ca80e2b60026c8e935592d0f9c308453c813e', C.SHA256('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString());
         },
 
+        /*
         testUpdateAndLongMessage: function () {
             var sha256 = C.algo.SHA256.create();
-            for (var i = 0; i < 100; i++) {
-                sha256.update('12345678901234567890123456789012345678901234567890');
+            for (var i = 0; i < 768 * 1024 * 1024 / 32; i++) {
+                sha256.update('\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0');
             }
 
-            Y.Assert.areEqual('f8146961d9b73d8da49ccd526fca65439cdd5b402f76971556d5f52fd129843e', sha256.finalize().toString());
+            Y.Assert.areEqual('d8492a624b5ded59e8a2185b0755f195a58642456e8387ba2817e46f1e05b358', sha256.finalize().toString());
         },
+        */
 
         testClone: function () {
             var sha256 = C.algo.SHA256.create();

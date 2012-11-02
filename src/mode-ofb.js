@@ -12,7 +12,7 @@
     /**
      * Output Feedback mode.
      */
-    /*var OFB =*/ C_mode.OFB = (function () {
+    C_mode.OFB = (function () {
         var OFB = BlockCipherMode.extend();
 
         OFB.Encryptor = OFB.Decryptor = OFB.extend({
