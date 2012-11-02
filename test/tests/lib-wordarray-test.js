@@ -1,7 +1,7 @@
 YUI.add('lib-wordarray-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'WordArray',
 
         testInit0: function () {
@@ -48,16 +48,14 @@ YUI.add('lib-wordarray-test', function (Y) {
             Y.Assert.areEqual('1234567800123456', wordArray1.toString());
         },
 
+        /*
         testConcatLong: function () {
             var wordArray1 = C.lib.WordArray.create();
-            var wordArray2 = C.lib.WordArray.create();
-            for (var i = 0; i < 1000000; i++) {
-                wordArray2.words[i] = i;
-            }
-            wordArray2.sigBytes = 1000000;
+            var wordArray2 = C.lib.WordArray.random(1000000 * 4);
 
             Y.Assert.areEqual(wordArray2.toString(), wordArray1.concat(wordArray2).toString());
         },
+        */
 
         testClamp: function () {
             var wordArray = C.lib.WordArray.create([0x12345678, 0x12345678], 3);
@@ -68,10 +66,10 @@ YUI.add('lib-wordarray-test', function (Y) {
 
         testClone: function () {
             var wordArray = C.lib.WordArray.create([0x12345678]);
-            var clone = wordArray.clone();
-            clone.words[0] = 0;
+            var wordArrayClone = wordArray.clone();
+            wordArray.words[0] = 0;
 
-            Y.Assert.areNotEqual(wordArray.toString(), clone.toString());
+            Y.Assert.areEqual('12345678', wordArrayClone.toString());
         },
 
         testRandom: function () {

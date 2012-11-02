@@ -10,7 +10,7 @@
     /**
      * Zero padding strategy.
      */
-    /*var ZeroPadding =*/ C_pad.ZeroPadding = {
+    C_pad.ZeroPadding = {
         pad: function (data, blockSize) {
             // Shortcut
             var blockSizeBytes = blockSize * 4;

@@ -1,7 +1,7 @@
 YUI.add('algo-md5-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'MD5',
 
         testVector1: function () {
@@ -32,14 +32,16 @@ YUI.add('algo-md5-test', function (Y) {
             Y.Assert.areEqual('57edf4a22be3c955ac49da2e2107b67a', C.MD5('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString());
         },
 
+        /*
         testUpdateAndLongMessage: function () {
             var md5 = C.algo.MD5.create();
-            for (var i = 0; i < 100; i++) {
-                md5.update('12345678901234567890123456789012345678901234567890');
+            for (var i = 0; i < 768 * 1024 * 1024 / 32; i++) {
+                md5.update('\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0');
             }
 
-            Y.Assert.areEqual('7d017545e0268a6a12f2b507871d0429', md5.finalize().toString());
+            Y.Assert.areEqual('72b74a1ecec4fd35ec0c7278202130a8', md5.finalize().toString());
         },
+        */
 
         testClone: function () {
             var md5 = C.algo.MD5.create();

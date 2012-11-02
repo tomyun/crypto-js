@@ -10,7 +10,7 @@
     /**
      * A noop padding strategy.
      */
-    /*var NoPadding =*/ C_pad.NoPadding = {
+    C_pad.NoPadding = {
         pad: function () {
         },
 

@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>CryptoJS Lint Test</title>
+
+        <!-- JSHint -->
+        <script src="http://www.jshint.com/src/js/jshint.js"></script>
+
+        <!-- YUI -->
+        <script src="http://yui.yahooapis.com/3.7.2/build/yui/yui-min.js"></script>
+
+        <!-- Tester -->
+        <script>
+            YUI().use('test-console', 'substitute', 'cssbutton', function (Y) {
+                Y.on('domready', function () {
+                    // Create console
+                    var testConsole = new Y.Test.Console({
+                        height: '600px',
+                        newestOnTop: false,
+                        filters: {
+                            info: true,
+                            pass: true,
+                            fail: true,
+                            status: true,
+                            warn: true
+                        },
+                        render: Y.one('#console')
+                    });
+
+                    // Handle linter button click
+                    Y.one('#linter button').on('click', function (e) {
+                        // Clear former tests
+                        Y.Test.Runner.clear();
+                        testConsole.reset();
+
+                        // Create test suite
+                        var cryptoJSLintTestSuite = new Y.Test.Suite('CryptoJS Lint');
+                        Y.Test.Runner.add(cryptoJSLintTestSuite);
+
+                        // Get file list
+                        var fileList = Y.one('#linter input').getDOMNode().files;
+
+                        // Keep track of how many readers we'll be waiting on
+                        var nReaders = fileList.length;
+
+                        // Iterate files
+                        for (var i = 0; i < fileList.length; i++) {
+                            // Read file data
+                            var reader = new FileReader();
+                            reader.file = fileList[i];
+                            reader.onload = function (e) {
+                                // Lint
+                                var jsHintSuccess = JSHINT(e.target.result, {
+                                    // Enforcing options
+                                    camelcase: true,  // requires camel case
+                                    curly: true,      // requires curly braces around blocks
+                                    forin: true,      // requires for-in loops to filter objects' items
+                                    immed: true,      // requires parentheses wrapping immediate functions
+                                    latedef: true,    // prohibits use of a variable before it was defined
+                                    newcap: true,     // requires capitalized constructor function names
+                                    noarg: true,      // prohibits arguments.caller and arguments.callee
+                                    noempty: true,    // prohibits empty blocks
+                                    nonew: true,      // prohibits constructor functions for side-effects
+                                    regexp: true,     // prohibits unsafe "." in regular expressions
+                                    undef: true,      // prohibits explicitly undeclared variables
+                                    strict: true,     // requires EcmaScript 5's strict mode
+                                    trailing: true,   // prohibits trailing whitespace
+                                    unused: true,     // prohibits unused variables
+
+                                    bitwise: false,   // prohibits bitwise operators; very often & is a mistyped &&
+                                    eqeqeq: false,    // prohibits == and != in favor of === and !==
+                                    plusplus: false,  // prohibits unary increment and decrement operators
+
+                                    // Relaxing options
+                                    asi: false,          // suppresses warnings about missing semicolons
+                                    boss: false,         // suppresses warnings about assignments where comparisons are expected
+                                    debug: false,        // suppresses warnings about debugger statements
+                                    eqnull: false,       // suppresses warnings about == null comparisons
+                                    es5: false,          // suppresses warnings about ECMAScript 5 features such as getters and setters
+                                    esnext: false,       // suppresses warnings about ES.next features such as const and let
+                                    evil: false,         // suppresses warnings about eval
+                                    expr: false,         // suppresses warnings about expressions where normally you would expect assignments or function calls
+                                    globalstrict: false, // suppresses warnings about global strict mode
+                                    iterator: false,     // suppresses warnings about the __iterator__ property
+                                    lastsemic: false,    // suppresses warnings about missing semicolons for the last statement in a one-line block
+                                    laxbreak: false,     // suppresses warnings about possibly unsafe line breakings
+                                    laxcomma: false,     // suppresses warnings about comma-first coding style
+                                    loopfunc: false,     // suppresses warnings about functions inside loops
+                                    multistr: false,     // suppresses warnings about multi-line strings
+                                    onecase: false,      // suppresses warnings about switches with just one case
+                                    proto: false,        // suppresses warnings about the __proto__ property
+                                    regexdash: false,    // suppresses warnings about unescaped "-" in the end of regular expressions
+                                    scripturl: false,    // suppresses warnings about script-targeted URLs
+                                    smarttabs: false,    // suppresses warnings about mixed tabs and spaces when the latter are used for alignmnent only
+                                    sub: false,          // suppresses warnings about [] notation when it can be expressed in dot notation
+                                    supernew: false,     // suppresses warnings about constructions like new function () { ... } and new Object
+                                    validthis: false,    // suppresses warnings about possible strict violations when the code is running in strict mode and you use this in a non-constructor function
+                                    withstmt: false,     // suppresses warnings about with statements
+
+                                    funcscope: true,     // suppresses warnings about declaring variables inside of control structures while accessing them later from the outside
+                                    shadow: true,        // suppresses warnings about variable shadowing
+
+                                    // Environments
+                                    browser: false,     // defines globals exposed by modern browsers
+                                    couch: false,       // defines globals exposed by CouchDB
+                                    devel: false,       // defines globals usually used for poor-man's debugging: console, alert, etc
+                                    dojo: false,        // defines globals exposed by the Dojo Toolkit
+                                    jquery: false,      // defines globals exposed by jQuery
+                                    mootools: false,    // defines globals exposed by MooTools
+                                    node: false,        // defines globals exposed by the Node runtime environment
+                                    nonstandard: false, // defines non-standard but widely adopted globals such as escape and unescape
+                                    prototypejs: false, // defines globals exposed by Prototype
+                                    rhino: false,       // defines globals exposed by the Rhino runtime environment
+                                    worker: false,      // defines globals exposed by Web Workers
+                                    wsh: false,         // defines globals exposed by the Windows Script Host
+                                    yui: false,         // defines globals exposed by YUI
+
+                                    // Legacy
+                                    nomen: false,    // prohibits the use of dangling _ in variables
+                                    onevar: false,   // requires only one var statement per function
+                                    passfail: false, // makes JSHint stop on the first error or warning
+                                    white: false,    // makes JSHint check your code against Crockford's coding style
+
+                                    // Other
+                                    indent: 4,            // expected indentation
+                                    maxcomplexity: false, // max cyclomatic complexity per function
+                                    maxdepth: false,      // max nested block depth per function
+                                    maxerr: false,        // max errors before quiting linting
+                                    maxlen: 120,          // max line length
+                                    maxparams: false,     // max params per function
+                                    maxstatements: false, // max statements per function
+                                    predef: false,        // an array of global variables, or an object whose keys are global names with a boolean value that determines if they are assignable
+                                    quotmark: 'single',   // "single"|"double"|true|false
+                                    scope: false,         // ???
+                                });
+                                var jsHintData = JSHINT.data();
+
+                                // Create test case
+                                var testCaseConfig = {
+                                    name: e.target.file.name,
+                                };
+                                if (jsHintSuccess) {
+                                    // Create successful test
+                                    testCaseConfig['test'] = function () {
+                                        // Implied pass
+                                    };
+                                } else {
+                                    // Create failure tests
+                                    for (var i = 0; i < jsHintData.errors.length; i++) {
+                                        testCaseConfig['test_' + i] = (function (error) {
+                                            return function () {
+                                                Y.Assert.fail(Y.substitute(
+                                                    '{reason}\n' +
+                                                    'line: {line}, character: {character}\n' +
+                                                    '{evidence trim}',
+                                                    error,
+                                                    function (placeholder, value, filterName) {
+                                                        if (filterName == 'trim') {
+                                                            value = Y.Lang.trim(value);
+                                                        }
+
+                                                        return value;
+                                                    }
+                                                ));
+                                            };
+                                        }(jsHintData.errors[i]));
+                                    }
+                                }
+
+                                cryptoJSLintTestSuite.add(new Y.Test.Case(testCaseConfig));
+
+                                // If all readers are loaded, run tests
+                                if (--nReaders === 0) {
+                                    Y.Test.Runner.run();
+                                }
+                            };
+
+                            reader.readAsText(reader.file);
+                        }
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body class="yui3-skin-sam">
+        <div id="linter">
+            <input type="file" multiple> <button class="yui3-button">Lint</button>
+        </div>
+        <div id="console">
+        </div>
+    </body>
+</html>

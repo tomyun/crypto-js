@@ -1,7 +1,7 @@
 YUI.add('algo-sha512-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'SHA512',
 
         testVector1: function () {
@@ -16,14 +16,16 @@ YUI.add('algo-sha512-test', function (Y) {
             Y.Assert.areEqual('91ea1245f20d46ae9a037a989f54f1f790f0a47607eeb8a14d12890cea77a1bbc6c7ed9cf205e67b7f2b8fd4c7dfd3a7a8617e45f3c463d481c7e586c39ac1ed', C.SHA512('The quick brown fox jumps over the lazy dog.').toString());
         },
 
+        /*
         testUpdateAndLongMessage: function () {
             var sha512 = C.algo.SHA512.create();
-            for (var i = 0; i < 100; i++) {
-                sha512.update('12345678901234567890123456789012345678901234567890');
+            for (var i = 0; i < 768 * 1024 * 1024 / 32; i++) {
+                sha512.update('\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0');
             }
 
-            Y.Assert.areEqual('9bc64f37c54606dff234b6607e06683c7ba248558d0ec74a11525d9f59e0be566489cc9413c00ca5e9db705fc52ba71214bcf118f65072fe284af8f8cf9500af', sha512.finalize().toString());
+            Y.Assert.areEqual('e4472b07852a20f929382adb7b617115dba17b9fa59f09322d4d208947d0e5c0b72c4b1d3e6be635b188752e8471f6da6504c016df98404032627bae9b211bb9', sha512.finalize().toString());
         },
+        */
 
         testClone: function () {
             var sha512 = C.algo.SHA512.create();

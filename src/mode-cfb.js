@@ -12,7 +12,7 @@
     /**
      * Cipher Feedback mode.
      */
-    /*var CFB =*/ C_mode.CFB = (function () {
+    C_mode.CFB = (function () {
         var CFB = BlockCipherMode.extend();
 
         CFB.Encryptor = CFB.extend({

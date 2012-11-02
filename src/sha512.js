@@ -5,12 +5,12 @@
 
     // Shortcuts
     var C = CryptoJS;
-    var C_lib = C.lib;
-    var Hasher = C_lib.Hasher;
-    var C_x64 = C.x64;
-    var X64Word = C_x64.Word;
-    var X64WordArray = C_x64.WordArray;
-    var C_algo = C.algo;
+    var C_LIB = C.lib;
+    var Hasher = C_LIB.Hasher;
+    var C_X64 = C.x64;
+    var X64Word = C_X64.Word;
+    var X64WordArray = C_X64.WordArray;
+    var C_ALGO = C.algo;
 
     function x64WordCreate() {
         return X64Word.create.apply(X64Word, arguments);
@@ -71,7 +71,7 @@
     /**
      * SHA-512 hash algorithm.
      */
-    var SHA512 = C_algo.SHA512 = Hasher.extend({
+    var SHA512 = C_ALGO.SHA512 = Hasher.extend({
         _doReset: function () {
             this._hash = X64WordArray.create([
                 x64WordCreate(0x6a09e667, 0xf3bcc908), x64WordCreate(0xbb67ae85, 0x84caa73b),
@@ -131,62 +131,59 @@
 
             // Rounds
             for (var round = 0; round < 80; round++) {
-                // Shortcut
-                var Wr = W[round];
-
                 // Extend message
-                var Wrh, Wrl;
                 if (round < 16) {
-                    Wrh = M[offset + round * 2];
-                    Wrl = M[offset + round * 2 + 1];
+                    var Wrh = M[offset + round * 2];
+                    var Wrl = M[offset + round * 2 + 1];
                 } else {
                     // Gamma0
-                    var gamma0x  = W[round - 15];
+                    var gamma0x = W[round - 15];
                     var gamma0xh = gamma0x.high;
                     var gamma0xl = gamma0x.low;
-                    var gamma0h  = (
+                    var gamma0h = (
                         ((gamma0xl << 31) | (gamma0xh >>> 1)) ^
                         ((gamma0xl << 24) | (gamma0xh >>> 8)) ^
                          (gamma0xh >>> 7)
                     );
-                    var gamma0l  = (
+                    var gamma0l = (
                         ((gamma0xh << 31) | (gamma0xl >>> 1)) ^
                         ((gamma0xh << 24) | (gamma0xl >>> 8)) ^
                         ((gamma0xh << 25) | (gamma0xl >>> 7))
                     );
 
                     // Gamma1
-                    var gamma1x  = W[round - 2];
+                    var gamma1x = W[round - 2];
                     var gamma1xh = gamma1x.high;
                     var gamma1xl = gamma1x.low;
-                    var gamma1h  = (
+                    var gamma1h = (
                         ((gamma1xl << 13) | (gamma1xh >>> 19)) ^
                         ((gamma1xh << 3)  | (gamma1xl >>> 29)) ^
                          (gamma1xh >>> 6)
                     );
-                    var gamma1l  = (
+                    var gamma1l = (
                         ((gamma1xh << 13) | (gamma1xl >>> 19)) ^
                         ((gamma1xl << 3)  | (gamma1xh >>> 29)) ^
                         ((gamma1xh << 26) | (gamma1xl >>> 6))
                     );
 
                     // Shortcuts
-                    var Wr7  = W[round - 7];
+                    var Wr7 = W[round - 7];
                     var Wr7h = Wr7.high;
                     var Wr7l = Wr7.low;
 
-                    var Wr16  = W[round - 16];
+                    var Wr16 = W[round - 16];
                     var Wr16h = Wr16.high;
                     var Wr16l = Wr16.low;
 
                     // W[round] = gamma0 + W[round - 7] + gamma1 + W[round - 16]
-                    Wrl = gamma0l + Wr7l;
-                    Wrh = gamma0h + Wr7h + ((Wrl >>> 0) < (gamma0l >>> 0) ? 1 : 0);
+                    var Wrl = gamma0l + Wr7l;
+                    var Wrh = gamma0h + Wr7h + ((Wrl >>> 0) < (gamma0l >>> 0) ? 1 : 0);
                     Wrl += gamma1l;
                     Wrh += gamma1h + ((Wrl >>> 0) < (gamma1l >>> 0) ? 1 : 0);
                     Wrl += Wr16l;
                     Wrh += Wr16h + ((Wrl >>> 0) < (Wr16l >>> 0) ? 1 : 0);
                 }
+                var Wr = W[round];
                 Wr.high = Wrh |= 0;
                 Wr.low  = Wrl |= 0;
 
@@ -207,7 +204,7 @@
                 var sigma1l = ((eh << 18) | (el >>> 14)) ^ ((eh << 14) | (el >>> 18)) ^ ((el << 23) | (eh >>> 9));
 
                 // Shortcuts
-                var Kr  = K[round];
+                var Kr = K[round];
                 var Krh = Kr.high;
                 var Krl = Kr.low;
 
@@ -268,12 +265,18 @@
             var data = this._data;
             var dataWords = data.words;
 
-            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
+
+            var nBitsTotalL = this._nDataBitsL;
+            var nBitsTotalH = this._nDataBitsH;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-            dataWords[(((nBitsLeft + 128) >>> 10) << 5) + 31] = nBitsTotal;
+
+            var lengthStartIndex = (((nBitsLeft + 128) >>> 10) << 5) + 30;
+            dataWords[lengthStartIndex] = nBitsTotalH;
+            dataWords[lengthStartIndex + 1] = nBitsTotalL;
+
             data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks

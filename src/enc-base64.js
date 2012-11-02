@@ -5,19 +5,18 @@
 
     // Shortcuts
     var C = CryptoJS;
-    var C_lib = C.lib;
-    var WordArray = C_lib.WordArray;
-    var C_enc = C.enc;
+    var C_LIB = C.lib;
+    var WordArray = C_LIB.WordArray;
+    var C_ENC = C.enc;
 
     /**
      * Base64 encoding strategy.
      */
-    C_enc.Base64 = {
+    C_ENC.Base64 = {
         /**
          * Converts a word array to a Base64 string.
          *
          * @param {WordArray} wordArray The word array.
-         * @param {number} maxLineLength (Optional) The maximum encoded line length. Default: No limit.
          *
          * @return {string} The Base64 string.
          *
@@ -25,10 +24,9 @@
          *
          * @example
          *
-         *     var base64String = CryptoJS.enc.Base64.stringify(wordArray);
-         *     var base64String = CryptoJS.enc.Base64.stringify(wordArray, 76);
+         *     var base64Str = CryptoJS.enc.Base64.stringify(wordArray);
          */
-        stringify: function (wordArray, maxLineLength) {
+        stringify: function (wordArray) {
             // Shortcuts
             var words = wordArray.words;
             var sigBytes = wordArray.sigBytes;
@@ -46,9 +44,9 @@
 
                 var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
 
-                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
-                    var index = (triplet >>> (6 * (3 - j))) & 0x3f;
-                    base64Chars.push(map.charAt(index));
+                for (var j = 0; (j < 4) && (i + j - 1 < sigBytes); j++) {
+                    var base64Value = (triplet >>> (6 * (3 - j))) & 0x3f;
+                    base64Chars.push(map.charAt(base64Value));
                 }
             }
 
@@ -60,15 +58,7 @@
                 }
             }
 
-            // All together now
-            var base64Str = base64Chars.join('');
-
-            // Limit line length
-            if (maxLineLength) {
-                base64Str = base64Str.replace(new RegExp('(.{' + maxLineLength + '})(?=.)', 'g'), '$1\n');
-            }
-
-            return base64Str;
+            return base64Chars.join('');
         },
 
         /**
@@ -82,12 +72,9 @@
          *
          * @example
          *
-         *     var wordArray = CryptoJS.enc.Base64.parse(base64String);
+         *     var wordArray = CryptoJS.enc.Base64.parse(base64Str);
          */
         parse: function (base64Str) {
-            // Ignore whitespaces
-            base64Str = base64Str.replace(/\s/g, '');
-
             // Shortcuts
             var base64StrLength = base64Str.length;
             var map = this._map;
@@ -95,21 +82,31 @@
             // Ignore padding
             var paddingChar = map.charAt(64);
             if (paddingChar) {
-                var paddingIndex = base64Str.indexOf(paddingChar);
-                if (paddingIndex != -1) {
-                    base64StrLength = paddingIndex;
+                var paddingStartIndex = base64Str.indexOf(paddingChar);
+                if (paddingStartIndex != -1) {
+                    base64StrLength = paddingStartIndex;
                 }
             }
 
             // Convert
             var words = [], nBytes = 0;
-            for (var i = 0; i < base64StrLength; i++) {
-                if (i % 4) {
-                    var bitsHigh = map.indexOf(base64Str.charAt(i - 1)) << ((i % 4) * 2);
-                    var bitsLow  = map.indexOf(base64Str.charAt(i)) >>> (6 - (i % 4) * 2);
+            for (var i = 0; i < base64StrLength; i += 4) {
+                var base64Value1 = map.indexOf(base64Str.charAt(i));
+                var base64Value2 = map.indexOf(base64Str.charAt(i + 1));
+                var base64Value3 = map.indexOf(base64Str.charAt(i + 2));
+                var base64Value4 = map.indexOf(base64Str.charAt(i + 3));
 
-                    words[nBytes >>> 2] |= (bitsHigh | bitsLow) << (24 - (nBytes % 4) * 8);
+                // <?php if ($debug): ?>
+                if (base64Value1 == -1 || base64Value2 == -1 || base64Value3 == -1 || base64Value4 == -1) {
+                    throw Base64CharacterOutsideAlphabetError;
+                }
+                // <?php endif ?>
 
+                var triplet = (base64Value1 << 18) | (base64Value2 << 12) | (base64Value3 << 6) | base64Value4;
+
+                for (var j = 0; (j < 3) && (i + j + 1 < base64StrLength); j++) {
+                    var bite = (triplet >>> (16 - j * 8)) & 0xff;
+                    words[nBytes >>> 2] |= bite << (24 - (nBytes % 4) * 8);
                     nBytes++;
                 }
             }
@@ -119,4 +116,14 @@
 
         _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
     };
+
+    // <?php if ($debug): ?>
+    // Shortcuts
+    var C_ERR = C.err;
+    var Error = C_ERR.Error;
+
+    var Base64CharacterOutsideAlphabetError = C_ERR.Base64CharacterOutsideAlphabetError = Error.extend({
+        _message: 'Characters outside the Base64 alphabet are forbidden.'
+    });
+    // <?php endif ?>
 }());

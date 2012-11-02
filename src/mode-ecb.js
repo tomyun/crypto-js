@@ -12,7 +12,7 @@
     /**
      * Electronic Codebook mode.
      */
-    /*var ECB =*/ C_mode.ECB = (function () {
+    C_mode.ECB = (function () {
         var ECB = BlockCipherMode.extend();
 
         ECB.Encryptor = ECB.extend({

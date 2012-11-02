@@ -6,6 +6,8 @@
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
+
+<!--
         <script src="../src/x64-core.js"></script>
         <script src="../src/enc-utf16.js"></script>
         <script src="../src/enc-base64.js"></script>
@@ -32,11 +34,13 @@
         <script src="../src/rabbit.js"></script>
         <script src="../src/aes.js"></script>
         <script src="../src/tripledes.js"></script>
+-->
 
         <!-- YUI -->
-        <script src="http://yui.yahooapis.com/3.5.1/build/yui/yui-min.js"></script>
+        <script src="http://yui.yahooapis.com/3.7.2/build/yui/yui-min.js"></script>
 
         <!-- Tests -->
+<!--
         <script src="tests/lib-base-test.js"></script>
         <script src="tests/lib-wordarray-test.js"></script>
         <script src="tests/x64-word-test.js"></script>
@@ -75,47 +79,36 @@
         <script src="tests/aes-test.js"></script>
         <script src="tests/des-test.js"></script>
         <script src="tests/tripledes-test.js"></script>
+-->
 
         <!-- Test runner -->
         <script>
-            YUI().use('test', 'console', function (Y) {
-                Y.use('*', function (Y) {
-                    new Y.Console({
-                        style: 'block',
-                        width: '600px',
+            // Load test console
+            YUI().use('test-console', function (Y) {
+                // Create test suite and add it to runner
+                Y.CryptoJSTestSuite = new Y.Test.Suite('CryptoJS');
+                Y.Test.Runner.add(Y.CryptoJSTestSuite);
+
+                Y.on('domready', function () {
+                    // Render console
+                    new Y.Test.Console({
                         height: '600px',
-                        entryTemplate:
-                          '<div class="{entry_class} {cat_class} {src_class}">' +
-                          '    <p class="{entry_meta_class}">' +
-                          '        <span class="{entry_cat_class}">{category}</span>' +
-                          '    </p>' +
-                          '    <pre class="{entry_content_class}">{message}</pre>' +
-                          '</div>',
-                        newestOnTop: false,
-                        consoleLimit: 500,
+                        filters: {
+                            info: false,
+                            pass: true,
+                            fail: true,
+                            status: true
+                        },
                         render: true
                     });
 
-                    Y.Test.Runner.run();
+                    // Load and run tests
+                    Y.use('*', function (Y) {
+                        Y.Test.Runner.run();
+                    });
                 });
             });
         </script>
-
-        <style>
-            body.yui3-skin-sam .yui3-console-entry-meta,
-            body.yui3-skin-sam .yui3-console-entry-content {
-                display: inline-block;
-                vertical-align: top;
-            }
-            body.yui3-skin-sam .yui3-console-entry-cat {
-                display: inline-block;
-                width: 35px;
-                text-align: center;
-            }
-            body.yui3-skin-sam .yui3-console-entry {
-                min-height: 0;
-            }
-        </style>
     </head>
     <body class="yui3-skin-sam">
     </body>

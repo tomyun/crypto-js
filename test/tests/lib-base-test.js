@@ -1,8 +1,14 @@
 YUI.add('lib-base-test', function (Y) {
     var C = CryptoJS;
 
-    Y.Test.Runner.add(new Y.Test.Case({
+    Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'Base',
+
+        _should: {
+            error: {
+                testExtendOverrideReservedProperty: true
+            }
+        },
 
         setUp: function () {
             this.data = {};
@@ -26,7 +32,7 @@ YUI.add('lib-base-test', function (Y) {
 
             this.data.Obj.mixIn(this.data.mixins);
 
-            this.data.obj = this.data.Obj.create('argValue');
+            this.data.obj = this.data.Obj.create('arg_value');
 
             this.data.objClone = this.data.obj.clone();
         },
@@ -50,6 +56,12 @@ YUI.add('lib-base-test', function (Y) {
             Y.Assert.isTrue(this.data.Obj.hasOwnProperty('toString'));
         },
 
+        testExtendOverrideReservedProperty: function () {
+            var MyType = C.lib.Base.extend({
+                $super: 'should_error'
+            });
+        },
+
         testCreateInheritanceFromObj: function () {
             Y.Assert.areEqual(this.data.Obj.init, this.data.obj.init);
             Y.Assert.isFalse(this.data.obj.hasOwnProperty('init'));
@@ -66,13 +78,21 @@ YUI.add('lib-base-test', function (Y) {
 
         testCreateInit: function () {
             Y.Assert.isTrue(this.data.obj.initFired);
-            Y.Assert.areEqual('argValue', this.data.obj.initArg);
+            Y.Assert.areEqual('arg_value', this.data.obj.initArg);
         },
 
         testMixIn: function () {
             Y.Assert.areEqual(this.data.mixins.mixinMethod, this.data.Obj.mixinMethod);
             Y.Assert.isTrue(this.data.Obj.hasOwnProperty('mixinMethod'));
         },
+
+        /*
+        testIsA: function () {
+            Y.Assert.isTrue(this.data.obj.isA(this.data.Obj));
+            Y.Assert.isTrue(this.data.obj.isA(C.lib.Base));
+            Y.Assert.isFalse(this.data.objClone.isA(this.data.obj));
+        },
+        */
 
         testCloneDistinct: function () {
             Y.Assert.areNotEqual(this.data.obj, this.data.objClone);
@@ -83,7 +103,7 @@ YUI.add('lib-base-test', function (Y) {
         },
 
         testCloneIndependent: function () {
-            this.data.obj.initArg = 'newValue';
+            this.data.obj.initArg = 'new_value';
 
             Y.Assert.areNotEqual(this.data.obj.initArg, this.data.objClone.initArg);
         }

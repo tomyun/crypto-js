@@ -70,12 +70,10 @@
          *     hmacHasher.reset();
          */
         reset: function () {
-            // Shortcut
-            var hasher = this._hasher;
+            this._hasher.reset().update(this._iKey);
 
-            // Reset
-            hasher.reset();
-            hasher.update(this._iKey);
+            // Chainable
+            return this;
         },
 
         /**
@@ -118,9 +116,7 @@
 
             // Compute HMAC
             var innerHash = hasher.finalize(messageUpdate);
-            hasher.reset();
-
-            var hmac = hasher.update(this._oKey).finalize(innerHash);
+            var hmac = hasher.reset().update(this._oKey).finalize(innerHash);
 
             return hmac;
         }

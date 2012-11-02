@@ -12,7 +12,7 @@
     /**
      * Counter mode.
      */
-    /*var CTR =*/ C_mode.CTR = (function () {
+    C_mode.CTR = (function () {
         var CTR = BlockCipherMode.extend();
 
         CTR.Encryptor = CTR.Decryptor = CTR.extend({

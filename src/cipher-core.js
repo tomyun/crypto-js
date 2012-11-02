@@ -460,7 +460,7 @@
     };
 
     /**
-     * @bc
+     * @BC
      */
     C_pad.Pkcs7 = PKCS7;
 
@@ -622,7 +622,7 @@
                 ciphertext = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
             }
 
-            return Base64.stringify(ciphertext, 64);
+            return Base64.stringify(ciphertext, 64) + "\n";
         },
 
         /**
@@ -826,7 +826,7 @@
     };
 
     /**
-     * @bc
+     * @BC
      */
     OpenSSLKdf.execute = OpenSSLKdf.compute;
 

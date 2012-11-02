@@ -5,14 +5,14 @@
 
     // Shortcuts
     var C = CryptoJS;
-    var C_lib = C.lib;
-    var Base = C_lib.Base;
-    var X32WordArray = C_lib.WordArray;
+    var C_LIB = C.lib;
+    var Base = C_LIB.Base;
+    var X32WordArray = C_LIB.WordArray;
 
     /**
      * x64 namespace.
      */
-    var C_x64 = C.x64 = {};
+    var C_X64 = C.x64 = {};
 
     /**
      * A 64-bit word.
@@ -20,7 +20,7 @@
      * @property {number} high The high 32 bits.
      * @property {number} low The low 32 bits.
      */
-    C_x64.Word = Base.extend({
+    C_X64.Word = Base.extend({
         /**
          * Initializes a newly created 64-bit word.
          *
@@ -127,13 +127,12 @@
          */
         /*
         shiftL: function (n) {
-            var high, low;
             if (n < 32) {
-                high = (this.high << n) | (this.low >>> (32 - n));
-                low = this.low << n;
+                var high = (this.high << n) | (this.low >>> (32 - n));
+                var low = this.low << n;
             } else {
-                high = this.low << (n - 32);
-                low = 0;
+                var high = this.low << (n - 32);
+                var low = 0;
             }
 
             return X64Word.create(high, low);
@@ -153,13 +152,12 @@
          */
         /*
         shiftR: function (n) {
-            var high, low;
             if (n < 32) {
-                low = (this.low >>> n) | (this.high << (32 - n));
-                high = this.high >>> n;
+                var low = (this.low >>> n) | (this.high << (32 - n));
+                var high = this.high >>> n;
             } else {
-                low = this.high >>> (n - 32);
-                high = 0;
+                var low = this.high >>> (n - 32);
+                var high = 0;
             }
 
             return X64Word.create(high, low);
@@ -228,7 +226,7 @@
      * @property {Array} words The array of X64Word objects.
      * @property {number} sigBytes The number of significant bytes in this word array.
      */
-    C_x64.WordArray = Base.extend({
+    C_X64.WordArray = Base.extend({
         /**
          * Initializes a newly created word array.
          *
@@ -297,7 +295,7 @@
             var clone = Base.clone.call(this);
 
             // Clone "words" array
-            var words = clone.words = this.words.slice(0);
+            var words = clone.words = clone.words.slice(0);
 
             // Clone each X64Word object
             var wordsLength = words.length;
