@@ -1,8 +1,4 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -14,7 +10,7 @@
     /**
      * HMAC algorithm.
      */
-    C_algo.HMAC = Base.extend({
+    var HMAC = C_algo.HMAC = Base.extend({
         /**
          * Initializes a newly created HMAC.
          *
@@ -70,10 +66,12 @@
          *     hmacHasher.reset();
          */
         reset: function () {
-            this._hasher.reset().update(this._iKey);
+            // Shortcut
+            var hasher = this._hasher;
 
-            // Chainable
-            return this;
+            // Reset
+            hasher.reset();
+            hasher.update(this._iKey);
         },
 
         /**
@@ -97,7 +95,6 @@
 
         /**
          * Finalizes the HMAC computation.
-         *
          * Note that the finalize operation is effectively a destructive, read-once operation.
          *
          * @param {WordArray|string} messageUpdate (Optional) A final message update.
@@ -116,7 +113,8 @@
 
             // Compute HMAC
             var innerHash = hasher.finalize(messageUpdate);
-            var hmac = hasher.reset().update(this._oKey).finalize(innerHash);
+            hasher.reset();
+            var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
 
             return hmac;
         }

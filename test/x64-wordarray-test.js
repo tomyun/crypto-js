@@ -1,7 +1,7 @@
 YUI.add('x64-wordarray-test', function (Y) {
     var C = CryptoJS;
 
-    Y.CryptoJSTestSuite.add(new Y.Test.Case({
+    Y.Test.Runner.add(new Y.Test.Case({
         name: 'X64WordArray',
 
         testInit0: function () {

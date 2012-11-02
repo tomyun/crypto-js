@@ -1,7 +1,7 @@
 YUI.add('enc-utf16-test', function (Y) {
     var C = CryptoJS;
 
-    Y.CryptoJSTestSuite.add(new Y.Test.Case({
+    Y.Test.Runner.add(new Y.Test.Case({
         name: 'Utf16',
 
         testStringify1: function () {
@@ -26,13 +26,6 @@ YUI.add('enc-utf16-test', function (Y) {
 
         testStringifyLE: function () {
             Y.Assert.areEqual('􏿽', C.enc.Utf16LE.stringify(C.lib.WordArray.create([0xffdbfddf], 4)));
-        },
-
-        testStringifyLEInputIntegrity: function () {
-            var wordArray = C.lib.WordArray.create([0xffdbfddf], 4);
-
-            Y.Assert.areEqual('􏿽', C.enc.Utf16LE.stringify(wordArray));
-            Y.Assert.areEqual('􏿽', C.enc.Utf16LE.stringify(wordArray));
         },
 
         testParse1: function () {

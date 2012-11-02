@@ -1,14 +1,10 @@
 (function (Math) {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
-    var C_LIB = C.lib;
-    var WordArray = C_LIB.WordArray;
-    var Hasher = C_LIB.Hasher;
-    var C_ALGO = C.algo;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var Hasher = C_lib.Hasher;
+    var C_algo = C.algo;
 
     // Initialization and round constants tables
     var H = [];
@@ -19,7 +15,7 @@
         function isPrime(n) {
             var sqrtN = Math.sqrt(n);
             for (var factor = 2; factor <= sqrtN; factor++) {
-                if (n % factor === 0) {
+                if (!(n % factor)) {
                     return false;
                 }
             }
@@ -31,7 +27,8 @@
             return ((n - (n | 0)) * 0x100000000) | 0;
         }
 
-        var n = 2, nPrime = 0;
+        var n = 2;
+        var nPrime = 0;
         while (nPrime < 64) {
             if (isPrime(n)) {
                 if (nPrime < 8) {
@@ -52,7 +49,7 @@
     /**
      * SHA-256 hash algorithm.
      */
-    var SHA256 = C_ALGO.SHA256 = Hasher.extend({
+    var SHA256 = C_algo.SHA256 = Hasher.extend({
         _doReset: function () {
             this._hash = WordArray.create(H.slice(0));
         },
@@ -71,28 +68,23 @@
             var g = H[6];
             var h = H[7];
 
-            // Rounds
-            for (var round = 0; round < 64; round++) {
-                if (round < 16) {
-                    var Wr = M[offset + round];
+            // Computation
+            for (var i = 0; i < 64; i++) {
+                if (i < 16) {
+                    W[i] = M[offset + i] | 0;
                 } else {
-                    var gamma0x = W[round - 15];
-                    var gamma0 = (
-                        ((gamma0x << 25) | (gamma0x >>> 7)) ^
-                        ((gamma0x << 14) | (gamma0x >>> 18)) ^
-                         (gamma0x >>> 3)
-                    );
+                    var gamma0x = W[i - 15];
+                    var gamma0  = ((gamma0x << 25) | (gamma0x >>> 7))  ^
+                                  ((gamma0x << 14) | (gamma0x >>> 18)) ^
+                                   (gamma0x >>> 3);
 
-                    var gamma1x = W[round - 2];
-                    var gamma1 = (
-                        ((gamma1x << 15) | (gamma1x >>> 17)) ^
-                        ((gamma1x << 13) | (gamma1x >>> 19)) ^
-                         (gamma1x >>> 10)
-                    );
+                    var gamma1x = W[i - 2];
+                    var gamma1  = ((gamma1x << 15) | (gamma1x >>> 17)) ^
+                                  ((gamma1x << 13) | (gamma1x >>> 19)) ^
+                                   (gamma1x >>> 10);
 
-                    var Wr = gamma0 + W[round - 7] + gamma1 + W[round - 16];
+                    W[i] = gamma0 + W[i - 7] + gamma1 + W[i - 16];
                 }
-                W[round] = Wr |= 0;
 
                 var ch  = (e & f) ^ (~e & g);
                 var maj = (a & b) ^ (a & c) ^ (b & c);
@@ -100,7 +92,7 @@
                 var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
                 var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
 
-                var t1 = h + sigma1 + ch + K[round] + Wr;
+                var t1 = h + sigma1 + ch + K[i] + W[i];
                 var t2 = sigma0 + maj;
 
                 h = g;
@@ -129,18 +121,13 @@
             var data = this._data;
             var dataWords = data.words;
 
+            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
-
-            var nBitsTotalL = this._nDataBitsL;
-            var nBitsTotalH = this._nDataBitsH;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-
-            var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
-            dataWords[lengthStartIndex] = nBitsTotalH;
-            dataWords[lengthStartIndex + 1] = nBitsTotalL;
-
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = Math.floor(nBitsTotal / 0x100000000);
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
             data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks

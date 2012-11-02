@@ -1,7 +1,7 @@
 YUI.add('enc-latin1-test', function (Y) {
     var C = CryptoJS;
 
-    Y.CryptoJSTestSuite.add(new Y.Test.Case({
+    Y.Test.Runner.add(new Y.Test.Case({
         name: 'Latin1',
 
         testStringify: function () {

@@ -1,26 +1,19 @@
 (function (undefined) {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
-    var C_LIB = C.lib;
-    var Base = C_LIB.Base;
-    var X32WordArray = C_LIB.WordArray;
+    var C_lib = C.lib;
+    var Base = C_lib.Base;
+    var X32WordArray = C_lib.WordArray;
 
     /**
      * x64 namespace.
      */
-    var C_X64 = C.x64 = {};
+    var C_x64 = C.x64 = {};
 
     /**
      * A 64-bit word.
-     *
-     * @property {number} high The high 32 bits.
-     * @property {number} low The low 32 bits.
      */
-    C_X64.Word = Base.extend({
+    var X64Word = C_x64.Word = Base.extend({
         /**
          * Initializes a newly created 64-bit word.
          *
@@ -45,14 +38,12 @@
          *
          *     var negated = x64Word.not();
          */
-        /*
-        not: function () {
-            var high = ~this.high;
-            var low = ~this.low;
+        // not: function () {
+            // var high = ~this.high;
+            // var low = ~this.low;
 
-            return X64Word.create(high, low);
-        },
-        */
+            // return X64Word.create(high, low);
+        // },
 
         /**
          * Bitwise ANDs this word with the passed word.
@@ -65,14 +56,12 @@
          *
          *     var anded = x64Word.and(anotherX64Word);
          */
-        /*
-        and: function (word) {
-            var high = this.high & word.high;
-            var low = this.low & word.low;
+        // and: function (word) {
+            // var high = this.high & word.high;
+            // var low = this.low & word.low;
 
-            return X64Word.create(high, low);
-        },
-        */
+            // return X64Word.create(high, low);
+        // },
 
         /**
          * Bitwise ORs this word with the passed word.
@@ -85,14 +74,12 @@
          *
          *     var ored = x64Word.or(anotherX64Word);
          */
-        /*
-        or: function (word) {
-            var high = this.high | word.high;
-            var low = this.low | word.low;
+        // or: function (word) {
+            // var high = this.high | word.high;
+            // var low = this.low | word.low;
 
-            return X64Word.create(high, low);
-        },
-        */
+            // return X64Word.create(high, low);
+        // },
 
         /**
          * Bitwise XORs this word with the passed word.
@@ -105,14 +92,12 @@
          *
          *     var xored = x64Word.xor(anotherX64Word);
          */
-        /*
-        xor: function (word) {
-            var high = this.high ^ word.high;
-            var low = this.low ^ word.low;
+        // xor: function (word) {
+            // var high = this.high ^ word.high;
+            // var low = this.low ^ word.low;
 
-            return X64Word.create(high, low);
-        },
-        */
+            // return X64Word.create(high, low);
+        // },
 
         /**
          * Shifts this word n bits to the left.
@@ -125,19 +110,17 @@
          *
          *     var shifted = x64Word.shiftL(25);
          */
-        /*
-        shiftL: function (n) {
-            if (n < 32) {
-                var high = (this.high << n) | (this.low >>> (32 - n));
-                var low = this.low << n;
-            } else {
-                var high = this.low << (n - 32);
-                var low = 0;
-            }
+        // shiftL: function (n) {
+            // if (n < 32) {
+                // var high = (this.high << n) | (this.low >>> (32 - n));
+                // var low = this.low << n;
+            // } else {
+                // var high = this.low << (n - 32);
+                // var low = 0;
+            // }
 
-            return X64Word.create(high, low);
-        },
-        */
+            // return X64Word.create(high, low);
+        // },
 
         /**
          * Shifts this word n bits to the right.
@@ -150,19 +133,17 @@
          *
          *     var shifted = x64Word.shiftR(7);
          */
-        /*
-        shiftR: function (n) {
-            if (n < 32) {
-                var low = (this.low >>> n) | (this.high << (32 - n));
-                var high = this.high >>> n;
-            } else {
-                var low = this.high >>> (n - 32);
-                var high = 0;
-            }
+        // shiftR: function (n) {
+            // if (n < 32) {
+                // var low = (this.low >>> n) | (this.high << (32 - n));
+                // var high = this.high >>> n;
+            // } else {
+                // var low = this.high >>> (n - 32);
+                // var high = 0;
+            // }
 
-            return X64Word.create(high, low);
-        },
-        */
+            // return X64Word.create(high, low);
+        // },
 
         /**
          * Rotates this word n bits to the left.
@@ -175,11 +156,9 @@
          *
          *     var rotated = x64Word.rotL(25);
          */
-        /*
-        rotL: function (n) {
-            return this.shiftL(n).or(this.shiftR(64 - n));
-        },
-        */
+        // rotL: function (n) {
+            // return this.shiftL(n).or(this.shiftR(64 - n));
+        // },
 
         /**
          * Rotates this word n bits to the right.
@@ -192,11 +171,9 @@
          *
          *     var rotated = x64Word.rotR(7);
          */
-        /*
-        rotR: function (n) {
-            return this.shiftR(n).or(this.shiftL(64 - n));
-        },
-        */
+        // rotR: function (n) {
+            // return this.shiftR(n).or(this.shiftL(64 - n));
+        // },
 
         /**
          * Adds this word with the passed word.
@@ -209,28 +186,26 @@
          *
          *     var added = x64Word.add(anotherX64Word);
          */
-        /*
-        add: function (word) {
-            var low = (this.low + word.low) | 0;
-            var carry = (low >>> 0) < (this.low >>> 0) ? 1 : 0;
-            var high = (this.high + word.high + carry) | 0;
+        // add: function (word) {
+            // var low = (this.low + word.low) | 0;
+            // var carry = (low >>> 0) < (this.low >>> 0) ? 1 : 0;
+            // var high = (this.high + word.high + carry) | 0;
 
-            return X64Word.create(high, low);
-        }
-        */
+            // return X64Word.create(high, low);
+        // }
     });
 
     /**
      * An array of 64-bit words.
      *
-     * @property {Array} words The array of X64Word objects.
+     * @property {Array} words The array of CryptoJS.x64.Word objects.
      * @property {number} sigBytes The number of significant bytes in this word array.
      */
-    C_X64.WordArray = Base.extend({
+    var X64WordArray = C_x64.WordArray = Base.extend({
         /**
          * Initializes a newly created word array.
          *
-         * @param {Array} words (Optional) An array of X64Word objects.
+         * @param {Array} words (Optional) An array of CryptoJS.x64.Word objects.
          * @param {number} sigBytes (Optional) The number of significant bytes in the words.
          *
          * @example
@@ -250,7 +225,7 @@
         init: function (words, sigBytes) {
             words = this.words = words || [];
 
-            if (sigBytes !== undefined) {
+            if (sigBytes != undefined) {
                 this.sigBytes = sigBytes;
             } else {
                 this.sigBytes = words.length * 8;
@@ -260,7 +235,7 @@
         /**
          * Converts this 64-bit word array to a 32-bit word array.
          *
-         * @return {X32WordArray} This word array's data as a 32-bit word array.
+         * @return {CryptoJS.lib.WordArray} This word array's data as a 32-bit word array.
          *
          * @example
          *
@@ -295,7 +270,7 @@
             var clone = Base.clone.call(this);
 
             // Clone "words" array
-            var words = clone.words = clone.words.slice(0);
+            var words = clone.words = this.words.slice(0);
 
             // Clone each X64Word object
             var wordsLength = words.length;

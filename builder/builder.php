@@ -1,15 +1,13 @@
 <?php
 
 // Register class loader
-require_once __DIR__.'/../vendor/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+require_once __DIR__.'/lib/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
 $loader = new Symfony\Component\ClassLoader\UniversalClassLoader();
+$loader->registerNamespace('Symfony', __DIR__.'/lib/symfony/src');
 $loader->register();
 
-// Register Symfony
-$loader->registerNamespace('Symfony', __DIR__.'/../vendor/symfony/src');
-
-// Read build config
-$build = Symfony\Component\Yaml\Yaml::parse(__DIR__.'/../resources/config/builder.yml');
+// Read build file
+$build = Symfony\Component\Yaml\Yaml::parse(__DIR__.'/build.yml');
 
 // Build components
 mkdir(__DIR__."/../build/components", 0777, true);
@@ -20,13 +18,13 @@ foreach ($build['components'] as $componentName) {
     // Build raw
     file_put_contents(
         __DIR__."/../build/components/$componentName.js",
-        render(__DIR__.'/../resources/templates/copyright.php', array('content' => file_get_contents($componentSourcePath)))
+        render(__DIR__.'/copyright.php', array('content' => file_get_contents($componentSourcePath)))
     );
 
     // Build minified
     file_put_contents(
         __DIR__."/../build/components/$componentName-min.js",
-        render(__DIR__.'/../resources/templates/copyright.php', array('content' => compress(file_get_contents($componentSourcePath))))
+        render(__DIR__.'/copyright.php', array('content' => compress(file_get_contents($componentSourcePath))))
     );
 }
 
@@ -44,7 +42,7 @@ foreach ($build['rollups'] as $rollupName => $components) {
     // Build rollup
     file_put_contents(
         __DIR__."/../build/rollups/$rollupName.js",
-        render(__DIR__.'/../resources/templates/copyright.php', array('content' => compress($componentSourceContents)))
+        render(__DIR__.'/copyright.php', array('content' => compress($componentSourceContents)))
     );
 }
 
@@ -53,7 +51,7 @@ function render($__template__, $__params__)
     extract($__params__);
 
     ob_start();
-    require $__template__;
+    include $__template__;
     $content = ob_get_clean();
 
     return $content;
@@ -62,7 +60,7 @@ function render($__template__, $__params__)
 function compress($jsContent)
 {
     // Open process
-    $cmd = 'java -jar "'.__DIR__.'/../vendor/closure/bin/compiler/compiler.jar"';
+    $cmd = 'java -jar "'.__DIR__.'/bin/compiler/compiler.jar"';
     $descriptors = array(
         0 => array('pipe', 'r'),
         1 => array('pipe', 'w'),

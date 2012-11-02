@@ -1,44 +1,34 @@
-(function (undefined) {
-    /*global CryptoJS:true */
+/**
+ * Output Feedback block mode.
+ */
+CryptoJS.mode.OFB = (function () {
+    var OFB = CryptoJS.lib.BlockCipherMode.extend();
 
-    'use strict';
+    var Encryptor = OFB.Encryptor = OFB.extend({
+        processBlock: function (words, offset) {
+            // Shortcuts
+            var cipher = this._cipher
+            var blockSize = cipher.blockSize;
+            var iv = this._iv;
+            var keystream = this._keystream;
 
-    // Shortcuts
-    var C = CryptoJS;
-    var C_lib = C.lib;
-    var BlockCipherMode = C_lib.BlockCipherMode;
-    var C_mode = C.mode;
+            // Generate keystream
+            if (iv) {
+                keystream = this._keystream = iv.slice(0);
 
-    /**
-     * Output Feedback mode.
-     */
-    C_mode.OFB = (function () {
-        var OFB = BlockCipherMode.extend();
-
-        OFB.Encryptor = OFB.Decryptor = OFB.extend({
-            processBlock: function (words, offset) {
-                // Shortcuts
-                var cipher = this._cipher;
-                var blockSize = cipher.blockSize;
-                var iv = this._iv;
-                var keystream = this._keystream;
-
-                // Generate keystream
-                if (iv) {
-                    keystream = this._keystream = iv.slice(0);
-
-                    // Remove IV for subsequent blocks
-                    this._iv = undefined;
-                }
-                cipher.encryptBlock(keystream, 0);
-
-                // Encrypt
-                for (var i = 0; i < blockSize; i++) {
-                    words[offset + i] ^= keystream[i];
-                }
+                // Remove IV for subsequent blocks
+                this._iv = undefined;
             }
-        });
+            cipher.encryptBlock(keystream, 0);
 
-        return OFB;
-    }());
+            // Encrypt
+            for (var i = 0; i < blockSize; i++) {
+                words[offset + i] ^= keystream[i];
+            }
+        }
+    });
+
+    OFB.Decryptor = Encryptor;
+
+    return OFB;
 }());

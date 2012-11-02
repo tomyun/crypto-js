@@ -1,20 +1,10 @@
-(function () {
-    /*global CryptoJS:true */
+/**
+ * A noop padding strategy.
+ */
+CryptoJS.pad.NoPadding = {
+    pad: function () {
+    },
 
-    'use strict';
-
-    // Shortcuts
-    var C = CryptoJS;
-    var C_pad = C.pad;
-
-    /**
-     * A noop padding strategy.
-     */
-    C_pad.NoPadding = {
-        pad: function () {
-        },
-
-        unpad: function () {
-        }
-    };
-}());
+    unpad: function () {
+    }
+};

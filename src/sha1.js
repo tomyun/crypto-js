@@ -1,14 +1,10 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
-    var C_LIB = C.lib;
-    var WordArray = C_LIB.WordArray;
-    var Hasher = C_LIB.Hasher;
-    var C_ALGO = C.algo;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var Hasher = C_lib.Hasher;
+    var C_algo = C.algo;
 
     // Reusable object
     var W = [];
@@ -16,9 +12,13 @@
     /**
      * SHA-1 hash algorithm.
      */
-    var SHA1 = C_ALGO.SHA1 = Hasher.extend({
+    var SHA1 = C_algo.SHA1 = Hasher.extend({
         _doReset: function () {
-            this._hash = WordArray.create([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
+            this._hash = WordArray.create([
+                0x67452301, 0xefcdab89,
+                0x98badcfe, 0x10325476,
+                0xc3d2e1f0
+            ]);
         },
 
         _doProcessBlock: function (M, offset) {
@@ -32,24 +32,23 @@
             var d = H[3];
             var e = H[4];
 
-            // Rounds
-            for (var round = 0; round < 80; round++) {
-                if (round < 16) {
-                    var Wr = M[offset + round] | 0;
+            // Computation
+            for (var i = 0; i < 80; i++) {
+                if (i < 16) {
+                    W[i] = M[offset + i] | 0;
                 } else {
-                    var n = W[round - 3] ^ W[round - 8] ^ W[round - 14] ^ W[round - 16];
-                    var Wr = (n << 1) | (n >>> 31);
+                    var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+                    W[i] = (n << 1) | (n >>> 31);
                 }
-                W[round] = Wr;
 
-                var t = ((a << 5) | (a >>> 27)) + e + Wr;
-                if (round < 20) {
+                var t = ((a << 5) | (a >>> 27)) + e + W[i];
+                if (i < 20) {
                     t += ((b & c) | (~b & d)) + 0x5a827999;
-                } else if (round < 40) {
+                } else if (i < 40) {
                     t += (b ^ c ^ d) + 0x6ed9eba1;
-                } else if (round < 60) {
+                } else if (i < 60) {
                     t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
-                } else /* if (round < 80) */ {
+                } else /* if (i < 80) */ {
                     t += (b ^ c ^ d) - 0x359d3e2a;
                 }
 
@@ -73,18 +72,13 @@
             var data = this._data;
             var dataWords = data.words;
 
+            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
-
-            var nBitsTotalL = this._nDataBitsL;
-            var nBitsTotalH = this._nDataBitsH;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
-
-            var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
-            dataWords[lengthStartIndex] = nBitsTotalH;
-            dataWords[lengthStartIndex + 1] = nBitsTotalL;
-
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = Math.floor(nBitsTotal / 0x100000000);
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
             data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks

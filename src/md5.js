@@ -1,14 +1,10 @@
 (function (Math) {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
-    var C_LIB = C.lib;
-    var WordArray = C_LIB.WordArray;
-    var Hasher = C_LIB.Hasher;
-    var C_ALGO = C.algo;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var Hasher = C_lib.Hasher;
+    var C_algo = C.algo;
 
     // Constants table
     var T = [];
@@ -23,22 +19,24 @@
     /**
      * MD5 hash algorithm.
      */
-    var MD5 = C_ALGO.MD5 = Hasher.extend({
+    var MD5 = C_algo.MD5 = Hasher.extend({
         _doReset: function () {
-            this._hash = WordArray.create([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]);
+            this._hash = WordArray.create([
+                0x67452301, 0xefcdab89,
+                0x98badcfe, 0x10325476
+            ]);
         },
 
         _doProcessBlock: function (M, offset) {
             // Swap endian
             for (var i = 0; i < 16; i++) {
                 // Shortcuts
-                var wordIndex = offset + i;
-                var word = M[wordIndex];
+                var offset_i = offset + i;
+                var M_offset_i = M[offset_i];
 
-                // Swap
-                M[wordIndex] = (
-                    (((word << 8)  | (word >>> 24)) & 0x00ff00ff) |
-                    (((word << 24) | (word >>> 8))  & 0xff00ff00)
+                M[offset_i] = (
+                    (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
+                    (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
                 );
             }
 
@@ -51,28 +49,28 @@
             var c = H[2];
             var d = H[3];
 
-            // Rounds
-            for (var round = 0; round < 64; round += 4) {
-                if (round < 16) {
-                    a = FF(a, b, c, d, M[offset + round],      7, T[round]);
-                    d = FF(d, a, b, c, M[offset + round + 1], 12, T[round + 1]);
-                    c = FF(c, d, a, b, M[offset + round + 2], 17, T[round + 2]);
-                    b = FF(b, c, d, a, M[offset + round + 3], 22, T[round + 3]);
-                } else if (round < 32) {
-                    a = GG(a, b, c, d, M[offset + ((round + 1) % 16)],   5, T[round]);
-                    d = GG(d, a, b, c, M[offset + ((round + 6) % 16)],   9, T[round + 1]);
-                    c = GG(c, d, a, b, M[offset + ((round + 11) % 16)], 14, T[round + 2]);
-                    b = GG(b, c, d, a, M[offset + (round % 16)],        20, T[round + 3]);
-                } else if (round < 48) {
-                    a = HH(a, b, c, d, M[offset + ((round * 3 + 5) % 16)],   4, T[round]);
-                    d = HH(d, a, b, c, M[offset + ((round * 3 + 8) % 16)],  11, T[round + 1]);
-                    c = HH(c, d, a, b, M[offset + ((round * 3 + 11) % 16)], 16, T[round + 2]);
-                    b = HH(b, c, d, a, M[offset + ((round * 3 + 14) % 16)], 23, T[round + 3]);
-                } else /* if (round < 64) */ {
-                    a = II(a, b, c, d, M[offset + ((round * 3) % 16)],       6, T[round]);
-                    d = II(d, a, b, c, M[offset + ((round * 3 + 7) % 16)],  10, T[round + 1]);
-                    c = II(c, d, a, b, M[offset + ((round * 3 + 14) % 16)], 15, T[round + 2]);
-                    b = II(b, c, d, a, M[offset + ((round * 3 + 5) % 16)],  21, T[round + 3]);
+            // Computation
+            for (var i = 0; i < 64; i += 4) {
+                if (i < 16) {
+                    a = FF(a, b, c, d, M[offset + i],     7,  T[i]);
+                    d = FF(d, a, b, c, M[offset + i + 1], 12, T[i + 1]);
+                    c = FF(c, d, a, b, M[offset + i + 2], 17, T[i + 2]);
+                    b = FF(b, c, d, a, M[offset + i + 3], 22, T[i + 3]);
+                } else if (i < 32) {
+                    a = GG(a, b, c, d, M[offset + ((i + 1) % 16)],  5,  T[i]);
+                    d = GG(d, a, b, c, M[offset + ((i + 6) % 16)],  9,  T[i + 1]);
+                    c = GG(c, d, a, b, M[offset + ((i + 11) % 16)], 14, T[i + 2]);
+                    b = GG(b, c, d, a, M[offset + (i % 16)],        20, T[i + 3]);
+                } else if (i < 48) {
+                    a = HH(a, b, c, d, M[offset + ((i * 3 + 5) % 16)],  4,  T[i]);
+                    d = HH(d, a, b, c, M[offset + ((i * 3 + 8) % 16)],  11, T[i + 1]);
+                    c = HH(c, d, a, b, M[offset + ((i * 3 + 11) % 16)], 16, T[i + 2]);
+                    b = HH(b, c, d, a, M[offset + ((i * 3 + 14) % 16)], 23, T[i + 3]);
+                } else /* if (i < 64) */ {
+                    a = II(a, b, c, d, M[offset + ((i * 3) % 16)],      6,  T[i]);
+                    d = II(d, a, b, c, M[offset + ((i * 3 + 7) % 16)],  10, T[i + 1]);
+                    c = II(c, d, a, b, M[offset + ((i * 3 + 14) % 16)], 15, T[i + 2]);
+                    b = II(b, c, d, a, M[offset + ((i * 3 + 5) % 16)],  21, T[i + 3]);
                 }
             }
 
@@ -88,25 +86,24 @@
             var data = this._data;
             var dataWords = data.words;
 
+            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
-
-            var nBitsTotalL = this._nDataBitsL;
-            var nBitsTotalH = this._nDataBitsH;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
 
-            var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
-            dataWords[lengthStartIndex] = (
-                (((nBitsTotalL << 8)  | (nBitsTotalL >>> 24)) & 0x00ff00ff) |
-                (((nBitsTotalL << 24) | (nBitsTotalL >>> 8))  & 0xff00ff00)
-            );
-            dataWords[lengthStartIndex + 1] = (
+            var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+            var nBitsTotalL = nBitsTotal;
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = (
                 (((nBitsTotalH << 8)  | (nBitsTotalH >>> 24)) & 0x00ff00ff) |
                 (((nBitsTotalH << 24) | (nBitsTotalH >>> 8))  & 0xff00ff00)
             );
+            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+                (((nBitsTotalL << 8)  | (nBitsTotalL >>> 24)) & 0x00ff00ff) |
+                (((nBitsTotalL << 24) | (nBitsTotalL >>> 8))  & 0xff00ff00)
+            );
 
-            data.sigBytes = dataWords.length * 4;
+            data.sigBytes = (dataWords.length + 1) * 4;
 
             // Hash final blocks
             this._process();
@@ -117,18 +114,14 @@
             // Swap endian
             for (var i = 0; i < 4; i++) {
                 // Shortcut
-                var word = H[i];
+                var H_i = H[i];
 
-                // Swap
-                H[i] = (
-                    (((word << 8)  | (word >>> 24)) & 0x00ff00ff) |
-                    (((word << 24) | (word >>> 8))  & 0xff00ff00)
-                );
+                H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
+                       (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
             }
         }
     });
 
-    // Auxiliary functions
     function FF(a, b, c, d, x, s, t) {
         var n = a + ((b & c) | (~b & d)) + x + t;
         return ((n << s) | (n >>> (32 - s))) + b;

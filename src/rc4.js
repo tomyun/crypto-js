@@ -1,8 +1,4 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -52,8 +48,6 @@
     });
 
     function generateKeystreamWord() {
-        /*jshint validthis:true */
-
         // Shortcuts
         var S = this._S;
         var i = this._i;
@@ -91,7 +85,7 @@
     C.RC4 = StreamCipher._createHelper(RC4);
 
     /**
-     * RC4-drop stream cipher algorithm.
+     * Modified RC4 stream cipher algorithm.
      */
     var RC4Drop = C_algo.RC4Drop = RC4.extend({
         /**

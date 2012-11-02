@@ -1,8 +1,4 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -34,7 +30,8 @@
         }
 
         // Walk GF(2^8)
-        var x = 0, xi = 0;
+        var x = 0;
+        var xi = 0;
         for (var i = 0; i < 256; i++) {
             // Compute sbox
             var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
@@ -54,7 +51,7 @@
             SUB_MIX_2[x] = (t << 8)  | (t >>> 24);
             SUB_MIX_3[x] = t;
 
-            // Compute inv sub bytes, mix columns tables
+            // Compute inv sub bytes, inv mix columns tables
             var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
             INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
             INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
@@ -85,10 +82,10 @@
             var keySize = key.sigBytes / 4;
 
             // Compute number of rounds
-            var nRounds = this._nRounds = keySize + 6;
+            var nRounds = this._nRounds = keySize + 6
 
             // Compute number of key schedule rows
-            var ksRows = nRounds * 4 + 4;
+            var ksRows = (nRounds + 1) * 4;
 
             // Compute key schedule
             var keySchedule = this._keySchedule = [];
@@ -98,24 +95,18 @@
                 } else {
                     var t = keySchedule[ksRow - 1];
 
-                    if (ksRow % keySize === 0) {
+                    if (!(ksRow % keySize)) {
                         // Rot word
                         t = (t << 8) | (t >>> 24);
 
                         // Sub word
-                        t = (
-                            (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) |
-                            (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff]
-                        );
+                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
 
                         // Mix Rcon
-                        t ^= RCON[ksRow / keySize] << 24;
+                        t ^= RCON[(ksRow / keySize) | 0] << 24;
                     } else if (keySize > 6 && ksRow % keySize == 4) {
                         // Sub word
-                        t = (
-                            (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) |
-                            (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff]
-                        );
+                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
                     }
 
                     keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
@@ -127,32 +118,23 @@
             for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
                 var ksRow = ksRows - invKsRow;
 
-                var t;
                 if (invKsRow % 4) {
-                    t = keySchedule[ksRow];
+                    var t = keySchedule[ksRow];
                 } else {
-                    t = keySchedule[ksRow - 4];
+                    var t = keySchedule[ksRow - 4];
                 }
 
                 if (invKsRow < 4 || ksRow <= 4) {
                     invKeySchedule[invKsRow] = t;
                 } else {
-                    invKeySchedule[invKsRow] = (
-                        INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[(t >>> 16) & 0xff]] ^
-                        INV_SUB_MIX_2[SBOX[(t >>> 8) & 0xff]] ^ INV_SUB_MIX_3[SBOX[t & 0xff]]
-                    );
+                    invKeySchedule[invKsRow] = INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[(t >>> 16) & 0xff]] ^
+                                               INV_SUB_MIX_2[SBOX[(t >>> 8) & 0xff]] ^ INV_SUB_MIX_3[SBOX[t & 0xff]];
                 }
             }
         },
 
         encryptBlock: function (M, offset) {
-            doCryptBlock.call(
-                this,
-                M, offset,
-                this._keySchedule,
-                SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3,
-                SBOX
-            );
+            this._doCryptBlock(M, offset, this._keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX);
         },
 
         decryptBlock: function (M, offset) {
@@ -161,13 +143,7 @@
             M[offset + 1] = M[offset + 3];
             M[offset + 3] = t;
 
-            doCryptBlock.call(
-                this,
-                M, offset,
-                this._invKeySchedule,
-                INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3,
-                INV_SBOX
-            );
+            this._doCryptBlock(M, offset, this._invKeySchedule, INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX);
 
             // Inv swap 2nd and 4th rows
             var t = M[offset + 1];
@@ -175,75 +151,49 @@
             M[offset + 3] = t;
         },
 
+        _doCryptBlock: function (M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
+            // Shortcut
+            var nRounds = this._nRounds;
+
+            // Get input, add round key
+            var s0 = M[offset]     ^ keySchedule[0];
+            var s1 = M[offset + 1] ^ keySchedule[1];
+            var s2 = M[offset + 2] ^ keySchedule[2];
+            var s3 = M[offset + 3] ^ keySchedule[3];
+
+            // Key schedule row counter
+            var ksRow = 4;
+
+            // Rounds
+            for (var round = 1; round < nRounds; round++) {
+                // Shift rows, sub bytes, mix columns, add round key
+                var t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^ SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
+                var t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^ SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
+                var t2 = SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[(s3 >>> 16) & 0xff] ^ SUB_MIX_2[(s0 >>> 8) & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++];
+                var t3 = SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[(s0 >>> 16) & 0xff] ^ SUB_MIX_2[(s1 >>> 8) & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++];
+
+                // Update state
+                s0 = t0;
+                s1 = t1;
+                s2 = t2;
+                s3 = t3;
+            }
+
+            // Shift rows, sub bytes, add round key
+            var t0 = ((SBOX[s0 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xff] << 16) | (SBOX[(s2 >>> 8) & 0xff] << 8) | SBOX[s3 & 0xff]) ^ keySchedule[ksRow++];
+            var t1 = ((SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) | (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]) ^ keySchedule[ksRow++];
+            var t2 = ((SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) | (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]) ^ keySchedule[ksRow++];
+            var t3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) | (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++];
+
+            // Set output
+            M[offset]     = t0;
+            M[offset + 1] = t1;
+            M[offset + 2] = t2;
+            M[offset + 3] = t3;
+        },
+
         keySize: 256/32
     });
-
-    function doCryptBlock(M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
-        /*jshint validthis:true */
-
-        // Get input, add round key
-        var s0 = M[offset]     ^ keySchedule[0];
-        var s1 = M[offset + 1] ^ keySchedule[1];
-        var s2 = M[offset + 2] ^ keySchedule[2];
-        var s3 = M[offset + 3] ^ keySchedule[3];
-
-        // Key schedule row counter
-        var ksRow = 4;
-
-        // Shortcut
-        var nRounds = this._nRounds;
-
-        // Rounds
-        for (var round = 1; round < nRounds; round++) {
-            // Shift rows, sub bytes, mix columns, add round key
-            var t0 = (
-                SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^
-                SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++]
-            );
-            var t1 = (
-                SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^
-                SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++]
-            );
-            var t2 = (
-                SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[(s3 >>> 16) & 0xff] ^
-                SUB_MIX_2[(s0 >>> 8) & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++]
-            );
-            var t3 = (
-                SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[(s0 >>> 16) & 0xff] ^
-                SUB_MIX_2[(s1 >>> 8) & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++]
-            );
-
-            // Update state
-            s0 = t0;
-            s1 = t1;
-            s2 = t2;
-            s3 = t3;
-        }
-
-        // Shift rows, sub bytes, add round key
-        var t0 = (
-                (SBOX[s0 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xff] << 16) |
-                (SBOX[(s2 >>> 8) & 0xff] << 8) | SBOX[s3 & 0xff]
-            ) ^ keySchedule[ksRow++];
-        var t1 = (
-                (SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) |
-                (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]
-            ) ^ keySchedule[ksRow++];
-        var t2 = (
-                (SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) |
-                (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]
-            ) ^ keySchedule[ksRow++];
-        var t3 = (
-                (SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) |
-                (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]
-            ) ^ keySchedule[ksRow++];
-
-        // Set output
-        M[offset]     = t0;
-        M[offset + 1] = t1;
-        M[offset + 2] = t2;
-        M[offset + 3] = t3;
-    }
 
     /**
      * Shortcut functions to the cipher's object interface.

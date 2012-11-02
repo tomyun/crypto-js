@@ -1,19 +1,15 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
-    var C_LIB = C.lib;
-    var WordArray = C_LIB.WordArray;
-    var C_ALGO = C.algo;
-    var SHA256 = C_ALGO.SHA256;
+    var C_lib = C.lib;
+    var WordArray = C_lib.WordArray;
+    var C_algo = C.algo;
+    var SHA256 = C_algo.SHA256;
 
     /**
      * SHA-224 hash algorithm.
      */
-    var SHA224 = C_ALGO.SHA224 = SHA256.extend({
+    var SHA224 = C_algo.SHA224 = SHA256.extend({
         _doReset: function () {
             this._hash = WordArray.create([
                 0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,

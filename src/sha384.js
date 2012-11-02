@@ -1,8 +1,4 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
     var C_x64 = C.x64;

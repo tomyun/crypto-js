@@ -1,7 +1,7 @@
 YUI.add('algo-hmac-test', function (Y) {
     var C = CryptoJS;
 
-    Y.CryptoJSTestSuite.add(new Y.Test.Case({
+    Y.Test.Runner.add(new Y.Test.Case({
         name: 'HMAC',
 
         testVector1: function () {

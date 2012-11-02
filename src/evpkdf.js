@@ -1,8 +1,4 @@
 (function () {
-    /*global CryptoJS:true */
-
-    'use strict';
-
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
@@ -72,12 +68,11 @@
             var iterations = cfg.iterations;
 
             // Generate key
-            var block;
             while (derivedKeyWords.length < keySize) {
                 if (block) {
                     hasher.update(block);
                 }
-                block = hasher.update(password).finalize(salt);
+                var block = hasher.update(password).finalize(salt);
                 hasher.reset();
 
                 // Iterations

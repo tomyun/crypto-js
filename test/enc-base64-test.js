@@ -1,14 +1,8 @@
 YUI.add('enc-base64-test', function (Y) {
     var C = CryptoJS;
 
-    Y.CryptoJSTestSuite.add(new Y.Test.Case({
+    Y.Test.Runner.add(new Y.Test.Case({
         name: 'Base64',
-
-        _should: {
-            error: {
-                testParseInvalidCharacters: true
-            }
-        },
 
         testStringify0: function () {
             Y.Assert.areEqual('', C.enc.Base64.stringify(C.lib.WordArray.create([0x666f6f62, 0x61720000], 0)));
@@ -72,10 +66,6 @@ YUI.add('enc-base64-test', function (Y) {
 
         testParse15: function () {
             Y.Assert.areEqual(C.lib.WordArray.create([0x3e3e3e3f, 0x3f3f3e3e, 0x3e3f3f3f, 0x3d2f2b00], 15).toString(), C.enc.Base64.parse('Pj4+Pz8/Pj4+Pz8/PS8r').toString());
-        },
-
-        testParseInvalidCharacters: function () {
-            C.enc.Base64.parse('Pj4+P\nz8/Pj4+Pz8\n/PS8r');
         }
     }));
 }, '$Rev$');
