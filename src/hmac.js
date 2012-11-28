@@ -39,6 +39,9 @@
                 key = hasher.finalize(key);
             }
 
+            // Clamp excess bits
+            key.clamp();
+
             // Clone key for inner and outer pads
             var oKey = this._oKey = key.clone();
             var iKey = this._iKey = key.clone();
