@@ -26,6 +26,7 @@ components:
     - tripledes
     - rc4
     - rabbit
+    - rabbit-legacy
 
 rollups:
     md5:    [core, md5]
@@ -44,7 +45,8 @@ rollups:
 
     pbkdf2: [core, sha1, hmac, pbkdf2]
 
-    aes:       [core, enc-base64, md5, evpkdf, cipher-core, aes]
-    tripledes: [core, enc-base64, md5, evpkdf, cipher-core, tripledes]
-    rc4:       [core, enc-base64, md5, evpkdf, cipher-core, rc4]
-    rabbit:    [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
+    aes:           [core, enc-base64, md5, evpkdf, cipher-core, aes]
+    tripledes:     [core, enc-base64, md5, evpkdf, cipher-core, tripledes]
+    rc4:           [core, enc-base64, md5, evpkdf, cipher-core, rc4]
+    rabbit:        [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
+    rabbit-legacy: [core, enc-base64, md5, evpkdf, cipher-core, rabbit-legacy]
