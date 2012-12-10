@@ -1,4 +1,9 @@
 (function () {
+    // Check if typed arrays are supported
+    if (typeof ArrayBuffer != 'function') {
+        return;
+    }
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
