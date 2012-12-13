@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
