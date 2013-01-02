@@ -563,7 +563,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Configuration options.
          */
-        // cfg: Base.extend(),
+        cfg: Base.extend(),
 
         /**
          * Initializes a newly created hasher.
@@ -576,7 +576,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         init: function (cfg) {
             // Apply config defaults
-            // this.cfg = this.cfg.extend(cfg);
+            this.cfg = this.cfg.extend(cfg);
 
             // Set initial values
             this.reset();
