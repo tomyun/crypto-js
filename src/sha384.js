@@ -21,9 +21,11 @@
         },
 
         _doFinalize: function () {
-            SHA512._doFinalize.call(this);
+            var hash = SHA512._doFinalize.call(this);
 
-            this._hash.sigBytes -= 16;
+            hash.sigBytes -= 16;
+
+            return hash;
         }
     });
 

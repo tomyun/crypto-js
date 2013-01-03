@@ -641,9 +641,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             }
 
             // Perform concrete-hasher logic
-            this._doFinalize();
+            var hash = this._doFinalize();
 
-            return this._hash;
+            return hash;
         },
 
         blockSize: 512/32,

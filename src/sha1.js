@@ -83,6 +83,9 @@
 
             // Hash final blocks
             this._process();
+
+            // Return final computed hash
+            return this._hash;
         },
 
         clone: function () {

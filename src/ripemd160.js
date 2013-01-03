@@ -159,8 +159,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
             // Hash final blocks
             this._process();
 
-            // Shortcut
-            var H = this._hash.words;
+            // Shortcuts
+            var hash = this._hash;
+            var H = hash.words;
 
             // Swap endian
             for (var i = 0; i < 5; i++) {
@@ -171,6 +172,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
                 H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
                        (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
             }
+
+            // Return final computed hash
+            return hash;
         },
 
         clone: function () {

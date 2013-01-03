@@ -253,7 +253,10 @@
             this._process();
 
             // Convert hash to 32-bit word array before returning
-            this._hash = this._hash.toX32();
+            var hash = this._hash.toX32();
+
+            // Return final computed hash
+            return hash;
         },
 
         clone: function () {

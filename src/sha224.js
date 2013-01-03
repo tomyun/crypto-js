@@ -18,9 +18,11 @@
         },
 
         _doFinalize: function () {
-            SHA256._doFinalize.call(this);
+            var hash = SHA256._doFinalize.call(this);
 
-            this._hash.sigBytes -= 4;
+            hash.sigBytes -= 4;
+
+            return hash;
         }
     });
 
