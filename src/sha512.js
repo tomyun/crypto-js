@@ -256,6 +256,13 @@
             this._hash = this._hash.toX32();
         },
 
+        clone: function () {
+            var clone = Hasher.clone.call(this);
+            clone._hash = this._hash.clone();
+
+            return clone;
+        },
+
         blockSize: 1024/32
     });
 

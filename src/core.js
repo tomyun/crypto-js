@@ -646,22 +646,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             return this._hash;
         },
 
-        /**
-         * Creates a copy of this object.
-         *
-         * @return {Object} The clone.
-         *
-         * @example
-         *
-         *     var clone = hasher.clone();
-         */
-        clone: function () {
-            var clone = BufferedBlockAlgorithm.clone.call(this);
-            clone._hash = this._hash.clone();
-
-            return clone;
-        },
-
         blockSize: 512/32,
 
         /**

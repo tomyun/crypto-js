@@ -83,6 +83,13 @@
 
             // Hash final blocks
             this._process();
+        },
+
+        clone: function () {
+            var clone = Hasher.clone.call(this);
+            clone._hash = this._hash.clone();
+
+            return clone;
         }
     });
 
