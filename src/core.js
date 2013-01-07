@@ -47,6 +47,16 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                     subtype.mixIn(overrides);
                 }
 
+                // Create default initializer
+                if (!subtype.hasOwnProperty('init')) {
+                    subtype.init = function () {
+                        subtype.$super.init.apply(this, arguments);
+                    };
+                }
+
+                // Initializer's prototype is the subtype object
+                subtype.init.prototype = subtype;
+
                 // Reference supertype
                 subtype.$super = this;
 
@@ -121,7 +131,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              *     var clone = instance.clone();
              */
             clone: function () {
-                return this.$super.extend(this);
+                return this.init.prototype.extend(this);
             }
         };
     }());
@@ -267,7 +277,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 words.push((Math.random() * 0x100000000) | 0);
             }
 
-            return WordArray.create(words, nBytes);
+            return new WordArray.init(words, nBytes);
         }
     });
 
@@ -332,7 +342,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
             }
 
-            return WordArray.create(words, hexStrLength / 2);
+            return new WordArray.init(words, hexStrLength / 2);
         }
     };
 
@@ -391,7 +401,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
             }
 
-            return WordArray.create(words, latin1StrLength);
+            return new WordArray.init(words, latin1StrLength);
         }
     };
 
@@ -455,7 +465,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         reset: function () {
             // Initial values
-            this._data = WordArray.create();
+            this._data = new WordArray.init();
             this._nDataBytes = 0;
         },
 
@@ -532,7 +542,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             }
 
             // Return processed words
-            return WordArray.create(processedWords, nBytesReady);
+            return new WordArray.init(processedWords, nBytesReady);
         },
 
         /**
@@ -663,7 +673,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         _createHelper: function (hasher) {
             return function (message, cfg) {
-                return hasher.create(cfg).finalize(message);
+                return new hasher.init(cfg).finalize(message);
             };
         },
 
@@ -682,7 +692,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          */
         _createHmacHelper: function (hasher) {
             return function (message, key) {
-                return C_algo.HMAC.create(hasher, key).finalize(message);
+                return new C_algo.HMAC.init(hasher, key).finalize(message);
             };
         }
     });

@@ -49,4 +49,6 @@
             $superInit.apply(this, arguments);
         }
     };
+
+    WordArray.init.prototype = WordArray;
 }());

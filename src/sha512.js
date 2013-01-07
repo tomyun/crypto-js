@@ -69,11 +69,11 @@
      */
     var SHA512 = C_algo.SHA512 = Hasher.extend({
         _doReset: function () {
-            this._hash = X64WordArray.create([
-                X64Word_create(0x6a09e667, 0xf3bcc908), X64Word_create(0xbb67ae85, 0x84caa73b),
-                X64Word_create(0x3c6ef372, 0xfe94f82b), X64Word_create(0xa54ff53a, 0x5f1d36f1),
-                X64Word_create(0x510e527f, 0xade682d1), X64Word_create(0x9b05688c, 0x2b3e6c1f),
-                X64Word_create(0x1f83d9ab, 0xfb41bd6b), X64Word_create(0x5be0cd19, 0x137e2179)
+            this._hash = new X64WordArray.init([
+                new X64Word.init(0x6a09e667, 0xf3bcc908), new X64Word.init(0xbb67ae85, 0x84caa73b),
+                new X64Word.init(0x3c6ef372, 0xfe94f82b), new X64Word.init(0xa54ff53a, 0x5f1d36f1),
+                new X64Word.init(0x510e527f, 0xade682d1), new X64Word.init(0x9b05688c, 0x2b3e6c1f),
+                new X64Word.init(0x1f83d9ab, 0xfb41bd6b), new X64Word.init(0x5be0cd19, 0x137e2179)
             ]);
         },
 

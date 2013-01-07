@@ -89,7 +89,7 @@
         _doReset: function () {
             var state = this._state = []
             for (var i = 0; i < 25; i++) {
-                state[i] = X64Word.create();
+                state[i] = new X64Word.init();
             }
 
             this.blockSize = (1600 - 2 * this.cfg.outputLength) / 32;
@@ -254,7 +254,7 @@
             }
 
             // Return final computed hash
-            return WordArray.create(hashWords, outputLengthBytes);
+            return new WordArray.init(hashWords, outputLengthBytes);
         },
 
         clone: function () {

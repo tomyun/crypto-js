@@ -23,7 +23,7 @@
          */
         init: function (hasher, key) {
             // Init hasher
-            hasher = this._hasher = hasher.create();
+            hasher = this._hasher = new hasher.init();
 
             // Convert string to WordArray, else assume WordArray already
             if (typeof key == 'string') {

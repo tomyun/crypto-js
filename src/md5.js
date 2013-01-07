@@ -21,7 +21,7 @@
      */
     var MD5 = C_algo.MD5 = Hasher.extend({
         _doReset: function () {
-            this._hash = WordArray.create([
+            this._hash = new WordArray.init([
                 0x67452301, 0xefcdab89,
                 0x98badcfe, 0x10325476
             ]);
