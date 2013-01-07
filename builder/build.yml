@@ -25,6 +25,7 @@ components:
     - pad-iso97971
     - pad-zeropadding
     - pad-nopadding
+    - format-hex
     - aes
     - tripledes
     - rc4
