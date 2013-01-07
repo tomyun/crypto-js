@@ -1,25 +1,26 @@
 YUI.add('enc-hex-test', function (Y) {
-    var C = CryptoJS;
+    var Hex = CryptoJS.enc.Hex;
+    var WordArray = CryptoJS.lib.WordArray;
 
     Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'Hex',
 
         _should: {
             error: {
-                testParseInvalidOctet: true
+                testOctetError: true
             }
         },
 
         testStringify: function () {
-            Y.Assert.areEqual('12345678', C.enc.Hex.stringify(C.lib.WordArray.create([0x12345678])));
+            Y.Assert.areEqual('12345678', Hex.stringify(new WordArray([0x12345678])));
         },
 
         testParse: function () {
-            Y.Assert.areEqual(C.lib.WordArray.create([0x12345678]).toString(), C.enc.Hex.parse('12345678').toString());
+            Y.Assert.areEqual((new WordArray([0x12345678])).toString(), Hex.parse('12345678').toString());
         },
 
-        testParseInvalidOctet: function () {
-            C.enc.Hex.parse('1234567');
+        testOctetError: function () {
+            Hex.parse('1234567');
         }
     }));
 }, '$Rev$');

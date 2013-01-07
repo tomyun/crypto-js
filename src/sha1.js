@@ -8,7 +8,6 @@
     var C_LIB = C.lib;
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
-    var C_ALGO = C.algo;
 
     // Reusable object
     var W = [];
@@ -16,9 +15,12 @@
     /**
      * SHA-1 hash algorithm.
      */
-    var SHA1 = C_ALGO.SHA1 = Hasher.extend({
+    var SHA1 = C.SHA1 = Hasher.extend({
+        _doInit: function () {
+        },
+
         _doReset: function () {
-            this._hash = WordArray.create([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
+            this._hash = new WordArray([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
         },
 
         _doProcessBlock: function (M, offset) {
@@ -73,54 +75,31 @@
             var data = this._data;
             var dataWords = data.words;
 
-            var nBitsLeft = data.sigBytes * 8;
-
-            var nBitsTotalL = this._nDataBitsL;
-            var nBitsTotalH = this._nDataBitsH;
+            var nBitsLeft = 8 * data.sigBytes;
+            var nBitsTotalLsw = this._nDataBitsLsw;
+            var nBitsTotalMsw = this._nDataBitsMsw;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
 
             var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
-            dataWords[lengthStartIndex] = nBitsTotalH;
-            dataWords[lengthStartIndex + 1] = nBitsTotalL;
+            dataWords[lengthStartIndex] = nBitsTotalMsw;
+            dataWords[lengthStartIndex + 1] = nBitsTotalLsw;
 
-            data.sigBytes = dataWords.length * 4;
+            data.sigBytes = 4 * dataWords.length;
 
             // Hash final blocks
             this._process();
+
+            // Return final hash
+            return this._hash;
+        },
+
+        clone: function () {
+            var clone = SHA1.$super.prototype.clone.call(this);
+            clone._hash = clone._hash.clone();
+
+            return clone;
         }
     });
-
-    /**
-     * Shortcut function to the hasher's object interface.
-     *
-     * @param {WordArray|string} message The message to hash.
-     *
-     * @return {WordArray} The hash.
-     *
-     * @static
-     *
-     * @example
-     *
-     *     var hash = CryptoJS.SHA1('message');
-     *     var hash = CryptoJS.SHA1(wordArray);
-     */
-    C.SHA1 = Hasher._createHelper(SHA1);
-
-    /**
-     * Shortcut function to the HMAC's object interface.
-     *
-     * @param {WordArray|string} message The message to hash.
-     * @param {WordArray|string} key The secret key.
-     *
-     * @return {WordArray} The HMAC.
-     *
-     * @static
-     *
-     * @example
-     *
-     *     var hmac = CryptoJS.HmacSHA1(message, key);
-     */
-    C.HmacSHA1 = Hasher._createHmacHelper(SHA1);
 }());

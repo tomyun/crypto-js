@@ -2,18 +2,17 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>CryptoJS Test Suite</title>
+        <title>CryptoJS Unit Test</title>
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
-
+        <script src="../src/md5.js"></script>
 <!--
+        <script src="../src/sha1.js"></script>
+        <script src="../src/sha256.js"></script>
         <script src="../src/x64-core.js"></script>
         <script src="../src/enc-utf16.js"></script>
         <script src="../src/enc-base64.js"></script>
-        <script src="../src/md5.js"></script>
-        <script src="../src/sha1.js"></script>
-        <script src="../src/sha256.js"></script>
         <script src="../src/sha224.js"></script>
         <script src="../src/sha512.js"></script>
         <script src="../src/sha384.js"></script>
@@ -37,22 +36,22 @@
 -->
 
         <!-- YUI -->
-        <script src="http://yui.yahooapis.com/3.7.2/build/yui/yui-min.js"></script>
+        <script src="http://yui.yahooapis.com/3.8.0/build/yui/yui-min.js"></script>
 
         <!-- Tests -->
-<!--
-        <script src="tests/lib-base-test.js"></script>
+        <script src="tests/lib-object-test.js"></script>
         <script src="tests/lib-wordarray-test.js"></script>
-        <script src="tests/x64-word-test.js"></script>
-        <script src="tests/x64-wordarray-test.js"></script>
         <script src="tests/enc-hex-test.js"></script>
         <script src="tests/enc-latin1-test.js"></script>
         <script src="tests/enc-utf8-test.js"></script>
-        <script src="tests/enc-utf16-test.js"></script>
-        <script src="tests/enc-base64-test.js"></script>
         <script src="tests/md5-test.js"></script>
+<!--
         <script src="tests/sha1-test.js"></script>
         <script src="tests/sha256-test.js"></script>
+        <script src="tests/x64-word-test.js"></script>
+        <script src="tests/x64-wordarray-test.js"></script>
+        <script src="tests/enc-utf16-test.js"></script>
+        <script src="tests/enc-base64-test.js"></script>
         <script src="tests/sha224-test.js"></script>
         <script src="tests/sha512-test.js"></script>
         <script src="tests/sha384-test.js"></script>
@@ -81,9 +80,8 @@
         <script src="tests/tripledes-test.js"></script>
 -->
 
-        <!-- Test runner -->
+        <!-- Tester -->
         <script>
-            // Load test console
             YUI().use('test-console', function (Y) {
                 // Create test suite and add it to runner
                 Y.CryptoJSTestSuite = new Y.Test.Suite('CryptoJS');
@@ -94,10 +92,11 @@
                     new Y.Test.Console({
                         height: '600px',
                         filters: {
-                            info: false,
+                            info: true,
                             pass: true,
                             fail: true,
-                            status: true
+                            status: true,
+                            ignore: true
                         },
                         render: true
                     });
