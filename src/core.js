@@ -403,14 +403,14 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var sigBytes = wordArray.sigBytes;
 
             // Convert
-            var hexChars = [];
+            var hexChars = '';
             for (var i = 0; i < sigBytes; i++) {
                 var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                hexChars.push((bite >>> 4).toString(16));
-                hexChars.push((bite & 0xf).toString(16));
+                hexChars += (bite >>> 4).toString(16);
+                hexChars += (bite & 0xf).toString(16);
             }
 
-            return hexChars.join('');
+            return hexChars;
         },
 
         /**
@@ -473,13 +473,13 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var sigBytes = wordArray.sigBytes;
 
             // Convert
-            var latin1Chars = [];
+            var latin1Chars = '';
             for (var i = 0; i < sigBytes; i++) {
                 var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                latin1Chars.push(String.fromCharCode(bite));
+                latin1Chars += String.fromCharCode(bite);
             }
 
-            return latin1Chars.join('');
+            return latin1Chars;
         },
 
         /**
