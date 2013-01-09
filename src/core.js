@@ -51,23 +51,12 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @param {Object} receiver The object to receive properties.
          * @param {Object} supplier The object to supply properties.
-         * @param {Function} filter (Optional)
-         *     A callback that takes a property name and value as arguments,
-         *     and returns true or false to indicate whether this property should be mixed.
          *
          * @static
          *
          * @example
          *
          *     CryptoJS.lib.Object.mixIn(receiver, supplier);
-         *
-         *     CryptoJS.lib.Object.mixIn(receiver, supplier, function (propertyName, propertyValue) {
-         *         if (propertyName === '$special') {
-         *             return false;
-         *         } else {
-         *             return true;
-         *         }
-         *     });
          */
         O.mixIn = (function () {
             // If a property on Object.prototype is non-enumerable,
@@ -85,14 +74,11 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Shortcut
             var NON_ENUMERABLES_LENGTH = NON_ENUMERABLES.length;
 
-            return function (receiver, supplier, filter) {
+            return function (receiver, supplier) {
                 // Copy properties
                 for (var propertyName in supplier) {
                     if (supplier.hasOwnProperty(propertyName)) {
-                        var propertyValue = supplier[propertyName];
-                        if (!filter || filter(propertyName, propertyValue)) {
-                            receiver[propertyName] = propertyValue;
-                        }
+                        receiver[propertyName] = supplier[propertyName];
                     }
                 }
 
@@ -100,10 +86,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 for (var i = 0; i < NON_ENUMERABLES_LENGTH; i++) {
                     var propertyName = NON_ENUMERABLES[i];
                     if (supplier.hasOwnProperty(propertyName)) {
-                        var propertyValue = supplier[propertyName];
-                        if (!filter || filter(propertyName, propertyValue)) {
-                            receiver[propertyName] = propertyValue;
-                        }
+                        receiver[propertyName] = supplier[propertyName];
                     }
                 }
             };
@@ -112,88 +95,67 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         /**
          * Creates a new object type that inherits from this object type.
          *
-         * @param {Object} body The object type body definition.
+         * @param {Object} bodyInstance (Optional) The object type body instance definition.
+         * @param {Object} bodyStatic (Optional) The object type body static definition.
          *
          * @return {Function} The new object type constructor function.
          *
          * @static
          *
-         * @throws ReservedPropertyError
-         *
          * @example
          *
-         *     var MyType = CryptoJS.lib.Object.extend({
-         *         field: 'value',
+         *     var MyType = CryptoJS.lib.Object.extend(
+         *         {
+         *             field: 'value',
          *
-         *         constructor: function () {
-         *         },
+         *             constructor: function () {
+         *             },
          *
-         *         method: function () {
-         *         },
-         *
-         *         $static: {
          *             method: function () {
          *             }
+         *         },
+         *         {
+         *             staticField: 'value',
+         *
+         *             staticMethod: function () {
+         *             }
          *         }
-         *     });
+         *     );
          */
-        O.extend = (function () {
-            function staticMixInFilter(propertyName) {
-                if (propertyName === '$static') {
-                    return false;
-                } else {
-                    return true;
-                }
+        O.extend = function (bodyInstance, bodyStatic) {
+            /*jshint validthis:true */
+
+            // Get or create constructor
+            if (bodyInstance && bodyInstance.hasOwnProperty('constructor')) {
+                var Subtype = bodyInstance.constructor;
+            } else {
+                var Subtype = function Subtype() {
+                    Subtype.$super.apply(this, arguments);
+                };
             }
 
-            return function (body) {
-                /*jshint validthis:true */
+            // Inherit instance properties
+            var subtypePrototype = Subtype.prototype = O.create(this.prototype);
+            subtypePrototype.constructor = Subtype;
 
-                // Default value
-                if (!body) {
-                    body = {};
-                }
+            // "Inherit" static properties
+            O.mixIn(Subtype, this);
 
-                // <?php if ($debug): ?>
-                {
-                    // Check reserved properties
-                    if (body.$static && body.$static.$super) {
-                        throw new ReservedPropertyError('"$super" is reserved.');
-                    }
-                }
-                // <?php endif ?>
+            // Own instance properties
+            if (bodyInstance) {
+                O.mixIn(subtypePrototype, bodyInstance);
+            }
 
-                // Get or create constructor
-                if (body.hasOwnProperty('constructor')) {
-                    var Subtype = body.constructor;
-                } else {
-                    var Subtype = function Subtype() {
-                        Subtype.$super.apply(this, arguments);
-                    };
-                }
+            // Own static properties
+            if (bodyStatic) {
+                O.mixIn(Subtype, bodyStatic);
+            }
 
-                // Inherit instance properties
-                var subtypePrototype = Subtype.prototype = O.create(this.prototype);
-                subtypePrototype.constructor = Subtype;
+            // Reference supertype
+            Subtype.$super = this;
 
-                // "Inherit" static properties
-                O.mixIn(Subtype, this);
-
-                // Own instance properties
-                O.mixIn(subtypePrototype, body, staticMixInFilter);
-
-                // Own static properties
-                var bodyStatic = body.$static;
-                if (bodyStatic) {
-                    O.mixIn(Subtype, bodyStatic);
-                }
-
-                // Reference supertype
-                Subtype.$super = this;
-
-                return Subtype;
-            };
-        }());
+            return Subtype;
+        };
 
         /**
          * Creates a copy of this instance object.
@@ -857,11 +819,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          * Error namespace.
          */
         var C_ERR = C.err = {};
-
-        /**
-         * Reserved property error.
-         */
-        var ReservedPropertyError = C_ERR.ReservedPropertyError = O.extend.call(Error);
 
         /**
          * Hex octet error.

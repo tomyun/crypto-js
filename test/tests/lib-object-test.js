@@ -4,12 +4,6 @@ YUI.add('lib-object-test', function (Y) {
     Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'Object',
 
-        _should: {
-            error: {
-                testExtendReservedProperty: true
-            }
-        },
-
         testCreate: function () {
             var superObj = {
                 field: {}
@@ -31,22 +25,6 @@ YUI.add('lib-object-test', function (Y) {
             Y.Assert.isTrue(receiver.hasOwnProperty('field'));
         },
 
-        testMixInFilter: function () {
-            var receiver = {};
-            var supplier = {
-                field: {}
-            };
-            O.mixIn(receiver, supplier, function (propertyName, propertyValue) {
-                if (propertyName === 'field') {
-                    return false;
-                } else {
-                    return true;
-                }
-            });
-
-            Y.Assert.isFalse(receiver.hasOwnProperty('field'));
-        },
-
         testMixInNonEnumerable: function () {
             var receiver = {};
             var supplier = {
@@ -56,14 +34,6 @@ YUI.add('lib-object-test', function (Y) {
 
             Y.Assert.areEqual(supplier.toString, receiver.toString);
             Y.Assert.isTrue(receiver.hasOwnProperty('toString'));
-        },
-
-        testExtendReservedProperty: function () {
-            O.extend({
-                $static: {
-                    $super: 'value'
-                }
-            });
         },
 
         testExtendConstructor: function () {
@@ -89,17 +59,16 @@ YUI.add('lib-object-test', function (Y) {
         },
 
         testExtendOwnProperties: function () {
-            var body = {
-                field: {},
-                $static: {
-                    field: {}
-                }
+            var bodyInstance = {
+                field: {}
             };
-            var MyType = O.extend(body);
+            var bodyStatic = {
+                field: {}
+            };
+            var MyType = O.extend(bodyInstance, bodyStatic);
 
-            Y.Assert.areEqual(body.field, MyType.prototype.field);
-            Y.Assert.areEqual(body.$static.field, MyType.field);
-            Y.Assert.areNotEqual(body.$static, MyType.prototype.$static);
+            Y.Assert.areEqual(bodyInstance.field, MyType.prototype.field);
+            Y.Assert.areEqual(bodyStatic.field, MyType.field);
         },
 
         testExtendSuper: function () {
@@ -116,7 +85,7 @@ YUI.add('lib-object-test', function (Y) {
             Y.Assert.areNotEqual(o1, o2);
             Y.Assert.areEqual(o1.field, o2.field);
 
-            o1.field = 'new_value';
+            o1.field = 'newValue';
 
             Y.Assert.areNotEqual(o1.field, o2.field);
         }
