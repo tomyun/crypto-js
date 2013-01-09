@@ -28,14 +28,14 @@
                     });
 
                     // Handle lint button click
-                    Y.one('#controls button').on('click', function (e) {
+                    Y.one('#controls button').on('click', function () {
                         // Clear former tests
-                        Y.Test.Runner.clear();
                         testConsole.reset();
+                        Y.Test.Runner.clear();
 
                         // Create test suite
-                        var cryptoJSLintTestSuite = new Y.Test.Suite('CryptoJS Lint');
-                        Y.Test.Runner.add(cryptoJSLintTestSuite);
+                        var testSuite = new Y.Test.Suite('CryptoJS Lint');
+                        Y.Test.Runner.add(testSuite);
 
                         // Get file list
                         var fileList = Y.one('#controls input').getDOMNode().files;
@@ -168,7 +168,7 @@
                                             }(jsHintData.errors[i]));
                                         }
                                     }
-                                    cryptoJSLintTestSuite.add(new Y.Test.Case(testCaseConfig));
+                                    testSuite.add(new Y.Test.Case(testCaseConfig));
 
                                     // If all readers are loaded, run tests
                                     if (--nReaders === 0) {
