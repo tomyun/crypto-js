@@ -185,134 +185,135 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
      * @property {Array} words The array of 32-bit words.
      * @property {number} sigBytes The number of significant bytes in this word array.
      */
-    var WordArray = C_LIB.WordArray = O.extend({
-        /**
-         * Constructor.
-         *
-         * @param {Array} words (Optional) An array of 32-bit words.
-         * @param {number} sigBytes (Optional) The number of significant bytes in the words.
-         *
-         * @example
-         *
-         *     var wordArray = new CryptoJS.lib.WordArray();
-         *     var wordArray = new CryptoJS.lib.WordArray([0x00010203, 0x04050607]);
-         *     var wordArray = new CryptoJS.lib.WordArray([0x00010203, 0x04050607], 6);
-         */
-        constructor: function (words, sigBytes) {
-            // Default values
-            if (!words) {
-                words = [];
-            }
-            if (sigBytes === undefined) {
-                sigBytes = words.length * 4;
-            }
-
-            // Set properties
-            this.words = words;
-            this.sigBytes = sigBytes;
-        },
-
-        /**
-         * Converts this word array to a string.
-         *
-         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
-         *
-         * @return {string} The stringified word array.
-         *
-         * @example
-         *
-         *     var string = wordArray + '';
-         *     var string = wordArray.toString();
-         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
-         */
-        toString: function (encoder) {
-            // Default value
-            if (!encoder) {
-                encoder = Hex;
-            }
-
-            // Stringify
-            return encoder.stringify(this);
-        },
-
-        /**
-         * Concatenates a word array to this word array.
-         *
-         * @param {WordArray} wordArray The word array to append.
-         *
-         * @return {WordArray} This word array.
-         *
-         * @example
-         *
-         *     wordArray1.concat(wordArray2);
-         */
-        concat: function (wordArray) {
-            // Shortcuts
-            var thisWords = this.words;
-            var thatWords = wordArray.words;
-            var thisSigBytes = this.sigBytes;
-            var thatSigBytes = wordArray.sigBytes;
-
-            // Clamp excess bits
-            this.clamp();
-
-            // Concat
-            if (thisSigBytes % 4) {
-                // Copy one byte at a time
-                for (var i = 0; i < thatSigBytes; i++) {
-                    var thisNextByteOffset = thisSigBytes + i;
-                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                    thisWords[thisNextByteOffset >>> 2] |= thatByte << (24 - (thisNextByteOffset % 4) * 8);
+    var WordArray = C_LIB.WordArray = O.extend(
+        {
+            /**
+             * Constructor.
+             *
+             * @param {Array} words (Optional) An array of 32-bit words.
+             * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+             *
+             * @example
+             *
+             *     var wordArray = new CryptoJS.lib.WordArray();
+             *     var wordArray = new CryptoJS.lib.WordArray([0x00010203, 0x04050607]);
+             *     var wordArray = new CryptoJS.lib.WordArray([0x00010203, 0x04050607], 6);
+             */
+            constructor: function (words, sigBytes) {
+                // Default values
+                if (!words) {
+                    words = [];
                 }
-            } else if (thatWords.length > 0xffff) {
-                // Copy one word at a time
-                for (var i = 0; i < thatSigBytes; i += 4) {
-                    thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
+                if (sigBytes === undefined) {
+                    sigBytes = words.length * 4;
                 }
-            } else {
-                // Copy all words at once
-                thisWords.push.apply(thisWords, thatWords);
+
+                // Set properties
+                this.words = words;
+                this.sigBytes = sigBytes;
+            },
+
+            /**
+             * Converts this word array to a string.
+             *
+             * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: Hex
+             *
+             * @return {string} The stringified word array.
+             *
+             * @example
+             *
+             *     var string = wordArray + '';
+             *     var string = wordArray.toString();
+             *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+             */
+            toString: function (encoder) {
+                // Default value
+                if (!encoder) {
+                    encoder = Hex;
+                }
+
+                // Stringify
+                return encoder.stringify(this);
+            },
+
+            /**
+             * Concatenates a word array to this word array.
+             *
+             * @param {WordArray} wordArray The word array to append.
+             *
+             * @return {WordArray} This word array.
+             *
+             * @example
+             *
+             *     wordArray1.concat(wordArray2);
+             */
+            concat: function (wordArray) {
+                // Shortcuts
+                var thisWords = this.words;
+                var thatWords = wordArray.words;
+                var thisSigBytes = this.sigBytes;
+                var thatSigBytes = wordArray.sigBytes;
+
+                // Clamp excess bits
+                this.clamp();
+
+                // Concat
+                if (thisSigBytes % 4) {
+                    // Copy one byte at a time
+                    for (var i = 0; i < thatSigBytes; i++) {
+                        var thisNextByteIndex = thisSigBytes + i;
+                        var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                        thisWords[thisNextByteIndex >>> 2] |= thatByte << (24 - (thisNextByteIndex % 4) * 8);
+                    }
+                } else if (thatWords.length > 0xffff) {
+                    // Copy one word at a time
+                    for (var i = 0; i < thatSigBytes; i += 4) {
+                        thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
+                    }
+                } else {
+                    // Copy all words at once
+                    thisWords.push.apply(thisWords, thatWords);
+                }
+                this.sigBytes += thatSigBytes;
+
+                // Chainable
+                return this;
+            },
+
+            /**
+             * Removes insignificant bits.
+             *
+             * @example
+             *
+             *     wordArray.clamp();
+             */
+            clamp: function () {
+                // Shortcuts
+                var words = this.words;
+                var sigBytes = this.sigBytes;
+
+                // Clamp
+                words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+                words.length = Math.ceil(sigBytes / 4);
+            },
+
+            /**
+             * Creates a copy of this word array.
+             *
+             * @return {WordArray} The clone.
+             *
+             * @example
+             *
+             *     var clone = wordArray.clone();
+             */
+            clone: function () {
+                var clone = WordArray.$super.prototype.clone.call(this);
+                clone.words = clone.words.slice(0);
+
+                return clone;
             }
-            this.sigBytes += thatSigBytes;
-
-            // Chainable
-            return this;
         },
-
-        /**
-         * Removes insignificant bits.
-         *
-         * @example
-         *
-         *     wordArray.clamp();
-         */
-        clamp: function () {
-            // Shortcuts
-            var words = this.words;
-            var sigBytes = this.sigBytes;
-
-            // Clamp
-            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
-            words.length = Math.ceil(sigBytes / 4);
-        },
-
-        /**
-         * Creates a copy of this word array.
-         *
-         * @return {WordArray} The clone.
-         *
-         * @example
-         *
-         *     var clone = wordArray.clone();
-         */
-        clone: function () {
-            var clone = WordArray.$super.prototype.clone.call(this);
-            clone.words = clone.words.slice(0);
-
-            return clone;
-        },
-
-        $static: {
+        {
             /**
              * Creates a word array filled with random bytes.
              *
@@ -335,7 +336,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 return new WordArray(words, nBytes);
             }
         }
-    });
+    );
 
     /**
      * Encoder namespace.

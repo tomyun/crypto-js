@@ -44,6 +44,7 @@ YUI.add('lib-wordarray-test', function (Y) {
             var wordArray2 = WordArray.random(0x40000);
 
             Y.Assert.areEqual(wordArray2.toString(), wordArray1.concat(wordArray2).toString());
+            Y.Assert.areEqual(wordArray2.toString(), wordArray1.toString());
         },
 
         testClamp: function () {
