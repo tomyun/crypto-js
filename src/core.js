@@ -652,10 +652,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
 
             // Process blocks
-            if (nWordsReady) {
+            if (nBlocksReady) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
                     // Perform concrete-algorithm logic
-                    this._doProcessBlock(dataWords, offset);
+                    this._doProcessBlock(dataWords.slice(offset, blockSize));
                 }
 
                 // Remove processed words
