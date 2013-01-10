@@ -46,6 +46,10 @@ YUI.add('lib-wordarray-test', function (Y) {
 
         testUint32Array: function () {
             Y.Assert.areEqual('0123456789abcdef', C.lib.WordArray.create(new Uint32Array(this.data.buffer)).toString());
+        },
+
+        testPartialView: function () {
+            Y.Assert.areEqual('456789ab', C.lib.WordArray.create(new Int16Array(this.data.buffer, 2, 2)).toString());
         }
     }));
 }, '$Rev$');
