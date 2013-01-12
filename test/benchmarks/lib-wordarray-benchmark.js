@@ -53,8 +53,8 @@ YUI.add('lib-wordarray-benchmark', function (Y) {
                 };
             }()));
 
-            suite.on('cycle', function (event) {
-                Y.log(event.target, 'info', 'TestRunner');
+            suite.on('cycle', function (e) {
+                Y.log(e.target, 'info', 'TestRunner');
             });
 
             suite.on('complete', (function (testCase) {

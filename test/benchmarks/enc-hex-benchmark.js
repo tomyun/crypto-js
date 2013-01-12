@@ -37,8 +37,8 @@ YUI.add('enc-hex-benchmark', function (Y) {
                 };
             }()));
 
-            suite.on('cycle', function (event) {
-                Y.log(event.target, 'info', 'TestRunner');
+            suite.on('cycle', function (e) {
+                Y.log(e.target, 'info', 'TestRunner');
             });
 
             suite.on('complete', (function (testCase) {
@@ -73,8 +73,8 @@ YUI.add('enc-hex-benchmark', function (Y) {
                 Y.Sjcl.codec.hex.toBits('6162636461626364');
             });
 
-            suite.on('cycle', function (event) {
-                Y.log(event.target, 'info', 'TestRunner');
+            suite.on('cycle', function (e) {
+                Y.log(e.target, 'info', 'TestRunner');
             });
 
             suite.on('complete', (function (testCase) {
