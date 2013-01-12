@@ -104,6 +104,18 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @example
          *
+         *     var MyType = CryptoJS.lib.Object.extend();
+         *
+         *     var MyType = CryptoJS.lib.Object.extend({
+         *         field: 'value',
+         *
+         *         constructor: function () {
+         *         },
+         *
+         *         method: function () {
+         *         }
+         *     });
+         *
          *     var MyType = CryptoJS.lib.Object.extend(
          *         {
          *             field: 'value',
@@ -123,8 +135,6 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *     );
          */
         O.extend = function (bodyInstance, bodyStatic) {
-            /*jshint validthis:true */
-
             // Get or create constructor
             if (bodyInstance && bodyInstance.hasOwnProperty('constructor')) {
                 var Subtype = bodyInstance.constructor;
@@ -338,7 +348,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             random: function (nBytes) {
                 var words = [];
                 for (var i = 0; i < nBytes; i += 4) {
-                    words.push((Math.random() * 0x100000000) | 0);
+                    words[i >>> 2] = (Math.random() * 0x100000000) | 0;
                 }
 
                 return new WordArray(words, nBytes);
@@ -481,7 +491,16 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Convert
             var words = [];
             for (var i = 0; i < latin1StrLength; i++) {
-                words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
+                // Shortcut
+                var wordIndex = i >>> 2;
+
+                // Initialize word to zero to avoid ORing with undefined
+                if (i % 4 === 0) {
+                    words[wordIndex] = 0;
+                }
+
+                // Parse
+                words[wordIndex] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
             }
 
             return new WordArray(words, latin1StrLength);
@@ -656,17 +675,16 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         */
 
         /**
-         * Abstract method to process a data block at a given offset.
+         * Abstract method to process a data block.
          *
          * @param {Array} dataWords An array of 32-bit numbers.
-         * @param {number} offset The offset to the start of the block to be processed.
          *
          * @example
          *
-         *     bufferedBlockAlgorithm._doProcessBlock(words, 16);
+         *     bufferedBlockAlgorithm._doProcessBlock(words);
          */
         /*
-        _doProcessBlock: function (dataWords, offset),
+        _doProcessBlock: function (dataWords),
         */
 
         /**
@@ -696,120 +714,121 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     /**
      * Abstract base hasher template.
      */
-    C_LIB.Hasher = BufferedBlockAlgorithm.extend({
-        /**
-         * Constructor.
-         */
-        constructor: function () {
-            // Perform concrete-hasher logic
-            this._doInit();
+    C_LIB.Hasher = BufferedBlockAlgorithm.extend(
+        {
+            /**
+             * Constructor.
+             */
+            constructor: function () {
+                // Perform concrete-hasher logic
+                this._doInit();
 
-            // Set initial values
-            this.reset();
-        },
+                // Set initial values
+                this.reset();
+            },
 
-        /**
-         * Abstract method to initialize this hasher.
-         */
-        /*
-        _doInit: function (),
-        */
+            /**
+             * Abstract method to initialize this hasher.
+             */
+            /*
+            _doInit: function (),
+            */
 
-        /**
-         * Resets this hasher to its initial state.
-         *
-         * @return {Hasher} This hasher.
-         *
-         * @example
-         *
-         *     hasher.reset();
-         */
-        reset: function () {
-            // Reset data buffer
-            this._reset();
+            /**
+             * Resets this hasher to its initial state.
+             *
+             * @return {Hasher} This hasher.
+             *
+             * @example
+             *
+             *     hasher.reset();
+             */
+            reset: function () {
+                // Reset data buffer
+                this._reset();
 
-            // Perform concrete-hasher logic
-            this._doReset();
+                // Perform concrete-hasher logic
+                this._doReset();
 
-            // Chainable
-            return this;
-        },
+                // Chainable
+                return this;
+            },
 
-        /**
-         * Abstract method to reset this hasher to its initial state.
-         */
-        /*
-        _doReset: function (),
-        */
+            /**
+             * Abstract method to reset this hasher to its initial state.
+             */
+            /*
+            _doReset: function (),
+            */
 
-        /**
-         * Updates this hasher with a message.
-         *
-         * @param {WordArray|string} messageUpdate The message part to hash.
-         *
-         * @return {Hasher} This hasher.
-         *
-         * @example
-         *
-         *     hasher.update('message');
-         *     hasher.update(wordArray);
-         */
-        update: function (messageUpdate) {
-            // Add message to data buffer
-            this._append(messageUpdate);
-
-            // Update the hash
-            this._process();
-
-            // Chainable
-            return this;
-        },
-
-        /**
-         * Finalizes the hash computation and resets this hasher to its initial state.
-         *
-         * @param {WordArray|string} messageUpdate (Optional) A final message update.
-         *
-         * @return {WordArray} The hash.
-         *
-         * @example
-         *
-         *     var hash = hasher.finalize();
-         *     var hash = hasher.finalize('message');
-         *     var hash = hasher.finalize(wordArray);
-         */
-        finalize: function (messageUpdate) {
-            // Final message update
-            if (messageUpdate) {
+            /**
+             * Updates this hasher with a message.
+             *
+             * @param {WordArray|string} messageUpdate A message part to hash.
+             *
+             * @return {Hasher} This hasher.
+             *
+             * @example
+             *
+             *     hasher.update('message');
+             *     hasher.update(wordArray);
+             */
+            update: function (messageUpdate) {
+                // Add message to data buffer
                 this._append(messageUpdate);
-            }
 
-            // Perform concrete-hasher logic
-            var hash = this._doFinalize();
+                // Update the hash
+                this._process();
 
-            // Reset this hasher to its initial state
-            this.reset();
+                // Chainable
+                return this;
+            },
 
-            return hash;
+            /**
+             * Finalizes the hash computation and resets this hasher to its initial state.
+             *
+             * @param {WordArray|string} messageUpdate (Optional) A final message update.
+             *
+             * @return {WordArray} The hash.
+             *
+             * @example
+             *
+             *     var hash = hasher.finalize();
+             *     var hash = hasher.finalize('message');
+             *     var hash = hasher.finalize(wordArray);
+             */
+            finalize: function (messageUpdate) {
+                // Final message update
+                if (messageUpdate) {
+                    this._append(messageUpdate);
+                }
+
+                // Perform concrete-hasher logic
+                var hash = this._doFinalize();
+
+                // Reset this hasher to its initial state
+                this.reset();
+
+                return hash;
+            },
+
+            /**
+             * Abstract method to finalize the hash computation.
+             *
+             * @return {WordArray} The final hash.
+             */
+            /*
+            _doFinalize: function (),
+            */
+
+            /**
+             * The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+             *
+             * @type {number}
+             */
+            blockSize: 512 / 32
         },
-
-        /**
-         * Abstract method to finalize the hash computation.
-         *
-         * @return {WordArray} The final hash.
-         */
-        /*
-        _doFinalize: function (),
-        */
-
-        /**
-         * The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
-         *
-         * @type {number}
-         */
-        blockSize: 512 / 32,
-
-        $static: {
+        {
             /**
              * Shortcut to a hasher's object interface.
              *
@@ -828,7 +847,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 return (new ConcreteHasher()).finalize(message);
             }
         }
-    });
+    );
 
     // <?php if ($debug): ?>
     {
