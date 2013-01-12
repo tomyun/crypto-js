@@ -54,7 +54,7 @@
             var s2 = s[2];
             var s3 = s[3];
 
-            // Computation
+            // Rounds
             s0 = FF(s0, s1, s2, s3, m0,  7,  0xd76aa478);
             s3 = FF(s3, s0, s1, s2, m1,  12, 0xe8c7b756);
             s2 = FF(s2, s3, s0, s1, m2,  17, 0x242070db);
@@ -157,19 +157,19 @@
             this._process();
 
             // Shortcut
-            var state = this._state;
+            var s = this._state;
 
             // Swap endian
             for (var i = 0; i < 4; i++) {
-                var word = state[i];
-                state[i] = (
+                var word = s[i];
+                s[i] = (
                     (((word << 8)  | (word >>> 24)) & 0x00ff00ff) |
                     (((word << 24) | (word >>> 8))  & 0xff00ff00)
                 );
             }
 
             // Return final hash
-            return new WordArray(state);
+            return new WordArray(s);
         },
 
         clone: function () {
