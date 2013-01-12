@@ -261,18 +261,26 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 if (thisSigBytes % 4) {
                     // Copy one byte at a time
                     for (var i = 0; i < thatSigBytes; i++) {
-                        var thisNextByteIndex = thisSigBytes + i;
+                        // Extract byte
                         var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                        thisWords[thisNextByteIndex >>> 2] |= thatByte << (24 - (thisNextByteIndex % 4) * 8);
+
+                        // Shortcuts
+                        var thisNextByteIndex = thisSigBytes + i;
+                        var thisNextWordIndex = thisNextByteIndex >>> 2;
+
+                        // Initialize word to zero to avoid ORing with undefined
+                        if (thisNextByteIndex % 4 === 0) {
+                            thisWords[thisNextWordIndex] = 0;
+                        }
+
+                        // Copy byte
+                        thisWords[thisNextWordIndex] |= thatByte << (24 - (thisNextByteIndex % 4) * 8);
                     }
-                } else if (thatWords.length > 0xffff) {
+                } else {
                     // Copy one word at a time
                     for (var i = 0; i < thatSigBytes; i += 4) {
                         thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
                     }
-                } else {
-                    // Copy all words at once
-                    thisWords.push.apply(thisWords, thatWords);
                 }
                 this.sigBytes += thatSigBytes;
 
@@ -369,8 +377,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var hexChars = '';
             for (var i = 0; i < sigBytes; i++) {
                 var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                hexChars += (bite >>> 4).toString(16);
-                hexChars += (bite & 0xf).toString(16);
+                hexChars += (bite >>> 4).toString(16) + (bite & 0xf).toString(16);
             }
 
             return hexChars;
@@ -406,7 +413,16 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // Convert
             var words = [];
             for (var i = 0; i < hexStrLength; i += 2) {
-                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
+                // Shortcut
+                var wordIndex = i >>> 3;
+
+                // Initialize word to zero to avoid ORing with undefined
+                if (i % 8 === 0) {
+                    words[wordIndex] = 0;
+                }
+
+                // Parse
+                words[wordIndex] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
             }
 
             return new WordArray(words, hexStrLength / 2);
