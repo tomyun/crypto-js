@@ -9,9 +9,6 @@
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
 
-    // Reusable object for expanded message
-    var M = [];
-
     /**
      * SHA-1 hash algorithm.
      */
