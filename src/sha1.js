@@ -33,16 +33,16 @@
             var s4 = s[4];
 
             // Expand message
-            var m0 = m[0] | 0;
-            var m1 = m[1] | 0;
-            var m2 = m[2] | 0;
-            var m3 = m[3] | 0;
-            var m4 = m[4] | 0;
-            var m5 = m[5] | 0;
-            var m6 = m[6] | 0;
-            var m7 = m[7] | 0;
-            var m8 = m[8] | 0;
-            var m9 = m[9] | 0;
+            var m0  = m[0]  | 0;
+            var m1  = m[1]  | 0;
+            var m2  = m[2]  | 0;
+            var m3  = m[3]  | 0;
+            var m4  = m[4]  | 0;
+            var m5  = m[5]  | 0;
+            var m6  = m[6]  | 0;
+            var m7  = m[7]  | 0;
+            var m8  = m[8]  | 0;
+            var m9  = m[9]  | 0;
             var m10 = m[10] | 0;
             var m11 = m[11] | 0;
             var m12 = m[12] | 0;
