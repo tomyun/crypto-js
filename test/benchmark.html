@@ -8,8 +8,8 @@
         <script src="../src/core.js"></script>
         <script src="../src/md5.js"></script>
         <script src="../src/sha1.js"></script>
-        <!--
         <script src="../src/sha256.js"></script>
+        <!--
         <script src="../src/x64-core.js"></script>
         <script src="../src/enc-utf16.js"></script>
         <script src="../src/enc-base64.js"></script>
@@ -113,6 +113,9 @@
                 4294967296);k[(h+64>>>9<<4)+15]=(l<<8|l>>>24)&16711935|(l<<24|l>>>8)&4278255360;k[(h+64>>>9<<4)+14]=(b<<8|b>>>24)&16711935|(b<<24|b>>>8)&4278255360;a.sigBytes=4*(k.length+1);this._process();a=this._hash;k=a.words;for(b=0;4>b;b++)h=k[b],k[b]=(h<<8|h>>>24)&16711935|(h<<24|h>>>8)&4278255360;return a},clone:function(){var a=t.clone.call(this);a._hash=this._hash.clone();return a}});r.MD5=t._createHelper(q);r.HmacMD5=t._createHmacHelper(q)})(Math);
                 (function(){var k=CryptoJS,b=k.lib,m=b.WordArray,l=b.Hasher,d=[],b=k.algo.SHA1=l.extend({_doReset:function(){this._hash=new m.init([1732584193,4023233417,2562383102,271733878,3285377520])},_doProcessBlock:function(n,p){for(var a=this._hash.words,e=a[0],f=a[1],h=a[2],j=a[3],b=a[4],c=0;80>c;c++){if(16>c)d[c]=n[p+c]|0;else{var g=d[c-3]^d[c-8]^d[c-14]^d[c-16];d[c]=g<<1|g>>>31}g=(e<<5|e>>>27)+b+d[c];g=20>c?g+((f&h|~f&j)+1518500249):40>c?g+((f^h^j)+1859775393):60>c?g+((f&h|f&j|h&j)-1894007588):g+((f^h^
                 j)-899497514);b=j;j=h;h=f<<30|f>>>2;f=e;e=g}a[0]=a[0]+e|0;a[1]=a[1]+f|0;a[2]=a[2]+h|0;a[3]=a[3]+j|0;a[4]=a[4]+b|0},_doFinalize:function(){var b=this._data,d=b.words,a=8*this._nDataBytes,e=8*b.sigBytes;d[e>>>5]|=128<<24-e%32;d[(e+64>>>9<<4)+14]=Math.floor(a/4294967296);d[(e+64>>>9<<4)+15]=a;b.sigBytes=4*d.length;this._process();return this._hash},clone:function(){var b=l.clone.call(this);b._hash=this._hash.clone();return b}});k.SHA1=l._createHelper(b);k.HmacSHA1=l._createHmacHelper(b)})();
+                (function(k){for(var g=CryptoJS,h=g.lib,v=h.WordArray,j=h.Hasher,h=g.algo,s=[],t=[],u=function(q){return 4294967296*(q-(q|0))|0},l=2,b=0;64>b;){var d;a:{d=l;for(var w=k.sqrt(d),r=2;r<=w;r++)if(!(d%r)){d=!1;break a}d=!0}d&&(8>b&&(s[b]=u(k.pow(l,0.5))),t[b]=u(k.pow(l,1/3)),b++);l++}var n=[],h=h.SHA256=j.extend({_doReset:function(){this._hash=new v.init(s.slice(0))},_doProcessBlock:function(q,h){for(var a=this._hash.words,c=a[0],d=a[1],b=a[2],k=a[3],f=a[4],g=a[5],j=a[6],l=a[7],e=0;64>e;e++){if(16>e)n[e]=
+                q[h+e]|0;else{var m=n[e-15],p=n[e-2];n[e]=((m<<25|m>>>7)^(m<<14|m>>>18)^m>>>3)+n[e-7]+((p<<15|p>>>17)^(p<<13|p>>>19)^p>>>10)+n[e-16]}m=l+((f<<26|f>>>6)^(f<<21|f>>>11)^(f<<7|f>>>25))+(f&g^~f&j)+t[e]+n[e];p=((c<<30|c>>>2)^(c<<19|c>>>13)^(c<<10|c>>>22))+(c&d^c&b^d&b);l=j;j=g;g=f;f=k+m|0;k=b;b=d;d=c;c=m+p|0}a[0]=a[0]+c|0;a[1]=a[1]+d|0;a[2]=a[2]+b|0;a[3]=a[3]+k|0;a[4]=a[4]+f|0;a[5]=a[5]+g|0;a[6]=a[6]+j|0;a[7]=a[7]+l|0},_doFinalize:function(){var d=this._data,b=d.words,a=8*this._nDataBytes,c=8*d.sigBytes;
+                b[c>>>5]|=128<<24-c%32;b[(c+64>>>9<<4)+14]=k.floor(a/4294967296);b[(c+64>>>9<<4)+15]=a;d.sigBytes=4*b.length;this._process();return this._hash},clone:function(){var b=j.clone.call(this);b._hash=this._hash.clone();return b}});g.SHA256=j._createHelper(h);g.HmacSHA256=j._createHmacHelper(h)})(Math);
 
                 Y.CryptoJS3 = CryptoJS;
             });
@@ -141,6 +144,10 @@
                 32-c)+b};i._ii=function(a,b,g,d,e,c,f){a=a+(g^(b|~d))+(e>>>0)+f;return(a<<c|a>>>32-c)+b};i._blocksize=16;i._digestsize=16})();
                 (function(){var j=Crypto,n=j.util,l=j.charenc,p=l.UTF8,o=l.Binary,i=j.SHA1=function(a,g){var c=n.wordsToBytes(i._sha1(a));return g&&g.asBytes?c:g&&g.asString?o.bytesToString(c):n.bytesToHex(c)};i._sha1=function(a){a.constructor==String&&(a=p.stringToBytes(a));var g=n.bytesToWords(a),c=a.length*8,a=[],h=1732584193,d=-271733879,e=-1732584194,f=271733878,k=-1009589776;g[c>>5]|=128<<24-c%32;g[(c+64>>>9<<4)+15]=c;for(c=0;c<g.length;c+=16){for(var i=h,j=d,l=e,o=f,q=k,b=0;b<80;b++){if(b<16)a[b]=g[c+b];else{var m=
                 a[b-3]^a[b-8]^a[b-14]^a[b-16];a[b]=m<<1|m>>>31}m=(h<<5|h>>>27)+k+(a[b]>>>0)+(b<20?(d&e|~d&f)+1518500249:b<40?(d^e^f)+1859775393:b<60?(d&e|d&f|e&f)-1894007588:(d^e^f)-899497514);k=f;f=e;e=d<<30|d>>>2;d=h;h=m}h+=i;d+=j;e+=l;f+=o;k+=q}return[h,d,e,f,k]};i._blocksize=16;i._digestsize=20})();
+                (function(){var l=Crypto,q=l.util,r=l.charenc,s=r.UTF8,t=r.Binary,u=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,
+                2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298],g=l.SHA256=function(a,f){var b=q.wordsToBytes(g._sha256(a));return f&&f.asBytes?b:f&&f.asString?t.bytesToString(b):q.bytesToHex(b)};g._sha256=function(a){a.constructor==String&&(a=s.stringToBytes(a));var f=q.bytesToWords(a),b=a.length*8,a=[1779033703,3144134277,
+                1013904242,2773480762,1359893119,2600822924,528734635,1541459225],i=[],j,k,g,d,m,n,o,p,c,h,e;f[b>>5]|=128<<24-b%32;f[(b+64>>9<<4)+15]=b;for(p=0;p<f.length;p+=16){b=a[0];j=a[1];k=a[2];g=a[3];d=a[4];m=a[5];n=a[6];o=a[7];for(c=0;c<64;c++){c<16?i[c]=f[c+p]:(h=i[c-15],e=i[c-2],i[c]=((h<<25|h>>>7)^(h<<14|h>>>18)^h>>>3)+(i[c-7]>>>0)+((e<<15|e>>>17)^(e<<13|e>>>19)^e>>>10)+(i[c-16]>>>0));e=b&j^b&k^j&k;var l=(b<<30|b>>>2)^(b<<19|b>>>13)^(b<<10|b>>>22);h=(o>>>0)+((d<<26|d>>>6)^(d<<21|d>>>11)^(d<<7|d>>>25))+
+                (d&m^~d&n)+u[c]+(i[c]>>>0);e=l+e;o=n;n=m;m=d;d=g+h>>>0;g=k;k=j;j=b;b=h+e>>>0}a[0]+=b;a[1]+=j;a[2]+=k;a[3]+=g;a[4]+=d;a[5]+=m;a[6]+=n;a[7]+=o}return a};g._blocksize=16;g._digestsize=32})();
 
                 Y.CryptoJS2 = Crypto;
             });
@@ -271,6 +278,36 @@
             });
         </script>
 
+        <!-- Paj's SHA-256 -->
+        <script>
+            YUI.add('pajsha256', function (Y) {
+                /*
+                 * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
+                 * in FIPS 180-2
+                 * Version 2.2 Copyright Angel Marin, Paul Johnston 2000 - 2009.
+                 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+                 * Distributed under the BSD License
+                 * See http://pajhome.org.uk/crypt/md5 for details.
+                 * Also http://anmar.eu.org/projects/jssha2/
+                 */
+                var hexcase=0,b64pad="";function hex_sha256(a){return rstr2hex(rstr_sha256(str2rstr_utf8(a)))}function b64_sha256(a){return rstr2b64(rstr_sha256(str2rstr_utf8(a)))}function any_sha256(a,c){return rstr2any(rstr_sha256(str2rstr_utf8(a)),c)}function hex_hmac_sha256(a,c){return rstr2hex(rstr_hmac_sha256(str2rstr_utf8(a),str2rstr_utf8(c)))}function b64_hmac_sha256(a,c){return rstr2b64(rstr_hmac_sha256(str2rstr_utf8(a),str2rstr_utf8(c)))}
+                function any_hmac_sha256(a,c,b){return rstr2any(rstr_hmac_sha256(str2rstr_utf8(a),str2rstr_utf8(c)),b)}function sha256_vm_test(){return"ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"==hex_sha256("abc").toLowerCase()}function rstr_sha256(a){return binb2rstr(binb_sha256(rstr2binb(a),8*a.length))}
+                function rstr_hmac_sha256(a,c){var b=rstr2binb(a);16<b.length&&(b=binb_sha256(b,8*a.length));for(var e=Array(16),d=Array(16),f=0;16>f;f++)e[f]=b[f]^909522486,d[f]=b[f]^1549556828;b=binb_sha256(e.concat(rstr2binb(c)),512+8*c.length);return binb2rstr(binb_sha256(d.concat(b),768))}function rstr2hex(a){try{hexcase}catch(c){hexcase=0}for(var b=hexcase?"0123456789ABCDEF":"0123456789abcdef",e="",d,f=0;f<a.length;f++)d=a.charCodeAt(f),e+=b.charAt(d>>>4&15)+b.charAt(d&15);return e}
+                function rstr2b64(a){try{b64pad}catch(c){b64pad=""}for(var b="",e=a.length,d=0;d<e;d+=3)for(var f=a.charCodeAt(d)<<16|(d+1<e?a.charCodeAt(d+1)<<8:0)|(d+2<e?a.charCodeAt(d+2):0),g=0;4>g;g++)b=8*d+6*g>8*a.length?b+b64pad:b+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(f>>>6*(3-g)&63);return b}
+                function rstr2any(a,c){var b=c.length,e=[],d,f,g,k,h=Array(Math.ceil(a.length/2));for(d=0;d<h.length;d++)h[d]=a.charCodeAt(2*d)<<8|a.charCodeAt(2*d+1);for(;0<h.length;){k=[];for(d=g=0;d<h.length;d++)if(g=(g<<16)+h[d],f=Math.floor(g/b),g-=f*b,0<k.length||0<f)k[k.length]=f;e[e.length]=g;h=k}b="";for(d=e.length-1;0<=d;d--)b+=c.charAt(e[d]);e=Math.ceil(8*a.length/(Math.log(c.length)/Math.log(2)));for(d=b.length;d<e;d++)b=c[0]+b;return b}
+                function str2rstr_utf8(a){for(var c="",b=-1,e,d;++b<a.length;)e=a.charCodeAt(b),d=b+1<a.length?a.charCodeAt(b+1):0,55296<=e&&(56319>=e&&56320<=d&&57343>=d)&&(e=65536+((e&1023)<<10)+(d&1023),b++),127>=e?c+=String.fromCharCode(e):2047>=e?c+=String.fromCharCode(192|e>>>6&31,128|e&63):65535>=e?c+=String.fromCharCode(224|e>>>12&15,128|e>>>6&63,128|e&63):2097151>=e&&(c+=String.fromCharCode(240|e>>>18&7,128|e>>>12&63,128|e>>>6&63,128|e&63));return c}
+                function str2rstr_utf16le(a){for(var c="",b=0;b<a.length;b++)c+=String.fromCharCode(a.charCodeAt(b)&255,a.charCodeAt(b)>>>8&255);return c}function str2rstr_utf16be(a){for(var c="",b=0;b<a.length;b++)c+=String.fromCharCode(a.charCodeAt(b)>>>8&255,a.charCodeAt(b)&255);return c}function rstr2binb(a){for(var c=Array(a.length>>2),b=0;b<c.length;b++)c[b]=0;for(b=0;b<8*a.length;b+=8)c[b>>5]|=(a.charCodeAt(b/8)&255)<<24-b%32;return c}
+                function binb2rstr(a){for(var c="",b=0;b<32*a.length;b+=8)c+=String.fromCharCode(a[b>>5]>>>24-b%32&255);return c}function sha256_S(a,c){return a>>>c|a<<32-c}function sha256_R(a,c){return a>>>c}function sha256_Ch(a,c,b){return a&c^~a&b}function sha256_Maj(a,c,b){return a&c^a&b^c&b}function sha256_Sigma0256(a){return sha256_S(a,2)^sha256_S(a,13)^sha256_S(a,22)}function sha256_Sigma1256(a){return sha256_S(a,6)^sha256_S(a,11)^sha256_S(a,25)}
+                function sha256_Gamma0256(a){return sha256_S(a,7)^sha256_S(a,18)^sha256_R(a,3)}function sha256_Gamma1256(a){return sha256_S(a,17)^sha256_S(a,19)^sha256_R(a,10)}function sha256_Sigma0512(a){return sha256_S(a,28)^sha256_S(a,34)^sha256_S(a,39)}function sha256_Sigma1512(a){return sha256_S(a,14)^sha256_S(a,18)^sha256_S(a,41)}function sha256_Gamma0512(a){return sha256_S(a,1)^sha256_S(a,8)^sha256_R(a,7)}function sha256_Gamma1512(a){return sha256_S(a,19)^sha256_S(a,61)^sha256_R(a,6)}
+                var sha256_K=[1116352408,1899447441,-1245643825,-373957723,961987163,1508970993,-1841331548,-1424204075,-670586216,310598401,607225278,1426881987,1925078388,-2132889090,-1680079193,-1046744716,-459576895,-272742522,264347078,604807628,770255983,1249150122,1555081692,1996064986,-1740746414,-1473132947,-1341970488,-1084653625,-958395405,-710438585,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,-2117940946,-1838011259,-1564481375,-1474664885,-1035236496,-949202525,
+                -778901479,-694614492,-200395387,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,-2067236844,-1933114872,-1866530822,-1538233109,-1090935817,-965641998];
+                function binb_sha256(a,c){var b=[1779033703,-1150833019,1013904242,-1521486534,1359893119,-1694144372,528734635,1541459225],e=Array(64),d,f,g,k,h,l,m,p,n,j,q,r;a[c>>5]|=128<<24-c%32;a[(c+64>>9<<4)+15]=c;for(n=0;n<a.length;n+=16){d=b[0];f=b[1];g=b[2];k=b[3];h=b[4];l=b[5];m=b[6];p=b[7];for(j=0;64>j;j++)e[j]=16>j?a[j+n]:safe_add(safe_add(safe_add(sha256_Gamma1256(e[j-2]),e[j-7]),sha256_Gamma0256(e[j-15])),e[j-16]),q=safe_add(safe_add(safe_add(safe_add(p,sha256_Sigma1256(h)),sha256_Ch(h,l,m)),sha256_K[j]),
+                e[j]),r=safe_add(sha256_Sigma0256(d),sha256_Maj(d,f,g)),p=m,m=l,l=h,h=safe_add(k,q),k=g,g=f,f=d,d=safe_add(q,r);b[0]=safe_add(d,b[0]);b[1]=safe_add(f,b[1]);b[2]=safe_add(g,b[2]);b[3]=safe_add(k,b[3]);b[4]=safe_add(h,b[4]);b[5]=safe_add(l,b[5]);b[6]=safe_add(m,b[6]);b[7]=safe_add(p,b[7])}return b}function safe_add(a,c){var b=(a&65535)+(c&65535);return(a>>16)+(c>>16)+(b>>16)<<16|b&65535};
+
+                Y.PajSHA256 = hex_sha256;
+            });
+        </script>
+
         <!-- Tests -->
         <script src="benchmarks/lib-wordarray-benchmark.js"></script>
         <script src="benchmarks/enc-hex-benchmark.js"></script>
@@ -278,6 +315,7 @@
         <script src="benchmarks/enc-utf8-benchmark.js"></script>
         <script src="benchmarks/md5-benchmark.js"></script>
         <script src="benchmarks/sha1-benchmark.js"></script>
+        <script src="benchmarks/sha256-benchmark.js"></script>
 
         <!-- Tester -->
         <script>

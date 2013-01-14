@@ -45,8 +45,8 @@
         }
     }());
 
-    // Reusable object
-    var W = [];
+    // Reusable object for expanded message
+    var M = [];
 
     /**
      * SHA-256 hash algorithm.
@@ -56,82 +56,79 @@
         },
 
         _doReset: function () {
-            this._hash = new WordArray(H.slice(0));
+            this._state = H.slice(0);
         },
 
-        _doProcessBlock: function (M, offset) {
-            // Shortcut
-            var H = this._hash.words;
-
-            // Working variables
-            var a = H[0];
-            var b = H[1];
-            var c = H[2];
-            var d = H[3];
-            var e = H[4];
-            var f = H[5];
-            var g = H[6];
-            var h = H[7];
+        _doProcessBlock: function (m) {
+            // Shortcuts
+            var s = this._state;
+            var s0 = s[0];
+            var s1 = s[1];
+            var s2 = s[2];
+            var s3 = s[3];
+            var s4 = s[4];
+            var s5 = s[5];
+            var s6 = s[6];
+            var s7 = s[7];
 
             // Rounds
             for (var round = 0; round < 64; round++) {
                 if (round < 16) {
-                    var Wr = M[offset + round];
+                    var MRound = m[round];
                 } else {
-                    var gamma0x = W[round - 15];
+                    var gamma0x = M[round - 15];
                     var gamma0 = (
                         ((gamma0x << 25) | (gamma0x >>> 7)) ^
                         ((gamma0x << 14) | (gamma0x >>> 18)) ^
-                         (gamma0x >>> 3)
+                        (gamma0x >>> 3)
                     );
 
-                    var gamma1x = W[round - 2];
+                    var gamma1x = M[round - 2];
                     var gamma1 = (
                         ((gamma1x << 15) | (gamma1x >>> 17)) ^
                         ((gamma1x << 13) | (gamma1x >>> 19)) ^
-                         (gamma1x >>> 10)
+                        (gamma1x >>> 10)
                     );
 
-                    var Wr = gamma0 + W[round - 7] + gamma1 + W[round - 16];
+                    var MRound = gamma0 + gamma1 + M[round - 7] + M[round - 16];
                 }
-                W[round] = Wr |= 0;
+                M[round] = MRound |= 0;
 
-                var ch  = (e & f) ^ (~e & g);
-                var maj = (a & b) ^ (a & c) ^ (b & c);
+                var ch  = (s4 & s5) ^ (~s4 & s6);
+                var maj = (s0 & s1) ^ (s0 & s2) ^ (s1 & s2);
 
-                var sigma0 = ((a << 30) | (a >>> 2)) ^ ((a << 19) | (a >>> 13)) ^ ((a << 10) | (a >>> 22));
-                var sigma1 = ((e << 26) | (e >>> 6)) ^ ((e << 21) | (e >>> 11)) ^ ((e << 7)  | (e >>> 25));
+                var sigma0 = ((s0 << 30) | (s0 >>> 2)) ^ ((s0 << 19) | (s0 >>> 13)) ^ ((s0 << 10) | (s0 >>> 22));
+                var sigma1 = ((s4 << 26) | (s4 >>> 6)) ^ ((s4 << 21) | (s4 >>> 11)) ^ ((s4 << 7)  | (s4 >>> 25));
 
-                var t1 = h + sigma1 + ch + K[round] + Wr;
+                var t1 = s7 + sigma1 + ch + K[round] + MRound;
                 var t2 = sigma0 + maj;
 
-                h = g;
-                g = f;
-                f = e;
-                e = (d + t1) | 0;
-                d = c;
-                c = b;
-                b = a;
-                a = (t1 + t2) | 0;
+                s7 = s6;
+                s6 = s5;
+                s5 = s4;
+                s4 = (s3 + t1) | 0;
+                s3 = s2;
+                s2 = s1;
+                s1 = s0;
+                s0 = (t1 + t2) | 0;
             }
 
-            // Intermediate hash value
-            H[0] = (H[0] + a) | 0;
-            H[1] = (H[1] + b) | 0;
-            H[2] = (H[2] + c) | 0;
-            H[3] = (H[3] + d) | 0;
-            H[4] = (H[4] + e) | 0;
-            H[5] = (H[5] + f) | 0;
-            H[6] = (H[6] + g) | 0;
-            H[7] = (H[7] + h) | 0;
+            // Update state
+            s[0] = (s[0] + s0) | 0;
+            s[1] = (s[1] + s1) | 0;
+            s[2] = (s[2] + s2) | 0;
+            s[3] = (s[3] + s3) | 0;
+            s[4] = (s[4] + s4) | 0;
+            s[5] = (s[5] + s5) | 0;
+            s[6] = (s[6] + s6) | 0;
+            s[7] = (s[7] + s7) | 0;
         },
 
         _doFinalize: function () {
             // Shortcuts
             var data = this._data;
             var dataWords = data.words;
-
-            var nBitsLeft = 8 * data.sigBytes;
+            var nBitsLeft = data.sigBytes * 8;
             var nBitsTotalLsw = this._nDataBitsLsw;
             var nBitsTotalMsw = this._nDataBitsMsw;
 
@@ -142,18 +139,18 @@
             dataWords[lengthStartIndex] = nBitsTotalMsw;
             dataWords[lengthStartIndex + 1] = nBitsTotalLsw;
 
-            data.sigBytes = 4 * dataWords.length;
+            data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks
             this._process();
 
             // Return final hash
-            return this._hash;
+            return new WordArray(this._state);
         },
 
         clone: function () {
             var clone = SHA256.$super.prototype.clone.call(this);
-            clone._hash = clone._hash.clone();
+            clone._state = clone._state.slice(0);
 
             return clone;
         }
