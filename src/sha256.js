@@ -70,6 +70,14 @@
             var s5 = s[5];
             var s6 = s[6];
             var s7 = s[7];
+            var _s0 = s0;
+            var _s1 = s1;
+            var _s2 = s2;
+            var _s3 = s3;
+            var _s4 = s4;
+            var _s5 = s5;
+            var _s6 = s6;
+            var _s7 = s7;
 
             // Rounds
             for (var round = 0; round < 64; round++) {
@@ -114,14 +122,14 @@
             }
 
             // Update state
-            s[0] = (s[0] + s0) | 0;
-            s[1] = (s[1] + s1) | 0;
-            s[2] = (s[2] + s2) | 0;
-            s[3] = (s[3] + s3) | 0;
-            s[4] = (s[4] + s4) | 0;
-            s[5] = (s[5] + s5) | 0;
-            s[6] = (s[6] + s6) | 0;
-            s[7] = (s[7] + s7) | 0;
+            s[0] = (_s0 + s0) | 0;
+            s[1] = (_s1 + s1) | 0;
+            s[2] = (_s2 + s2) | 0;
+            s[3] = (_s3 + s3) | 0;
+            s[4] = (_s4 + s4) | 0;
+            s[5] = (_s5 + s5) | 0;
+            s[6] = (_s6 + s6) | 0;
+            s[7] = (_s7 + s7) | 0;
         },
 
         _doFinalize: function () {
