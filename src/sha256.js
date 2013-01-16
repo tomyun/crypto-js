@@ -85,31 +85,29 @@
                     var MRound = m[round];
                 } else {
                     var gamma0x = M[round - 15];
-                    var gamma0 = (
-                        ((gamma0x << 25) | (gamma0x >>> 7)) ^
-                        ((gamma0x << 14) | (gamma0x >>> 18)) ^
-                        (gamma0x >>> 3)
-                    );
-
                     var gamma1x = M[round - 2];
-                    var gamma1 = (
-                        ((gamma1x << 15) | (gamma1x >>> 17)) ^
-                        ((gamma1x << 13) | (gamma1x >>> 19)) ^
-                        (gamma1x >>> 10)
+                    var MRound = (
+                        (
+                            ((gamma0x << 25) | (gamma0x >>> 7))  ^
+                            ((gamma0x << 14) | (gamma0x >>> 18)) ^
+                            (gamma0x >>> 3)
+                        ) + (
+                            ((gamma1x << 15) | (gamma1x >>> 17)) ^
+                            ((gamma1x << 13) | (gamma1x >>> 19)) ^
+                            (gamma1x >>> 10)
+                        ) + M[round - 7] + M[round - 16]
                     );
-
-                    var MRound = gamma0 + gamma1 + M[round - 7] + M[round - 16];
                 }
                 M[round] = MRound |= 0;
 
-                var ch  = (s4 & s5) ^ (~s4 & s6);
-                var maj = (s0 & s1) ^ (s0 & s2) ^ (s1 & s2);
-
-                var sigma0 = ((s0 << 30) | (s0 >>> 2)) ^ ((s0 << 19) | (s0 >>> 13)) ^ ((s0 << 10) | (s0 >>> 22));
-                var sigma1 = ((s4 << 26) | (s4 >>> 6)) ^ ((s4 << 21) | (s4 >>> 11)) ^ ((s4 << 7)  | (s4 >>> 25));
-
-                var t1 = s7 + sigma1 + ch + K[round] + MRound;
-                var t2 = sigma0 + maj;
+                var t1 = (
+                    (((s4 << 26) | (s4 >>> 6)) ^ ((s4 << 21) | (s4 >>> 11)) ^ ((s4 << 7)  | (s4 >>> 25))) +
+                    ((s4 & s5) ^ (~s4 & s6)) + s7 + MRound + K[round]
+                );
+                var t2 = (
+                    (((s0 << 30) | (s0 >>> 2)) ^ ((s0 << 19) | (s0 >>> 13)) ^ ((s0 << 10) | (s0 >>> 22))) +
+                    ((s0 & s1) ^ (s0 & s2) ^ (s1 & s2))
+                );
 
                 s7 = s6;
                 s6 = s5;
