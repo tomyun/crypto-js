@@ -87,7 +87,7 @@
                     var gamma0x = M[round - 15];
                     var gamma1x = M[round - 2];
                     var MRound = (
-                        (
+                        M[round - 7] + M[round - 16] + (
                             ((gamma0x << 25) | (gamma0x >>> 7))  ^
                             ((gamma0x << 14) | (gamma0x >>> 18)) ^
                             (gamma0x >>> 3)
@@ -95,7 +95,7 @@
                             ((gamma1x << 15) | (gamma1x >>> 17)) ^
                             ((gamma1x << 13) | (gamma1x >>> 19)) ^
                             (gamma1x >>> 10)
-                        ) + M[round - 7] + M[round - 16]
+                        )
                     );
                 }
                 M[round] = MRound |= 0;
