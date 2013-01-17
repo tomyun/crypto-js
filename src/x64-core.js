@@ -6,7 +6,7 @@
     // Shortcuts
     var C = CryptoJS;
     var C_LIB = C.lib;
-    var Base = C_LIB.Base;
+    var O = C_LIB.Object;
     var X32WordArray = C_LIB.WordArray;
 
     /**
@@ -17,208 +17,188 @@
     /**
      * A 64-bit word.
      *
-     * @property {number} high The high 32 bits.
-     * @property {number} low The low 32 bits.
+     * @property {number} msw The most significant 32 bits.
+     * @property {number} lsw The least significant 32 bits.
      */
-    C_X64.Word = Base.extend({
+    var X64Word = C_X64.Word = O.extend({
         /**
-         * Initializes a newly created 64-bit word.
+         * Constructor.
          *
-         * @param {number} high The high 32 bits.
-         * @param {number} low The low 32 bits.
+         * @param {number} msw The most significant 32 bits.
+         * @param {number} lsw The least significant 32 bits.
          *
          * @example
          *
-         *     var x64Word = CryptoJS.x64.Word.create(0x00010203, 0x04050607);
+         *     var x64Word = new CryptoJS.x64.Word(0x00010203, 0x04050607);
          */
-        init: function (high, low) {
-            this.high = high;
-            this.low = low;
+        constructor: function (msw, lsw) {
+            this.msw = msw;
+            this.lsw = lsw;
         }
-
-        /**
-         * Bitwise NOTs this word.
-         *
-         * @return {X64Word} A new x64-Word object after negating.
-         *
-         * @example
-         *
-         *     var negated = x64Word.not();
-         */
-        /*
-        not: function () {
-            var high = ~this.high;
-            var low = ~this.low;
-
-            return X64Word.create(high, low);
-        },
-        */
-
-        /**
-         * Bitwise ANDs this word with the passed word.
-         *
-         * @param {X64Word} word The x64-Word to AND with this word.
-         *
-         * @return {X64Word} A new x64-Word object after ANDing.
-         *
-         * @example
-         *
-         *     var anded = x64Word.and(anotherX64Word);
-         */
-        /*
-        and: function (word) {
-            var high = this.high & word.high;
-            var low = this.low & word.low;
-
-            return X64Word.create(high, low);
-        },
-        */
-
-        /**
-         * Bitwise ORs this word with the passed word.
-         *
-         * @param {X64Word} word The x64-Word to OR with this word.
-         *
-         * @return {X64Word} A new x64-Word object after ORing.
-         *
-         * @example
-         *
-         *     var ored = x64Word.or(anotherX64Word);
-         */
-        /*
-        or: function (word) {
-            var high = this.high | word.high;
-            var low = this.low | word.low;
-
-            return X64Word.create(high, low);
-        },
-        */
-
-        /**
-         * Bitwise XORs this word with the passed word.
-         *
-         * @param {X64Word} word The x64-Word to XOR with this word.
-         *
-         * @return {X64Word} A new x64-Word object after XORing.
-         *
-         * @example
-         *
-         *     var xored = x64Word.xor(anotherX64Word);
-         */
-        /*
-        xor: function (word) {
-            var high = this.high ^ word.high;
-            var low = this.low ^ word.low;
-
-            return X64Word.create(high, low);
-        },
-        */
-
-        /**
-         * Shifts this word n bits to the left.
-         *
-         * @param {number} n The number of bits to shift.
-         *
-         * @return {X64Word} A new x64-Word object after shifting.
-         *
-         * @example
-         *
-         *     var shifted = x64Word.shiftL(25);
-         */
-        /*
-        shiftL: function (n) {
-            if (n < 32) {
-                var high = (this.high << n) | (this.low >>> (32 - n));
-                var low = this.low << n;
-            } else {
-                var high = this.low << (n - 32);
-                var low = 0;
-            }
-
-            return X64Word.create(high, low);
-        },
-        */
-
-        /**
-         * Shifts this word n bits to the right.
-         *
-         * @param {number} n The number of bits to shift.
-         *
-         * @return {X64Word} A new x64-Word object after shifting.
-         *
-         * @example
-         *
-         *     var shifted = x64Word.shiftR(7);
-         */
-        /*
-        shiftR: function (n) {
-            if (n < 32) {
-                var low = (this.low >>> n) | (this.high << (32 - n));
-                var high = this.high >>> n;
-            } else {
-                var low = this.high >>> (n - 32);
-                var high = 0;
-            }
-
-            return X64Word.create(high, low);
-        },
-        */
-
-        /**
-         * Rotates this word n bits to the left.
-         *
-         * @param {number} n The number of bits to rotate.
-         *
-         * @return {X64Word} A new x64-Word object after rotating.
-         *
-         * @example
-         *
-         *     var rotated = x64Word.rotL(25);
-         */
-        /*
-        rotL: function (n) {
-            return this.shiftL(n).or(this.shiftR(64 - n));
-        },
-        */
-
-        /**
-         * Rotates this word n bits to the right.
-         *
-         * @param {number} n The number of bits to rotate.
-         *
-         * @return {X64Word} A new x64-Word object after rotating.
-         *
-         * @example
-         *
-         *     var rotated = x64Word.rotR(7);
-         */
-        /*
-        rotR: function (n) {
-            return this.shiftR(n).or(this.shiftL(64 - n));
-        },
-        */
-
-        /**
-         * Adds this word with the passed word.
-         *
-         * @param {X64Word} word The x64-Word to add with this word.
-         *
-         * @return {X64Word} A new x64-Word object after adding.
-         *
-         * @example
-         *
-         *     var added = x64Word.add(anotherX64Word);
-         */
-        /*
-        add: function (word) {
-            var low = (this.low + word.low) | 0;
-            var carry = (low >>> 0) < (this.low >>> 0) ? 1 : 0;
-            var high = (this.high + word.high + carry) | 0;
-
-            return X64Word.create(high, low);
-        }
-        */
     });
+
+    // <?php if ($dev): ?>
+    {
+        X64Word = C_X64.Word = X64Word.extend({
+            /**
+             * Bitwise NOTs this word.
+             *
+             * @return {X64Word} A new x64-Word object after negating.
+             *
+             * @example
+             *
+             *     var negated = x64Word.not();
+             */
+            not: function () {
+                return new X64Word(~this.msw, ~this.lsw);
+            },
+
+            /**
+             * Bitwise ANDs this word with the passed word.
+             *
+             * @param {X64Word} word The x64-Word to AND with this word.
+             *
+             * @return {X64Word} A new x64-Word object after ANDing.
+             *
+             * @example
+             *
+             *     var anded = x64Word.and(anotherX64Word);
+             */
+            and: function (word) {
+                return new X64Word(this.msw & word.msw, this.lsw & word.lsw);
+            },
+
+            /**
+             * Bitwise ORs this word with the passed word.
+             *
+             * @param {X64Word} word The x64-Word to OR with this word.
+             *
+             * @return {X64Word} A new x64-Word object after ORing.
+             *
+             * @example
+             *
+             *     var ored = x64Word.or(anotherX64Word);
+             */
+            or: function (word) {
+                return new X64Word(this.msw | word.msw, this.lsw | word.lsw);
+            },
+
+            /**
+             * Bitwise XORs this word with the passed word.
+             *
+             * @param {X64Word} word The x64-Word to XOR with this word.
+             *
+             * @return {X64Word} A new x64-Word object after XORing.
+             *
+             * @example
+             *
+             *     var xored = x64Word.xor(anotherX64Word);
+             */
+            xor: function (word) {
+                return new X64Word(this.msw ^ word.msw, this.lsw ^ word.lsw);
+            },
+
+            /**
+             * Shifts this word n bits to the left.
+             *
+             * @param {number} n The number of bits to shift.
+             *
+             * @return {X64Word} A new x64-Word object after shifting.
+             *
+             * @example
+             *
+             *     var shifted = x64Word.shiftL(25);
+             */
+            shiftL: function (n) {
+                if (n === 0) {
+                    return this;
+                } else if (n < 32) {
+                    var msw = (this.msw << n) | (this.lsw >>> (32 - n));
+                    var lsw = this.lsw << n;
+                } else {
+                    var msw = this.lsw << (n - 32);
+                    var lsw = 0;
+                }
+
+                return new X64Word(msw, lsw);
+            },
+
+            /**
+             * Shifts this word n bits to the right.
+             *
+             * @param {number} n The number of bits to shift.
+             *
+             * @return {X64Word} A new x64-Word object after shifting.
+             *
+             * @example
+             *
+             *     var shifted = x64Word.shiftR(7);
+             */
+            shiftR: function (n) {
+                if (n === 0) {
+                    return this;
+                } else if (n < 32) {
+                    var lsw = (this.lsw >>> n) | (this.msw << (32 - n));
+                    var msw = this.msw >>> n;
+                } else {
+                    var lsw = this.msw >>> (n - 32);
+                    var msw = 0;
+                }
+
+                return new X64Word(msw, lsw);
+            },
+
+            /**
+             * Rotates this word n bits to the left.
+             *
+             * @param {number} n The number of bits to rotate.
+             *
+             * @return {X64Word} A new x64-Word object after rotating.
+             *
+             * @example
+             *
+             *     var rotated = x64Word.rotL(25);
+             */
+            rotL: function (n) {
+                return this.shiftL(n).or(this.shiftR(64 - n));
+            },
+
+            /**
+             * Rotates this word n bits to the right.
+             *
+             * @param {number} n The number of bits to rotate.
+             *
+             * @return {X64Word} A new x64-Word object after rotating.
+             *
+             * @example
+             *
+             *     var rotated = x64Word.rotR(7);
+             */
+            rotR: function (n) {
+                return this.shiftR(n).or(this.shiftL(64 - n));
+            },
+
+            /**
+             * Adds this word with the passed word.
+             *
+             * @param {X64Word} word The x64-Word to add with this word.
+             *
+             * @return {X64Word} A new x64-Word object after adding.
+             *
+             * @example
+             *
+             *     var added = x64Word.add(anotherX64Word);
+             */
+            add: function (word) {
+                var lsw = (this.lsw + word.lsw) | 0;
+                var carry = (lsw >>> 0) < (this.lsw >>> 0) ? 1 : 0;
+                var msw = (this.msw + word.msw + carry) | 0;
+
+                return new X64Word(msw, lsw);
+            }
+        });
+    }
+    // <?php endif ?>
 
     /**
      * An array of 64-bit words.
@@ -226,35 +206,39 @@
      * @property {Array} words The array of X64Word objects.
      * @property {number} sigBytes The number of significant bytes in this word array.
      */
-    C_X64.WordArray = Base.extend({
+    var X64WordArray = C_X64.WordArray = O.extend({
         /**
-         * Initializes a newly created word array.
+         * Constructor.
          *
          * @param {Array} words (Optional) An array of X64Word objects.
          * @param {number} sigBytes (Optional) The number of significant bytes in the words.
          *
          * @example
          *
-         *     var wordArray = CryptoJS.x64.WordArray.create();
+         *     var wordArray = new CryptoJS.x64.WordArray();
          *
-         *     var wordArray = CryptoJS.x64.WordArray.create([
-         *         CryptoJS.x64.Word.create(0x00010203, 0x04050607),
-         *         CryptoJS.x64.Word.create(0x18191a1b, 0x1c1d1e1f)
+         *     var wordArray = new CryptoJS.x64.WordArray([
+         *         new CryptoJS.x64.Word(0x00010203, 0x04050607),
+         *         new CryptoJS.x64.Word(0x18191a1b, 0x1c1d1e1f)
          *     ]);
          *
-         *     var wordArray = CryptoJS.x64.WordArray.create([
-         *         CryptoJS.x64.Word.create(0x00010203, 0x04050607),
-         *         CryptoJS.x64.Word.create(0x18191a1b, 0x1c1d1e1f)
+         *     var wordArray = new CryptoJS.x64.WordArray([
+         *         new CryptoJS.x64.Word(0x00010203, 0x04050607),
+         *         new CryptoJS.x64.Word(0x18191a1b, 0x1c1d1e1f)
          *     ], 10);
          */
-        init: function (words, sigBytes) {
-            words = this.words = words || [];
-
-            if (sigBytes !== undefined) {
-                this.sigBytes = sigBytes;
-            } else {
-                this.sigBytes = words.length * 8;
+        constructor: function (words, sigBytes) {
+            // Default values
+            if (!words) {
+                words = [];
             }
+            if (sigBytes === undefined) {
+                sigBytes = words.length * 8;
+            }
+
+            // Set properties
+            this.words = words;
+            this.sigBytes = sigBytes;
         },
 
         /**
@@ -275,11 +259,11 @@
             var x32Words = [];
             for (var i = 0; i < x64WordsLength; i++) {
                 var x64Word = x64Words[i];
-                x32Words.push(x64Word.high);
-                x32Words.push(x64Word.low);
+                x32Words[i * 2] = x64Word.msw;
+                x32Words[i * 2 + 1] = x64Word.lsw;
             }
 
-            return X32WordArray.create(x32Words, this.sigBytes);
+            return new X32WordArray(x32Words, this.sigBytes);
         },
 
         /**
@@ -292,7 +276,7 @@
          *     var clone = x64WordArray.clone();
          */
         clone: function () {
-            var clone = Base.clone.call(this);
+            var clone = X64WordArray.$super.prototype.clone.call(this);
 
             // Clone "words" array
             var words = clone.words = clone.words.slice(0);
