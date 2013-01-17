@@ -25,6 +25,10 @@ YUI.add('sha256-benchmark', function (Y) {
                 var hash = Y.Sjcl.codec.hex.fromBits(Y.Sjcl.hash.sha256.hash('abc')) + '';
             });
 
+            suite.add('jsSHA', function () {
+                var hash = (new Y.JsSHA('abc', 'TEXT')).getHash('SHA-256', 'HEX') + '';
+            });
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });

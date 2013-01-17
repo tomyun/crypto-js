@@ -21,6 +21,10 @@ YUI.add('sha1-benchmark', function (Y) {
                 var hash = Y.PajSHA1('abc') + '';
             });
 
+            suite.add('jsSHA', function () {
+                var hash = (new Y.JsSHA('abc', 'TEXT')).getHash('SHA-1', 'HEX') + '';
+            });
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });
