@@ -33,11 +33,17 @@ YUI.add('md5-test', function (Y) {
         },
 
         testVector6: function () {
-            Y.Assert.areEqual('d174ab98d277d9f5a5611c2c9f419d9f', MD5.hash('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789').toString());
+            Y.Assert.areEqual(
+                'd174ab98d277d9f5a5611c2c9f419d9f',
+                MD5.hash('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789').toString()
+            );
         },
 
         testVector7: function () {
-            Y.Assert.areEqual('57edf4a22be3c955ac49da2e2107b67a', MD5.hash('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString());
+            Y.Assert.areEqual(
+                '57edf4a22be3c955ac49da2e2107b67a',
+                MD5.hash('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString()
+            );
         },
 
         testUpdateAndLongMessage: function () {

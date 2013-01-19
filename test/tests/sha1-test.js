@@ -29,15 +29,24 @@ YUI.add('sha1-test', function (Y) {
         },
 
         testVector5: function () {
-            Y.Assert.areEqual('32d10c7b8cf96570ca04ce37f2a19d84240d3a89', SHA1.hash('abcdefghijklmnopqrstuvwxyz').toString());
+            Y.Assert.areEqual(
+                '32d10c7b8cf96570ca04ce37f2a19d84240d3a89',
+                SHA1.hash('abcdefghijklmnopqrstuvwxyz').toString()
+            );
         },
 
         testVector6: function () {
-            Y.Assert.areEqual('761c457bf73b14d27e9e9265c46f4b4dda11f940', SHA1.hash('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789').toString());
+            Y.Assert.areEqual(
+                '761c457bf73b14d27e9e9265c46f4b4dda11f940',
+                SHA1.hash('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789').toString()
+            );
         },
 
         testVector7: function () {
-            Y.Assert.areEqual('50abf5706a150990a08b2c5ea40fa0e585554732', SHA1.hash('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString());
+            Y.Assert.areEqual(
+                '50abf5706a150990a08b2c5ea40fa0e585554732',
+                SHA1.hash('12345678901234567890123456789012345678901234567890123456789012345678901234567890').toString()
+            );
         },
 
         testUpdateAndLongMessage: function () {
