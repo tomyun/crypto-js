@@ -98,11 +98,9 @@
                     // Shortcuts
                     var MRound2Msw  = M[round - 4];
                     var MRound2Lsw  = M[round - 3];
-                    var MRound7Msw  = M[round - 14];
                     var MRound7Lsw  = M[round - 13];
                     var MRound15Msw = M[round - 30];
                     var MRound15Lsw = M[round - 29];
-                    var MRound16Msw = M[round - 32];
                     var MRound16Lsw = M[round - 31];
 
                     // M[round - 7] + gamma0
@@ -111,7 +109,7 @@
                         ((MRound15Msw << 24) | (MRound15Lsw >>> 8)) ^
                         ((MRound15Msw << 25) | (MRound15Lsw >>> 7))
                     );
-                    var t0Msw = ((t0Lsw >>> 0) < (MRound7Lsw >>> 0) ? 1 : 0) + MRound7Msw + (
+                    var t0Msw = ((t0Lsw >>> 0) < (MRound7Lsw >>> 0) ? 1 : 0) + M[round - 14] + (
                         ((MRound15Lsw << 31) | (MRound15Msw >>> 1)) ^
                         ((MRound15Lsw << 24) | (MRound15Msw >>> 8)) ^
                         (MRound15Msw >>> 7)
@@ -123,7 +121,7 @@
                         ((MRound2Lsw << 3)  | (MRound2Msw >>> 29)) ^
                         ((MRound2Msw << 26) | (MRound2Lsw >>> 6))
                     );
-                    var t1Msw = ((t1Lsw >>> 0) < (MRound16Lsw >>> 0) ? 1 : 0) + MRound16Msw + (
+                    var t1Msw = ((t1Lsw >>> 0) < (MRound16Lsw >>> 0) ? 1 : 0) + M[round - 32] + (
                         ((MRound2Lsw << 13) | (MRound2Msw >>> 19)) ^
                         ((MRound2Msw << 3)  | (MRound2Lsw >>> 29)) ^
                         (MRound2Msw >>> 6)
