@@ -6,318 +6,254 @@
     // Shortcuts
     var C = CryptoJS;
     var C_LIB = C.lib;
+    var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
-    var C_X64 = C.x64;
-    var X64Word = C_X64.Word;
-    var X64WordArray = C_X64.WordArray;
-    var C_ALGO = C.algo;
-
-    function x64WordCreate() {
-        return X64Word.create.apply(X64Word, arguments);
-    }
 
     // Constants
     var K = [
-        x64WordCreate(0x428a2f98, 0xd728ae22), x64WordCreate(0x71374491, 0x23ef65cd),
-        x64WordCreate(0xb5c0fbcf, 0xec4d3b2f), x64WordCreate(0xe9b5dba5, 0x8189dbbc),
-        x64WordCreate(0x3956c25b, 0xf348b538), x64WordCreate(0x59f111f1, 0xb605d019),
-        x64WordCreate(0x923f82a4, 0xaf194f9b), x64WordCreate(0xab1c5ed5, 0xda6d8118),
-        x64WordCreate(0xd807aa98, 0xa3030242), x64WordCreate(0x12835b01, 0x45706fbe),
-        x64WordCreate(0x243185be, 0x4ee4b28c), x64WordCreate(0x550c7dc3, 0xd5ffb4e2),
-        x64WordCreate(0x72be5d74, 0xf27b896f), x64WordCreate(0x80deb1fe, 0x3b1696b1),
-        x64WordCreate(0x9bdc06a7, 0x25c71235), x64WordCreate(0xc19bf174, 0xcf692694),
-        x64WordCreate(0xe49b69c1, 0x9ef14ad2), x64WordCreate(0xefbe4786, 0x384f25e3),
-        x64WordCreate(0x0fc19dc6, 0x8b8cd5b5), x64WordCreate(0x240ca1cc, 0x77ac9c65),
-        x64WordCreate(0x2de92c6f, 0x592b0275), x64WordCreate(0x4a7484aa, 0x6ea6e483),
-        x64WordCreate(0x5cb0a9dc, 0xbd41fbd4), x64WordCreate(0x76f988da, 0x831153b5),
-        x64WordCreate(0x983e5152, 0xee66dfab), x64WordCreate(0xa831c66d, 0x2db43210),
-        x64WordCreate(0xb00327c8, 0x98fb213f), x64WordCreate(0xbf597fc7, 0xbeef0ee4),
-        x64WordCreate(0xc6e00bf3, 0x3da88fc2), x64WordCreate(0xd5a79147, 0x930aa725),
-        x64WordCreate(0x06ca6351, 0xe003826f), x64WordCreate(0x14292967, 0x0a0e6e70),
-        x64WordCreate(0x27b70a85, 0x46d22ffc), x64WordCreate(0x2e1b2138, 0x5c26c926),
-        x64WordCreate(0x4d2c6dfc, 0x5ac42aed), x64WordCreate(0x53380d13, 0x9d95b3df),
-        x64WordCreate(0x650a7354, 0x8baf63de), x64WordCreate(0x766a0abb, 0x3c77b2a8),
-        x64WordCreate(0x81c2c92e, 0x47edaee6), x64WordCreate(0x92722c85, 0x1482353b),
-        x64WordCreate(0xa2bfe8a1, 0x4cf10364), x64WordCreate(0xa81a664b, 0xbc423001),
-        x64WordCreate(0xc24b8b70, 0xd0f89791), x64WordCreate(0xc76c51a3, 0x0654be30),
-        x64WordCreate(0xd192e819, 0xd6ef5218), x64WordCreate(0xd6990624, 0x5565a910),
-        x64WordCreate(0xf40e3585, 0x5771202a), x64WordCreate(0x106aa070, 0x32bbd1b8),
-        x64WordCreate(0x19a4c116, 0xb8d2d0c8), x64WordCreate(0x1e376c08, 0x5141ab53),
-        x64WordCreate(0x2748774c, 0xdf8eeb99), x64WordCreate(0x34b0bcb5, 0xe19b48a8),
-        x64WordCreate(0x391c0cb3, 0xc5c95a63), x64WordCreate(0x4ed8aa4a, 0xe3418acb),
-        x64WordCreate(0x5b9cca4f, 0x7763e373), x64WordCreate(0x682e6ff3, 0xd6b2b8a3),
-        x64WordCreate(0x748f82ee, 0x5defb2fc), x64WordCreate(0x78a5636f, 0x43172f60),
-        x64WordCreate(0x84c87814, 0xa1f0ab72), x64WordCreate(0x8cc70208, 0x1a6439ec),
-        x64WordCreate(0x90befffa, 0x23631e28), x64WordCreate(0xa4506ceb, 0xde82bde9),
-        x64WordCreate(0xbef9a3f7, 0xb2c67915), x64WordCreate(0xc67178f2, 0xe372532b),
-        x64WordCreate(0xca273ece, 0xea26619c), x64WordCreate(0xd186b8c7, 0x21c0c207),
-        x64WordCreate(0xeada7dd6, 0xcde0eb1e), x64WordCreate(0xf57d4f7f, 0xee6ed178),
-        x64WordCreate(0x06f067aa, 0x72176fba), x64WordCreate(0x0a637dc5, 0xa2c898a6),
-        x64WordCreate(0x113f9804, 0xbef90dae), x64WordCreate(0x1b710b35, 0x131c471b),
-        x64WordCreate(0x28db77f5, 0x23047d84), x64WordCreate(0x32caab7b, 0x40c72493),
-        x64WordCreate(0x3c9ebe0a, 0x15c9bebc), x64WordCreate(0x431d67c4, 0x9c100d4c),
-        x64WordCreate(0x4cc5d4be, 0xcb3e42b6), x64WordCreate(0x597f299c, 0xfc657e2a),
-        x64WordCreate(0x5fcb6fab, 0x3ad6faec), x64WordCreate(0x6c44198c, 0x4a475817)
+        0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd, 0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+        0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019, 0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+        0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe, 0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+        0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1, 0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+        0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3, 0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+        0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483, 0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+        0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210, 0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+        0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725, 0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+        0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926, 0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+        0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8, 0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+        0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001, 0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+        0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910, 0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+        0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53, 0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+        0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb, 0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+        0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60, 0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+        0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9, 0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+        0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207, 0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+        0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6, 0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+        0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493, 0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+        0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a, 0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
     ];
 
-    // Reusable objects
-    var W = [];
-    (function () {
-        for (var i = 0; i < 80; i++) {
-            W[i] = x64WordCreate();
-        }
-    }());
+    // Reusable object for expanded message
+    var M = [];
 
     /**
      * SHA-512 hash algorithm.
      */
-    var SHA512 = C_ALGO.SHA512 = Hasher.extend({
-        _doReset: function () {
-            this._hash = X64WordArray.create([
-                x64WordCreate(0x6a09e667, 0xf3bcc908), x64WordCreate(0xbb67ae85, 0x84caa73b),
-                x64WordCreate(0x3c6ef372, 0xfe94f82b), x64WordCreate(0xa54ff53a, 0x5f1d36f1),
-                x64WordCreate(0x510e527f, 0xade682d1), x64WordCreate(0x9b05688c, 0x2b3e6c1f),
-                x64WordCreate(0x1f83d9ab, 0xfb41bd6b), x64WordCreate(0x5be0cd19, 0x137e2179)
-            ]);
+    var SHA512 = C.SHA512 = Hasher.extend({
+        _doInit: function () {
         },
 
-        _doProcessBlock: function (M, offset) {
+        _doReset: function () {
+            this._state = [
+                0x6a09e667, 0xf3bcc908, 0xbb67ae85, 0x84caa73b,
+                0x3c6ef372, 0xfe94f82b, 0xa54ff53a, 0x5f1d36f1,
+                0x510e527f, 0xade682d1, 0x9b05688c, 0x2b3e6c1f,
+                0x1f83d9ab, 0xfb41bd6b, 0x5be0cd19, 0x137e2179
+            ];
+        },
+
+        _doProcessBlock: function (m) {
             // Shortcuts
-            var H = this._hash.words;
-
-            var H0 = H[0];
-            var H1 = H[1];
-            var H2 = H[2];
-            var H3 = H[3];
-            var H4 = H[4];
-            var H5 = H[5];
-            var H6 = H[6];
-            var H7 = H[7];
-
-            var H0h = H0.high;
-            var H0l = H0.low;
-            var H1h = H1.high;
-            var H1l = H1.low;
-            var H2h = H2.high;
-            var H2l = H2.low;
-            var H3h = H3.high;
-            var H3l = H3.low;
-            var H4h = H4.high;
-            var H4l = H4.low;
-            var H5h = H5.high;
-            var H5l = H5.low;
-            var H6h = H6.high;
-            var H6l = H6.low;
-            var H7h = H7.high;
-            var H7l = H7.low;
-
-            // Working variables
-            var ah = H0h;
-            var al = H0l;
-            var bh = H1h;
-            var bl = H1l;
-            var ch = H2h;
-            var cl = H2l;
-            var dh = H3h;
-            var dl = H3l;
-            var eh = H4h;
-            var el = H4l;
-            var fh = H5h;
-            var fl = H5l;
-            var gh = H6h;
-            var gl = H6l;
-            var hh = H7h;
-            var hl = H7l;
+            var s = this._state;
+            var s0Msw = s[0];
+            var s0Lsw = s[1];
+            var s1Msw = s[2];
+            var s1Lsw = s[3];
+            var s2Msw = s[4];
+            var s2Lsw = s[5];
+            var s3Msw = s[6];
+            var s3Lsw = s[7];
+            var s4Msw = s[8];
+            var s4Lsw = s[9];
+            var s5Msw = s[10];
+            var s5Lsw = s[11];
+            var s6Msw = s[12];
+            var s6Lsw = s[13];
+            var s7Msw = s[14];
+            var s7Lsw = s[15];
+            var _s0Msw = s0Msw;
+            var _s0Lsw = s0Lsw;
+            var _s1Msw = s1Msw;
+            var _s1Lsw = s1Lsw;
+            var _s2Msw = s2Msw;
+            var _s2Lsw = s2Lsw;
+            var _s3Msw = s3Msw;
+            var _s3Lsw = s3Lsw;
+            var _s4Msw = s4Msw;
+            var _s4Lsw = s4Lsw;
+            var _s5Msw = s5Msw;
+            var _s5Lsw = s5Lsw;
+            var _s6Msw = s6Msw;
+            var _s6Lsw = s6Lsw;
+            var _s7Msw = s7Msw;
+            var _s7Lsw = s7Lsw;
 
             // Rounds
-            for (var round = 0; round < 80; round++) {
-                // Extend message
-                if (round < 16) {
-                    var Wrh = M[offset + round * 2];
-                    var Wrl = M[offset + round * 2 + 1];
+            for (var round = 0; round < 160; round += 2) {
+                // Expand message
+                if (round < 32) {
+                    var MRoundMsw = m[round];
+                    var MRoundLsw = m[round + 1];
                 } else {
-                    // Gamma0
-                    var gamma0x = W[round - 15];
-                    var gamma0xh = gamma0x.high;
-                    var gamma0xl = gamma0x.low;
-                    var gamma0h = (
-                        ((gamma0xl << 31) | (gamma0xh >>> 1)) ^
-                        ((gamma0xl << 24) | (gamma0xh >>> 8)) ^
-                         (gamma0xh >>> 7)
-                    );
-                    var gamma0l = (
-                        ((gamma0xh << 31) | (gamma0xl >>> 1)) ^
-                        ((gamma0xh << 24) | (gamma0xl >>> 8)) ^
-                        ((gamma0xh << 25) | (gamma0xl >>> 7))
-                    );
-
-                    // Gamma1
-                    var gamma1x = W[round - 2];
-                    var gamma1xh = gamma1x.high;
-                    var gamma1xl = gamma1x.low;
-                    var gamma1h = (
-                        ((gamma1xl << 13) | (gamma1xh >>> 19)) ^
-                        ((gamma1xh << 3)  | (gamma1xl >>> 29)) ^
-                         (gamma1xh >>> 6)
-                    );
-                    var gamma1l = (
-                        ((gamma1xh << 13) | (gamma1xl >>> 19)) ^
-                        ((gamma1xl << 3)  | (gamma1xh >>> 29)) ^
-                        ((gamma1xh << 26) | (gamma1xl >>> 6))
-                    );
-
                     // Shortcuts
-                    var Wr7 = W[round - 7];
-                    var Wr7h = Wr7.high;
-                    var Wr7l = Wr7.low;
+                    var MRound2Msw  = M[round - 4];
+                    var MRound2Lsw  = M[round - 3];
+                    var MRound7Msw  = M[round - 14];
+                    var MRound7Lsw  = M[round - 13];
+                    var MRound15Msw = M[round - 30];
+                    var MRound15Lsw = M[round - 29];
+                    var MRound16Msw = M[round - 32];
+                    var MRound16Lsw = M[round - 31];
 
-                    var Wr16 = W[round - 16];
-                    var Wr16h = Wr16.high;
-                    var Wr16l = Wr16.low;
+                    // M[round - 7] + gamma0
+                    var t0Lsw = MRound7Lsw + (
+                        ((MRound15Msw << 31) | (MRound15Lsw >>> 1)) ^
+                        ((MRound15Msw << 24) | (MRound15Lsw >>> 8)) ^
+                        ((MRound15Msw << 25) | (MRound15Lsw >>> 7))
+                    );
+                    var t0Msw = ((t0Lsw >>> 0) < (MRound7Lsw >>> 0) ? 1 : 0) + MRound7Msw + (
+                        ((MRound15Lsw << 31) | (MRound15Msw >>> 1)) ^
+                        ((MRound15Lsw << 24) | (MRound15Msw >>> 8)) ^
+                        (MRound15Msw >>> 7)
+                    );
 
-                    // W[round] = gamma0 + W[round - 7] + gamma1 + W[round - 16]
-                    var Wrl = gamma0l + Wr7l;
-                    var Wrh = gamma0h + Wr7h + ((Wrl >>> 0) < (gamma0l >>> 0) ? 1 : 0);
-                    Wrl += gamma1l;
-                    Wrh += gamma1h + ((Wrl >>> 0) < (gamma1l >>> 0) ? 1 : 0);
-                    Wrl += Wr16l;
-                    Wrh += Wr16h + ((Wrl >>> 0) < (Wr16l >>> 0) ? 1 : 0);
+                    // M[round - 16] + gamma1
+                    var t1Lsw = MRound16Lsw + (
+                        ((MRound2Msw << 13) | (MRound2Lsw >>> 19)) ^
+                        ((MRound2Lsw << 3)  | (MRound2Msw >>> 29)) ^
+                        ((MRound2Msw << 26) | (MRound2Lsw >>> 6))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (MRound16Lsw >>> 0) ? 1 : 0) + MRound16Msw + (
+                        ((MRound2Lsw << 13) | (MRound2Msw >>> 19)) ^
+                        ((MRound2Msw << 3)  | (MRound2Lsw >>> 29)) ^
+                        (MRound2Msw >>> 6)
+                    );
+
+                    // (M[round - 7] + gamma0) + (M[round - 16] + gamma1)
+                    var MRoundLsw = t0Lsw + t1Lsw;
+                    var MRoundMsw = ((MRoundLsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
                 }
-                var Wr = W[round];
-                Wr.high = Wrh |= 0;
-                Wr.low  = Wrl |= 0;
 
-                // Ch
-                var chh = (eh & fh) ^ (~eh & gh);
-                var chl = (el & fl) ^ (~el & gl);
-
-                // Maj
-                var majh = (ah & bh) ^ (ah & ch) ^ (bh & ch);
-                var majl = (al & bl) ^ (al & cl) ^ (bl & cl);
-
-                // Sigma0
-                var sigma0h = ((al << 4) | (ah >>> 28)) ^ ((ah << 30) | (al >>> 2)) ^ ((ah << 25) | (al >>> 7));
-                var sigma0l = ((ah << 4) | (al >>> 28)) ^ ((al << 30) | (ah >>> 2)) ^ ((al << 25) | (ah >>> 7));
-
-                // Sigma1
-                var sigma1h = ((el << 18) | (eh >>> 14)) ^ ((el << 14) | (eh >>> 18)) ^ ((eh << 23) | (el >>> 9));
-                var sigma1l = ((eh << 18) | (el >>> 14)) ^ ((eh << 14) | (el >>> 18)) ^ ((el << 23) | (eh >>> 9));
+                // Set expanded message
+                M[round]     = MRoundMsw |= 0;
+                M[round + 1] = MRoundLsw |= 0;
 
                 // Shortcuts
-                var Kr = K[round];
-                var Krh = Kr.high;
-                var Krl = Kr.low;
+                var KRoundMsw = K[round];
+                var KRoundLsw = K[round + 1];
 
-                // t1 = h + sigma1 + ch + K[round] + W[round]
-                var t1l = hl + sigma1l;
-                var t1h = hh + sigma1h + ((t1l >>> 0) < (hl >>> 0) ? 1 : 0);
-                t1l += chl;
-                t1h += chh + ((t1l >>> 0) < (chl >>> 0) ? 1 : 0);
-                t1l += Krl;
-                t1h += Krh + ((t1l >>> 0) < (Krl >>> 0) ? 1 : 0);
-                t1l += Wrl;
-                t1h += Wrh + ((t1l >>> 0) < (Wrl >>> 0) ? 1 : 0);
+                // M[round] + Ch
+                var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                    (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                );
 
-                // t2 = sigma0 + maj
-                var t2l = sigma0l + majl;
-                var t2h = sigma0h + majh + ((t2l >>> 0) < (sigma0l >>> 0) ? 1 : 0);
+                // K[round] + sigma1
+                var t1Lsw = KRoundLsw + (
+                    ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                    ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                    ((s4Lsw << 23) | (s4Msw >>> 9))
+                );
+                var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                    ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                    ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                    ((s4Msw << 23) | (s4Lsw >>> 9))
+                );
 
-                // Update working variables
-                hh = gh;
-                hl = gl;
-                gh = fh;
-                gl = fl;
-                fh = eh;
-                fl = el;
-                el = (dl + t1l) | 0;
-                eh = (dh + t1h + ((el >>> 0) < (dl >>> 0) ? 1 : 0)) | 0;
-                dh = ch;
-                dl = cl;
-                ch = bh;
-                cl = bl;
-                bh = ah;
-                bl = al;
-                al = (t1l + t2l) | 0;
-                ah = (t1h + t2h + ((al >>> 0) < (t1l >>> 0) ? 1 : 0)) | 0;
+                // (M[round] + Ch) + (K[round] + sigma1)
+                var t2Lsw = t0Lsw + t1Lsw;
+                var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                var t3Lsw = t2Lsw + s7Lsw;
+                var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                // maj + sigma0
+                var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                var t4Lsw = majLsw + (
+                    ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                    ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                    ((s0Lsw << 25) | (s0Msw >>> 7))
+                );
+                var t4Msw = (
+                    ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                        (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                    ) + (
+                        ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                        ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                        ((s0Msw << 25) | (s0Lsw >>> 7))
+                    )
+                );
+
+                // Update working state
+                s7Msw = s6Msw;
+                s7Lsw = s6Lsw;
+                s6Msw = s5Msw;
+                s6Lsw = s5Lsw;
+                s5Msw = s4Msw;
+                s5Lsw = s4Lsw;
+                s4Lsw = (s3Lsw + t3Lsw) | 0;
+                s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                s3Msw = s2Msw;
+                s3Lsw = s2Lsw;
+                s2Msw = s1Msw;
+                s2Lsw = s1Lsw;
+                s1Msw = s0Msw;
+                s1Lsw = s0Lsw;
+                s0Lsw = (t3Lsw + t4Lsw) | 0;
+                s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
             }
 
-            // Intermediate hash value
-            H0l = H0.low = (H0l + al) | 0;
-            H0.high = (H0h + ah + ((H0l >>> 0) < (al >>> 0) ? 1 : 0)) | 0;
-            H1l = H1.low = (H1l + bl) | 0;
-            H1.high = (H1h + bh + ((H1l >>> 0) < (bl >>> 0) ? 1 : 0)) | 0;
-            H2l = H2.low = (H2l + cl) | 0;
-            H2.high = (H2h + ch + ((H2l >>> 0) < (cl >>> 0) ? 1 : 0)) | 0;
-            H3l = H3.low = (H3l + dl) | 0;
-            H3.high = (H3h + dh + ((H3l >>> 0) < (dl >>> 0) ? 1 : 0)) | 0;
-            H4l = H4.low = (H4l + el) | 0;
-            H4.high = (H4h + eh + ((H4l >>> 0) < (el >>> 0) ? 1 : 0)) | 0;
-            H5l = H5.low = (H5l + fl) | 0;
-            H5.high = (H5h + fh + ((H5l >>> 0) < (fl >>> 0) ? 1 : 0)) | 0;
-            H6l = H6.low = (H6l + gl) | 0;
-            H6.high = (H6h + gh + ((H6l >>> 0) < (gl >>> 0) ? 1 : 0)) | 0;
-            H7l = H7.low = (H7l + hl) | 0;
-            H7.high = (H7h + hh + ((H7l >>> 0) < (hl >>> 0) ? 1 : 0)) | 0;
+            // Update state
+            s0Lsw = s[1] = (_s0Lsw + s0Lsw) | 0;
+            s[0] = (_s0Msw + s0Msw + ((s0Lsw >>> 0) < (_s0Lsw >>> 0) ? 1 : 0)) | 0;
+            s1Lsw = s[3] = (_s1Lsw + s1Lsw) | 0;
+            s[2] = (_s1Msw + s1Msw + ((s1Lsw >>> 0) < (_s1Lsw >>> 0) ? 1 : 0)) | 0;
+            s2Lsw = s[5] = (_s2Lsw + s2Lsw) | 0;
+            s[4] = (_s2Msw + s2Msw + ((s2Lsw >>> 0) < (_s2Lsw >>> 0) ? 1 : 0)) | 0;
+            s3Lsw = s[7] = (_s3Lsw + s3Lsw) | 0;
+            s[6] = (_s3Msw + s3Msw + ((s3Lsw >>> 0) < (_s3Lsw >>> 0) ? 1 : 0)) | 0;
+            s4Lsw = s[9] = (_s4Lsw + s4Lsw) | 0;
+            s[8] = (_s4Msw + s4Msw + ((s4Lsw >>> 0) < (_s4Lsw >>> 0) ? 1 : 0)) | 0;
+            s5Lsw = s[11] = (_s5Lsw + s5Lsw) | 0;
+            s[10] = (_s5Msw + s5Msw + ((s5Lsw >>> 0) < (_s5Lsw >>> 0) ? 1 : 0)) | 0;
+            s6Lsw = s[13] = (_s6Lsw + s6Lsw) | 0;
+            s[12] = (_s6Msw + s6Msw + ((s6Lsw >>> 0) < (_s6Lsw >>> 0) ? 1 : 0)) | 0;
+            s7Lsw = s[15] = (_s7Lsw + s7Lsw) | 0;
+            s[14] = (_s7Msw + s7Msw + ((s7Lsw >>> 0) < (_s7Lsw >>> 0) ? 1 : 0)) | 0;
         },
 
         _doFinalize: function () {
             // Shortcuts
             var data = this._data;
             var dataWords = data.words;
-
             var nBitsLeft = data.sigBytes * 8;
-
-            var nBitsTotalL = this._nDataBitsL;
-            var nBitsTotalH = this._nDataBitsH;
+            var nBitsTotalLsw = this._nDataBitsLsw;
+            var nBitsTotalMsw = this._nDataBitsMsw;
 
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
 
             var lengthStartIndex = (((nBitsLeft + 128) >>> 10) << 5) + 30;
-            dataWords[lengthStartIndex] = nBitsTotalH;
-            dataWords[lengthStartIndex + 1] = nBitsTotalL;
+            dataWords[lengthStartIndex] = nBitsTotalMsw;
+            dataWords[lengthStartIndex + 1] = nBitsTotalLsw;
 
             data.sigBytes = dataWords.length * 4;
 
             // Hash final blocks
             this._process();
 
-            // Convert hash to 32-bit word array before returning
-            this._hash = this._hash.toX32();
+            // Return final hash
+            return new WordArray(this._state);
         },
 
-        blockSize: 1024/32
+        clone: function () {
+            var clone = SHA512.$super.prototype.clone.call(this);
+            clone._state = clone._state.slice(0);
+
+            return clone;
+        },
+
+        blockSize: 1024 / 32
     });
-
-    /**
-     * Shortcut function to the hasher's object interface.
-     *
-     * @param {WordArray|string} message The message to hash.
-     *
-     * @return {WordArray} The hash.
-     *
-     * @static
-     *
-     * @example
-     *
-     *     var hash = CryptoJS.SHA512('message');
-     *     var hash = CryptoJS.SHA512(wordArray);
-     */
-    C.SHA512 = Hasher._createHelper(SHA512);
-
-    /**
-     * Shortcut function to the HMAC's object interface.
-     *
-     * @param {WordArray|string} message The message to hash.
-     * @param {WordArray|string} key The secret key.
-     *
-     * @return {WordArray} The HMAC.
-     *
-     * @static
-     *
-     * @example
-     *
-     *     var hmac = CryptoJS.HmacSHA512(message, key);
-     */
-    C.HmacSHA512 = Hasher._createHmacHelper(SHA512);
 }());

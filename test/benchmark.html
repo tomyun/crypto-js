@@ -6,15 +6,15 @@
 
         <!-- CryptoJS -->
         <script src="../src/core.js"></script>
+        <script src="../src/x64-core.js"></script>
         <script src="../src/md5.js"></script>
         <script src="../src/sha1.js"></script>
         <script src="../src/sha256.js"></script>
         <script src="../src/sha224.js"></script>
+        <script src="../src/sha512.js"></script>
         <!--
-        <script src="../src/x64-core.js"></script>
         <script src="../src/enc-utf16.js"></script>
         <script src="../src/enc-base64.js"></script>
-        <script src="../src/sha512.js"></script>
         <script src="../src/sha384.js"></script>
         <script src="../src/hmac.js"></script>
         <script src="../src/pbkdf2.js"></script>
@@ -117,6 +117,16 @@
                 q[h+e]|0;else{var m=n[e-15],p=n[e-2];n[e]=((m<<25|m>>>7)^(m<<14|m>>>18)^m>>>3)+n[e-7]+((p<<15|p>>>17)^(p<<13|p>>>19)^p>>>10)+n[e-16]}m=l+((f<<26|f>>>6)^(f<<21|f>>>11)^(f<<7|f>>>25))+(f&g^~f&j)+t[e]+n[e];p=((c<<30|c>>>2)^(c<<19|c>>>13)^(c<<10|c>>>22))+(c&d^c&b^d&b);l=j;j=g;g=f;f=k+m|0;k=b;b=d;d=c;c=m+p|0}a[0]=a[0]+c|0;a[1]=a[1]+d|0;a[2]=a[2]+b|0;a[3]=a[3]+k|0;a[4]=a[4]+f|0;a[5]=a[5]+g|0;a[6]=a[6]+j|0;a[7]=a[7]+l|0},_doFinalize:function(){var d=this._data,b=d.words,a=8*this._nDataBytes,c=8*d.sigBytes;
                 b[c>>>5]|=128<<24-c%32;b[(c+64>>>9<<4)+14]=k.floor(a/4294967296);b[(c+64>>>9<<4)+15]=a;d.sigBytes=4*b.length;this._process();return this._hash},clone:function(){var b=j.clone.call(this);b._hash=this._hash.clone();return b}});g.SHA256=j._createHelper(h);g.HmacSHA256=j._createHmacHelper(h)})(Math);
                 (function(){var b=CryptoJS,d=b.lib.WordArray,a=b.algo,c=a.SHA256,a=a.SHA224=c.extend({_doReset:function(){this._hash=new d.init([3238371032,914150663,812702999,4144912697,4290775857,1750603025,1694076839,3204075428])},_doFinalize:function(){var a=c._doFinalize.call(this);a.sigBytes-=4;return a}});b.SHA224=c._createHelper(a);b.HmacSHA224=c._createHmacHelper(a)})();
+                (function(g){var a=CryptoJS,f=a.lib,e=f.Base,h=f.WordArray,a=a.x64={};a.Word=e.extend({init:function(b,c){this.high=b;this.low=c}});a.WordArray=e.extend({init:function(b,c){b=this.words=b||[];this.sigBytes=c!=g?c:8*b.length},toX32:function(){for(var b=this.words,c=b.length,a=[],d=0;d<c;d++){var e=b[d];a.push(e.high);a.push(e.low)}return h.create(a,this.sigBytes)},clone:function(){for(var b=e.clone.call(this),c=b.words=this.words.slice(0),a=c.length,d=0;d<a;d++)c[d]=c[d].clone();return b}})})();
+                (function(){function a(){return d.create.apply(d,arguments)}for(var n=CryptoJS,r=n.lib.Hasher,e=n.x64,d=e.Word,T=e.WordArray,e=n.algo,ea=[a(1116352408,3609767458),a(1899447441,602891725),a(3049323471,3964484399),a(3921009573,2173295548),a(961987163,4081628472),a(1508970993,3053834265),a(2453635748,2937671579),a(2870763221,3664609560),a(3624381080,2734883394),a(310598401,1164996542),a(607225278,1323610764),a(1426881987,3590304994),a(1925078388,4068182383),a(2162078206,991336113),a(2614888103,633803317),
+                a(3248222580,3479774868),a(3835390401,2666613458),a(4022224774,944711139),a(264347078,2341262773),a(604807628,2007800933),a(770255983,1495990901),a(1249150122,1856431235),a(1555081692,3175218132),a(1996064986,2198950837),a(2554220882,3999719339),a(2821834349,766784016),a(2952996808,2566594879),a(3210313671,3203337956),a(3336571891,1034457026),a(3584528711,2466948901),a(113926993,3758326383),a(338241895,168717936),a(666307205,1188179964),a(773529912,1546045734),a(1294757372,1522805485),a(1396182291,
+                2643833823),a(1695183700,2343527390),a(1986661051,1014477480),a(2177026350,1206759142),a(2456956037,344077627),a(2730485921,1290863460),a(2820302411,3158454273),a(3259730800,3505952657),a(3345764771,106217008),a(3516065817,3606008344),a(3600352804,1432725776),a(4094571909,1467031594),a(275423344,851169720),a(430227734,3100823752),a(506948616,1363258195),a(659060556,3750685593),a(883997877,3785050280),a(958139571,3318307427),a(1322822218,3812723403),a(1537002063,2003034995),a(1747873779,3602036899),
+                a(1955562222,1575990012),a(2024104815,1125592928),a(2227730452,2716904306),a(2361852424,442776044),a(2428436474,593698344),a(2756734187,3733110249),a(3204031479,2999351573),a(3329325298,3815920427),a(3391569614,3928383900),a(3515267271,566280711),a(3940187606,3454069534),a(4118630271,4000239992),a(116418474,1914138554),a(174292421,2731055270),a(289380356,3203993006),a(460393269,320620315),a(685471733,587496836),a(852142971,1086792851),a(1017036298,365543100),a(1126000580,2618297676),a(1288033470,
+                3409855158),a(1501505948,4234509866),a(1607167915,987167468),a(1816402316,1246189591)],v=[],w=0;80>w;w++)v[w]=a();e=e.SHA512=r.extend({_doReset:function(){this._hash=new T.init([new d.init(1779033703,4089235720),new d.init(3144134277,2227873595),new d.init(1013904242,4271175723),new d.init(2773480762,1595750129),new d.init(1359893119,2917565137),new d.init(2600822924,725511199),new d.init(528734635,4215389547),new d.init(1541459225,327033209)])},_doProcessBlock:function(a,d){for(var f=this._hash.words,
+                F=f[0],e=f[1],n=f[2],r=f[3],G=f[4],H=f[5],I=f[6],f=f[7],w=F.high,J=F.low,X=e.high,K=e.low,Y=n.high,L=n.low,Z=r.high,M=r.low,$=G.high,N=G.low,aa=H.high,O=H.low,ba=I.high,P=I.low,ca=f.high,Q=f.low,k=w,g=J,z=X,x=K,A=Y,y=L,U=Z,B=M,l=$,h=N,R=aa,C=O,S=ba,D=P,V=ca,E=Q,m=0;80>m;m++){var s=v[m];if(16>m)var j=s.high=a[d+2*m]|0,b=s.low=a[d+2*m+1]|0;else{var j=v[m-15],b=j.high,p=j.low,j=(b>>>1|p<<31)^(b>>>8|p<<24)^b>>>7,p=(p>>>1|b<<31)^(p>>>8|b<<24)^(p>>>7|b<<25),u=v[m-2],b=u.high,c=u.low,u=(b>>>19|c<<13)^(b<<
+                3|c>>>29)^b>>>6,c=(c>>>19|b<<13)^(c<<3|b>>>29)^(c>>>6|b<<26),b=v[m-7],W=b.high,t=v[m-16],q=t.high,t=t.low,b=p+b.low,j=j+W+(b>>>0<p>>>0?1:0),b=b+c,j=j+u+(b>>>0<c>>>0?1:0),b=b+t,j=j+q+(b>>>0<t>>>0?1:0);s.high=j;s.low=b}var W=l&R^~l&S,t=h&C^~h&D,s=k&z^k&A^z&A,T=g&x^g&y^x&y,p=(k>>>28|g<<4)^(k<<30|g>>>2)^(k<<25|g>>>7),u=(g>>>28|k<<4)^(g<<30|k>>>2)^(g<<25|k>>>7),c=ea[m],fa=c.high,da=c.low,c=E+((h>>>14|l<<18)^(h>>>18|l<<14)^(h<<23|l>>>9)),q=V+((l>>>14|h<<18)^(l>>>18|h<<14)^(l<<23|h>>>9))+(c>>>0<E>>>0?1:
+                0),c=c+t,q=q+W+(c>>>0<t>>>0?1:0),c=c+da,q=q+fa+(c>>>0<da>>>0?1:0),c=c+b,q=q+j+(c>>>0<b>>>0?1:0),b=u+T,s=p+s+(b>>>0<u>>>0?1:0),V=S,E=D,S=R,D=C,R=l,C=h,h=B+c|0,l=U+q+(h>>>0<B>>>0?1:0)|0,U=A,B=y,A=z,y=x,z=k,x=g,g=c+b|0,k=q+s+(g>>>0<c>>>0?1:0)|0}J=F.low=J+g;F.high=w+k+(J>>>0<g>>>0?1:0);K=e.low=K+x;e.high=X+z+(K>>>0<x>>>0?1:0);L=n.low=L+y;n.high=Y+A+(L>>>0<y>>>0?1:0);M=r.low=M+B;r.high=Z+U+(M>>>0<B>>>0?1:0);N=G.low=N+h;G.high=$+l+(N>>>0<h>>>0?1:0);O=H.low=O+C;H.high=aa+R+(O>>>0<C>>>0?1:0);P=I.low=P+D;
+                I.high=ba+S+(P>>>0<D>>>0?1:0);Q=f.low=Q+E;f.high=ca+V+(Q>>>0<E>>>0?1:0)},_doFinalize:function(){var a=this._data,d=a.words,f=8*this._nDataBytes,e=8*a.sigBytes;d[e>>>5]|=128<<24-e%32;d[(e+128>>>10<<5)+30]=Math.floor(f/4294967296);d[(e+128>>>10<<5)+31]=f;a.sigBytes=4*d.length;this._process();return this._hash.toX32()},clone:function(){var a=r.clone.call(this);a._hash=this._hash.clone();return a},blockSize:32});n.SHA512=r._createHelper(e);n.HmacSHA512=r._createHmacHelper(e)})();
 
                 Y.CryptoJS3 = CryptoJS;
             });
@@ -156,6 +166,40 @@
 
         <script>
             YUI.add('sjcl', function (Y) {
+                /*
+                SJCL used to be in the public domain.  Now it's:
+
+                Copyright 2009-2010 Emily Stark, Mike Hamburg, Dan Boneh, Stanford University.
+
+                This is for liability reasons.  (Speaking of which, SJCL comes with NO
+                WARRANTY WHATSOEVER, express or implied, to the limit of applicable
+                law.)
+
+                SJCL is dual-licensed under the GNU GPL version 2.0 or higher, and a
+                2-clause BSD license.  You may use SJCL under the terms of either of
+                these licenses.  For your convenience, the GPL versions 2.0 and 3.0
+                and the 2-clause BSD license are included here.  Additionally, you may
+                serve "crunched" copies of sjcl (i.e. those with comments removed,
+                and other transformations to reduce code size) without any copyright
+                notice.
+
+                SJCL includes JsDoc toolkit, YUI compressor, Closure compressor,
+                JSLint and the CodeView template in its build system.  These programs'
+                copyrights are owned by other people.  They are distributed here under
+                the MPL, MIT, BSD, Apache and JSLint licenses.  Codeview is "free for
+                download" but has no license attached; it is Copyright 2010 Wouter Bos.
+
+                The BSD license is (almost?) strictly more permissive, but the
+                additionally licensing under the GPL allows us to use OCB 2.0 code
+                royalty-free (at least, if OCB 2.0's creator Phil Rogaway has anything
+                to say about it).  Note that if you redistribute SJCL under a license
+                other than the GPL, you or your users may need to pay patent licensing
+                fees for OCB 2.0.
+
+                There may be patents which apply to SJCL other than Phil Rogaway's OCB
+                patents.  We suggest that you consult legal counsel before using SJCL
+                in a commercial project.
+                */
                 "use strict";var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
                 if(typeof module!="undefined"&&module.exports)module.exports=sjcl;
                 sjcl.cipher.aes=function(a){this.i[0][0][0]||this.B();var b,c,d,e,f=this.i[0][4],g=this.i[1];b=a.length;var h=1;if(b!==4&&b!==6&&b!==8)throw new sjcl.exception.invalid("invalid aes key size");this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(a%b===0||b===8&&a%b===4){c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255];if(a%b===0){c=c<<8^c>>>24^h<<24;h=h<<1^(h>>7)*283}}d[a]=d[a-b]^c}for(b=0;a;b++,a--){c=d[b&3?a:a-4];e[b]=a<=4||b<4?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^
@@ -209,6 +253,10 @@
         <!-- jkm MD5 -->
         <script>
             YUI.add('jkmmd5', function (Y) {
+                /*
+                Copyright?
+                http://www.myersdaily.org/joseph/javascript/md5-text.html
+                */
                 function md5cycle(f,c){var b=f[0],a=f[1],d=f[2],e=f[3],b=ff(b,a,d,e,c[0],7,-680876936),e=ff(e,b,a,d,c[1],12,-389564586),d=ff(d,e,b,a,c[2],17,606105819),a=ff(a,d,e,b,c[3],22,-1044525330),b=ff(b,a,d,e,c[4],7,-176418897),e=ff(e,b,a,d,c[5],12,1200080426),d=ff(d,e,b,a,c[6],17,-1473231341),a=ff(a,d,e,b,c[7],22,-45705983),b=ff(b,a,d,e,c[8],7,1770035416),e=ff(e,b,a,d,c[9],12,-1958414417),d=ff(d,e,b,a,c[10],17,-42063),a=ff(a,d,e,b,c[11],22,-1990404162),b=ff(b,a,d,e,c[12],7,1804603682),e=ff(e,b,a,d,c[13],12,
                 -40341101),d=ff(d,e,b,a,c[14],17,-1502002290),a=ff(a,d,e,b,c[15],22,1236535329),b=gg(b,a,d,e,c[1],5,-165796510),e=gg(e,b,a,d,c[6],9,-1069501632),d=gg(d,e,b,a,c[11],14,643717713),a=gg(a,d,e,b,c[0],20,-373897302),b=gg(b,a,d,e,c[5],5,-701558691),e=gg(e,b,a,d,c[10],9,38016083),d=gg(d,e,b,a,c[15],14,-660478335),a=gg(a,d,e,b,c[4],20,-405537848),b=gg(b,a,d,e,c[9],5,568446438),e=gg(e,b,a,d,c[14],9,-1019803690),d=gg(d,e,b,a,c[3],14,-187363961),a=gg(a,d,e,b,c[8],20,1163531501),b=gg(b,a,d,e,c[13],5,-1444681467),
                 e=gg(e,b,a,d,c[2],9,-51403784),d=gg(d,e,b,a,c[7],14,1735328473),a=gg(a,d,e,b,c[12],20,-1926607734),b=hh(b,a,d,e,c[5],4,-378558),e=hh(e,b,a,d,c[8],11,-2022574463),d=hh(d,e,b,a,c[11],16,1839030562),a=hh(a,d,e,b,c[14],23,-35309556),b=hh(b,a,d,e,c[1],4,-1530992060),e=hh(e,b,a,d,c[4],11,1272893353),d=hh(d,e,b,a,c[7],16,-155497632),a=hh(a,d,e,b,c[10],23,-1094730640),b=hh(b,a,d,e,c[13],4,681279174),e=hh(e,b,a,d,c[0],11,-358537222),d=hh(d,e,b,a,c[3],16,-722521979),a=hh(a,d,e,b,c[6],23,76029189),b=hh(b,a,
@@ -309,6 +357,42 @@
             });
         </script>
 
+        <!-- Paj's SHA-512 -->
+        <script>
+            YUI.add('pajsha512', function (Y) {
+                /*
+                 * A JavaScript implementation of the Secure Hash Algorithm, SHA-512, as defined
+                 * in FIPS 180-2
+                 * Version 2.2 Copyright Anonymous Contributor, Paul Johnston 2000 - 2009.
+                 * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
+                 * Distributed under the BSD License
+                 * See http://pajhome.org.uk/crypt/md5 for details.
+                 */
+                var hexcase=0,b64pad="";function hex_sha512(c){return rstr2hex(rstr_sha512(str2rstr_utf8(c)))}function b64_sha512(c){return rstr2b64(rstr_sha512(str2rstr_utf8(c)))}function any_sha512(c,b){return rstr2any(rstr_sha512(str2rstr_utf8(c)),b)}function hex_hmac_sha512(c,b){return rstr2hex(rstr_hmac_sha512(str2rstr_utf8(c),str2rstr_utf8(b)))}function b64_hmac_sha512(c,b){return rstr2b64(rstr_hmac_sha512(str2rstr_utf8(c),str2rstr_utf8(b)))}
+                function any_hmac_sha512(c,b,a){return rstr2any(rstr_hmac_sha512(str2rstr_utf8(c),str2rstr_utf8(b)),a)}function sha512_vm_test(){return"ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"==hex_sha512("abc").toLowerCase()}function rstr_sha512(c){return binb2rstr(binb_sha512(rstr2binb(c),8*c.length))}
+                function rstr_hmac_sha512(c,b){var a=rstr2binb(c);32<a.length&&(a=binb_sha512(a,8*c.length));for(var d=Array(32),e=Array(32),f=0;32>f;f++)d[f]=a[f]^909522486,e[f]=a[f]^1549556828;a=binb_sha512(d.concat(rstr2binb(b)),1024+8*b.length);return binb2rstr(binb_sha512(e.concat(a),1536))}function rstr2hex(c){try{hexcase}catch(b){hexcase=0}for(var a=hexcase?"0123456789ABCDEF":"0123456789abcdef",d="",e,f=0;f<c.length;f++)e=c.charCodeAt(f),d+=a.charAt(e>>>4&15)+a.charAt(e&15);return d}
+                function rstr2b64(c){try{b64pad}catch(b){b64pad=""}for(var a="",d=c.length,e=0;e<d;e+=3)for(var f=c.charCodeAt(e)<<16|(e+1<d?c.charCodeAt(e+1)<<8:0)|(e+2<d?c.charCodeAt(e+2):0),g=0;4>g;g++)a=8*e+6*g>8*c.length?a+b64pad:a+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(f>>>6*(3-g)&63);return a}
+                function rstr2any(c,b){var a=b.length,d,e,f,g,j,m=Array(Math.ceil(c.length/2));for(d=0;d<m.length;d++)m[d]=c.charCodeAt(2*d)<<8|c.charCodeAt(2*d+1);var l=Math.ceil(8*c.length/(Math.log(b.length)/Math.log(2))),s=Array(l);for(e=0;e<l;e++){j=[];for(d=g=0;d<m.length;d++)if(g=(g<<16)+m[d],f=Math.floor(g/a),g-=f*a,0<j.length||0<f)j[j.length]=f;s[e]=g;m=j}a="";for(d=s.length-1;0<=d;d--)a+=b.charAt(s[d]);return a}
+                function str2rstr_utf8(c){for(var b="",a=-1,d,e;++a<c.length;)d=c.charCodeAt(a),e=a+1<c.length?c.charCodeAt(a+1):0,55296<=d&&(56319>=d&&56320<=e&&57343>=e)&&(d=65536+((d&1023)<<10)+(e&1023),a++),127>=d?b+=String.fromCharCode(d):2047>=d?b+=String.fromCharCode(192|d>>>6&31,128|d&63):65535>=d?b+=String.fromCharCode(224|d>>>12&15,128|d>>>6&63,128|d&63):2097151>=d&&(b+=String.fromCharCode(240|d>>>18&7,128|d>>>12&63,128|d>>>6&63,128|d&63));return b}
+                function str2rstr_utf16le(c){for(var b="",a=0;a<c.length;a++)b+=String.fromCharCode(c.charCodeAt(a)&255,c.charCodeAt(a)>>>8&255);return b}function str2rstr_utf16be(c){for(var b="",a=0;a<c.length;a++)b+=String.fromCharCode(c.charCodeAt(a)>>>8&255,c.charCodeAt(a)&255);return b}function rstr2binb(c){for(var b=Array(c.length>>2),a=0;a<b.length;a++)b[a]=0;for(a=0;a<8*c.length;a+=8)b[a>>5]|=(c.charCodeAt(a/8)&255)<<24-a%32;return b}
+                function binb2rstr(c){for(var b="",a=0;a<32*c.length;a+=8)b+=String.fromCharCode(c[a>>5]>>>24-a%32&255);return b}var sha512_k;
+                function binb_sha512(c,b){void 0==sha512_k&&(sha512_k=[new int64(1116352408,-685199838),new int64(1899447441,602891725),new int64(-1245643825,-330482897),new int64(-373957723,-2121671748),new int64(961987163,-213338824),new int64(1508970993,-1241133031),new int64(-1841331548,-1357295717),new int64(-1424204075,-630357736),new int64(-670586216,-1560083902),new int64(310598401,1164996542),new int64(607225278,1323610764),new int64(1426881987,-704662302),new int64(1925078388,-226784913),new int64(-2132889090,
+                991336113),new int64(-1680079193,633803317),new int64(-1046744716,-815192428),new int64(-459576895,-1628353838),new int64(-272742522,944711139),new int64(264347078,-1953704523),new int64(604807628,2007800933),new int64(770255983,1495990901),new int64(1249150122,1856431235),new int64(1555081692,-1119749164),new int64(1996064986,-2096016459),new int64(-1740746414,-295247957),new int64(-1473132947,766784016),new int64(-1341970488,-1728372417),new int64(-1084653625,-1091629340),new int64(-958395405,1034457026),
+                new int64(-710438585,-1828018395),new int64(113926993,-536640913),new int64(338241895,168717936),new int64(666307205,1188179964),new int64(773529912,1546045734),new int64(1294757372,1522805485),new int64(1396182291,-1651133473),new int64(1695183700,-1951439906),new int64(1986661051,1014477480),new int64(-2117940946,1206759142),new int64(-1838011259,344077627),new int64(-1564481375,1290863460),new int64(-1474664885,-1136513023),new int64(-1035236496,-789014639),new int64(-949202525,106217008),new int64(-778901479,
+                -688958952),new int64(-694614492,1432725776),new int64(-200395387,1467031594),new int64(275423344,851169720),new int64(430227734,-1194143544),new int64(506948616,1363258195),new int64(659060556,-544281703),new int64(883997877,-509917016),new int64(958139571,-976659869),new int64(1322822218,-482243893),new int64(1537002063,2003034995),new int64(1747873779,-692930397),new int64(1955562222,1575990012),new int64(2024104815,1125592928),new int64(-2067236844,-1578062990),new int64(-1933114872,442776044),
+                new int64(-1866530822,593698344),new int64(-1538233109,-561857047),new int64(-1090935817,-1295615723),new int64(-965641998,-479046869),new int64(-903397682,-366583396),new int64(-779700025,566280711),new int64(-354779690,-840897762),new int64(-176337025,-294727304),new int64(116418474,1914138554),new int64(174292421,-1563912026),new int64(289380356,-1090974290),new int64(460393269,320620315),new int64(685471733,587496836),new int64(852142971,1086792851),new int64(1017036298,365543100),new int64(1126000580,
+                -1676669620),new int64(1288033470,-885112138),new int64(1501505948,-60457430),new int64(1607167915,987167468),new int64(1816402316,1246189591)]);var a=[new int64(1779033703,-205731576),new int64(-1150833019,-2067093701),new int64(1013904242,-23791573),new int64(-1521486534,1595750129),new int64(1359893119,-1377402159),new int64(-1694144372,725511199),new int64(528734635,-79577749),new int64(1541459225,327033209)],d=new int64(0,0),e=new int64(0,0),f=new int64(0,0),g=new int64(0,0),j=new int64(0,0),
+                m=new int64(0,0),l=new int64(0,0),s=new int64(0,0),t=new int64(0,0),w=new int64(0,0),u=new int64(0,0),v=new int64(0,0),x=new int64(0,0),y=new int64(0,0),p=new int64(0,0),q=new int64(0,0),r=new int64(0,0),h,k,n=Array(80);for(k=0;80>k;k++)n[k]=new int64(0,0);c[b>>5]|=128<<24-(b&31);c[(b+128>>10<<5)+31]=b;for(k=0;k<c.length;k+=32){int64copy(f,a[0]);int64copy(g,a[1]);int64copy(j,a[2]);int64copy(m,a[3]);int64copy(l,a[4]);int64copy(s,a[5]);int64copy(t,a[6]);int64copy(w,a[7]);for(h=0;16>h;h++)n[h].h=c[k+
+                2*h],n[h].l=c[k+2*h+1];for(h=16;80>h;h++)int64rrot(p,n[h-2],19),int64revrrot(q,n[h-2],29),int64shr(r,n[h-2],6),v.l=p.l^q.l^r.l,v.h=p.h^q.h^r.h,int64rrot(p,n[h-15],1),int64rrot(q,n[h-15],8),int64shr(r,n[h-15],7),u.l=p.l^q.l^r.l,u.h=p.h^q.h^r.h,int64add4(n[h],v,n[h-7],u,n[h-16]);for(h=0;80>h;h++)x.l=l.l&s.l^~l.l&t.l,x.h=l.h&s.h^~l.h&t.h,int64rrot(p,l,14),int64rrot(q,l,18),int64revrrot(r,l,9),v.l=p.l^q.l^r.l,v.h=p.h^q.h^r.h,int64rrot(p,f,28),int64revrrot(q,f,2),int64revrrot(r,f,7),u.l=p.l^q.l^r.l,u.h=
+                p.h^q.h^r.h,y.l=f.l&g.l^f.l&j.l^g.l&j.l,y.h=f.h&g.h^f.h&j.h^g.h&j.h,int64add5(d,w,v,x,sha512_k[h],n[h]),int64add(e,u,y),int64copy(w,t),int64copy(t,s),int64copy(s,l),int64add(l,m,d),int64copy(m,j),int64copy(j,g),int64copy(g,f),int64add(f,d,e);int64add(a[0],a[0],f);int64add(a[1],a[1],g);int64add(a[2],a[2],j);int64add(a[3],a[3],m);int64add(a[4],a[4],l);int64add(a[5],a[5],s);int64add(a[6],a[6],t);int64add(a[7],a[7],w)}d=Array(16);for(k=0;8>k;k++)d[2*k]=a[k].h,d[2*k+1]=a[k].l;return d}
+                function int64(c,b){this.h=c;this.l=b}function int64copy(c,b){c.h=b.h;c.l=b.l}function int64rrot(c,b,a){c.l=b.l>>>a|b.h<<32-a;c.h=b.h>>>a|b.l<<32-a}function int64revrrot(c,b,a){c.l=b.h>>>a|b.l<<32-a;c.h=b.l>>>a|b.h<<32-a}function int64shr(c,b,a){c.l=b.l>>>a|b.h<<32-a;c.h=b.h>>>a}function int64add(c,b,a){var d=(b.l&65535)+(a.l&65535),e=(b.l>>>16)+(a.l>>>16)+(d>>>16),f=(b.h&65535)+(a.h&65535)+(e>>>16);b=(b.h>>>16)+(a.h>>>16)+(f>>>16);c.l=d&65535|e<<16;c.h=f&65535|b<<16}
+                function int64add4(c,b,a,d,e){var f=(b.l&65535)+(a.l&65535)+(d.l&65535)+(e.l&65535),g=(b.l>>>16)+(a.l>>>16)+(d.l>>>16)+(e.l>>>16)+(f>>>16),j=(b.h&65535)+(a.h&65535)+(d.h&65535)+(e.h&65535)+(g>>>16);b=(b.h>>>16)+(a.h>>>16)+(d.h>>>16)+(e.h>>>16)+(j>>>16);c.l=f&65535|g<<16;c.h=j&65535|b<<16}
+                function int64add5(c,b,a,d,e,f){var g=(b.l&65535)+(a.l&65535)+(d.l&65535)+(e.l&65535)+(f.l&65535),j=(b.l>>>16)+(a.l>>>16)+(d.l>>>16)+(e.l>>>16)+(f.l>>>16)+(g>>>16),m=(b.h&65535)+(a.h&65535)+(d.h&65535)+(e.h&65535)+(f.h&65535)+(j>>>16);b=(b.h>>>16)+(a.h>>>16)+(d.h>>>16)+(e.h>>>16)+(f.h>>>16)+(m>>>16);c.l=g&65535|j<<16;c.h=m&65535|b<<16};
+
+                Y.PajSHA512 = hex_sha512;
+            });
+        </script>
+
         <!-- jsSHA -->
         <script>
             YUI.add('jssha', function (Y) {
@@ -368,6 +452,7 @@
         <script src="benchmarks/sha1-benchmark.js"></script>
         <script src="benchmarks/sha256-benchmark.js"></script>
         <script src="benchmarks/sha224-benchmark.js"></script>
+        <script src="benchmarks/sha512-benchmark.js"></script>
 
         <!-- Tester -->
         <script>
