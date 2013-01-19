@@ -88,9 +88,8 @@
             var _s7Msw = s7Msw;
             var _s7Lsw = s7Lsw;
 
-            // Rounds
+            // Expand message
             for (var round = 0; round < 160; round += 2) {
-                // Expand message
                 if (round < 32) {
                     var MRoundMsw = m[round];
                     var MRoundLsw = m[round + 1];
@@ -98,9 +97,11 @@
                     // Shortcuts
                     var MRound2Msw  = M[round - 4];
                     var MRound2Lsw  = M[round - 3];
+                    var MRound7Msw  = M[round - 14];
                     var MRound7Lsw  = M[round - 13];
                     var MRound15Msw = M[round - 30];
                     var MRound15Lsw = M[round - 29];
+                    var MRound16Msw = M[round - 32];
                     var MRound16Lsw = M[round - 31];
 
                     // M[round - 7] + gamma0
@@ -109,7 +110,7 @@
                         ((MRound15Msw << 24) | (MRound15Lsw >>> 8)) ^
                         ((MRound15Msw << 25) | (MRound15Lsw >>> 7))
                     );
-                    var t0Msw = ((t0Lsw >>> 0) < (MRound7Lsw >>> 0) ? 1 : 0) + M[round - 14] + (
+                    var t0Msw = ((t0Lsw >>> 0) < (MRound7Lsw >>> 0) ? 1 : 0) + MRound7Msw + (
                         ((MRound15Lsw << 31) | (MRound15Msw >>> 1)) ^
                         ((MRound15Lsw << 24) | (MRound15Msw >>> 8)) ^
                         (MRound15Msw >>> 7)
@@ -121,7 +122,7 @@
                         ((MRound2Lsw << 3)  | (MRound2Msw >>> 29)) ^
                         ((MRound2Msw << 26) | (MRound2Lsw >>> 6))
                     );
-                    var t1Msw = ((t1Lsw >>> 0) < (MRound16Lsw >>> 0) ? 1 : 0) + M[round - 32] + (
+                    var t1Msw = ((t1Lsw >>> 0) < (MRound16Lsw >>> 0) ? 1 : 0) + MRound16Msw + (
                         ((MRound2Lsw << 13) | (MRound2Msw >>> 19)) ^
                         ((MRound2Msw << 3)  | (MRound2Lsw >>> 29)) ^
                         (MRound2Msw >>> 6)
@@ -135,71 +136,1129 @@
                 // Set expanded message
                 M[round]     = MRoundMsw |= 0;
                 M[round + 1] = MRoundLsw |= 0;
+            }
 
-                // Shortcuts
-                var KRoundMsw = K[round];
-                var KRoundLsw = K[round + 1];
+            // Rounds
+            for (var round = 0; round < 160; round += 32) {
+                // Inline round 1
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round];
+                    var MRoundLsw = M[round + 1];
+                    var KRoundMsw = K[round];
+                    var KRoundLsw = K[round + 1];
 
-                // M[round] + Ch
-                var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
-                var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
-                    (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
-                );
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
 
-                // K[round] + sigma1
-                var t1Lsw = KRoundLsw + (
-                    ((s4Msw << 18) | (s4Lsw >>> 14)) ^
-                    ((s4Msw << 14) | (s4Lsw >>> 18)) ^
-                    ((s4Lsw << 23) | (s4Msw >>> 9))
-                );
-                var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
-                    ((s4Lsw << 18) | (s4Msw >>> 14)) ^
-                    ((s4Lsw << 14) | (s4Msw >>> 18)) ^
-                    ((s4Msw << 23) | (s4Lsw >>> 9))
-                );
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
 
-                // (M[round] + Ch) + (K[round] + sigma1)
-                var t2Lsw = t0Lsw + t1Lsw;
-                var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
 
-                // ((M[round] + Ch) + (K[round] + sigma1)) + s7
-                var t3Lsw = t2Lsw + s7Lsw;
-                var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
 
-                // maj + sigma0
-                var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
-                var t4Lsw = majLsw + (
-                    ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
-                    ((s0Lsw << 30) | (s0Msw >>> 2))  ^
-                    ((s0Lsw << 25) | (s0Msw >>> 7))
-                );
-                var t4Msw = (
-                    ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
-                        (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
-                    ) + (
-                        ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
-                        ((s0Msw << 30) | (s0Lsw >>> 2))  ^
-                        ((s0Msw << 25) | (s0Lsw >>> 7))
-                    )
-                );
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
 
-                // Update working state
-                s7Msw = s6Msw;
-                s7Lsw = s6Lsw;
-                s6Msw = s5Msw;
-                s6Lsw = s5Lsw;
-                s5Msw = s4Msw;
-                s5Lsw = s4Lsw;
-                s4Lsw = (s3Lsw + t3Lsw) | 0;
-                s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
-                s3Msw = s2Msw;
-                s3Lsw = s2Lsw;
-                s2Msw = s1Msw;
-                s2Lsw = s1Lsw;
-                s1Msw = s0Msw;
-                s1Lsw = s0Lsw;
-                s0Lsw = (t3Lsw + t4Lsw) | 0;
-                s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 2
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 2];
+                    var MRoundLsw = M[round + 3];
+                    var KRoundMsw = K[round + 2];
+                    var KRoundLsw = K[round + 3];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 3
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 4];
+                    var MRoundLsw = M[round + 5];
+                    var KRoundMsw = K[round + 4];
+                    var KRoundLsw = K[round + 5];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 4
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 6];
+                    var MRoundLsw = M[round + 7];
+                    var KRoundMsw = K[round + 6];
+                    var KRoundLsw = K[round + 7];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 5
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 8];
+                    var MRoundLsw = M[round + 9];
+                    var KRoundMsw = K[round + 8];
+                    var KRoundLsw = K[round + 9];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 6
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 10];
+                    var MRoundLsw = M[round + 11];
+                    var KRoundMsw = K[round + 10];
+                    var KRoundLsw = K[round + 11];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 7
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 12];
+                    var MRoundLsw = M[round + 13];
+                    var KRoundMsw = K[round + 12];
+                    var KRoundLsw = K[round + 13];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 8
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 14];
+                    var MRoundLsw = M[round + 15];
+                    var KRoundMsw = K[round + 14];
+                    var KRoundLsw = K[round + 15];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 9
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 16];
+                    var MRoundLsw = M[round + 17];
+                    var KRoundMsw = K[round + 16];
+                    var KRoundLsw = K[round + 17];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 10
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 18];
+                    var MRoundLsw = M[round + 19];
+                    var KRoundMsw = K[round + 18];
+                    var KRoundLsw = K[round + 19];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 11
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 20];
+                    var MRoundLsw = M[round + 21];
+                    var KRoundMsw = K[round + 20];
+                    var KRoundLsw = K[round + 21];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 12
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 22];
+                    var MRoundLsw = M[round + 23];
+                    var KRoundMsw = K[round + 22];
+                    var KRoundLsw = K[round + 23];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 13
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 24];
+                    var MRoundLsw = M[round + 25];
+                    var KRoundMsw = K[round + 24];
+                    var KRoundLsw = K[round + 25];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 14
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 26];
+                    var MRoundLsw = M[round + 27];
+                    var KRoundMsw = K[round + 26];
+                    var KRoundLsw = K[round + 27];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 15
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 28];
+                    var MRoundLsw = M[round + 29];
+                    var KRoundMsw = K[round + 28];
+                    var KRoundLsw = K[round + 29];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
+
+                // Inline round 16
+                {
+                    // Shortcuts
+                    var MRoundMsw = M[round + 30];
+                    var MRoundLsw = M[round + 31];
+                    var KRoundMsw = K[round + 30];
+                    var KRoundLsw = K[round + 31];
+
+                    // M[round] + Ch
+                    var t0Lsw = MRoundLsw + ((s4Lsw & s5Lsw) ^ (~s4Lsw & s6Lsw));
+                    var t0Msw = ((t0Lsw >>> 0) < (MRoundLsw >>> 0) ? 1 : 0) + MRoundMsw + (
+                        (s4Msw & s5Msw) ^ (~s4Msw & s6Msw)
+                    );
+
+                    // K[round] + sigma1
+                    var t1Lsw = KRoundLsw + (
+                        ((s4Msw << 18) | (s4Lsw >>> 14)) ^
+                        ((s4Msw << 14) | (s4Lsw >>> 18)) ^
+                        ((s4Lsw << 23) | (s4Msw >>> 9))
+                    );
+                    var t1Msw = ((t1Lsw >>> 0) < (KRoundLsw >>> 0) ? 1 : 0) + KRoundMsw + (
+                        ((s4Lsw << 18) | (s4Msw >>> 14)) ^
+                        ((s4Lsw << 14) | (s4Msw >>> 18)) ^
+                        ((s4Msw << 23) | (s4Lsw >>> 9))
+                    );
+
+                    // (M[round] + Ch) + (K[round] + sigma1)
+                    var t2Lsw = t0Lsw + t1Lsw;
+                    var t2Msw = ((t2Lsw >>> 0) < (t0Lsw >>> 0) ? 1 : 0) + t0Msw + t1Msw;
+
+                    // ((M[round] + Ch) + (K[round] + sigma1)) + s7
+                    var t3Lsw = t2Lsw + s7Lsw;
+                    var t3Msw = ((t3Lsw >>> 0) < (t2Lsw >>> 0) ? 1 : 0) + t2Msw + s7Msw;
+
+                    // maj + sigma0
+                    var majLsw = (s0Lsw & s1Lsw) ^ (s0Lsw & s2Lsw) ^ (s1Lsw & s2Lsw);
+                    var t4Lsw = majLsw + (
+                        ((s0Msw << 4)  | (s0Lsw >>> 28)) ^
+                        ((s0Lsw << 30) | (s0Msw >>> 2))  ^
+                        ((s0Lsw << 25) | (s0Msw >>> 7))
+                    );
+                    var t4Msw = (
+                        ((t4Lsw >>> 0) < (majLsw >>> 0) ? 1 : 0) + (
+                            (s0Msw & s1Msw) ^ (s0Msw & s2Msw) ^ (s1Msw & s2Msw)
+                        ) + (
+                            ((s0Lsw << 4)  | (s0Msw >>> 28)) ^
+                            ((s0Msw << 30) | (s0Lsw >>> 2))  ^
+                            ((s0Msw << 25) | (s0Lsw >>> 7))
+                        )
+                    );
+
+                    // Update working state
+                    s7Msw = s6Msw;
+                    s7Lsw = s6Lsw;
+                    s6Msw = s5Msw;
+                    s6Lsw = s5Lsw;
+                    s5Msw = s4Msw;
+                    s5Lsw = s4Lsw;
+                    s4Lsw = (s3Lsw + t3Lsw) | 0;
+                    s4Msw = (s3Msw + t3Msw + ((s4Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+                    s3Msw = s2Msw;
+                    s3Lsw = s2Lsw;
+                    s2Msw = s1Msw;
+                    s2Lsw = s1Lsw;
+                    s1Msw = s0Msw;
+                    s1Lsw = s0Lsw;
+                    s0Lsw = (t3Lsw + t4Lsw) | 0;
+                    s0Msw = (t3Msw + t4Msw + ((s0Lsw >>> 0) < (t3Lsw >>> 0) ? 1 : 0)) | 0;
+                }
             }
 
             // Update state
