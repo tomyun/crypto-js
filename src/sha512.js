@@ -702,22 +702,22 @@
             }
 
             // Update state
-            s0Lsw = s[1] = (_s0Lsw + s0Lsw) | 0;
-            s[0] = (_s0Msw + s0Msw + ((s0Lsw >>> 0) < (_s0Lsw >>> 0) ? 1 : 0)) | 0;
-            s1Lsw = s[3] = (_s1Lsw + s1Lsw) | 0;
-            s[2] = (_s1Msw + s1Msw + ((s1Lsw >>> 0) < (_s1Lsw >>> 0) ? 1 : 0)) | 0;
-            s2Lsw = s[5] = (_s2Lsw + s2Lsw) | 0;
-            s[4] = (_s2Msw + s2Msw + ((s2Lsw >>> 0) < (_s2Lsw >>> 0) ? 1 : 0)) | 0;
-            s3Lsw = s[7] = (_s3Lsw + s3Lsw) | 0;
-            s[6] = (_s3Msw + s3Msw + ((s3Lsw >>> 0) < (_s3Lsw >>> 0) ? 1 : 0)) | 0;
-            s4Lsw = s[9] = (_s4Lsw + s4Lsw) | 0;
-            s[8] = (_s4Msw + s4Msw + ((s4Lsw >>> 0) < (_s4Lsw >>> 0) ? 1 : 0)) | 0;
-            s5Lsw = s[11] = (_s5Lsw + s5Lsw) | 0;
-            s[10] = (_s5Msw + s5Msw + ((s5Lsw >>> 0) < (_s5Lsw >>> 0) ? 1 : 0)) | 0;
-            s6Lsw = s[13] = (_s6Lsw + s6Lsw) | 0;
-            s[12] = (_s6Msw + s6Msw + ((s6Lsw >>> 0) < (_s6Lsw >>> 0) ? 1 : 0)) | 0;
-            s7Lsw = s[15] = (_s7Lsw + s7Lsw) | 0;
-            s[14] = (_s7Msw + s7Msw + ((s7Lsw >>> 0) < (_s7Lsw >>> 0) ? 1 : 0)) | 0;
+            _s0Lsw = s[1] = (_s0Lsw + s0Lsw) | 0;
+            s[0] = (_s0Msw + s0Msw + ((_s0Lsw >>> 0) < (s0Lsw >>> 0) ? 1 : 0)) | 0;
+            _s1Lsw = s[3] = (_s1Lsw + s1Lsw) | 0;
+            s[2] = (_s1Msw + s1Msw + ((_s1Lsw >>> 0) < (s1Lsw >>> 0) ? 1 : 0)) | 0;
+            _s2Lsw = s[5] = (_s2Lsw + s2Lsw) | 0;
+            s[4] = (_s2Msw + s2Msw + ((_s2Lsw >>> 0) < (s2Lsw >>> 0) ? 1 : 0)) | 0;
+            _s3Lsw = s[7] = (_s3Lsw + s3Lsw) | 0;
+            s[6] = (_s3Msw + s3Msw + ((_s3Lsw >>> 0) < (s3Lsw >>> 0) ? 1 : 0)) | 0;
+            _s4Lsw = s[9] = (_s4Lsw + s4Lsw) | 0;
+            s[8] = (_s4Msw + s4Msw + ((_s4Lsw >>> 0) < (s4Lsw >>> 0) ? 1 : 0)) | 0;
+            _s5Lsw = s[11] = (_s5Lsw + s5Lsw) | 0;
+            s[10] = (_s5Msw + s5Msw + ((_s5Lsw >>> 0) < (s5Lsw >>> 0) ? 1 : 0)) | 0;
+            _s6Lsw = s[13] = (_s6Lsw + s6Lsw) | 0;
+            s[12] = (_s6Msw + s6Msw + ((_s6Lsw >>> 0) < (s6Lsw >>> 0) ? 1 : 0)) | 0;
+            _s7Lsw = s[15] = (_s7Lsw + s7Lsw) | 0;
+            s[14] = (_s7Msw + s7Msw + ((_s7Lsw >>> 0) < (s7Lsw >>> 0) ? 1 : 0)) | 0;
         },
 
         _doFinalize: function () {
