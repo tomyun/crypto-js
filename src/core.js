@@ -582,8 +582,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             this._data = new WordArray();
 
             // The cumulative data length in bits, represented as a 64-bit number
-            this._nDataBitsLsw = 0;
             this._nDataBitsMsw = 0;
+            this._nDataBitsLsw = 0;
         },
 
         /**
