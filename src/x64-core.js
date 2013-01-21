@@ -34,171 +34,165 @@
         constructor: function (msw, lsw) {
             this.msw = msw;
             this.lsw = lsw;
+        },
+
+        /**
+         * Bitwise NOTs this word.
+         *
+         * @return {X64Word} A new x64-Word object after negating.
+         *
+         * @example
+         *
+         *     var negated = x64Word.not();
+         */
+        not: function () {
+            return new X64Word(~this.msw, ~this.lsw);
+        },
+
+        /**
+         * Bitwise ANDs this word with the passed word.
+         *
+         * @param {X64Word} word The x64-Word to AND with this word.
+         *
+         * @return {X64Word} A new x64-Word object after ANDing.
+         *
+         * @example
+         *
+         *     var anded = x64Word.and(anotherX64Word);
+         */
+        and: function (word) {
+            return new X64Word(this.msw & word.msw, this.lsw & word.lsw);
+        },
+
+        /**
+         * Bitwise ORs this word with the passed word.
+         *
+         * @param {X64Word} word The x64-Word to OR with this word.
+         *
+         * @return {X64Word} A new x64-Word object after ORing.
+         *
+         * @example
+         *
+         *     var ored = x64Word.or(anotherX64Word);
+         */
+        or: function (word) {
+            return new X64Word(this.msw | word.msw, this.lsw | word.lsw);
+        },
+
+        /**
+         * Bitwise XORs this word with the passed word.
+         *
+         * @param {X64Word} word The x64-Word to XOR with this word.
+         *
+         * @return {X64Word} A new x64-Word object after XORing.
+         *
+         * @example
+         *
+         *     var xored = x64Word.xor(anotherX64Word);
+         */
+        xor: function (word) {
+            return new X64Word(this.msw ^ word.msw, this.lsw ^ word.lsw);
+        },
+
+        /**
+         * Shifts this word n bits to the left.
+         *
+         * @param {number} n The number of bits to shift.
+         *
+         * @return {X64Word} A new x64-Word object after shifting.
+         *
+         * @example
+         *
+         *     var shifted = x64Word.shiftL(25);
+         */
+        shiftL: function (n) {
+            if (n === 0) {
+                return this;
+            } else if (n < 32) {
+                var msw = (this.msw << n) | (this.lsw >>> (32 - n));
+                var lsw = this.lsw << n;
+            } else {
+                var msw = this.lsw << (n - 32);
+                var lsw = 0;
+            }
+
+            return new X64Word(msw, lsw);
+        },
+
+        /**
+         * Shifts this word n bits to the right.
+         *
+         * @param {number} n The number of bits to shift.
+         *
+         * @return {X64Word} A new x64-Word object after shifting.
+         *
+         * @example
+         *
+         *     var shifted = x64Word.shiftR(7);
+         */
+        shiftR: function (n) {
+            if (n === 0) {
+                return this;
+            } else if (n < 32) {
+                var lsw = (this.lsw >>> n) | (this.msw << (32 - n));
+                var msw = this.msw >>> n;
+            } else {
+                var lsw = this.msw >>> (n - 32);
+                var msw = 0;
+            }
+
+            return new X64Word(msw, lsw);
+        },
+
+        /**
+         * Rotates this word n bits to the left.
+         *
+         * @param {number} n The number of bits to rotate.
+         *
+         * @return {X64Word} A new x64-Word object after rotating.
+         *
+         * @example
+         *
+         *     var rotated = x64Word.rotL(25);
+         */
+        rotL: function (n) {
+            return this.shiftL(n).or(this.shiftR(64 - n));
+        },
+
+        /**
+         * Rotates this word n bits to the right.
+         *
+         * @param {number} n The number of bits to rotate.
+         *
+         * @return {X64Word} A new x64-Word object after rotating.
+         *
+         * @example
+         *
+         *     var rotated = x64Word.rotR(7);
+         */
+        rotR: function (n) {
+            return this.shiftR(n).or(this.shiftL(64 - n));
+        },
+
+        /**
+         * Adds this word with the passed word.
+         *
+         * @param {X64Word} word The x64-Word to add with this word.
+         *
+         * @return {X64Word} A new x64-Word object after adding.
+         *
+         * @example
+         *
+         *     var added = x64Word.add(anotherX64Word);
+         */
+        add: function (word) {
+            var lsw = (this.lsw + word.lsw) | 0;
+            var carry = (lsw >>> 0) < (this.lsw >>> 0) ? 1 : 0;
+            var msw = (this.msw + word.msw + carry) | 0;
+
+            return new X64Word(msw, lsw);
         }
     });
-
-    // <?php if ($dev): ?>
-    {
-        X64Word = C_X64.Word = X64Word.extend({
-            /**
-             * Bitwise NOTs this word.
-             *
-             * @return {X64Word} A new x64-Word object after negating.
-             *
-             * @example
-             *
-             *     var negated = x64Word.not();
-             */
-            not: function () {
-                return new X64Word(~this.msw, ~this.lsw);
-            },
-
-            /**
-             * Bitwise ANDs this word with the passed word.
-             *
-             * @param {X64Word} word The x64-Word to AND with this word.
-             *
-             * @return {X64Word} A new x64-Word object after ANDing.
-             *
-             * @example
-             *
-             *     var anded = x64Word.and(anotherX64Word);
-             */
-            and: function (word) {
-                return new X64Word(this.msw & word.msw, this.lsw & word.lsw);
-            },
-
-            /**
-             * Bitwise ORs this word with the passed word.
-             *
-             * @param {X64Word} word The x64-Word to OR with this word.
-             *
-             * @return {X64Word} A new x64-Word object after ORing.
-             *
-             * @example
-             *
-             *     var ored = x64Word.or(anotherX64Word);
-             */
-            or: function (word) {
-                return new X64Word(this.msw | word.msw, this.lsw | word.lsw);
-            },
-
-            /**
-             * Bitwise XORs this word with the passed word.
-             *
-             * @param {X64Word} word The x64-Word to XOR with this word.
-             *
-             * @return {X64Word} A new x64-Word object after XORing.
-             *
-             * @example
-             *
-             *     var xored = x64Word.xor(anotherX64Word);
-             */
-            xor: function (word) {
-                return new X64Word(this.msw ^ word.msw, this.lsw ^ word.lsw);
-            },
-
-            /**
-             * Shifts this word n bits to the left.
-             *
-             * @param {number} n The number of bits to shift.
-             *
-             * @return {X64Word} A new x64-Word object after shifting.
-             *
-             * @example
-             *
-             *     var shifted = x64Word.shiftL(25);
-             */
-            shiftL: function (n) {
-                if (n === 0) {
-                    return this;
-                } else if (n < 32) {
-                    var msw = (this.msw << n) | (this.lsw >>> (32 - n));
-                    var lsw = this.lsw << n;
-                } else {
-                    var msw = this.lsw << (n - 32);
-                    var lsw = 0;
-                }
-
-                return new X64Word(msw, lsw);
-            },
-
-            /**
-             * Shifts this word n bits to the right.
-             *
-             * @param {number} n The number of bits to shift.
-             *
-             * @return {X64Word} A new x64-Word object after shifting.
-             *
-             * @example
-             *
-             *     var shifted = x64Word.shiftR(7);
-             */
-            shiftR: function (n) {
-                if (n === 0) {
-                    return this;
-                } else if (n < 32) {
-                    var lsw = (this.lsw >>> n) | (this.msw << (32 - n));
-                    var msw = this.msw >>> n;
-                } else {
-                    var lsw = this.msw >>> (n - 32);
-                    var msw = 0;
-                }
-
-                return new X64Word(msw, lsw);
-            },
-
-            /**
-             * Rotates this word n bits to the left.
-             *
-             * @param {number} n The number of bits to rotate.
-             *
-             * @return {X64Word} A new x64-Word object after rotating.
-             *
-             * @example
-             *
-             *     var rotated = x64Word.rotL(25);
-             */
-            rotL: function (n) {
-                return this.shiftL(n).or(this.shiftR(64 - n));
-            },
-
-            /**
-             * Rotates this word n bits to the right.
-             *
-             * @param {number} n The number of bits to rotate.
-             *
-             * @return {X64Word} A new x64-Word object after rotating.
-             *
-             * @example
-             *
-             *     var rotated = x64Word.rotR(7);
-             */
-            rotR: function (n) {
-                return this.shiftR(n).or(this.shiftL(64 - n));
-            },
-
-            /**
-             * Adds this word with the passed word.
-             *
-             * @param {X64Word} word The x64-Word to add with this word.
-             *
-             * @return {X64Word} A new x64-Word object after adding.
-             *
-             * @example
-             *
-             *     var added = x64Word.add(anotherX64Word);
-             */
-            add: function (word) {
-                var lsw = (this.lsw + word.lsw) | 0;
-                var carry = (lsw >>> 0) < (this.lsw >>> 0) ? 1 : 0;
-                var msw = (this.msw + word.msw + carry) | 0;
-
-                return new X64Word(msw, lsw);
-            }
-        });
-    }
-    // <?php endif ?>
 
     /**
      * An array of 64-bit words.
