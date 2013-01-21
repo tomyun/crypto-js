@@ -74,89 +74,73 @@
                     var n = s0 + f + m[g % 16] + K[round];
                     var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
 
-                    var t = s3;
-                    s3 = s2;
-                    s2 = s1;
-                    s1 = (s1 + ((n << r) | (n >>> (32 - r)))) | 0;
-                    s0 = t;
+                    s0 = (s1 + ((n << r) | (n >>> (32 - r)))) | 0;
                 }
 
                 // Inline round 2
                 {
                     if (++round < 16) {
-                        var f = (s1 & s2) | (~s1 & s3);
+                        var f = (s0 & s1) | (~s0 & s2);
                         var g = round;
                     } else if (round < 32) {
-                        var f = (s1 & s3) | (s2 & ~s3);
+                        var f = (s0 & s2) | (s1 & ~s2);
                         var g = round * 5 + 1;
                     } else if (round < 48) {
-                        var f = s1 ^ s2 ^ s3;
+                        var f = s0 ^ s1 ^ s2;
                         var g = round * 3 + 5;
                     } else {
-                        var f = s2 ^ (s1 | ~s3);
+                        var f = s1 ^ (s0 | ~s2);
                         var g = round * 7;
                     }
 
-                    var n = s0 + f + m[g % 16] + K[round];
+                    var n = s3 + f + m[g % 16] + K[round];
                     var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
 
-                    var t = s3;
-                    s3 = s2;
-                    s2 = s1;
-                    s1 = (s1 + ((n << r) | (n >>> (32 - r)))) | 0;
-                    s0 = t;
+                    s3 = (s0 + ((n << r) | (n >>> (32 - r)))) | 0;
                 }
 
                 // Inline round 3
                 {
                     if (++round < 16) {
-                        var f = (s1 & s2) | (~s1 & s3);
+                        var f = (s3 & s0) | (~s3 & s1);
                         var g = round;
                     } else if (round < 32) {
-                        var f = (s1 & s3) | (s2 & ~s3);
+                        var f = (s3 & s1) | (s0 & ~s1);
                         var g = round * 5 + 1;
                     } else if (round < 48) {
-                        var f = s1 ^ s2 ^ s3;
+                        var f = s3 ^ s0 ^ s1;
                         var g = round * 3 + 5;
                     } else {
-                        var f = s2 ^ (s1 | ~s3);
+                        var f = s0 ^ (s3 | ~s1);
                         var g = round * 7;
                     }
 
-                    var n = s0 + f + m[g % 16] + K[round];
+                    var n = s2 + f + m[g % 16] + K[round];
                     var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
 
-                    var t = s3;
-                    s3 = s2;
-                    s2 = s1;
-                    s1 = (s1 + ((n << r) | (n >>> (32 - r)))) | 0;
-                    s0 = t;
+                    s2 = (s3 + ((n << r) | (n >>> (32 - r)))) | 0;
                 }
 
                 // Inline round 4
                 {
                     if (++round < 16) {
-                        var f = (s1 & s2) | (~s1 & s3);
+                        var f = (s2 & s3) | (~s2 & s0);
                         var g = round;
                     } else if (round < 32) {
-                        var f = (s1 & s3) | (s2 & ~s3);
+                        var f = (s2 & s0) | (s3 & ~s0);
                         var g = round * 5 + 1;
                     } else if (round < 48) {
-                        var f = s1 ^ s2 ^ s3;
+                        var f = s2 ^ s3 ^ s0;
                         var g = round * 3 + 5;
                     } else {
-                        var f = s2 ^ (s1 | ~s3);
+                        var f = s3 ^ (s2 | ~s0);
                         var g = round * 7;
                     }
 
-                    var n = s0 + f + m[g % 16] + K[round];
+                    var n = s1 + f + m[g % 16] + K[round];
                     var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
 
-                    var t = s3;
-                    s3 = s2;
-                    s2 = s1;
-                    s1 = (s1 + ((n << r) | (n >>> (32 - r)))) | 0;
-                    s0 = t;
+                    s1 = (s2 + ((n << r) | (n >>> (32 - r)))) | 0;
                 }
             }
 
