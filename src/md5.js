@@ -9,17 +9,16 @@
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
 
-    // Round constants
-    var K = [];
+    // Constants tables
+    var ROUND_CONSTANTS  = [];
+    var ROTATION_OFFSETS = [7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21];
+
+    // Compute round constants
     (function () {
-        // Compute round constants
         for (var i = 0; i < 64; i++) {
-            K[i] = (Math.abs(Math.sin(i + 1)) * 0x100000000) | 0;
+            ROUND_CONSTANTS[i] = (Math.abs(Math.sin(i + 1)) * 0x100000000) | 0;
         }
     }());
-
-    // Rotation constants
-    var R = [7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21];
 
     /**
      * MD5 hash algorithm.
@@ -59,88 +58,84 @@
                 {
                     if (round < 16) {
                         var f = (s1 & s2) | (~s1 & s3);
-                        var g = round;
+                        var mIndex = round;
                     } else if (round < 32) {
                         var f = (s1 & s3) | (s2 & ~s3);
-                        var g = round * 5 + 1;
+                        var mIndex = round * 5 + 1;
                     } else if (round < 48) {
                         var f = s1 ^ s2 ^ s3;
-                        var g = round * 3 + 5;
+                        var mIndex = round * 3 + 5;
                     } else {
                         var f = s2 ^ (s1 | ~s3);
-                        var g = round * 7;
+                        var mIndex = round * 7;
                     }
 
-                    var n = s0 + f + m[g % 16] + K[round];
-                    var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
-
-                    s0 = (s1 + ((n << r) | (n >>> (32 - r)))) | 0;
+                    var t = s0 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
+                    s0 = (s1 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
 
                 // Inline round 2
                 {
                     if (++round < 16) {
                         var f = (s0 & s1) | (~s0 & s2);
-                        var g = round;
+                        var mIndex = round;
                     } else if (round < 32) {
                         var f = (s0 & s2) | (s1 & ~s2);
-                        var g = round * 5 + 1;
+                        var mIndex = round * 5 + 1;
                     } else if (round < 48) {
                         var f = s0 ^ s1 ^ s2;
-                        var g = round * 3 + 5;
+                        var mIndex = round * 3 + 5;
                     } else {
                         var f = s1 ^ (s0 | ~s2);
-                        var g = round * 7;
+                        var mIndex = round * 7;
                     }
 
-                    var n = s3 + f + m[g % 16] + K[round];
-                    var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
-
-                    s3 = (s0 + ((n << r) | (n >>> (32 - r)))) | 0;
+                    var t = s3 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
+                    s3 = (s0 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
 
                 // Inline round 3
                 {
                     if (++round < 16) {
                         var f = (s3 & s0) | (~s3 & s1);
-                        var g = round;
+                        var mIndex = round;
                     } else if (round < 32) {
                         var f = (s3 & s1) | (s0 & ~s1);
-                        var g = round * 5 + 1;
+                        var mIndex = round * 5 + 1;
                     } else if (round < 48) {
                         var f = s3 ^ s0 ^ s1;
-                        var g = round * 3 + 5;
+                        var mIndex = round * 3 + 5;
                     } else {
                         var f = s0 ^ (s3 | ~s1);
-                        var g = round * 7;
+                        var mIndex = round * 7;
                     }
 
-                    var n = s2 + f + m[g % 16] + K[round];
-                    var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
-
-                    s2 = (s3 + ((n << r) | (n >>> (32 - r)))) | 0;
+                    var t = s2 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
+                    s2 = (s3 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
 
                 // Inline round 4
                 {
                     if (++round < 16) {
                         var f = (s2 & s3) | (~s2 & s0);
-                        var g = round;
+                        var mIndex = round;
                     } else if (round < 32) {
                         var f = (s2 & s0) | (s3 & ~s0);
-                        var g = round * 5 + 1;
+                        var mIndex = round * 5 + 1;
                     } else if (round < 48) {
                         var f = s2 ^ s3 ^ s0;
-                        var g = round * 3 + 5;
+                        var mIndex = round * 3 + 5;
                     } else {
                         var f = s3 ^ (s2 | ~s0);
-                        var g = round * 7;
+                        var mIndex = round * 7;
                     }
 
-                    var n = s1 + f + m[g % 16] + K[round];
-                    var r = R[((round >>> 2) & 0xc) + (round & 0x3)];
-
-                    s1 = (s2 + ((n << r) | (n >>> (32 - r)))) | 0;
+                    var t = s1 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
+                    s1 = (s2 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
             }
 
