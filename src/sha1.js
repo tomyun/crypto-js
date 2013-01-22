@@ -9,6 +9,12 @@
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
 
+    // Constants
+    var ROUND_CONSTANT_0 = 0x5a827999;
+    var ROUND_CONSTANT_1 = 0x6ed9eba1;
+    var ROUND_CONSTANT_2 = 0x8f1bbcdc;
+    var ROUND_CONSTANT_3 = 0xca62c1d6;
+
     /**
      * SHA-1 hash algorithm.
      */
@@ -180,497 +186,405 @@
             var m79 = m76 ^ m71 ^ m65 ^ m63;
             m79 = (m79 << 1) | (m79 >>> 31);
 
-            // Rounds 1..20
-            var c = 0x5a827999;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m0 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m1 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m2 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m3 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m4 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m5 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m6 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m7 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m8 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m9 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m10 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m11 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m12 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m13 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m14 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m15 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m16 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m17 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m18 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + ((s1 & s2) | (~s1 & s3)) + s4 + m19 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
+            // Inline round 1
+            var f = (s1 & s2) | (~s1 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m0 + ROUND_CONSTANT_0;
 
-            // Rounds 21..40
-            var c = 0x6ed9eba1;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m20 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m21 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m22 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m23 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m24 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m25 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m26 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m27 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m28 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m29 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m30 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m31 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m32 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m33 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m34 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m35 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m36 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m37 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m38 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + (s1 ^ s2 ^ s3) + s4 + m39 + c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
+            // Inline round 2
+            var f = (s0 & s1) | (~s0 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m1 + ROUND_CONSTANT_0;
 
-            // Rounds 41..60
-            var c = 0x70e44324;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m40 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m41 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m42 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m43 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m44 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m45 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m46 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m47 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m48 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m49 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m50 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m51 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m52 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m53 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m54 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m55 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m56 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m57 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m58 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m59 + ((s1 & s2) | (s1 & s3) | (s2 & s3)) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
+            // Inline round 3
+            var f = (s4 & s0) | (~s4 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m2 + ROUND_CONSTANT_0;
 
-            // Rounds 61..80
-            var c = 0x359d3e2a;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m60 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m61 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m62 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m63 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m64 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m65 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m66 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m67 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m68 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m69 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m70 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m71 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m72 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m73 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m74 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m75 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m76 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m77 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m78 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
-            var t = ((s0 << 5) | (s0 >>> 27)) + s4 + m79 + (s1 ^ s2 ^ s3) - c;
-            s4 = s3;
-            s3 = s2;
-            s2 = (s1 << 30) | (s1 >>> 2);
-            s1 = s0;
-            s0 = t;
+            // Inline round 4
+            var f = (s3 & s4) | (~s3 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m3 + ROUND_CONSTANT_0;
+
+            // Inline round 5
+            var f = (s2 & s3) | (~s2 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m4 + ROUND_CONSTANT_0;
+
+            // Inline round 6
+            var f = (s1 & s2) | (~s1 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m5 + ROUND_CONSTANT_0;
+
+            // Inline round 7
+            var f = (s0 & s1) | (~s0 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m6 + ROUND_CONSTANT_0;
+
+            // Inline round 8
+            var f = (s4 & s0) | (~s4 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m7 + ROUND_CONSTANT_0;
+
+            // Inline round 9
+            var f = (s3 & s4) | (~s3 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m8 + ROUND_CONSTANT_0;
+
+            // Inline round 10
+            var f = (s2 & s3) | (~s2 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m9 + ROUND_CONSTANT_0;
+
+            // Inline round 11
+            var f = (s1 & s2) | (~s1 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m10 + ROUND_CONSTANT_0;
+
+            // Inline round 12
+            var f = (s0 & s1) | (~s0 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m11 + ROUND_CONSTANT_0;
+
+            // Inline round 13
+            var f = (s4 & s0) | (~s4 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m12 + ROUND_CONSTANT_0;
+
+            // Inline round 14
+            var f = (s3 & s4) | (~s3 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m13 + ROUND_CONSTANT_0;
+
+            // Inline round 15
+            var f = (s2 & s3) | (~s2 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m14 + ROUND_CONSTANT_0;
+
+            // Inline round 16
+            var f = (s1 & s2) | (~s1 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m15 + ROUND_CONSTANT_0;
+
+            // Inline round 17
+            var f = (s0 & s1) | (~s0 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m16 + ROUND_CONSTANT_0;
+
+            // Inline round 18
+            var f = (s4 & s0) | (~s4 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m17 + ROUND_CONSTANT_0;
+
+            // Inline round 19
+            var f = (s3 & s4) | (~s3 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m18 + ROUND_CONSTANT_0;
+
+            // Inline round 20
+            var f = (s2 & s3) | (~s2 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m19 + ROUND_CONSTANT_0;
+
+            // Inline round 21
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m20 + ROUND_CONSTANT_1;
+
+            // Inline round 22
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m21 + ROUND_CONSTANT_1;
+
+            // Inline round 23
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m22 + ROUND_CONSTANT_1;
+
+            // Inline round 24
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m23 + ROUND_CONSTANT_1;
+
+            // Inline round 25
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m24 + ROUND_CONSTANT_1;
+
+            // Inline round 26
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m25 + ROUND_CONSTANT_1;
+
+            // Inline round 27
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m26 + ROUND_CONSTANT_1;
+
+            // Inline round 28
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m27 + ROUND_CONSTANT_1;
+
+            // Inline round 29
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m28 + ROUND_CONSTANT_1;
+
+            // Inline round 30
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m29 + ROUND_CONSTANT_1;
+
+            // Inline round 31
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m30 + ROUND_CONSTANT_1;
+
+            // Inline round 32
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m31 + ROUND_CONSTANT_1;
+
+            // Inline round 33
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m32 + ROUND_CONSTANT_1;
+
+            // Inline round 34
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m33 + ROUND_CONSTANT_1;
+
+            // Inline round 35
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m34 + ROUND_CONSTANT_1;
+
+            // Inline round 36
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m35 + ROUND_CONSTANT_1;
+
+            // Inline round 37
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m36 + ROUND_CONSTANT_1;
+
+            // Inline round 38
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m37 + ROUND_CONSTANT_1;
+
+            // Inline round 39
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m38 + ROUND_CONSTANT_1;
+
+            // Inline round 40
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m39 + ROUND_CONSTANT_1;
+
+            // Inline round 41
+            var f = (s1 & s2) | (s1 & s3) | (s2 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m40 + ROUND_CONSTANT_2;
+
+            // Inline round 42
+            var f = (s0 & s1) | (s0 & s2) | (s1 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m41 + ROUND_CONSTANT_2;
+
+            // Inline round 43
+            var f = (s4 & s0) | (s4 & s1) | (s0 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m42 + ROUND_CONSTANT_2;
+
+            // Inline round 44
+            var f = (s3 & s4) | (s3 & s0) | (s4 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m43 + ROUND_CONSTANT_2;
+
+            // Inline round 45
+            var f = (s2 & s3) | (s2 & s4) | (s3 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m44 + ROUND_CONSTANT_2;
+
+            // Inline round 46
+            var f = (s1 & s2) | (s1 & s3) | (s2 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m45 + ROUND_CONSTANT_2;
+
+            // Inline round 47
+            var f = (s0 & s1) | (s0 & s2) | (s1 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m46 + ROUND_CONSTANT_2;
+
+            // Inline round 48
+            var f = (s4 & s0) | (s4 & s1) | (s0 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m47 + ROUND_CONSTANT_2;
+
+            // Inline round 49
+            var f = (s3 & s4) | (s3 & s0) | (s4 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m48 + ROUND_CONSTANT_2;
+
+            // Inline round 50
+            var f = (s2 & s3) | (s2 & s4) | (s3 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m49 + ROUND_CONSTANT_2;
+
+            // Inline round 51
+            var f = (s1 & s2) | (s1 & s3) | (s2 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m50 + ROUND_CONSTANT_2;
+
+            // Inline round 52
+            var f = (s0 & s1) | (s0 & s2) | (s1 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m51 + ROUND_CONSTANT_2;
+
+            // Inline round 53
+            var f = (s4 & s0) | (s4 & s1) | (s0 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m52 + ROUND_CONSTANT_2;
+
+            // Inline round 54
+            var f = (s3 & s4) | (s3 & s0) | (s4 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m53 + ROUND_CONSTANT_2;
+
+            // Inline round 55
+            var f = (s2 & s3) | (s2 & s4) | (s3 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m54 + ROUND_CONSTANT_2;
+
+            // Inline round 56
+            var f = (s1 & s2) | (s1 & s3) | (s2 & s3);
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m55 + ROUND_CONSTANT_2;
+
+            // Inline round 57
+            var f = (s0 & s1) | (s0 & s2) | (s1 & s2);
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m56 + ROUND_CONSTANT_2;
+
+            // Inline round 58
+            var f = (s4 & s0) | (s4 & s1) | (s0 & s1);
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m57 + ROUND_CONSTANT_2;
+
+            // Inline round 59
+            var f = (s3 & s4) | (s3 & s0) | (s4 & s0);
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m58 + ROUND_CONSTANT_2;
+
+            // Inline round 60
+            var f = (s2 & s3) | (s2 & s4) | (s3 & s4);
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m59 + ROUND_CONSTANT_2;
+
+            // Inline round 61
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m60 + ROUND_CONSTANT_3;
+
+            // Inline round 62
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m61 + ROUND_CONSTANT_3;
+
+            // Inline round 63
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m62 + ROUND_CONSTANT_3;
+
+            // Inline round 64
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m63 + ROUND_CONSTANT_3;
+
+            // Inline round 65
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m64 + ROUND_CONSTANT_3;
+
+            // Inline round 66
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m65 + ROUND_CONSTANT_3;
+
+            // Inline round 67
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m66 + ROUND_CONSTANT_3;
+
+            // Inline round 68
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m67 + ROUND_CONSTANT_3;
+
+            // Inline round 69
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m68 + ROUND_CONSTANT_3;
+
+            // Inline round 70
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m69 + ROUND_CONSTANT_3;
+
+            // Inline round 71
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m70 + ROUND_CONSTANT_3;
+
+            // Inline round 72
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m71 + ROUND_CONSTANT_3;
+
+            // Inline round 73
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m72 + ROUND_CONSTANT_3;
+
+            // Inline round 74
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m73 + ROUND_CONSTANT_3;
+
+            // Inline round 75
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m74 + ROUND_CONSTANT_3;
+
+            // Inline round 76
+            var f = s1 ^ s2 ^ s3;
+            s1 = (s1 << 30) | (s1 >>> 2);
+            s4 = f + s4 + ((s0 << 5) | (s0 >>> 27)) + m75 + ROUND_CONSTANT_3;
+
+            // Inline round 77
+            var f = s0 ^ s1 ^ s2;
+            s0 = (s0 << 30) | (s0 >>> 2);
+            s3 = f + s3 + ((s4 << 5) | (s4 >>> 27)) + m76 + ROUND_CONSTANT_3;
+
+            // Inline round 78
+            var f = s4 ^ s0 ^ s1;
+            s4 = (s4 << 30) | (s4 >>> 2);
+            s2 = f + s2 + ((s3 << 5) | (s3 >>> 27)) + m77 + ROUND_CONSTANT_3;
+
+            // Inline round 79
+            var f = s3 ^ s4 ^ s0;
+            s3 = (s3 << 30) | (s3 >>> 2);
+            s1 = f + s1 + ((s2 << 5) | (s2 >>> 27)) + m78 + ROUND_CONSTANT_3;
+
+            // Inline round 80
+            var f = s2 ^ s3 ^ s4;
+            s2 = (s2 << 30) | (s2 >>> 2);
+            s0 = f + s0 + ((s1 << 5) | (s1 >>> 27)) + m79 + ROUND_CONSTANT_3;
 
             // Update state
             s[0] = (_s0 + s0) | 0;
