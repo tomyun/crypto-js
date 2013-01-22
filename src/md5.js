@@ -70,7 +70,7 @@
                         var mIndex = round * 7;
                     }
 
-                    var t = s0 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var t = f + s0 + m[mIndex % 16] + ROUND_CONSTANTS[round];
                     var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
                     s0 = (s1 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
@@ -91,7 +91,7 @@
                         var mIndex = round * 7;
                     }
 
-                    var t = s3 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var t = f + s3 + m[mIndex % 16] + ROUND_CONSTANTS[round];
                     var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
                     s3 = (s0 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
@@ -112,7 +112,7 @@
                         var mIndex = round * 7;
                     }
 
-                    var t = s2 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var t = f + s2 + m[mIndex % 16] + ROUND_CONSTANTS[round];
                     var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
                     s2 = (s3 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
@@ -133,7 +133,7 @@
                         var mIndex = round * 7;
                     }
 
-                    var t = s1 + f + m[mIndex % 16] + ROUND_CONSTANTS[round];
+                    var t = f + s1 + m[mIndex % 16] + ROUND_CONSTANTS[round];
                     var rotationOffset = ROTATION_OFFSETS[((round >>> 2) & 0xc) | (round & 0x3)];
                     s1 = (s2 + ((t << rotationOffset) | (t >>> (32 - rotationOffset)))) | 0;
                 }
