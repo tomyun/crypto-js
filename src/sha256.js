@@ -81,6 +81,7 @@
 
             // Rounds
             for (var round = 0; round < 64; round++) {
+                // Expand message
                 if (round < 16) {
                     var MRound = m[round];
                 } else {
@@ -100,6 +101,7 @@
                 }
                 M[round] = MRound |= 0;
 
+                // Computation
                 var t1 = (
                     (((s4 << 26) | (s4 >>> 6)) ^ ((s4 << 21) | (s4 >>> 11)) ^ ((s4 << 7)  | (s4 >>> 25))) +
                     ((s4 & s5) ^ (~s4 & s6)) + s7 + MRound + K[round]
@@ -109,6 +111,7 @@
                     ((s0 & s1) ^ (s0 & s2) ^ (s1 & s2))
                 );
 
+                // Update working state
                 s7 = s6;
                 s6 = s5;
                 s5 = s4;
