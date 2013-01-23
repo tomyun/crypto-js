@@ -37,6 +37,13 @@
 
         <!-- Benchmark.js -->
         <script>
+            /*!
+             * Benchmark.js v1.0.0 <http://benchmarkjs.com/>
+             * Copyright 2010-2012 Mathias Bynens <http://mths.be/>
+             * Based on JSLitmus.js, copyright Robert Kieffer <http://broofa.com/>
+             * Modified by John-David Dalton <http://allyoucanleet.com/>
+             * Available under MIT license <http://mths.be/mit>
+             */
             (function(x,p){function v(a,b,c){if(null==this||this.constructor!=v)return new v(a,b,c);t(a,"Object")?c=a:t(a,"Function")?(c=b,b=a):(t(b,"Object")&&(c=b,b=null),this.name=a);ma(this,c);this.id||(this.id=++Ja);null==this.fn&&(this.fn=b);this.stats=N(this.stats);this.times=N(this.times)}function G(a){if(null==this||this.constructor!=G)return new G(a);this.benchmark=a;T(this)}function u(a){return null==this||this.constructor!=u?new u(a):a instanceof u?a:r(this,{timeStamp:+new Date},"string"==typeof a?
             {type:a}:a)}function O(a,b){if(null==this||this.constructor!=O)return new O(a,b);t(a,"Object")?b=a:this.name=a;ma(this,b)}function ha(a,b,c){for(var e=a+b,d=c?c.length:0,f=a-1,g=a+d,h=Array(b),k=U.call(this,e);++f<e;)f in this&&(h[f-a]=this[f],delete this[f]);for(f=a-1;++f<g;)this[f]=c[f-a];a=f--;for(g=A(0,(this.length>>>0)-b+d);++f<g;)f-a in k?this[f]=k[f-a]:f in this&&delete this[f];for(b=b>d?b-d:0;b--;)f=g+b,f in this&&delete this[f];this.length=g;return h}function na(){return ha.call(this,0,1)[0]}
             function U(a,b){var c=-1,e=Object(this),d=e.length>>>0,f=[];a=V(a);a=0>a?A(d+a,0):P(a,d);a--;b=null==b?d:V(b);for(b=0>b?A(d+b,0):P(b,d);(++c,++a)<b;)a in e&&(f[c]=e[a]);return f}function V(a){a=+a;return 0===a||!isFinite(a)?a||0:a-a%1}function oa(a,b){return function(){a.apply(b,arguments)}}function C(){C=function(a,b){var c,e=Y?define.amd:v,d=B+"createFunction";pa((Y?"define.amd.":"Benchmark.")+d+"=function("+a+"){"+b+"}");c=e[d];delete e[d];return c};C=m.browser&&(C("",'return"'+B+'"')||H)()==B?
