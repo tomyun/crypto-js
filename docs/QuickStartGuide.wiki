@@ -2,6 +2,17 @@
 
 ----
 
+Previously, CryptoJS was concerned with performance only in IE. IE had the largest market share and the slowest JS engine. If the algorithms didn't run well in IE, then it didn't seem to matter how much faster they could run in Chrome.
+
+With this release, that approach changes. Chrome's market share continues to rise, and IE's continues to fall. Newer versions of IE are trying to duplicate Chrome's performance. And when other developers evaluate the performance of CryptoJS, they seem to do so usually using Chrome. And so this latest release focused heavily on performance in Chrome.
+
+Compared to previous versions of CryptoJS in Chrome...
+
+MD5 is 2.5X faster.
+SHA1 is 3.5X faster.
+SHA256 is 2.5X faster.
+SHA512 is 12X faster.
+
 = Changes =
 
   * More algorithms.
