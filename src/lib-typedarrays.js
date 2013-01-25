@@ -1,6 +1,6 @@
 (function () {
-    // Check if typed arrays are supported
-    if (typeof ArrayBuffer != 'function') {
+    // Ensure typed arrays are supported before proceeding
+    if (typeof ArrayBuffer === 'undefined') {
         return;
     }
 
@@ -22,7 +22,10 @@
         // Convert other array views to uint8
         if (
             typedArray instanceof Int8Array ||
-            typedArray instanceof Uint8ClampedArray ||
+            ( // Safari doesn't seem to support Uint8ClampedArray yet
+                typeof Uint8ClampedArray !== 'undefined' &&
+                typedArray instanceof Uint8ClampedArray
+            ) ||
             typedArray instanceof Int16Array ||
             typedArray instanceof Uint16Array ||
             typedArray instanceof Int32Array ||
