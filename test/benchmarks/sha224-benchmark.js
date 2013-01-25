@@ -9,6 +9,10 @@ YUI.add('sha224-benchmark', function (Y) {
                 var hash = CryptoJS.SHA224.hash('abc') + '';
             });
 
+            suite.add('CryptoJS 3', function () {
+                var hash = Y.CryptoJS3.SHA224('abc') + '';
+            });
+
             suite.add('jsSHA', function () {
                 var hash = (new Y.JsSHA('abc', 'TEXT')).getHash('SHA-224', 'HEX') + '';
             });
