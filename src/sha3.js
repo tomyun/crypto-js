@@ -90,6 +90,17 @@
         }),
 
         _doInit: function () {
+            // <?php if ($debug): ?>
+            {
+                var outputLength = this.cfg.outputLength;
+                if (
+                    outputLength !== 224 && outputLength !== 256 &&
+                    outputLength !== 384 && outputLength !== 512
+                ) {
+                    throw new OutputLengthError('The output length must be one of 224, 256, 384, or 512.');
+                }
+            }
+            // <?php endif ?>
         },
 
         _doReset: function () {
@@ -274,4 +285,16 @@
             return clone;
         }
     });
+
+    // <?php if ($debug): ?>
+    {
+        // Shortcut
+        var C_ERR = C.err;
+
+        /**
+         * Output length error.
+         */
+        var OutputLengthError = C_ERR.OutputLengthError = Hasher.extend.call(Error);
+    }
+    // <?php endif ?>
 }(Math));

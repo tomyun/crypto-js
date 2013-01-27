@@ -5,6 +5,12 @@ YUI.add('sha3-test', function (Y) {
     Y.CryptoJSTestSuite.add(new Y.Test.Case({
         name: 'SHA3',
 
+        _should: {
+            error: {
+                testInvalidOutputLength: true
+            }
+        },
+
         testVector1: function () {
             Y.Assert.areEqual(
                 '0eab42de4c3ceb9235fc91acffe746b29c29a8c366b7c60e4e67c466f36a4304' +
@@ -109,6 +115,10 @@ YUI.add('sha3-test', function (Y) {
 
         testDefaultOutputLength: function () {
             Y.Assert.areEqual(SHA3.hash('', { outputLength: 512 }).toString(), SHA3.hash('').toString());
+        },
+
+        testInvalidOutputLength: function () {
+            SHA3.hash('', { outputLength: 128 });
         },
 
         testClone: function () {
