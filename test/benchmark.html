@@ -13,6 +13,7 @@
         <script src="../src/sha224.js"></script>
         <script src="../src/sha512.js"></script>
         <script src="../src/sha384.js"></script>
+        <script src="../src/sha3.js"></script>
         <!--
         <script src="../src/enc-utf16.js"></script>
         <script src="../src/enc-base64.js"></script>
@@ -136,6 +137,11 @@
                 I.high=ba+S+(P>>>0<D>>>0?1:0);Q=f.low=Q+E;f.high=ca+V+(Q>>>0<E>>>0?1:0)},_doFinalize:function(){var a=this._data,d=a.words,f=8*this._nDataBytes,e=8*a.sigBytes;d[e>>>5]|=128<<24-e%32;d[(e+128>>>10<<5)+30]=Math.floor(f/4294967296);d[(e+128>>>10<<5)+31]=f;a.sigBytes=4*d.length;this._process();return this._hash.toX32()},clone:function(){var a=r.clone.call(this);a._hash=this._hash.clone();return a},blockSize:32});n.SHA512=r._createHelper(e);n.HmacSHA512=r._createHmacHelper(e)})();
                 (function(){var c=CryptoJS,a=c.x64,b=a.Word,e=a.WordArray,a=c.algo,d=a.SHA512,a=a.SHA384=d.extend({_doReset:function(){this._hash=new e.init([new b.init(3418070365,3238371032),new b.init(1654270250,914150663),new b.init(2438529370,812702999),new b.init(355462360,4144912697),new b.init(1731405415,4290775857),new b.init(2394180231,1750603025),new b.init(3675008525,1694076839),new b.init(1203062813,3204075428)])},_doFinalize:function(){var a=d._doFinalize.call(this);a.sigBytes-=16;return a}});c.SHA384=
                 d._createHelper(a);c.HmacSHA384=d._createHmacHelper(a)})();
+                (function(y){for(var p=CryptoJS,m=p.lib,z=m.WordArray,q=m.Hasher,s=p.x64.Word,m=p.algo,v=[],w=[],x=[],c=1,d=0,l=0;24>l;l++){v[c+5*d]=(l+1)*(l+2)/2%64;var r=(2*c+3*d)%5,c=d%5,d=r}for(c=0;5>c;c++)for(d=0;5>d;d++)w[c+5*d]=d+5*((2*c+3*d)%5);c=1;for(d=0;24>d;d++){for(var t=r=l=0;7>t;t++){if(c&1){var u=(1<<t)-1;32>u?r^=1<<u:l^=1<<u-32}c=c&128?c<<1^113:c<<1}x[d]=s.create(l,r)}for(var j=[],c=0;25>c;c++)j[c]=s.create();m=m.SHA3=q.extend({cfg:q.cfg.extend({outputLength:512}),_doReset:function(){for(var c=this._state=
+                [],n=0;25>n;n++)c[n]=new s.init;this.blockSize=(1600-2*this.cfg.outputLength)/32},_doProcessBlock:function(c,n){for(var h=this._state,d=this.blockSize/2,b=0;b<d;b++){var e=c[n+2*b],f=c[n+2*b+1],e=(e<<8|e>>>24)&16711935|(e<<24|e>>>8)&4278255360,f=(f<<8|f>>>24)&16711935|(f<<24|f>>>8)&4278255360,a=h[b];a.high^=f;a.low^=e}for(d=0;24>d;d++){for(b=0;5>b;b++){for(var k=e=0,g=0;5>g;g++)a=h[b+5*g],e^=a.high,k^=a.low;a=j[b];a.high=e;a.low=k}for(b=0;5>b;b++){a=j[(b+4)%5];e=j[(b+1)%5];f=e.high;g=e.low;e=a.high^
+                (f<<1|g>>>31);k=a.low^(g<<1|f>>>31);for(g=0;5>g;g++)a=h[b+5*g],a.high^=e,a.low^=k}for(f=1;25>f;f++)a=h[f],b=a.high,a=a.low,g=v[f],32>g?(e=b<<g|a>>>32-g,k=a<<g|b>>>32-g):(e=a<<g-32|b>>>64-g,k=b<<g-32|a>>>64-g),a=j[w[f]],a.high=e,a.low=k;a=j[0];b=h[0];a.high=b.high;a.low=b.low;for(b=0;5>b;b++)for(g=0;5>g;g++)f=b+5*g,a=h[f],e=j[f],f=j[(b+1)%5+5*g],k=j[(b+2)%5+5*g],a.high=e.high^~f.high&k.high,a.low=e.low^~f.low&k.low;a=h[0];b=x[d];a.high^=b.high;a.low^=b.low}},_doFinalize:function(){var c=this._data,
+                d=c.words,h=8*c.sigBytes,j=32*this.blockSize;d[h>>>5]|=1<<24-h%32;d[(y.ceil((h+1)/j)*j>>>5)-1]|=128;c.sigBytes=4*d.length;this._process();for(var c=this._state,d=this.cfg.outputLength/8,h=d/8,j=[],b=0;b<h;b++){var e=c[b],f=e.high,e=e.low,f=(f<<8|f>>>24)&16711935|(f<<24|f>>>8)&4278255360,e=(e<<8|e>>>24)&16711935|(e<<24|e>>>8)&4278255360;j.push(e);j.push(f)}return new z.init(j,d)},clone:function(){for(var c=q.clone.call(this),d=c._state=this._state.slice(0),h=0;25>h;h++)d[h]=d[h].clone();return c}});
+                p.SHA3=q._createHelper(m);p.HmacSHA3=q._createHmacHelper(m)})(Math);
 
                 Y.CryptoJS3 = CryptoJS;
             });
@@ -452,6 +458,18 @@
             });
         </script>
 
+        <!-- Drostie SHA-3 -->
+        <script>
+            YUI.add('drostiesha3', function (Y) {
+                keccak=function(){var d,h,f,l,j,m,n,p;f=function(a,b){this.l=a?a:0;this.h=b?b:0};f.c=function(a){return new f(a.l,a.h)};var e,k;e=function(a){return("00"+a.toString(16)).slice(-2)};k=function(a){return e(a&255)+e(a>>>8)+e(a>>>16)+e(a>>>24)};f.prototype={x:function(a){this.l^=a.l;this.h^=a.h;return this},n:function(){return new f(~this.l,~this.h)},a:function(a){this.l&=a.l;this.h&=a.h;return this},r:function(a){var b,c;32<=a&&(b=this.l,this.l=this.h,this.h=b,a-=32);if(0===a)return this;c=32-a;b=(this.h<<
+                a)+(this.l>>>c);this.l=(this.l<<a)+(this.h>>>c);this.h=b;return this},toString:function(){return k(this.l)+k(this.h)}};j=function(a){var b,c=[];for(b=0;b<a;b+=1)c[b]=new f;return c};h=function(a){var b=function(a,d){return b.a[a%5+5*(d%5)]};b.a=a?a:j(25);b.c=function(){return new h(b.a.map(f.c))};return b};l=[0,10,20,5,15,16,1,11,21,6,7,17,2,12,22,23,8,18,3,13,14,24,9,19,4];m="0,1;0,8082;z,808A;z,yy;0,808B;0,y0001;z,y8081;z,8009;0,8A;0,88;0,y8009;0,y000A;0,y808B;z,8B;z,8089;z,8003;z,8002;z,80;0,800A;z,y000A;z,y8081;z,8080;0,y0001;z,y8008".replace(/z/g,
+                "80000000").replace(/y/g,"8000").split(";").map(function(a){a=a.split(",");return new f(parseInt(a[1],16),parseInt(a[0],16))});n=[0,1,62,28,27,36,44,6,55,20,3,10,43,25,39,41,45,15,21,8,18,2,61,56,14];p=function(){var a,b,c,g,e;for(e=0;24>e;e+=1){c=j(5);for(a=0;5>a;a+=1)for(b=0;5>b;b+=1)c[a].x(d(a,b));g=c.map(f.c);g=g.concat(g.splice(0,1));for(a=0;5>a;a+=1)g[a].r(1).x(c[(a+4)%5]);for(a=0;5>a;a+=1)for(b=0;5>b;b+=1)d(a,b).x(g[a]);for(a=0;5>a;a+=1)for(b=0;5>b;b+=1)d(a,b).r(n[5*b+a]);b=d.a.slice(0);for(a=
+                0;25>a;a+=1)d.a[l[a]]=b[a];c=d.c();for(a=0;5>a;a+=1)for(b=0;5>b;b+=1)d(a,b).x(c(a+1,b).n().a(c(a+2,b)));d(0,0).x(m[e])}};return function(a){d=new h;for(a+="\u2001\u0188";0!==a.length%68;)a+="\x00";var b,c;for(b=0;b<a.length;b+=68){for(c=0;68>c;c+=4)d.a[c/4].x(new f(a.charCodeAt(b+c)+65536*a.charCodeAt(b+c+1),a.charCodeAt(b+c+2)+65536*a.charCodeAt(b+c+3)));p()}return d.a.slice(0,4).join("")}}();
+
+                Y.DrostieSHA3 = keccak;
+            });
+        </script>
+
         <!-- Tests -->
         <script src="benchmarks/lib-wordarray-benchmark.js"></script>
         <script src="benchmarks/enc-hex-benchmark.js"></script>
@@ -463,6 +481,7 @@
         <script src="benchmarks/sha224-benchmark.js"></script>
         <script src="benchmarks/sha512-benchmark.js"></script>
         <script src="benchmarks/sha384-benchmark.js"></script>
+        <script src="benchmarks/sha3-benchmark.js"></script>
 
         <!-- Tester -->
         <script>

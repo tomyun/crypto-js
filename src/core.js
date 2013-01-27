@@ -719,9 +719,17 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     C_LIB.Hasher = BufferedBlockAlgorithm.extend(
         {
             /**
+             * Configuration options.
+             */
+            cfg: O.extend(),
+
+            /**
              * Constructor.
              */
-            constructor: function () {
+            constructor: function (cfg) {
+                // Apply config defaults
+                this.cfg = new (this.cfg.extend(cfg))();
+
                 // Perform concrete-hasher logic
                 this._doInit();
 
@@ -844,9 +852,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              *
              *     var hash = CryptoJS.SHA256.hash('message');
              */
-            hash: function (message) {
+            hash: function (message, cfg) {
                 var ConcreteHasher = this;
-                return (new ConcreteHasher()).finalize(message);
+                return (new ConcreteHasher(cfg)).finalize(message);
             }
         }
     );
