@@ -133,6 +133,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *             }
          *         }
          *     );
+         *
+         *     var MySubType = MyType.extend();
          */
         O.extend = function (bodyInstance, bodyStatic) {
             // Get or create constructor
