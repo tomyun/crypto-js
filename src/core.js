@@ -17,12 +17,12 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
     /**
      * Base CryptoJS object.
      */
-    {
+    var O = C_LIB.Object = (function () {
         /**
          * Constructor.
          */
-        var O = C_LIB.Object = function () {
-        };
+        function O() {
+        }
 
         /**
          * Creates a new object that inherits from another.
@@ -189,7 +189,10 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
             return clone;
         };
-    }
+
+        // Expose base object constructor
+        return O;
+    }());
 
     /**
      * An array of 32-bit words.
