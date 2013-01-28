@@ -389,13 +389,13 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var sigBytes = wordArray.sigBytes;
 
             // Convert
-            var hexChars = '';
+            var hexStr = '';
             for (var i = 0; i < sigBytes; i++) {
                 var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                hexChars += (bite >>> 4).toString(16) + (bite & 0xf).toString(16);
+                hexStr += (bite >>> 4).toString(16) + (bite & 0xf).toString(16);
             }
 
-            return hexChars;
+            return hexStr;
         },
 
         /**
@@ -407,7 +407,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @static
          *
-         * @throws HexOctetError
+         * @throws OctetError
          *
          * @example
          *
@@ -420,7 +420,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             // <?php if ($debug): ?>
             {
                 if (hexStrLength % 2 !== 0) {
-                    throw new HexOctetError('The hex string must represent a whole number of bytes.');
+                    throw new OctetError('The hex string must represent a whole number of bytes.');
                 }
             }
             // <?php endif ?>
@@ -467,13 +467,13 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var sigBytes = wordArray.sigBytes;
 
             // Convert
-            var latin1Chars = '';
+            var latin1Str = '';
             for (var i = 0; i < sigBytes; i++) {
                 var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                latin1Chars += String.fromCharCode(bite);
+                latin1Str += String.fromCharCode(bite);
             }
 
-            return latin1Chars;
+            return latin1Str;
         },
 
         /**
@@ -655,7 +655,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
 
             // Process blocks
-            if (nBlocksReady) {
+            if (nWordsReady) {
                 for (var offset = 0; offset < nWordsReady; offset += blockSize) {
                     // Perform concrete-algorithm logic
                     this._doProcessBlock(dataWords.slice(offset, offset + blockSize));
@@ -728,6 +728,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 
             /**
              * Constructor.
+             *
+             * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
              */
             constructor: function (cfg) {
                 // Apply config defaults
@@ -846,6 +848,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
              * Shortcut to a hasher's object interface.
              *
              * @param {WordArray|string} message The message to hash.
+             * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
              *
              * @return {WordArray} The hash.
              *
@@ -870,9 +873,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         var C_ERR = C.err = {};
 
         /**
-         * Hex octet error.
+         * Octet error.
          */
-        var HexOctetError = C_ERR.HexOctetError = O.extend.call(Error);
+        var OctetError = C_ERR.OctetError = O.extend.call(Error);
 
         /**
          * Malformed UTF-8 error.
