@@ -9,9 +9,9 @@
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
 
-    // Initialization and round constants tables
-    var H = [];
-    var K = [];
+    // Initial state and round constants tables
+    var STATE = [];
+    var ROUND_CONSTANTS = [];
 
     // Compute constants
     (function () {
@@ -34,9 +34,9 @@
         while (nPrime < 64) {
             if (isPrime(n)) {
                 if (nPrime < 8) {
-                    H[nPrime] = getFractionalBits(Math.pow(n, 1 / 2));
+                    STATE[nPrime] = getFractionalBits(Math.pow(n, 1 / 2));
                 }
-                K[nPrime] = getFractionalBits(Math.pow(n, 1 / 3));
+                ROUND_CONSTANTS[nPrime] = getFractionalBits(Math.pow(n, 1 / 3));
 
                 nPrime++;
             }
@@ -56,7 +56,7 @@
         },
 
         _doReset: function () {
-            this._state = H.slice(0);
+            this._state = STATE.slice(0);
         },
 
         _doProcessBlock: function (m) {
@@ -104,7 +104,7 @@
                 // Computation
                 var t1 = (
                     (((s4 << 26) | (s4 >>> 6)) ^ ((s4 << 21) | (s4 >>> 11)) ^ ((s4 << 7)  | (s4 >>> 25))) +
-                    ((s4 & s5) ^ (~s4 & s6)) + s7 + MRound + K[round]
+                    ((s4 & s5) ^ (~s4 & s6)) + s7 + MRound + ROUND_CONSTANTS[round]
                 );
                 var t2 = (
                     (((s0 << 30) | (s0 >>> 2)) ^ ((s0 << 19) | (s0 >>> 13)) ^ ((s0 << 10) | (s0 >>> 22))) +
