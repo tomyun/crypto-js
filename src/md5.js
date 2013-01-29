@@ -157,7 +157,7 @@
             // Add padding
             dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
 
-            var lengthStartIndex = (((nBitsLeft + 64) >>> 5) & 0x1f0) + 14;
+            var lengthStartIndex = (((nBitsLeft + 64) >>> 9) << 4) + 14;
             dataWords[lengthStartIndex] = (
                 (((nBitsTotalLsw << 8)  | (nBitsTotalLsw >>> 24)) & 0x00ff00ff) |
                 (((nBitsTotalLsw << 24) | (nBitsTotalLsw >>> 8))  & 0xff00ff00)
