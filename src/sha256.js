@@ -9,7 +9,7 @@
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
 
-    // Initial state and round constants tables
+    // Constants tables
     var STATE = [];
     var ROUND_CONSTANTS = [];
 
