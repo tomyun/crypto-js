@@ -8,70 +8,69 @@
     var C_LIB = C.lib;
     var WordArray = C_LIB.WordArray;
     var Hasher = C_LIB.Hasher;
-    var C_X64 = C.x64;
-    var X64Word = C_X64.Word;
 
     // Constants tables
     var RHO_OFFSETS = [];
     var PI_INDEXES  = [];
     var ROUND_CONSTANTS = [];
 
-    // Compute Constants
+    // Compute rho offsets
     (function () {
-        // Compute rho offset constants
-        var x = 1, y = 0;
+        var x = 1;
+        var y = 0;
         for (var t = 0; t < 24; t++) {
-            RHO_OFFSETS[x + 5 * y] = ((t + 1) * (t + 2) / 2) % 64;
+            RHO_OFFSETS[(x + 5 * y) * 2] = ((t + 1) * (t + 2) / 2) % 64;
 
             var newX = y % 5;
             var newY = (2 * x + 3 * y) % 5;
             x = newX;
             y = newY;
         }
+    }());
 
-        // Compute pi index constants
+    // Compute pi indexes
+    (function () {
         for (var x = 0; x < 5; x++) {
             for (var y = 0; y < 5; y++) {
-                PI_INDEXES[x + 5 * y] = y + ((2 * x + 3 * y) % 5) * 5;
+                PI_INDEXES[(x + 5 * y) * 2] = (y + ((2 * x + 3 * y) % 5) * 5) * 2;
             }
         }
+    }());
 
-        // Compute round constants
-        var LFSR = 0x01;
-        for (var i = 0; i < 24; i++) {
+    // Compute round constants
+    (function () {
+        var lfsr = 0x01;
+        for (var i = 0; i < 48; i += 2) {
             var roundConstantMsw = 0;
             var roundConstantLsw = 0;
 
             for (var j = 0; j < 7; j++) {
-                if (LFSR & 0x01) {
+                if (lfsr & 0x01) {
                     var bitPosition = (1 << j) - 1;
                     if (bitPosition < 32) {
                         roundConstantLsw ^= 1 << bitPosition;
-                    } else /* if (bitPosition >= 32) */ {
+                    } else {
                         roundConstantMsw ^= 1 << (bitPosition - 32);
                     }
                 }
 
                 // Compute next LFSR
-                if (LFSR & 0x80) {
-                    // Primitive polynomial over GF(2): x^8 + x^6 + x^5 + x^4 + 1
-                    LFSR = (LFSR << 1) ^ 0x71;
+                if (lfsr & 0x80) {
+                    // Primitive polynomial over GF(2)
+                    // x^8 + x^6 + x^5 + x^4 + 1
+                    lfsr = (lfsr << 1) ^ 0x71;
                 } else {
-                    LFSR <<= 1;
+                    lfsr <<= 1;
                 }
             }
 
-            ROUND_CONSTANTS[i] = new X64Word(roundConstantMsw, roundConstantLsw);
+            ROUND_CONSTANTS[i] = roundConstantMsw;
+            ROUND_CONSTANTS[i + 1] = roundConstantLsw;
         }
     }());
 
     // Reusable objects for temporary values
     var T = [];
-    (function () {
-        for (var i = 0; i < 25; i++) {
-            T[i] = new X64Word();
-        }
-    }());
 
     /**
      * SHA-3 hash algorithm.
@@ -90,9 +89,11 @@
         }),
 
         _doInit: function () {
+            // Shortcut
+            var outputLength = this.cfg.outputLength;
+
             // <?php if ($debug): ?>
             {
-                var outputLength = this.cfg.outputLength;
                 if (
                     outputLength !== 224 && outputLength !== 256 &&
                     outputLength !== 384 && outputLength !== 512
@@ -101,128 +102,124 @@
                 }
             }
             // <?php endif ?>
+
+            this.blockSize = 50 - outputLength / 16;
         },
 
         _doReset: function () {
-            var state = this._state = []
-            for (var i = 0; i < 25; i++) {
-                state[i] = new X64Word();
-            }
-
-            this.blockSize = (1600 - 2 * this.cfg.outputLength) / 32;
+            this._state = [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ];
         },
 
-        _doProcessBlock: function (M) {
-            // Shortcuts
-            var state = this._state;
-            var nBlockSizeLanes = this.blockSize / 2;
+        _doProcessBlock: function (m) {
+            // Shortcut
+            var s = this._state;
 
             // Absorb
-            for (var i = 0; i < nBlockSizeLanes; i++) {
+            var blockSize = this.blockSize;
+            for (var i = 0; i < blockSize; i += 2) {
                 // Shortcuts
-                var M2i  = M[2 * i];
-                var M2i1 = M[2 * i + 1];
+                var mi  = m[i];
+                var mi1 = m[i + 1];
 
                 // Swap endian
-                M2i = (
-                    (((M2i << 8)  | (M2i >>> 24)) & 0x00ff00ff) |
-                    (((M2i << 24) | (M2i >>> 8))  & 0xff00ff00)
+                mi = (
+                    (((mi << 8)  | (mi >>> 24)) & 0x00ff00ff) |
+                    (((mi << 24) | (mi >>> 8))  & 0xff00ff00)
                 );
-                M2i1 = (
-                    (((M2i1 << 8)  | (M2i1 >>> 24)) & 0x00ff00ff) |
-                    (((M2i1 << 24) | (M2i1 >>> 8))  & 0xff00ff00)
+                mi1 = (
+                    (((mi1 << 8)  | (mi1 >>> 24)) & 0x00ff00ff) |
+                    (((mi1 << 24) | (mi1 >>> 8))  & 0xff00ff00)
                 );
 
                 // Absorb message into state
-                var lane = state[i];
-                lane.msw ^= M2i1;
-                lane.lsw ^= M2i;
+                s[i] ^= mi1;
+                s[i + 1] ^= mi;
             }
 
             // Rounds
-            for (var round = 0; round < 24; round++) {
+            for (var round = 0; round < 48; round += 2) {
                 // Theta
                 for (var x = 0; x < 5; x++) {
                     // Mix column lanes
-                    var tMsw = 0, tLsw = 0;
+                    var tMsw = 0;
+                    var tLsw = 0;
                     for (var y = 0; y < 5; y++) {
-                        var lane = state[x + 5 * y];
-                        tMsw ^= lane.msw;
-                        tLsw ^= lane.lsw;
+                        var laneIndex = (x + 5 * y) * 2;
+                        tMsw ^= s[laneIndex];
+                        tLsw ^= s[laneIndex + 1];
                     }
 
                     // Temporary values
-                    var Tx = T[x];
-                    Tx.msw = tMsw;
-                    Tx.lsw = tLsw;
+                    var TIndex = x * 2;
+                    T[TIndex] = tMsw;
+                    T[TIndex + 1] = tLsw;
                 }
                 for (var x = 0; x < 5; x++) {
                     // Shortcuts
-                    var Tx4 = T[(x + 4) % 5];
-                    var Tx1 = T[(x + 1) % 5];
-                    var Tx1Msw = Tx1.msw;
-                    var Tx1Lsw = Tx1.lsw;
+                    var Tx1Index = ((x + 1) % 5) * 2;
+                    var Tx4Index = ((x + 4) % 5) * 2;
+                    var Tx1Msw = T[Tx1Index];
+                    var Tx1Lsw = T[Tx1Index + 1];
+                    var Tx4Msw = T[Tx4Index];
+                    var Tx4Lsw = T[Tx4Index + 1];
 
                     // Mix surrounding columns
-                    var tMsw = Tx4.msw ^ ((Tx1Msw << 1) | (Tx1Lsw >>> 31));
-                    var tLsw = Tx4.lsw ^ ((Tx1Lsw << 1) | (Tx1Msw >>> 31));
+                    var tMsw = Tx4Msw ^ ((Tx1Msw << 1) | (Tx1Lsw >>> 31));
+                    var tLsw = Tx4Lsw ^ ((Tx1Lsw << 1) | (Tx1Msw >>> 31));
                     for (var y = 0; y < 5; y++) {
-                        var lane = state[x + 5 * y];
-                        lane.msw ^= tMsw;
-                        lane.lsw ^= tLsw;
+                        var laneIndex = (x + 5 * y) * 2;
+                        s[laneIndex] ^= tMsw;
+                        s[laneIndex + 1] ^= tLsw;
                     }
                 }
 
                 // Rho Pi
-                for (var laneIndex = 1; laneIndex < 25; laneIndex++) {
+                T[0] = s[0];
+                T[1] = s[1];
+                for (var laneIndex = 2; laneIndex < 50; laneIndex += 2) {
                     // Shortcuts
-                    var lane = state[laneIndex];
-                    var laneMsw = lane.msw;
-                    var laneLsw = lane.lsw;
+                    var laneMsw = s[laneIndex];
+                    var laneLsw = s[laneIndex + 1];
                     var rhoOffset = RHO_OFFSETS[laneIndex];
+                    var piIndex = PI_INDEXES[laneIndex];
 
                     // Rotate lanes
                     if (rhoOffset < 32) {
                         var tMsw = (laneMsw << rhoOffset) | (laneLsw >>> (32 - rhoOffset));
                         var tLsw = (laneLsw << rhoOffset) | (laneMsw >>> (32 - rhoOffset));
-                    } else /* if (rhoOffset >= 32) */ {
+                    } else {
                         var tMsw = (laneLsw << (rhoOffset - 32)) | (laneMsw >>> (64 - rhoOffset));
                         var tLsw = (laneMsw << (rhoOffset - 32)) | (laneLsw >>> (64 - rhoOffset));
                     }
 
                     // Transpose lanes
-                    var TPiLane = T[PI_INDEXES[laneIndex]];
-                    TPiLane.msw = tMsw;
-                    TPiLane.lsw = tLsw;
+                    T[piIndex] = tMsw;
+                    T[piIndex + 1] = tLsw;
                 }
-
-                // Rho pi at x = y = 0
-                var T0 = T[0];
-                var state0 = state[0];
-                T0.msw = state0.msw;
-                T0.lsw = state0.lsw;
 
                 // Chi
                 for (var x = 0; x < 5; x++) {
                     for (var y = 0; y < 5; y++) {
                         // Shortcuts
-                        var laneIndex = x + 5 * y;
-                        var lane = state[laneIndex];
-                        var TLane = T[laneIndex];
-                        var Tx1Lane = T[((x + 1) % 5) + 5 * y];
-                        var Tx2Lane = T[((x + 2) % 5) + 5 * y];
+                        var laneIndex = (x + 5 * y) * 2;
+                        var Tx1LaneIndex = (((x + 1) % 5) + 5 * y) * 2;
+                        var Tx2LaneIndex = (((x + 2) % 5) + 5 * y) * 2;
 
                         // Mix rows
-                        lane.msw = TLane.msw ^ (~Tx1Lane.msw & Tx2Lane.msw);
-                        lane.lsw = TLane.lsw ^ (~Tx1Lane.lsw & Tx2Lane.lsw);
+                        s[laneIndex]     = T[laneIndex]     ^ (~T[Tx1LaneIndex]     & T[Tx2LaneIndex]);
+                        s[laneIndex + 1] = T[laneIndex + 1] ^ (~T[Tx1LaneIndex + 1] & T[Tx2LaneIndex + 1]);
                     }
                 }
 
                 // Iota
-                var lane = state[0];
-                var roundConstant = ROUND_CONSTANTS[round];
-                lane.msw ^= roundConstant.msw;
-                lane.lsw ^= roundConstant.lsw;
+                s[0] ^= ROUND_CONSTANTS[round];
+                s[1] ^= ROUND_CONSTANTS[round + 1];
             }
         },
 
@@ -230,7 +227,6 @@
             // Shortcuts
             var data = this._data;
             var dataWords = data.words;
-            var nBitsTotal = this._nDataBytes * 8;
             var nBitsLeft = data.sigBytes * 8;
             var blockSizeBits = this.blockSize * 32;
 
@@ -243,7 +239,7 @@
             this._process();
 
             // Shortcuts
-            var state = this._state;
+            var s = this._state;
             var outputLengthBytes = this.cfg.outputLength / 8;
             var outputLengthLanes = outputLengthBytes / 8;
 
@@ -251,9 +247,8 @@
             var hashWords = [];
             for (var i = 0; i < outputLengthLanes; i++) {
                 // Shortcuts
-                var lane = state[i];
-                var laneMsw = lane.msw;
-                var laneLsw = lane.lsw;
+                var laneMsw = s[i * 2];
+                var laneLsw = s[i * 2 + 1];
 
                 // Swap endian
                 laneMsw = (
@@ -276,14 +271,13 @@
 
         clone: function () {
             var clone = SHA3.$super.prototype.clone.call(this);
-
-            var state = clone._state = clone._state.slice(0);
-            for (var i = 0; i < 25; i++) {
-                state[i] = state[i].clone();
-            }
+            clone._state = clone._state.slice(0);
 
             return clone;
-        }
+        },
+
+        // The block size varies depending on the output length
+        blockSize: null
     });
 
     // <?php if ($debug): ?>
