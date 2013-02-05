@@ -141,8 +141,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
             if (bodyInstance && bodyInstance.hasOwnProperty('constructor')) {
                 var Subtype = bodyInstance.constructor;
             } else {
-                var Subtype = function Subtype() {
-                    Subtype.$super.apply(this, arguments);
+                var Subtype = function Constructor() {
+                    Constructor.$super.apply(this, arguments);
                 };
             }
 
@@ -525,7 +525,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
          *
          * @static
          *
-         * @throws MalformedUtf8Error
+         * @throws BitPatternError
          *
          * @example
          *
@@ -540,7 +540,7 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                     return decodeURIComponent(escape(Latin1.stringify(wordArray)));
                 } catch (e) {
                     if (e instanceof URIError) {
-                        throw new MalformedUtf8Error('Malformed UTF-8 bytes.');
+                        throw new BitPatternError('Malformed UTF-8 bytes.');
                     } else {
                         throw e;
                     }
@@ -878,9 +878,9 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
         var OctetError = C_ERR.OctetError = O.extend.call(Error);
 
         /**
-         * Malformed UTF-8 error.
+         * Bit pattern error.
          */
-        var MalformedUtf8Error = C_ERR.MalformedUtf8Error = O.extend.call(Error);
+        var BitPatternError = C_ERR.BitPatternError = O.extend.call(Error);
     }
     // <?php endif ?>
 
