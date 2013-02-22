@@ -1,7 +1,7 @@
-YUI.add('lib-wordarray-test', function (Y) {
-    var C = CryptoJS;
+if (typeof ArrayBuffer !== 'undefined') {
+    YUI.add('lib-typedarrays-test', function (Y) {
+        var C = CryptoJS;
 
-    if (typeof ArrayBuffer != 'undefined') {
         Y.Test.Runner.add(new Y.Test.Case({
             name: 'TypedArrays',
 
@@ -10,7 +10,7 @@ YUI.add('lib-wordarray-test', function (Y) {
 
                 this.data.buffer = new ArrayBuffer(8);
 
-                var uint8View = new Uint8Array(this.data.buffer);
+                var uint8View = this.data.uint8View = new Uint8Array(this.data.buffer);
                 uint8View[0] = 0x01;
                 uint8View[1] = 0x23;
                 uint8View[2] = 0x45;
@@ -51,7 +51,25 @@ YUI.add('lib-wordarray-test', function (Y) {
 
             testPartialView: function () {
                 Y.Assert.areEqual('456789ab', C.lib.WordArray.create(new Int16Array(this.data.buffer, 2, 2)).toString());
+            },
+
+            testToArrayBuffer: function () {
+                var arrayBuffer = C.enc.Hex.parse('0123456789abcdef').toArrayBuffer();
+                var uint8View = new Uint8Array(arrayBuffer);
+
+                Y.Assert.areEqual(0x01, uint8View[0]);
+                Y.Assert.areEqual(0x23, uint8View[1]);
+                Y.Assert.areEqual(0x45, uint8View[2]);
+                Y.Assert.areEqual(0x67, uint8View[3]);
+                Y.Assert.areEqual(0x89, uint8View[4]);
+                Y.Assert.areEqual(0xab, uint8View[5]);
+                Y.Assert.areEqual(0xcd, uint8View[6]);
+                Y.Assert.areEqual(0xef, uint8View[7]);
+            },
+
+            testHasherAcceptTypedArray: function () {
+                Y.Assert.areEqual(C.MD5(C.enc.Hex.parse('0123456789abcdef')).toString(), C.MD5(this.data.uint8View).toString());
             }
         }));
-    }
-}, '$Rev$');
+    }, '$Rev$');
+}
