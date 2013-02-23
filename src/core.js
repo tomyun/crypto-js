@@ -485,6 +485,12 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
                 data = Utf8.parse(data);
             }
 
+            // Convert typed array to WordArray
+            var wordArray;
+            if (wordArray = WordArray.fromArrayBuffer(data)) {
+                data = wordArray;
+            }
+
             // Append
             this._data.concat(data);
             this._nDataBytes += data.sigBytes;
