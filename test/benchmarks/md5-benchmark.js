@@ -25,6 +25,12 @@ YUI.add('md5-benchmark', function (Y) {
                 var hash = Y.JkmMD5('abc') + '';
             });
 
+            suite.add('Forge', function () {
+                var hasher = Y.Forge.md.md5.create();
+                hasher.update('abc', 'utf8');
+                var hash = hasher.digest().toHex();
+            });
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });

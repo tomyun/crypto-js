@@ -29,6 +29,14 @@ YUI.add('enc-latin1-benchmark', function (Y) {
                 };
             }()));
 
+            suite.add('Forge', (function () {
+                var byteBuffer = Y.Forge.util.createBuffer('\x12\x34\x56\x78\x12\x34\x56\x78');
+
+                return function () {
+                    byteBuffer.bytes();
+                };
+            }()));
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });
@@ -59,6 +67,10 @@ YUI.add('enc-latin1-benchmark', function (Y) {
 
             suite.add('CryptoJS 2', function () {
                 Y.CryptoJS2.util.bytesToWords(Y.CryptoJS2.charenc.Binary.stringToBytes('\x12\x34\x56\x78\x12\x34\x56\x78'));
+            });
+
+            suite.add('Forge', function () {
+                Y.Forge.util.createBuffer('\x12\x34\x56\x78\x12\x34\x56\x78');
             });
 
             suite.on('cycle', function (e) {

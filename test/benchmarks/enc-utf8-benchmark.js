@@ -37,6 +37,14 @@ YUI.add('enc-utf8-benchmark', function (Y) {
                 };
             }()));
 
+            suite.add('Forge', (function () {
+                var byteBuffer = Y.Forge.util.createBuffer('$$$$¢¢€€𤭢', 'utf8');
+
+                return function () {
+                    byteBuffer.toString();
+                };
+            }()));
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });
@@ -71,6 +79,10 @@ YUI.add('enc-utf8-benchmark', function (Y) {
 
             suite.add('sjcl', function () {
                 Y.Sjcl.codec.utf8String.toBits('$$$$¢¢€€𤭢');
+            });
+
+            suite.add('Forge', function () {
+                Y.Forge.util.createBuffer('$$$$¢¢€€𤭢', 'utf8');
             });
 
             suite.on('cycle', function (e) {

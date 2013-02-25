@@ -53,6 +53,26 @@ YUI.add('lib-wordarray-benchmark', function (Y) {
                 };
             }()));
 
+            suite.add('Forge', (function () {
+                var byteBuffer3 = Y.Forge.util.createBuffer('\x12\x34\x56');
+                var byteBuffer4 = Y.Forge.util.createBuffer('\x12\x34\x56\x78');
+                var byteBuffer5 = Y.Forge.util.createBuffer('\x12\x34\x56\x78\x00');
+
+                return function () {
+                    var tempBuffer = Y.Forge.util.createBuffer();
+                    tempBuffer.putBuffer(byteBuffer3);
+                    tempBuffer.putBuffer(byteBuffer3);
+
+                    var tempBuffer = Y.Forge.util.createBuffer();
+                    tempBuffer.putBuffer(byteBuffer4);
+                    tempBuffer.putBuffer(byteBuffer3);
+
+                    var tempBuffer = Y.Forge.util.createBuffer();
+                    tempBuffer.putBuffer(byteBuffer5);
+                    tempBuffer.putBuffer(byteBuffer3);
+                };
+            }()));
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });

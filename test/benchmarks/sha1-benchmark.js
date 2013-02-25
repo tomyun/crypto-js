@@ -25,6 +25,12 @@ YUI.add('sha1-benchmark', function (Y) {
                 var hash = (new Y.JsSHA('abc', 'TEXT')).getHash('SHA-1', 'HEX') + '';
             });
 
+            suite.add('Forge', function () {
+                var hasher = Y.Forge.md.sha1.create();
+                hasher.update('abc', 'utf8');
+                var hash = hasher.digest().toHex();
+            });
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });

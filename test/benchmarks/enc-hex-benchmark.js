@@ -37,6 +37,14 @@ YUI.add('enc-hex-benchmark', function (Y) {
                 };
             }()));
 
+            suite.add('Forge', (function () {
+                var byteBuffer = Y.Forge.util.createBuffer(Y.Forge.util.hexToBytes('6162636461626364'));
+
+                return function () {
+                    byteBuffer.toHex();
+                };
+            }()));
+
             suite.on('cycle', function (e) {
                 Y.log(e.target, 'info', 'TestRunner');
             });
@@ -71,6 +79,10 @@ YUI.add('enc-hex-benchmark', function (Y) {
 
             suite.add('sjcl', function () {
                 Y.Sjcl.codec.hex.toBits('6162636461626364');
+            });
+
+            suite.add('Forge', function () {
+                Y.Forge.util.createBuffer(Y.Forge.util.hexToBytes('6162636461626364'));
             });
 
             suite.on('cycle', function (e) {
