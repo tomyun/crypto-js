@@ -48,3 +48,4 @@ rollups:
     tripledes: [core, enc-base64, md5, evpkdf, cipher-core, tripledes]
     rc4:       [core, enc-base64, md5, evpkdf, cipher-core, rc4]
     rabbit:    [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
+    seed:      [core, enc-base64, enc-cp949, md5, evpkdf, cipher-core, seed]
