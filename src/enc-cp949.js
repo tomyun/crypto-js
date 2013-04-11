@@ -65,10 +65,10 @@
             var unicodeStrLength = unicodeStr.length;
             var map = this._map;
 
-            function find(char) {
+            function find(chr) {
                 for (var byte1 in map) {
                     for (var byte2 in map[byte1]) {
-                        if (map[byte1][byte2] == unicodeStr[i]) {
+                        if (map[byte1][byte2] == chr) {
                             return [byte1, byte2]
                         }
                     }
