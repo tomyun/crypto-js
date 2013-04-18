@@ -146,10 +146,6 @@
             ]
       ];
 
-      function uint32(M) {
-            return (M & 0xffffffff) >>> 0;
-      }
-
       function SEED_G(M) {
             return SEED_SS[3][(M >>> 24) & 0xff] ^
                    SEED_SS[2][(M >>> 16) & 0xff] ^
