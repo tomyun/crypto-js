@@ -3,6 +3,7 @@ components:
     - x64-core
     - enc-utf16
     - enc-base64
+    - enc-cp949
     - md5
     - sha1
     - sha256
@@ -26,6 +27,7 @@ components:
     - tripledes
     - rc4
     - rabbit
+    - seed
 
 rollups:
     md5:    [core, md5]
@@ -48,4 +50,4 @@ rollups:
     tripledes: [core, enc-base64, md5, evpkdf, cipher-core, tripledes]
     rc4:       [core, enc-base64, md5, evpkdf, cipher-core, rc4]
     rabbit:    [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
-    seed:      [core, enc-base64, enc-cp949, md5, evpkdf, cipher-core, seed]
+    seed:      [core, enc-base64, md5, evpkdf, cipher-core, seed]
