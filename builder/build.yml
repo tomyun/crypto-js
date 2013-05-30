@@ -44,6 +44,7 @@ rollups:
     hmac-sha512: [core, x64-core, sha512, hmac]
     hmac-sha384: [core, x64-core, sha512, sha384, hmac]
 
+    pbkdf1: [core, sha1, pbkdf1]
     pbkdf2: [core, sha1, hmac, pbkdf2]
 
     aes:       [core, enc-base64, md5, evpkdf, cipher-core, aes]
