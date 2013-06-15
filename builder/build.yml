@@ -4,6 +4,7 @@ components:
     - lib-typedarrays
     - enc-utf16
     - enc-base64
+    - enc-cp949
     - md5
     - sha1
     - sha256
@@ -30,8 +31,10 @@ components:
     - aes
     - tripledes
     - rc4
+    - rc2
     - rabbit
     - rabbit-legacy
+    - seed
 
 rollups:
     md5:       [core, md5]
@@ -52,10 +55,13 @@ rollups:
     hmac-sha3:      [core, x64-core, sha3, hmac]
     hmac-ripemd160: [core, ripemd160, hmac]
 
+    pbkdf1: [core, sha1, pbkdf1]
     pbkdf2: [core, sha1, hmac, pbkdf2]
 
     aes:           [core, enc-base64, md5, evpkdf, cipher-core, aes]
     tripledes:     [core, enc-base64, md5, evpkdf, cipher-core, tripledes]
     rc4:           [core, enc-base64, md5, evpkdf, cipher-core, rc4]
+    rc2:           [core, lib-typedarrays, enc-base64, md5, evpkdf, cipher-core, rc2]
     rabbit:        [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
     rabbit-legacy: [core, enc-base64, md5, evpkdf, cipher-core, rabbit-legacy]
+    seed:          [core, enc-base64, md5, evpkdf, cipher-core, seed]
