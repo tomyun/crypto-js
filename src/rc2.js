@@ -94,9 +94,9 @@
 
             rewind: function () {
                 if (j >= dK.words.length*2) {
-                    j = 0;
+                    this.front();
                 } else if (j < 0) {
-                    j = dK.words.length*2 - 1;
+                    this.back();
                 }
                 return this;
             },
