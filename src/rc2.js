@@ -77,7 +77,16 @@
         }
         L = new Uint8Array(L.subarray(0, 128));
 
-        var dK = WordArray.create(L),
+        //HACK: couldn't import lib-typedarray.js on Safari
+        function bytes2words(array) {
+            var words = [];
+            for (var i = 0; i < array.byteLength; i++) {
+                words[i >>> 2] |= array[i] << (24 - (i % 4) * 8);
+            }
+            return words;
+        }
+        var dK = WordArray.create(bytes2words(L), L.byteLength),
+        //var dK = WordArray.create(L),
             j = 0;
         return {
             reset: function (index) {
