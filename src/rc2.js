@@ -75,6 +75,7 @@
         for (var i = 127-T8; i >= 0; i--) {
             L[i] = PITABLE[L[i+1] ^ L[i+T8]];
         }
+        L = new Uint8Array(L.subarray(0, 128));
 
         var dK = WordArray.create(L),
             j = 0;
