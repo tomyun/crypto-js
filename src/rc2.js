@@ -58,13 +58,13 @@
         return (K >>> s | K << (16 - s)) & 0xffff;
     }
 
-    function expand(key, keySize) {
-        var T = key.sigBytes,
-            T1 = keySize*32,
+    function expand(key, bits) {
+        var T  = Math.min(key.sigBytes, 128),
+            T1 = bits,
             T8 = (T1+7) / 8 | 0,
             TM = 0xff % Math.pow(2, 8 + T1 - 8*T8);
 
-        var L = new Uint8Array(128);
+        var L = new Uint8Array(128+1);
         for (var i = 0; i < T; i++) {
             L[i] = getUint8(key.words, i);
         }
@@ -197,9 +197,18 @@
      * RC2 block cipher algorithm.
      */
     var RC2 = C_algo.RC2 = BlockCipher.extend({
+        /**
+         * Configuration options.
+         *
+         * @property {number} effectiveKeyBits The effective key size in bits. Default: 64 (8 - 128)
+         */
+        cfg: BlockCipher.cfg.extend({
+            effectiveKeyLength: 64
+        }),
+
         _doReset: function () {
             // Key expansion stage
-            this._expandedKey = expand(this._key, this.keySize);
+            this._expandedKey = expand(this._key, this.cfg.effectiveKeyLength);
         },
 
         encryptBlock: function (M, offset) {
@@ -222,7 +231,7 @@
             M.splice(offset, 2, B[0], B[1]);
         },
 
-        keySize: 64/32,
+        keySize: 128/32,
 
         ivSize: 64/32,
 
