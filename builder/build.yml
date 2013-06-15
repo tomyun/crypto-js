@@ -26,6 +26,7 @@ components:
     - aes
     - tripledes
     - rc4
+    - rc2
     - rabbit
     - seed
 
@@ -50,5 +51,6 @@ rollups:
     aes:       [core, enc-base64, md5, evpkdf, cipher-core, aes]
     tripledes: [core, enc-base64, md5, evpkdf, cipher-core, tripledes]
     rc4:       [core, enc-base64, md5, evpkdf, cipher-core, rc4]
+    rc2:       [core, lib-typedarrays, enc-base64, md5, evpkdf, cipher-core, rc2]
     rabbit:    [core, enc-base64, md5, evpkdf, cipher-core, rabbit]
     seed:      [core, enc-base64, md5, evpkdf, cipher-core, seed]
