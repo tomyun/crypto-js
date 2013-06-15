@@ -200,15 +200,15 @@
         /**
          * Configuration options.
          *
-         * @property {number} effectiveKeyBits The effective key size in bits. Default: 64 (8 - 128)
+         * @property {number} effectiveKeyBits The effective key size in bits. Default: 32 (0 - 1024)
          */
         cfg: BlockCipher.cfg.extend({
-            effectiveKeyLength: 64
+            effectiveKeyBits: 32
         }),
 
         _doReset: function () {
             // Key expansion stage
-            this._expandedKey = expand(this._key, this.cfg.effectiveKeyLength);
+            this._expandedKey = expand(this._key, this.cfg.effectiveKeyBits);
         },
 
         encryptBlock: function (M, offset) {
