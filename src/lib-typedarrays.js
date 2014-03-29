@@ -1,4 +1,10 @@
 (function () {
+    //HACK: IE does not support Uint8ClampedArray yet
+    // https://code.google.com/p/crypto-js/issues/detail?id=81
+    if (typeof Uint8ClampedArray == 'undefined') {
+        Uint8ClampedArray = Uint8Array;
+    }
+
     // Shortcuts
     var C = CryptoJS;
     var C_lib = C.lib;
