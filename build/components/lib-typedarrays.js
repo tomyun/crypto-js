@@ -1,13 +1,13 @@
-/*
-CryptoJS v3.1.2
-code.google.com/p/crypto-js
-(c) 2009-2013 by Jeff Mott. All rights reserved.
-code.google.com/p/crypto-js/wiki/License
-*/
 (function () {
     // Check if typed arrays are supported
     if (typeof ArrayBuffer != 'function') {
         return;
+    }
+
+    //HACK: IE does not support Uint8ClampedArray yet
+    // https://code.google.com/p/crypto-js/issues/detail?id=81
+    if (typeof Uint8ClampedArray == 'undefined') {
+        Uint8ClampedArray = Uint8Array;
     }
 
     // Shortcuts
