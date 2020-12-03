@@ -148,9 +148,9 @@
 
     function SEED_G(M) {
         return SEED_SS[3][(M >>> 24) & 0xff] ^
-             SEED_SS[2][(M >>> 16) & 0xff] ^
-             SEED_SS[1][(M >>> 8) & 0xff] ^
-             SEED_SS[0][M & 0xff];
+            SEED_SS[2][(M >>> 16) & 0xff] ^
+            SEED_SS[1][(M >>> 8) & 0xff] ^
+            SEED_SS[0][M & 0xff];
     }
 
     function SEED_round(LR, K) {
@@ -182,7 +182,7 @@
     ];
 
     /**
-     * SEED block cipher algorithm.
+     * SEED block cipher algorithm. //KISA_SEED_ECB.java - init에 해당하는부분
      */
     var SEED = C_algo.SEED = BlockCipher.extend({
         _doReset: function () {

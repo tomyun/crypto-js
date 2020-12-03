@@ -697,6 +697,30 @@ CryptoJS.lib.Cipher || (function (undefined) {
             // Decrypt
             var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
 
+
+            //KISA_SEED_ECB.java의 Common.set_byte_for_int 함수 적용
+            //평문을 만들때 16byte배수로 사이즈를 맞추고 패딩을 하였고 00으로 채워져있는 패딩을 KISA에서 적용한 방법으로 수정함
+
+            var words = plaintext.words;
+            //마지막 배열 4개 가져오기
+            let BLOCK_SIZE_SEED = 16;
+            let b_offset = BLOCK_SIZE_SEED - 1;
+            let nPaddngLeng = 0;
+            let shift_value = (3 - b_offset % 4) * 8;
+            let mask_value = 0x0ff << shift_value;
+            let value = (words[(words.length - 4) + parseInt(b_offset / 4)] & mask_value) >> shift_value;
+
+            nPaddngLeng = parseInt(value);
+
+
+            for (let i = nPaddngLeng; i > 0; i--) {
+                let shift_value = (3 - (BLOCK_SIZE_SEED - i) % 4) * 8;
+                let mask_value = 0x0ff << shift_value;
+                let mask_value2 = ~mask_value;
+                let value2 = (0x00 & 0x0ff) << shift_value;
+                words[(words.length - 4) + parseInt((BLOCK_SIZE_SEED - i) / 4)] = (words[(words.length - 4) + parseInt((BLOCK_SIZE_SEED - i) / 4)] & mask_value2) | (value2 & mask_value);
+
+            }
             return plaintext;
         },
 
